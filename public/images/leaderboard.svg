@@ -1,0 +1,213 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 400" width="500" height="400">
+  <defs>
+    <filter id="lb-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="lb-glow-gold" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="10" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="lb-glow-soft" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <filter id="lb-sparkle" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Podium gradients -->
+    <linearGradient id="lb-gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FBBF24"/>
+      <stop offset="50%" stop-color="#F59E0B"/>
+      <stop offset="100%" stop-color="#D97706"/>
+    </linearGradient>
+    <linearGradient id="lb-silver" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#CBD5E1"/>
+      <stop offset="50%" stop-color="#94A3B8"/>
+      <stop offset="100%" stop-color="#64748B"/>
+    </linearGradient>
+    <linearGradient id="lb-bronze" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F59E0B"/>
+      <stop offset="50%" stop-color="#D97706"/>
+      <stop offset="100%" stop-color="#B45309"/>
+    </linearGradient>
+    <linearGradient id="lb-trophy" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FDE68A"/>
+      <stop offset="100%" stop-color="#F59E0B"/>
+    </linearGradient>
+
+    <radialGradient id="lb-ambient" cx="50%" cy="35%" r="50%">
+      <stop offset="0%" stop-color="#F59E0B" stop-opacity="0.1"/>
+      <stop offset="60%" stop-color="#7C3AED" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#7C3AED" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Shield gradient -->
+    <linearGradient id="lb-shield-gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FDE68A"/>
+      <stop offset="100%" stop-color="#F59E0B"/>
+    </linearGradient>
+    <linearGradient id="lb-shield-silver" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#E2E8F0"/>
+      <stop offset="100%" stop-color="#94A3B8"/>
+    </linearGradient>
+    <linearGradient id="lb-shield-bronze" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FCD34D"/>
+      <stop offset="100%" stop-color="#D97706"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Ambient background -->
+  <ellipse cx="250" cy="180" rx="220" ry="180" fill="url(#lb-ambient)"/>
+
+  <!-- Decorative vertical light beams behind podium -->
+  <rect x="240" y="20" width="20" height="200" rx="10" fill="#F59E0B" opacity="0.04"/>
+  <rect x="115" y="60" width="14" height="180" rx="7" fill="#94A3B8" opacity="0.03"/>
+  <rect x="365" y="70" width="14" height="170" rx="7" fill="#D97706" opacity="0.03"/>
+
+  <!-- === TROPHY above 1st place === -->
+  <g transform="translate(250, 75)" filter="url(#lb-glow-gold)">
+    <!-- Trophy cup -->
+    <path d="M-20,-45 L20,-45 L15,-15 C15,-5 -15,-5 -15,-15 Z" fill="url(#lb-trophy)" opacity="0.95"/>
+    <!-- Trophy handles -->
+    <path d="M-20,-40 C-35,-40 -35,-18 -18,-18" fill="none" stroke="#FDE68A" stroke-width="3" stroke-linecap="round"/>
+    <path d="M20,-40 C35,-40 35,-18 18,-18" fill="none" stroke="#FDE68A" stroke-width="3" stroke-linecap="round"/>
+    <!-- Trophy stem & base -->
+    <rect x="-4" y="-15" width="8" height="14" fill="#F59E0B"/>
+    <ellipse cx="0" cy="0" rx="16" ry="5" fill="#D97706"/>
+    <!-- Star on trophy -->
+    <polygon points="0,-38 3,-30 10,-30 4,-25 6,-18 0,-22 -6,-18 -4,-25 -10,-30 -3,-30" fill="#FEF3C7" opacity="0.9"/>
+  </g>
+
+  <!-- === SPARKLES around trophy === -->
+  <g filter="url(#lb-sparkle)">
+    <!-- 4-point stars -->
+    <g transform="translate(210, 42)">
+      <polygon points="0,-6 1.5,0 0,6 -1.5,0" fill="#FDE68A" opacity="0.9"/>
+      <polygon points="-6,0 0,1.5 6,0 0,-1.5" fill="#FDE68A" opacity="0.9"/>
+    </g>
+    <g transform="translate(295, 35)">
+      <polygon points="0,-8 2,0 0,8 -2,0" fill="#FBBF24" opacity="0.85"/>
+      <polygon points="-8,0 0,2 8,0 0,-2" fill="#FBBF24" opacity="0.85"/>
+    </g>
+    <g transform="translate(225, 22)">
+      <polygon points="0,-5 1,0 0,5 -1,0" fill="#FEF3C7" opacity="0.7"/>
+      <polygon points="-5,0 0,1 5,0 0,-1" fill="#FEF3C7" opacity="0.7"/>
+    </g>
+    <g transform="translate(280, 18)">
+      <polygon points="0,-4 1,0 0,4 -1,0" fill="#FEF3C7" opacity="0.65"/>
+      <polygon points="-4,0 0,1 4,0 0,-1" fill="#FEF3C7" opacity="0.65"/>
+    </g>
+    <g transform="translate(200, 70)">
+      <polygon points="0,-3 0.8,0 0,3 -0.8,0" fill="#FDE68A" opacity="0.6"/>
+      <polygon points="-3,0 0,0.8 3,0 0,-0.8" fill="#FDE68A" opacity="0.6"/>
+    </g>
+    <g transform="translate(305, 65)">
+      <polygon points="0,-4 1,0 0,4 -1,0" fill="#FBBF24" opacity="0.7"/>
+      <polygon points="-4,0 0,1 4,0 0,-1" fill="#FBBF24" opacity="0.7"/>
+    </g>
+    <!-- Small dots -->
+    <circle cx="190" cy="55" r="1.5" fill="#FDE68A" opacity="0.6"/>
+    <circle cx="315" cy="50" r="1.5" fill="#FDE68A" opacity="0.6"/>
+    <circle cx="235" cy="15" r="1" fill="#FEF3C7" opacity="0.5"/>
+    <circle cx="270" cy="10" r="1" fill="#FEF3C7" opacity="0.5"/>
+  </g>
+
+  <!-- === PODIUM BASE (floor) === -->
+  <rect x="50" y="340" width="400" height="8" rx="4" fill="#1E293B" opacity="0.8"/>
+
+  <!-- === 2nd PLACE PODIUM (left) === -->
+  <g>
+    <rect x="75" y="215" width="110" height="125" rx="6" fill="url(#lb-silver)" opacity="0.9" filter="url(#lb-glow-soft)"/>
+    <!-- Podium face highlight -->
+    <rect x="75" y="215" width="110" height="8" rx="4" fill="#E2E8F0" opacity="0.4"/>
+    <!-- Number -->
+    <text x="130" y="295" text-anchor="middle" font-family="Arial,sans-serif" font-size="36" font-weight="bold" fill="#1E293B" opacity="0.3">2</text>
+    <!-- Shield badge -->
+    <g transform="translate(130, 170)" filter="url(#lb-glow-soft)">
+      <path d="M0,-25 L18,-15 L18,5 L0,18 L-18,5 L-18,-15 Z" fill="url(#lb-shield-silver)" stroke="#E2E8F0" stroke-width="1.5"/>
+      <text x="0" y="2" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="bold" fill="#475569">II</text>
+    </g>
+    <!-- Player avatar -->
+    <circle cx="130" cy="130" r="22" fill="#64748B" stroke="#CBD5E1" stroke-width="2"/>
+    <circle cx="130" cy="124" r="9" fill="#94A3B8" opacity="0.7"/>
+    <ellipse cx="130" cy="145" rx="12" ry="7" fill="#94A3B8" opacity="0.7"/>
+  </g>
+
+  <!-- === 1st PLACE PODIUM (center) === -->
+  <g>
+    <rect x="195" y="170" width="110" height="170" rx="6" fill="url(#lb-gold)" opacity="0.95" filter="url(#lb-glow)"/>
+    <!-- Podium face highlight -->
+    <rect x="195" y="170" width="110" height="10" rx="5" fill="#FDE68A" opacity="0.5"/>
+    <!-- Number -->
+    <text x="250" y="275" text-anchor="middle" font-family="Arial,sans-serif" font-size="42" font-weight="bold" fill="#92400E" opacity="0.3">1</text>
+    <!-- Crown -->
+    <g transform="translate(250, 98)" filter="url(#lb-glow-gold)">
+      <polygon points="0,-18 6,-8 16,-16 12,0 -12,0 -16,-16 -6,-8" fill="#FDE68A" stroke="#F59E0B" stroke-width="1"/>
+      <circle cx="-16" cy="-16" r="3" fill="#FBBF24"/>
+      <circle cx="0" cy="-18" r="3" fill="#FBBF24"/>
+      <circle cx="16" cy="-16" r="3" fill="#FBBF24"/>
+    </g>
+    <!-- Shield badge -->
+    <g transform="translate(250, 130)" filter="url(#lb-glow)">
+      <path d="M0,-28 L20,-17 L20,6 L0,20 L-20,6 L-20,-17 Z" fill="url(#lb-shield-gold)" stroke="#FDE68A" stroke-width="2"/>
+      <text x="0" y="3" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" font-weight="bold" fill="#92400E">I</text>
+    </g>
+    <!-- Star above shield -->
+    <polygon points="250,92 253,99 260,99 254,104 256,111 250,107 244,111 246,104 240,99 247,99" fill="#FDE68A" opacity="0.6" filter="url(#lb-sparkle)"/>
+  </g>
+
+  <!-- === 3rd PLACE PODIUM (right) === -->
+  <g>
+    <rect x="315" y="240" width="110" height="100" rx="6" fill="url(#lb-bronze)" opacity="0.9" filter="url(#lb-glow-soft)"/>
+    <!-- Podium face highlight -->
+    <rect x="315" y="240" width="110" height="8" rx="4" fill="#FCD34D" opacity="0.35"/>
+    <!-- Number -->
+    <text x="370" y="310" text-anchor="middle" font-family="Arial,sans-serif" font-size="32" font-weight="bold" fill="#78350F" opacity="0.3">3</text>
+    <!-- Shield badge -->
+    <g transform="translate(370, 200)" filter="url(#lb-glow-soft)">
+      <path d="M0,-22 L16,-13 L16,4 L0,16 L-16,4 L-16,-13 Z" fill="url(#lb-shield-bronze)" stroke="#FCD34D" stroke-width="1.5"/>
+      <text x="0" y="1" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="bold" fill="#78350F">III</text>
+    </g>
+    <!-- Player avatar -->
+    <circle cx="370" cy="165" r="20" fill="#B45309" stroke="#FCD34D" stroke-width="2"/>
+    <circle cx="370" cy="159" r="8" fill="#D97706" opacity="0.7"/>
+    <ellipse cx="370" cy="178" rx="11" ry="6" fill="#D97706" opacity="0.7"/>
+  </g>
+
+  <!-- Purple accent elements -->
+  <g filter="url(#lb-glow-soft)">
+    <!-- Purple rank indicators on sides -->
+    <rect x="35" y="310" width="30" height="4" rx="2" fill="#7C3AED" opacity="0.4"/>
+    <rect x="35" y="320" width="22" height="4" rx="2" fill="#7C3AED" opacity="0.3"/>
+    <rect x="35" y="330" width="26" height="4" rx="2" fill="#7C3AED" opacity="0.2"/>
+
+    <rect x="435" y="310" width="30" height="4" rx="2" fill="#7C3AED" opacity="0.4"/>
+    <rect x="435" y="320" width="22" height="4" rx="2" fill="#7C3AED" opacity="0.3"/>
+    <rect x="435" y="330" width="26" height="4" rx="2" fill="#7C3AED" opacity="0.2"/>
+  </g>
+
+  <!-- Decorative corner stars with purple -->
+  <g filter="url(#lb-sparkle)" opacity="0.4">
+    <polygon points="60,30 62,36 68,36 63,40 65,46 60,42 55,46 57,40 52,36 58,36" fill="#A78BFA"/>
+    <polygon points="440,25 442,31 448,31 443,35 445,41 440,37 435,41 437,35 432,31 438,31" fill="#A78BFA"/>
+    <polygon points="55,375 57,380 62,380 58,383 59,388 55,385 51,388 52,383 48,380 53,380" fill="#7C3AED"/>
+    <polygon points="445,375 447,380 452,380 448,383 449,388 445,385 441,388 442,383 438,380 443,380" fill="#7C3AED"/>
+  </g>
+
+  <!-- Bottom label -->
+  <text x="250" y="375" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="bold" fill="#7C3AED" opacity="0.4" letter-spacing="5">LEADERBOARD</text>
+</svg>

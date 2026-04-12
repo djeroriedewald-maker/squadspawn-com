@@ -1,0 +1,189 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 400" width="500" height="400">
+  <defs>
+    <!-- Glows -->
+    <filter id="mm-glow-purple" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <filter id="mm-glow-green" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <filter id="mm-glow-heart" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="mm-glow-soft" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <filter id="mm-glow-line" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Card gradients -->
+    <linearGradient id="mm-card-left" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7C3AED" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#4C1D95" stop-opacity="0.95"/>
+    </linearGradient>
+    <linearGradient id="mm-card-right" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#22C55E" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#15803D" stop-opacity="0.95"/>
+    </linearGradient>
+    <linearGradient id="mm-heart-grad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F472B6"/>
+      <stop offset="100%" stop-color="#EC4899"/>
+    </linearGradient>
+    <radialGradient id="mm-center-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#A78BFA" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#A78BFA" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Circuit line pattern -->
+    <linearGradient id="mm-circuit-grad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#7C3AED" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#7C3AED" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#22C55E" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="mm-circuit-v" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7C3AED" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#22C55E" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#7C3AED" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background circuit lines -->
+  <line x1="0" y1="80" x2="500" y2="80" stroke="url(#mm-circuit-grad)" stroke-width="1"/>
+  <line x1="0" y1="160" x2="500" y2="160" stroke="url(#mm-circuit-grad)" stroke-width="0.7"/>
+  <line x1="0" y1="240" x2="500" y2="240" stroke="url(#mm-circuit-grad)" stroke-width="1"/>
+  <line x1="0" y1="320" x2="500" y2="320" stroke="url(#mm-circuit-grad)" stroke-width="0.7"/>
+  <line x1="80" y1="0" x2="80" y2="400" stroke="url(#mm-circuit-v)" stroke-width="0.7"/>
+  <line x1="170" y1="0" x2="170" y2="400" stroke="url(#mm-circuit-v)" stroke-width="1"/>
+  <line x1="250" y1="0" x2="250" y2="400" stroke="url(#mm-circuit-v)" stroke-width="0.5"/>
+  <line x1="330" y1="0" x2="330" y2="400" stroke="url(#mm-circuit-v)" stroke-width="1"/>
+  <line x1="420" y1="0" x2="420" y2="400" stroke="url(#mm-circuit-v)" stroke-width="0.7"/>
+
+  <!-- Circuit junction dots -->
+  <circle cx="80" cy="80" r="2.5" fill="#7C3AED" opacity="0.5"/>
+  <circle cx="170" cy="160" r="3" fill="#22C55E" opacity="0.5"/>
+  <circle cx="330" cy="160" r="3" fill="#22C55E" opacity="0.5"/>
+  <circle cx="420" cy="240" r="2.5" fill="#7C3AED" opacity="0.5"/>
+  <circle cx="80" cy="240" r="2.5" fill="#7C3AED" opacity="0.5"/>
+  <circle cx="170" cy="320" r="2" fill="#22C55E" opacity="0.4"/>
+  <circle cx="330" cy="80" r="2" fill="#7C3AED" opacity="0.4"/>
+  <circle cx="420" cy="320" r="2.5" fill="#22C55E" opacity="0.5"/>
+  <circle cx="250" cy="80" r="2" fill="#A78BFA" opacity="0.6"/>
+  <circle cx="250" cy="320" r="2" fill="#A78BFA" opacity="0.6"/>
+
+  <!-- Diagonal circuit traces -->
+  <path d="M80 80 L170 160" stroke="#7C3AED" stroke-width="0.7" opacity="0.3" fill="none"/>
+  <path d="M330 160 L420 240" stroke="#22C55E" stroke-width="0.7" opacity="0.3" fill="none"/>
+  <path d="M170 160 L250 200" stroke="#A78BFA" stroke-width="0.5" opacity="0.25" fill="none"/>
+  <path d="M250 200 L330 160" stroke="#A78BFA" stroke-width="0.5" opacity="0.25" fill="none"/>
+
+  <!-- Center radial glow -->
+  <ellipse cx="250" cy="200" rx="120" ry="100" fill="url(#mm-center-glow)"/>
+
+  <!-- LEFT CARD - Purple player -->
+  <g transform="translate(90, 75)" filter="url(#mm-glow-purple)">
+    <rect x="0" y="0" width="170" height="250" rx="16" ry="16" fill="url(#mm-card-left)" stroke="#A78BFA" stroke-width="1.5"/>
+    <!-- Card inner border -->
+    <rect x="6" y="6" width="158" height="238" rx="12" ry="12" fill="none" stroke="#A78BFA" stroke-width="0.5" opacity="0.3"/>
+    <!-- Avatar circle -->
+    <circle cx="85" cy="80" r="38" fill="#4C1D95" stroke="#A78BFA" stroke-width="2"/>
+    <!-- Avatar silhouette (head + shoulders) -->
+    <circle cx="85" cy="70" r="16" fill="#7C3AED" opacity="0.7"/>
+    <ellipse cx="85" cy="105" rx="24" ry="14" fill="#7C3AED" opacity="0.7"/>
+    <!-- Name placeholder bar -->
+    <rect x="35" y="132" width="100" height="8" rx="4" fill="#A78BFA" opacity="0.6"/>
+    <!-- Game controller icon -->
+    <g transform="translate(65, 155)" opacity="0.7">
+      <rect x="0" y="5" width="40" height="20" rx="10" fill="#C4B5FD"/>
+      <circle cx="12" cy="15" r="4" fill="#7C3AED"/>
+      <circle cx="28" cy="15" r="4" fill="#7C3AED"/>
+      <rect x="-4" y="10" width="10" height="10" rx="3" fill="#C4B5FD"/>
+      <rect x="34" y="10" width="10" height="10" rx="3" fill="#C4B5FD"/>
+    </g>
+    <!-- Stat bars -->
+    <rect x="25" y="195" width="80" height="5" rx="2.5" fill="#A78BFA" opacity="0.35"/>
+    <rect x="25" y="195" width="60" height="5" rx="2.5" fill="#A78BFA" opacity="0.7"/>
+    <rect x="25" y="208" width="80" height="5" rx="2.5" fill="#A78BFA" opacity="0.35"/>
+    <rect x="25" y="208" width="45" height="5" rx="2.5" fill="#A78BFA" opacity="0.7"/>
+    <rect x="25" y="221" width="80" height="5" rx="2.5" fill="#A78BFA" opacity="0.35"/>
+    <rect x="25" y="221" width="70" height="5" rx="2.5" fill="#A78BFA" opacity="0.7"/>
+    <!-- Rank badge -->
+    <circle cx="140" cy="30" r="14" fill="#6D28D9" stroke="#DDD6FE" stroke-width="1.5"/>
+    <text x="140" y="35" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="bold" fill="#DDD6FE">A</text>
+  </g>
+
+  <!-- RIGHT CARD - Green player -->
+  <g transform="translate(240, 75)" filter="url(#mm-glow-green)">
+    <rect x="0" y="0" width="170" height="250" rx="16" ry="16" fill="url(#mm-card-right)" stroke="#4ADE80" stroke-width="1.5"/>
+    <rect x="6" y="6" width="158" height="238" rx="12" ry="12" fill="none" stroke="#4ADE80" stroke-width="0.5" opacity="0.3"/>
+    <!-- Avatar circle -->
+    <circle cx="85" cy="80" r="38" fill="#15803D" stroke="#4ADE80" stroke-width="2"/>
+    <!-- Avatar silhouette -->
+    <circle cx="85" cy="70" r="16" fill="#22C55E" opacity="0.7"/>
+    <ellipse cx="85" cy="105" rx="24" ry="14" fill="#22C55E" opacity="0.7"/>
+    <!-- Name placeholder bar -->
+    <rect x="35" y="132" width="100" height="8" rx="4" fill="#86EFAC" opacity="0.6"/>
+    <!-- Headset icon -->
+    <g transform="translate(60, 155)" opacity="0.7">
+      <path d="M10 25 C10 12, 40 12, 40 25" fill="none" stroke="#BBF7D0" stroke-width="3" stroke-linecap="round"/>
+      <rect x="5" y="22" width="10" height="14" rx="4" fill="#BBF7D0"/>
+      <rect x="35" y="22" width="10" height="14" rx="4" fill="#BBF7D0"/>
+      <line x1="10" y1="36" x2="10" y2="42" stroke="#BBF7D0" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="10" cy="44" r="3" fill="#BBF7D0"/>
+    </g>
+    <!-- Stat bars -->
+    <rect x="25" y="195" width="80" height="5" rx="2.5" fill="#4ADE80" opacity="0.35"/>
+    <rect x="25" y="195" width="55" height="5" rx="2.5" fill="#4ADE80" opacity="0.7"/>
+    <rect x="25" y="208" width="80" height="5" rx="2.5" fill="#4ADE80" opacity="0.35"/>
+    <rect x="25" y="208" width="72" height="5" rx="2.5" fill="#4ADE80" opacity="0.7"/>
+    <rect x="25" y="221" width="80" height="5" rx="2.5" fill="#4ADE80" opacity="0.35"/>
+    <rect x="25" y="221" width="50" height="5" rx="2.5" fill="#4ADE80" opacity="0.7"/>
+    <!-- Rank badge -->
+    <circle cx="140" cy="30" r="14" fill="#166534" stroke="#BBF7D0" stroke-width="1.5"/>
+    <text x="140" y="35" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="bold" fill="#BBF7D0">S</text>
+  </g>
+
+  <!-- Connection lines between cards -->
+  <g filter="url(#mm-glow-line)">
+    <line x1="260" y1="170" x2="240" y2="170" stroke="#F472B6" stroke-width="1.5" opacity="0.6"/>
+    <line x1="260" y1="220" x2="240" y2="220" stroke="#F472B6" stroke-width="1.5" opacity="0.6"/>
+    <line x1="260" y1="250" x2="240" y2="250" stroke="#F472B6" stroke-width="1" opacity="0.4"/>
+  </g>
+
+  <!-- Glowing heart in center -->
+  <g transform="translate(250, 200)" filter="url(#mm-glow-heart)">
+    <path d="M0,-12 C-5,-22 -20,-22 -20,-10 C-20,0 0,14 0,14 C0,14 20,0 20,-10 C20,-22 5,-22 0,-12Z" fill="url(#mm-heart-grad)" opacity="0.95"/>
+  </g>
+  <!-- Extra heart glow layer -->
+  <g transform="translate(250, 200)">
+    <path d="M0,-18 C-7,-32 -30,-32 -30,-15 C-30,2 0,22 0,22 C0,22 30,2 30,-15 C30,-32 7,-32 0,-18Z" fill="#EC4899" opacity="0.1" filter="url(#mm-glow-heart)"/>
+  </g>
+
+  <!-- Sparkle particles -->
+  <circle cx="250" cy="155" r="2" fill="#F9A8D4" opacity="0.8" filter="url(#mm-glow-soft)"/>
+  <circle cx="230" cy="175" r="1.5" fill="#C084FC" opacity="0.7"/>
+  <circle cx="270" cy="180" r="1.5" fill="#86EFAC" opacity="0.7"/>
+  <circle cx="245" cy="230" r="1.5" fill="#F9A8D4" opacity="0.6"/>
+  <circle cx="258" cy="165" r="1" fill="#FFF" opacity="0.8"/>
+
+  <!-- Swipe arrows hint -->
+  <g opacity="0.4">
+    <path d="M60 200 L30 200 L40 190 M30 200 L40 210" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M440 200 L470 200 L460 190 M470 200 L460 210" fill="none" stroke="#4ADE80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Bottom decorative text area -->
+  <text x="250" y="370" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="bold" fill="#A78BFA" opacity="0.5" letter-spacing="4">MATCH FOUND</text>
+</svg>
