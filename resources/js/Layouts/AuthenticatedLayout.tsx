@@ -8,10 +8,14 @@ export default function Authenticated({
     header,
     children,
 }: PropsWithChildren<{ header?: ReactNode }>) {
-    const user = usePage().props.auth.user;
+    const { auth } = usePage().props as any;
+    const user = auth.user;
+    const unreadCount = auth.unreadCount || 0;
+    const notifications = auth.notifications || [];
 
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
+    const [showNotifications, setShowNotifications] = useState(false);
 
     return (
         <div className="min-h-screen bg-navy-900">
@@ -59,8 +63,76 @@ export default function Authenticated({
                             </div>
                         </div>
 
-                        <div className="hidden sm:ms-6 sm:flex sm:items-center">
-                            <div className="relative ms-3">
+                        <div className="hidden sm:ms-6 sm:flex sm:items-center sm:gap-3">
+                            {/* Notification Bell */}
+                            <div className="relative">
+                                <button
+                                    onClick={() => setShowNotifications(!showNotifications)}
+                                    className="relative rounded-lg p-2 text-gray-400 transition hover:bg-navy-700 hover:text-white"
+                                >
+                                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+                                    </svg>
+                                    {unreadCount > 0 && (
+                                        <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-gaming-pink text-[10px] font-bold text-white">
+                                            {unreadCount > 9 ? '9+' : unreadCount}
+                                        </span>
+                                    )}
+                                </button>
+
+                                {showNotifications && (
+                                    <>
+                                        <div className="fixed inset-0 z-40" onClick={() => setShowNotifications(false)} />
+                                        <div className="absolute right-0 z-50 mt-2 w-80 rounded-xl border border-white/10 bg-navy-800 shadow-lg">
+                                            <div className="border-b border-white/10 px-4 py-3">
+                                                <h3 className="text-sm font-semibold text-white">Notifications</h3>
+                                            </div>
+                                            <div className="max-h-80 overflow-y-auto">
+                                                {notifications.length === 0 ? (
+                                                    <div className="px-4 py-6 text-center text-sm text-gray-500">No new notifications</div>
+                                                ) : (
+                                                    notifications.map((notif: any) => (
+                                                        <Link
+                                                            key={notif.id}
+                                                            href={
+                                                                notif.data.type === 'new_message'
+                                                                    ? route('chat.show', { playerMatch: notif.data.match_id })
+                                                                    : notif.data.type === 'new_match'
+                                                                      ? route('chat.show', { playerMatch: notif.data.match_id })
+                                                                      : route('dashboard')
+                                                            }
+                                                            className="flex items-center gap-3 border-b border-white/5 px-4 py-3 transition hover:bg-navy-700"
+                                                            onClick={() => setShowNotifications(false)}
+                                                        >
+                                                            <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gaming-purple/20">
+                                                                {notif.data.sender_avatar || notif.data.partner_avatar ? (
+                                                                    <img src={notif.data.sender_avatar || notif.data.partner_avatar} alt="" className="h-full w-full object-cover" />
+                                                                ) : (
+                                                                    <span className="text-xs font-bold text-gaming-purple">
+                                                                        {(notif.data.sender_name || notif.data.partner_name || '?')[0].toUpperCase()}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                            <div className="min-w-0 flex-1">
+                                                                <p className="text-sm text-white">
+                                                                    {notif.data.type === 'new_match' ? (
+                                                                        <>New match with <strong>{notif.data.partner_name}</strong>!</>
+                                                                    ) : (
+                                                                        <><strong>{notif.data.sender_name}</strong>: {notif.data.message_preview}</>
+                                                                    )}
+                                                                </p>
+                                                                <p className="text-[10px] text-gray-500">{notif.created_at}</p>
+                                                            </div>
+                                                        </Link>
+                                                    ))
+                                                )}
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+
+                            <div className="relative">
                                 <Dropdown>
                                     <Dropdown.Trigger>
                                         <span className="inline-flex rounded-md">

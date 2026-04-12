@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Like;
 use App\Models\Pass;
 use App\Models\PlayerMatch;
+use App\Notifications\NewMatchNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -45,6 +46,12 @@ class LikeController extends Controller
             ]);
 
             $match->load(['userOne.profile', 'userTwo.profile']);
+
+            // Notify both users
+            $liker = auth()->user();
+            $liked = \App\Models\User::find($likedId);
+            $liker->notify(new NewMatchNotification($liked, $match->id));
+            $liked->notify(new NewMatchNotification($liker, $match->id));
         }
 
         return response()->json([

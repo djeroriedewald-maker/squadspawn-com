@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PlayerMatch;
+use App\Notifications\NewMessageNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -15,7 +16,6 @@ class ChatController extends Controller
     {
         $user = auth()->user();
 
-        // Verify the user belongs to this match
         if ($playerMatch->user_one_id !== $user->id && $playerMatch->user_two_id !== $user->id) {
             abort(HttpResponse::HTTP_FORBIDDEN, 'You are not part of this match.');
         }
@@ -25,6 +25,13 @@ class ChatController extends Controller
         $partner = $playerMatch->user_one_id === $user->id
             ? $playerMatch->userTwo
             : $playerMatch->userOne;
+
+        // Mark notifications as read for this match
+        $user->unreadNotifications()
+            ->where('type', NewMessageNotification::class)
+            ->get()
+            ->filter(fn ($n) => ($n->data['match_id'] ?? null) === $playerMatch->id)
+            ->each->markAsRead();
 
         return Inertia::render('Chat/Show', [
             'match' => $playerMatch,
@@ -37,7 +44,6 @@ class ChatController extends Controller
     {
         $user = auth()->user();
 
-        // Verify the user belongs to this match
         if ($playerMatch->user_one_id !== $user->id && $playerMatch->user_two_id !== $user->id) {
             abort(HttpResponse::HTTP_FORBIDDEN, 'You are not part of this match.');
         }
@@ -52,6 +58,13 @@ class ChatController extends Controller
         ]);
 
         $message->load('sender');
+
+        // Notify the other user
+        $partner = $playerMatch->user_one_id === $user->id
+            ? $playerMatch->userTwo
+            : $playerMatch->userOne;
+
+        $partner->notify(new NewMessageNotification($message, $user, $playerMatch->id));
 
         return response()->json($message, HttpResponse::HTTP_CREATED);
     }
