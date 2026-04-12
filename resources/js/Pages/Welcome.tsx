@@ -159,23 +159,40 @@ export default function Welcome({
                 {/* Games Section */}
                 <section className="px-6 py-20 lg:px-12">
                     <div className="mx-auto max-w-6xl">
-                        <h2 className="mb-12 text-center text-3xl font-bold sm:text-4xl">
+                        <h2 className="mb-4 text-center text-3xl font-bold sm:text-4xl">
                             Popular Games
                         </h2>
-                        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+                        <p className="mx-auto mb-12 max-w-xl text-center text-gray-400">
+                            Find teammates across the most popular mobile and PC games in Southeast Asia.
+                        </p>
+                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                             {[
-                                'Valorant',
-                                'Dota 2',
-                                'Mobile Legends',
-                                'League of Legends',
-                                'CS2',
-                                'Genshin Impact',
+                                { name: 'Mobile Legends', genre: 'MOBA', image: '/images/games/mlbb.svg', platform: 'Mobile' },
+                                { name: 'PUBG Mobile', genre: 'Battle Royale', image: '/images/games/pubgm.svg', platform: 'Mobile' },
+                                { name: 'Valorant', genre: 'Tactical Shooter', image: '/images/games/valorant.svg', platform: 'PC' },
+                                { name: 'League of Legends', genre: 'MOBA', image: '/images/games/lol.svg', platform: 'PC' },
+                                { name: 'Free Fire', genre: 'Battle Royale', image: '/images/games/freefire.svg', platform: 'Mobile' },
+                                { name: 'Honor of Kings', genre: 'MOBA', image: '/images/games/hok.svg', platform: 'Mobile' },
+                                { name: 'Call of Duty: Mobile', genre: 'FPS', image: '/images/games/codm.svg', platform: 'Mobile' },
                             ].map((game) => (
                                 <div
-                                    key={game}
-                                    className="flex items-center justify-center rounded-xl border border-white/10 bg-navy-800 px-4 py-6 text-center text-sm font-medium text-gray-300 transition hover:border-gaming-purple/50 hover:text-white"
+                                    key={game.name}
+                                    className="group overflow-hidden rounded-xl border border-white/10 bg-navy-800 transition hover:border-gaming-purple/40 hover:shadow-lg hover:shadow-gaming-purple/10"
                                 >
-                                    {game}
+                                    <div className="aspect-[3/2] overflow-hidden">
+                                        <img
+                                            src={game.image}
+                                            alt={game.name}
+                                            className="h-full w-full object-cover transition group-hover:scale-105"
+                                        />
+                                    </div>
+                                    <div className="p-4">
+                                        <h3 className="font-semibold text-white">{game.name}</h3>
+                                        <div className="mt-1 flex items-center gap-2">
+                                            <span className="text-xs text-gray-400">{game.genre}</span>
+                                            <span className="rounded-full bg-gaming-purple/10 px-2 py-0.5 text-[10px] font-medium text-gaming-purple">{game.platform}</span>
+                                        </div>
+                                    </div>
                                 </div>
                             ))}
                         </div>

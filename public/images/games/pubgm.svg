@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="600" height="400">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e65100"/>
+      <stop offset="100%" stop-color="#f57f17"/>
+    </linearGradient>
+    <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
+      <path d="M 30 0 L 0 0 0 30" fill="none" stroke="rgba(0,0,0,0.06)" stroke-width="1"/>
+    </pattern>
+    <pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse">
+      <circle cx="10" cy="10" r="1" fill="rgba(0,0,0,0.08)"/>
+    </pattern>
+  </defs>
+  <!-- Background -->
+  <rect width="600" height="400" fill="url(#bg)"/>
+  <rect width="600" height="400" fill="url(#grid)"/>
+  <rect width="600" height="400" fill="url(#dots)"/>
+  <!-- Diagonal stripes -->
+  <line x1="400" y1="0" x2="600" y2="200" stroke="rgba(255,255,255,0.1)" stroke-width="40"/>
+  <line x1="450" y1="0" x2="600" y2="150" stroke="rgba(255,255,255,0.05)" stroke-width="20"/>
+  <line x1="0" y1="250" x2="150" y2="400" stroke="rgba(255,255,255,0.08)" stroke-width="30"/>
+  <!-- Crosshair element -->
+  <circle cx="480" cy="100" r="25" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="2"/>
+  <line x1="480" y1="70" x2="480" y2="130" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+  <line x1="450" y1="100" x2="510" y2="100" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+  <!-- Corner accents -->
+  <polyline points="0,40 0,0 40,0" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="3"/>
+  <polyline points="560,400 600,400 600,360" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="3"/>
+  <polyline points="560,0 600,0 600,40" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
+  <polyline points="0,360 0,400 40,400" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
+  <!-- Diamond shapes -->
+  <polygon points="100,70 120,90 100,110 80,90" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
+  <polygon points="520,300 540,320 520,340 500,320" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
+  <!-- Decorative lines -->
+  <line x1="50" y1="350" x2="200" y2="350" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <line x1="400" y1="50" x2="550" y2="50" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <!-- Game name -->
+  <text x="300" y="185" font-family="sans-serif" font-size="54" font-weight="bold" fill="white" text-anchor="middle" letter-spacing="3">PUBG Mobile</text>
+  <!-- Subtitle -->
+  <text x="300" y="225" font-family="sans-serif" font-size="19" fill="rgba(255,255,255,0.65)" text-anchor="middle" letter-spacing="8" font-weight="300">BATTLE ROYALE</text>
+  <!-- Bottom accent line -->
+  <line x1="220" y1="248" x2="380" y2="248" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+</svg>

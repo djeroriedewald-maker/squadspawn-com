@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="600" height="400">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#b71c1c"/>
+      <stop offset="100%" stop-color="#e65100"/>
+    </linearGradient>
+    <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
+      <path d="M 50 0 L 0 0 0 50" fill="none" stroke="rgba(0,0,0,0.05)" stroke-width="1"/>
+    </pattern>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.08)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+    </radialGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="600" height="400" fill="url(#bg)"/>
+  <rect width="600" height="400" fill="url(#grid)"/>
+  <rect width="600" height="400" fill="url(#glow)"/>
+  <!-- Flame-like triangles -->
+  <polygon points="50,400 80,320 110,400" fill="rgba(255,255,255,0.05)"/>
+  <polygon points="100,400 140,300 180,400" fill="rgba(255,255,255,0.04)"/>
+  <polygon points="430,400 470,310 510,400" fill="rgba(255,255,255,0.05)"/>
+  <polygon points="490,400 520,330 550,400" fill="rgba(255,255,255,0.04)"/>
+  <!-- Diagonal stripes -->
+  <line x1="0" y1="100" x2="100" y2="0" stroke="rgba(255,255,255,0.08)" stroke-width="2"/>
+  <line x1="0" y1="200" x2="200" y2="0" stroke="rgba(255,255,255,0.06)" stroke-width="2"/>
+  <line x1="400" y1="400" x2="600" y2="200" stroke="rgba(255,255,255,0.08)" stroke-width="2"/>
+  <line x1="500" y1="400" x2="600" y2="300" stroke="rgba(255,255,255,0.06)" stroke-width="2"/>
+  <!-- Corner accents -->
+  <polyline points="0,50 0,0 50,0" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="3"/>
+  <polyline points="550,400 600,400 600,350" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="3"/>
+  <!-- Hexagons -->
+  <polygon points="520,70 540,58 560,70 560,94 540,106 520,94" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1.5"/>
+  <polygon points="40,310 60,298 80,310 80,334 60,346 40,334" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1.5"/>
+  <!-- Circles -->
+  <circle cx="100" cy="60" r="20" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+  <circle cx="500" cy="340" r="20" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+  <circle cx="500" cy="340" r="35" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+  <!-- Diamond -->
+  <polygon points="480,60 500,80 480,100 460,80" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1.5"/>
+  <!-- Small dots -->
+  <circle cx="150" cy="350" r="2" fill="rgba(255,255,255,0.15)"/>
+  <circle cx="170" cy="340" r="2" fill="rgba(255,255,255,0.12)"/>
+  <circle cx="160" cy="360" r="2" fill="rgba(255,255,255,0.1)"/>
+  <circle cx="440" cy="50" r="2" fill="rgba(255,255,255,0.15)"/>
+  <circle cx="420" cy="40" r="2" fill="rgba(255,255,255,0.12)"/>
+  <!-- Game name -->
+  <text x="300" y="185" font-family="sans-serif" font-size="56" font-weight="bold" fill="white" text-anchor="middle" letter-spacing="4">Free Fire</text>
+  <!-- Subtitle -->
+  <text x="300" y="225" font-family="sans-serif" font-size="19" fill="rgba(255,255,255,0.6)" text-anchor="middle" letter-spacing="8" font-weight="300">BATTLE ROYALE</text>
+  <!-- Bottom accent line -->
+  <line x1="220" y1="248" x2="380" y2="248" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+</svg>
