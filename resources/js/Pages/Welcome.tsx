@@ -2,12 +2,24 @@ import { Head, Link, usePage } from '@inertiajs/react';
 
 const gameCovers = [
     { name: 'Mobile Legends', image: '/images/games/mlbb.jpg' },
-    { name: 'PUBG Mobile', image: '/images/games/pubgm.jpg' },
     { name: 'Valorant', image: '/images/games/valorant.jpg' },
+    { name: 'Fortnite', image: '/images/games/fortnite.svg' },
     { name: 'League of Legends', image: '/images/games/lol.jpg' },
+    { name: 'PUBG Mobile', image: '/images/games/pubgm.jpg' },
+    { name: 'Apex Legends', image: '/images/games/apex.svg' },
+    { name: 'Counter-Strike 2', image: '/images/games/cs2.svg' },
+    { name: 'Genshin Impact', image: '/images/games/genshin.svg' },
+    { name: 'Overwatch 2', image: '/images/games/overwatch2.svg' },
+    { name: 'Dota 2', image: '/images/games/dota2.svg' },
     { name: 'Free Fire', image: '/images/games/freefire.jpg' },
     { name: 'Honor of Kings', image: '/images/games/hok.jpg' },
     { name: 'Call of Duty: Mobile', image: '/images/games/codm.jpg' },
+    { name: 'Rocket League', image: '/images/games/rocketleague.svg' },
+    { name: 'Minecraft', image: '/images/games/minecraft.svg' },
+    { name: 'Brawl Stars', image: '/images/games/brawlstars.svg' },
+    { name: 'Clash Royale', image: '/images/games/clashroyale.svg' },
+    { name: 'Arena of Valor', image: '/images/games/aov.svg' },
+    { name: 'Stumble Guys', image: '/images/games/stumbleguys.svg' },
 ];
 
 export default function Welcome({
@@ -117,7 +129,7 @@ export default function Welcome({
                                 </Link>
                             </div>
                             <div className="mt-8 flex items-center justify-center gap-8 text-sm text-gray-500 lg:justify-start">
-                                <span>7+ Games</span>
+                                <span>19+ Games</span>
                                 <span className="h-1 w-1 rounded-full bg-gray-600" />
                                 <span>Free to Join</span>
                                 <span className="h-1 w-1 rounded-full bg-gray-600" />
@@ -212,13 +224,25 @@ export default function Welcome({
                         </p>
                         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                             {[
-                                { name: 'Mobile Legends', genre: 'MOBA', image: '/images/games/mlbb.jpg', platform: 'Mobile' },
-                                { name: 'PUBG Mobile', genre: 'Battle Royale', image: '/images/games/pubgm.jpg', platform: 'Mobile' },
-                                { name: 'Valorant', genre: 'Tactical Shooter', image: '/images/games/valorant.jpg', platform: 'PC' },
-                                { name: 'League of Legends', genre: 'MOBA', image: '/images/games/lol.jpg', platform: 'PC' },
-                                { name: 'Free Fire', genre: 'Battle Royale', image: '/images/games/freefire.jpg', platform: 'Mobile' },
-                                { name: 'Honor of Kings', genre: 'MOBA', image: '/images/games/hok.jpg', platform: 'Mobile' },
-                                { name: 'Call of Duty: Mobile', genre: 'FPS', image: '/images/games/codm.jpg', platform: 'Mobile' },
+                                { name: 'Valorant', genre: 'Tactical Shooter', image: '/images/games/valorant.jpg', platforms: ['PC', 'Console'] },
+                                { name: 'Fortnite', genre: 'Battle Royale', image: '/images/games/fortnite.svg', platforms: ['PC', 'Console', 'Mobile'] },
+                                { name: 'League of Legends', genre: 'MOBA', image: '/images/games/lol.jpg', platforms: ['PC'] },
+                                { name: 'Apex Legends', genre: 'Battle Royale', image: '/images/games/apex.svg', platforms: ['PC', 'Console'] },
+                                { name: 'Counter-Strike 2', genre: 'Tactical Shooter', image: '/images/games/cs2.svg', platforms: ['PC'] },
+                                { name: 'Mobile Legends', genre: 'MOBA', image: '/images/games/mlbb.jpg', platforms: ['Mobile'] },
+                                { name: 'PUBG Mobile', genre: 'Battle Royale', image: '/images/games/pubgm.jpg', platforms: ['Mobile'] },
+                                { name: 'Genshin Impact', genre: 'Action RPG', image: '/images/games/genshin.svg', platforms: ['PC', 'Console', 'Mobile'] },
+                                { name: 'Overwatch 2', genre: 'Hero Shooter', image: '/images/games/overwatch2.svg', platforms: ['PC', 'Console'] },
+                                { name: 'Dota 2', genre: 'MOBA', image: '/images/games/dota2.svg', platforms: ['PC'] },
+                                { name: 'Rocket League', genre: 'Sports', image: '/images/games/rocketleague.svg', platforms: ['PC', 'Console'] },
+                                { name: 'Free Fire', genre: 'Battle Royale', image: '/images/games/freefire.jpg', platforms: ['Mobile'] },
+                                { name: 'Honor of Kings', genre: 'MOBA', image: '/images/games/hok.jpg', platforms: ['Mobile', 'PC'] },
+                                { name: 'Call of Duty: Mobile', genre: 'FPS', image: '/images/games/codm.jpg', platforms: ['Mobile'] },
+                                { name: 'Minecraft', genre: 'Sandbox', image: '/images/games/minecraft.svg', platforms: ['PC', 'Console', 'Mobile'] },
+                                { name: 'Brawl Stars', genre: 'Action', image: '/images/games/brawlstars.svg', platforms: ['Mobile'] },
+                                { name: 'Clash Royale', genre: 'Strategy', image: '/images/games/clashroyale.svg', platforms: ['Mobile'] },
+                                { name: 'Arena of Valor', genre: 'MOBA', image: '/images/games/aov.svg', platforms: ['Mobile'] },
+                                { name: 'Stumble Guys', genre: 'Party', image: '/images/games/stumbleguys.svg', platforms: ['Mobile', 'PC'] },
                             ].map((game) => (
                                 <div
                                     key={game.name}
@@ -233,9 +257,11 @@ export default function Welcome({
                                     </div>
                                     <div className="p-4">
                                         <h3 className="font-semibold text-white">{game.name}</h3>
-                                        <div className="mt-1 flex items-center gap-2">
+                                        <div className="mt-1 flex flex-wrap items-center gap-1.5">
                                             <span className="text-xs text-gray-400">{game.genre}</span>
-                                            <span className="rounded-full bg-gaming-purple/10 px-2 py-0.5 text-[10px] font-medium text-gaming-purple">{game.platform}</span>
+                                            {game.platforms.map((p: string) => (
+                                                <span key={p} className="rounded-full bg-gaming-purple/10 px-2 py-0.5 text-[10px] font-medium text-gaming-purple">{p}</span>
+                                            ))}
                                         </div>
                                     </div>
                                 </div>
@@ -264,7 +290,7 @@ export default function Welcome({
                                 <p className="mt-2 text-sm text-gray-400">Players Worldwide</p>
                             </div>
                             <div className="rounded-xl border border-white/10 bg-navy-800 p-6">
-                                <p className="text-4xl font-bold text-gaming-green">7</p>
+                                <p className="text-4xl font-bold text-gaming-green">19</p>
                                 <p className="mt-2 text-sm text-gray-400">Games Supported</p>
                             </div>
                             <div className="rounded-xl border border-white/10 bg-navy-800 p-6">
