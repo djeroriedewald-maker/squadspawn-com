@@ -33,7 +33,7 @@ export default function Show({
     useEffect(() => {
         const interval = setInterval(async () => {
             try {
-                const response = await axios.get(route('chat.show', { match: match.id }), {
+                const response = await axios.get(route('chat.show', { playerMatch: match.id }), {
                     headers: { 'X-Inertia': 'true', 'X-Inertia-Version': '' },
                 });
                 if (response.data?.props?.messages) {
@@ -52,7 +52,7 @@ export default function Show({
 
         setSending(true);
         try {
-            const response = await axios.post(route('chat.store', { match: match.id }), { body });
+            const response = await axios.post(route('chat.store', { playerMatch: match.id }), { body });
             setMessages((prev) => [...prev, response.data]);
             setBody('');
         } catch (e) {

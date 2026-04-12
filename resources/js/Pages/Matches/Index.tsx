@@ -69,7 +69,7 @@ export default function Index({ matches }: PageProps<{ matches: MatchItem[] }>) 
                                         </div>
                                     </div>
                                     <Link
-                                        href={route('chat.show', { match: match.id })}
+                                        href={route('chat.show', { playerMatch: match.id })}
                                         className="rounded-xl bg-gaming-green/10 px-5 py-2.5 font-semibold text-gaming-green transition hover:bg-gaming-green/20"
                                     >
                                         Chat

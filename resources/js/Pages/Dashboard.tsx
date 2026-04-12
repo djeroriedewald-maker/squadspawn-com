@@ -164,7 +164,7 @@ export default function Dashboard({
                                     {recentMatches.map((match) => (
                                         <Link
                                             key={match.id}
-                                            href={route('chat.show', { match: match.id })}
+                                            href={route('chat.show', { playerMatch: match.id })}
                                             className="flex items-center gap-3 rounded-xl border border-white/10 bg-navy-800 p-4 transition hover:border-gaming-purple/30"
                                         >
                                             <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-gaming-purple/30 to-gaming-green/30 font-bold text-white">

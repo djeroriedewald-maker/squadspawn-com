@@ -13,7 +13,8 @@
       "Bash(curl -sL -o public/images/games/lol.jpg \"https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/League_of_Legends_2019_vector.svg/500px-League_of_Legends_2019_vector.svg.png\")",
       "Bash(curl -sL -o public/images/games/mlbb.jpg \"https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1456070/header.jpg\")",
       "Bash(curl -sL -o public/images/games/codm.jpg \"https://upload.wikimedia.org/wikipedia/en/thumb/1/13/Call_of_Duty_Mobile_cover_art.jpg/220px-Call_of_Duty_Mobile_cover_art.jpg\")",
-      "Bash(git commit -m ':*)"
+      "Bash(git commit -m ':*)",
+      "Bash(npm run:*)"
     ]
   }
 }

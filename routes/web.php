@@ -82,8 +82,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/likes', [LikeController::class, 'store'])->name('likes.store');
         Route::post('/likes/pass', [LikeController::class, 'pass'])->name('likes.pass');
         Route::get('/matches', [MatchController::class, 'index'])->name('matches.index');
-        Route::get('/matches/{match}/chat', [ChatController::class, 'show'])->name('chat.show');
-        Route::post('/matches/{match}/messages', [ChatController::class, 'store'])->name('chat.store');
+        Route::get('/matches/{playerMatch}/chat', [ChatController::class, 'show'])->name('chat.show');
+        Route::post('/matches/{playerMatch}/messages', [ChatController::class, 'store'])->name('chat.store');
     });
 });
 
