@@ -31,14 +31,18 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
-            'auth' => [
-                'user' => $request->user()?->load(['profile', 'games']),
-                'unreadCount' => $request->user()?->unreadNotifications()->count() ?? 0,
-                'notifications' => $request->user()?->unreadNotifications()->take(10)->get()->map(fn ($n) => [
+            'auth' => fn () => $request->user() ? [
+                'user' => $request->user()->load(['profile', 'games']),
+                'unreadCount' => $request->user()->unreadNotifications()->count(),
+                'notifications' => $request->user()->unreadNotifications()->take(10)->get()->map(fn ($n) => [
                     'id' => $n->id,
                     'data' => $n->data,
                     'created_at' => $n->created_at->diffForHumans(),
-                ]) ?? [],
+                ]),
+            ] : [
+                'user' => null,
+                'unreadCount' => 0,
+                'notifications' => [],
             ],
             'flash' => [
                 'message' => fn () => $request->session()->get('message'),
