@@ -86,37 +86,34 @@ export default function Index({ matches }: PageProps<{ matches: FriendItem[] }>)
                                     )}
 
                                     <div className="flex items-center gap-4 p-4">
-                                        {/* Avatar */}
                                         <Link
                                             href={route('player.show', { username: match.partner.profile?.username || match.partner.id })}
-                                            className="shrink-0"
+                                            className="flex flex-1 items-center gap-4 transition hover:opacity-80"
                                         >
-                                            <div className="relative">
-                                                <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-gaming-purple/30 to-gaming-green/30 text-xl font-bold text-white ring-2 ring-white/10">
-                                                    {match.partner.profile?.avatar ? (
-                                                        <img src={match.partner.profile.avatar} alt="" className="h-full w-full object-cover" />
-                                                    ) : (
-                                                        (match.partner.profile?.username?.[0] || match.partner.name[0]).toUpperCase()
+                                            {/* Avatar */}
+                                            <div className="shrink-0">
+                                                <div className="relative">
+                                                    <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-gaming-purple/30 to-gaming-green/30 text-xl font-bold text-white ring-2 ring-white/10">
+                                                        {match.partner.profile?.avatar ? (
+                                                            <img src={match.partner.profile.avatar} alt="" className="h-full w-full object-cover" />
+                                                        ) : (
+                                                            (match.partner.profile?.username?.[0] || match.partner.name[0]).toUpperCase()
+                                                        )}
+                                                    </div>
+                                                    {match.unread_count > 0 && (
+                                                        <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-gaming-pink text-[10px] font-bold text-white">
+                                                            {match.unread_count}
+                                                        </span>
                                                     )}
                                                 </div>
-                                                {/* Unread badge on avatar */}
-                                                {match.unread_count > 0 && (
-                                                    <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-gaming-pink text-[10px] font-bold text-white">
-                                                        {match.unread_count}
-                                                    </span>
-                                                )}
                                             </div>
-                                        </Link>
 
-                                        {/* Info */}
-                                        <div className="min-w-0 flex-1">
-                                            <div className="flex items-center gap-2">
-                                                <Link
-                                                    href={route('player.show', { username: match.partner.profile?.username || match.partner.id })}
-                                                    className="truncate font-bold text-white hover:text-gaming-purple"
-                                                >
-                                                    {match.partner.profile?.username || match.partner.name}
-                                                </Link>
+                                            {/* Info */}
+                                            <div className="min-w-0 flex-1">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="truncate font-bold text-white">
+                                                        {match.partner.profile?.username || match.partner.name}
+                                                    </span>
                                                 {match.partner.profile?.looking_for && (
                                                     <span className="shrink-0 rounded-full bg-gaming-purple/10 px-2 py-0.5 text-[10px] font-medium text-gaming-purple">
                                                         {match.partner.profile.looking_for}
@@ -152,7 +149,7 @@ export default function Index({ matches }: PageProps<{ matches: FriendItem[] }>)
                                                     <span className="text-[10px] text-gray-600">{match.partner.profile.region}</span>
                                                 )}
                                             </div>
-                                        </div>
+                                        </Link>
 
                                         {/* Actions */}
                                         <div className="flex shrink-0 flex-col items-end gap-2">

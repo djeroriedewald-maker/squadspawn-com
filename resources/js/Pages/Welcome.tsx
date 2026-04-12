@@ -8,7 +8,7 @@ const gameCovers = [
     { name: 'PUBG Mobile', image: '/images/games/pubgm.jpg' },
     { name: 'Apex Legends', image: '/images/games/apex.jpg' },
     { name: 'Counter-Strike 2', image: '/images/games/cs2.jpg' },
-    { name: 'Genshin Impact', image: '/images/games/genshin.svg' },
+    { name: 'Genshin Impact', image: '/images/games/genshin.jpg' },
     { name: 'Overwatch 2', image: '/images/games/overwatch2.jpg' },
     { name: 'Dota 2', image: '/images/games/dota2.jpg' },
     { name: 'Free Fire', image: '/images/games/freefire.jpg' },
@@ -16,9 +16,9 @@ const gameCovers = [
     { name: 'Call of Duty: Mobile', image: '/images/games/codm.jpg' },
     { name: 'Rocket League', image: '/images/games/rocketleague.jpg' },
     { name: 'Minecraft', image: '/images/games/minecraft.png' },
-    { name: 'Brawl Stars', image: '/images/games/brawlstars.svg' },
-    { name: 'Clash Royale', image: '/images/games/clashroyale.svg' },
-    { name: 'Arena of Valor', image: '/images/games/aov.svg' },
+    { name: 'Brawl Stars', image: '/images/games/brawlstars.jpg' },
+    { name: 'Clash Royale', image: '/images/games/clashroyale.jpg' },
+    { name: 'Arena of Valor', image: '/images/games/aov.jpg' },
     { name: 'Stumble Guys', image: '/images/games/stumbleguys.jpg' },
 ];
 
@@ -231,7 +231,7 @@ export default function Welcome({
                                 { name: 'Counter-Strike 2', genre: 'Tactical Shooter', image: '/images/games/cs2.jpg', platforms: ['PC'] },
                                 { name: 'Mobile Legends', genre: 'MOBA', image: '/images/games/mlbb.jpg', platforms: ['Mobile'] },
                                 { name: 'PUBG Mobile', genre: 'Battle Royale', image: '/images/games/pubgm.jpg', platforms: ['Mobile'] },
-                                { name: 'Genshin Impact', genre: 'Action RPG', image: '/images/games/genshin.svg', platforms: ['PC', 'Console', 'Mobile'] },
+                                { name: 'Genshin Impact', genre: 'Action RPG', image: '/images/games/genshin.jpg', platforms: ['PC', 'Console', 'Mobile'] },
                                 { name: 'Overwatch 2', genre: 'Hero Shooter', image: '/images/games/overwatch2.jpg', platforms: ['PC', 'Console'] },
                                 { name: 'Dota 2', genre: 'MOBA', image: '/images/games/dota2.jpg', platforms: ['PC'] },
                                 { name: 'Rocket League', genre: 'Sports', image: '/images/games/rocketleague.jpg', platforms: ['PC', 'Console'] },
@@ -239,9 +239,9 @@ export default function Welcome({
                                 { name: 'Honor of Kings', genre: 'MOBA', image: '/images/games/hok.jpg', platforms: ['Mobile', 'PC'] },
                                 { name: 'Call of Duty: Mobile', genre: 'FPS', image: '/images/games/codm.jpg', platforms: ['Mobile'] },
                                 { name: 'Minecraft', genre: 'Sandbox', image: '/images/games/minecraft.png', platforms: ['PC', 'Console', 'Mobile'] },
-                                { name: 'Brawl Stars', genre: 'Action', image: '/images/games/brawlstars.svg', platforms: ['Mobile'] },
-                                { name: 'Clash Royale', genre: 'Strategy', image: '/images/games/clashroyale.svg', platforms: ['Mobile'] },
-                                { name: 'Arena of Valor', genre: 'MOBA', image: '/images/games/aov.svg', platforms: ['Mobile'] },
+                                { name: 'Brawl Stars', genre: 'Action', image: '/images/games/brawlstars.jpg', platforms: ['Mobile'] },
+                                { name: 'Clash Royale', genre: 'Strategy', image: '/images/games/clashroyale.jpg', platforms: ['Mobile'] },
+                                { name: 'Arena of Valor', genre: 'MOBA', image: '/images/games/aov.jpg', platforms: ['Mobile'] },
                                 { name: 'Stumble Guys', genre: 'Party', image: '/images/games/stumbleguys.jpg', platforms: ['Mobile', 'PC'] },
                             ].map((game) => (
                                 <div
