@@ -10,8 +10,10 @@ class GamesController extends Controller
 {
     public function index(): Response
     {
+        $games = Game::withCount('users')->get();
+
         return Inertia::render('Games/Index', [
-            'games' => Game::all(),
+            'games' => $games,
         ]);
     }
 }

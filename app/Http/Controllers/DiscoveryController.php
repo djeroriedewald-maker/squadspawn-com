@@ -14,12 +14,14 @@ class DiscoveryController extends Controller
     {
         $user = auth()->user();
 
-        // IDs the current user has already liked (to exclude from results)
+        // IDs to exclude: already liked or passed
         $likedUserIds = $user->likedUsers()->pluck('liked_id');
+        $passedUserIds = \App\Models\Pass::where('passer_id', $user->id)->pluck('passed_id');
 
         $query = User::query()
             ->where('id', '!=', $user->id)
             ->whereNotIn('id', $likedUserIds)
+            ->whereNotIn('id', $passedUserIds)
             ->whereHas('profile')
             ->with(['profile', 'games']);
 

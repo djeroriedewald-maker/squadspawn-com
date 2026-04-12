@@ -41,9 +41,12 @@ export default function Index({ matches }: PageProps<{ matches: MatchItem[] }>) 
                                             {match.partner.profile?.username?.[0]?.toUpperCase() || match.partner.name[0]?.toUpperCase()}
                                         </div>
                                         <div>
-                                            <h3 className="text-lg font-bold text-white">
+                                            <Link
+                                                href={route('player.show', { username: match.partner.profile?.username || match.partner.id })}
+                                                className="text-lg font-bold text-white hover:text-gaming-purple"
+                                            >
                                                 {match.partner.profile?.username || match.partner.name}
-                                            </h3>
+                                            </Link>
                                             <div className="flex items-center gap-2">
                                                 {match.partner.profile?.region && (
                                                     <span className="text-sm text-gray-400">{match.partner.profile.region}</span>

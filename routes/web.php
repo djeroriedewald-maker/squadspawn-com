@@ -3,6 +3,7 @@
 use App\Http\Controllers\AvatarController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\DiscoveryController;
+use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\GameProfileController;
 use App\Http\Controllers\GamesController;
 use App\Http\Controllers\LikeController;
@@ -58,6 +59,7 @@ Route::get('/dashboard', function () {
 
 // Public
 Route::get('/games', [GamesController::class, 'index'])->name('games.index');
+Route::get('/player/{username}', [PlayerController::class, 'show'])->middleware('auth')->name('player.show');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

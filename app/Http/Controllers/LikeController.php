@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Like;
+use App\Models\Pass;
 use App\Models\PlayerMatch;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -55,15 +56,13 @@ class LikeController extends Controller
     public function pass(Request $request): JsonResponse
     {
         $request->validate([
-            'liked_id' => ['required', 'exists:users,id'],
+            'passed_id' => ['required', 'exists:users,id'],
         ]);
 
-        // For MVP, we store a pass as a like with a sentinel or simply
-        // record it so the user won't be shown again. We reuse the likes
-        // table conceptually -- but to keep "like" clean, we just return
-        // success. The discovery query already excludes liked users, so
-        // passing is a no-op for now. A dedicated "passes" table could
-        // be added later.
+        Pass::firstOrCreate([
+            'passer_id' => auth()->id(),
+            'passed_id' => $request->input('passed_id'),
+        ]);
 
         return response()->json(['passed' => true]);
     }

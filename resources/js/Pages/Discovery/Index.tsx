@@ -1,6 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Game, User } from '@/types';
-import { Head, router } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
+import axios from 'axios';
 import { useState, useCallback } from 'react';
 
 export default function DiscoveryIndex({
@@ -36,48 +37,30 @@ export default function DiscoveryIndex({
         }
     }, [currentIndex, players.data.length]);
 
-    const handlePass = () => {
+    const handlePass = async () => {
         if (!currentPlayer || animating) return;
         setAnimating('left');
 
-        router.post(
-            route('discovery.pass', currentPlayer.id),
-            {},
-            {
-                preserveState: true,
-                preserveScroll: true,
-                onSuccess: () => {
-                    setTimeout(advance, 300);
-                },
-                onError: () => {
-                    setTimeout(advance, 300);
-                },
-            },
-        );
+        try {
+            await axios.post(route('likes.pass'), { passed_id: currentPlayer.id });
+        } catch {}
+
+        setTimeout(advance, 300);
     };
 
-    const handleLike = () => {
+    const handleLike = async () => {
         if (!currentPlayer || animating) return;
         setAnimating('right');
 
-        router.post(
-            route('discovery.like', currentPlayer.id),
-            {},
-            {
-                preserveState: true,
-                preserveScroll: true,
-                onSuccess: (page: any) => {
-                    if (page.props?.flash?.matched) {
-                        setMatchedUser(currentPlayer);
-                        setShowMatch(true);
-                    }
-                    setTimeout(advance, 300);
-                },
-                onError: () => {
-                    setTimeout(advance, 300);
-                },
-            },
-        );
+        try {
+            const { data } = await axios.post(route('likes.store'), { liked_id: currentPlayer.id });
+            if (data.matched) {
+                setMatchedUser(currentPlayer);
+                setShowMatch(true);
+            }
+        } catch {}
+
+        setTimeout(advance, 300);
     };
 
     const lookingForLabel = (val?: string) => {
@@ -154,9 +137,12 @@ export default function DiscoveryIndex({
                                         </div>
                                     )}
                                     <div>
-                                        <h2 className="text-xl font-bold text-white">
+                                        <Link
+                                            href={route('player.show', { username: currentPlayer.profile?.username || currentPlayer.id })}
+                                            className="text-xl font-bold text-white hover:text-gaming-purple"
+                                        >
                                             {currentPlayer.profile?.username ?? currentPlayer.name}
-                                        </h2>
+                                        </Link>
                                         {currentPlayer.profile?.region && (
                                             <p className="text-sm text-gray-400">
                                                 {currentPlayer.profile.region}
