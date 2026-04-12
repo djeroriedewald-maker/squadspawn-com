@@ -50,7 +50,7 @@ export default function GameProfileEdit({
 }) {
     const userGameIds = userGames.map((g) => g.id);
 
-    const { data, setData, post, processing, errors } = useForm<{
+    const { data, setData, put, processing, errors } = useForm<{
         username: string;
         bio: string;
         looking_for: string;
@@ -79,7 +79,7 @@ export default function GameProfileEdit({
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        post(route('game-profile.update'));
+        put(route('game-profile.update'));
     };
 
     const toggleGame = (gameId: number) => {
