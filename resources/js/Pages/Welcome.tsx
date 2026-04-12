@@ -177,11 +177,11 @@ export default function Welcome({
                             {[
                                 { name: 'Mobile Legends', genre: 'MOBA', image: '/images/games/mlbb.jpg', platform: 'Mobile' },
                                 { name: 'PUBG Mobile', genre: 'Battle Royale', image: '/images/games/pubgm.jpg', platform: 'Mobile' },
-                                { name: 'Valorant', genre: 'Tactical Shooter', image: '/images/games/valorant.svg', platform: 'PC' },
-                                { name: 'League of Legends', genre: 'MOBA', image: '/images/games/lol.svg', platform: 'PC' },
-                                { name: 'Free Fire', genre: 'Battle Royale', image: '/images/games/freefire.svg', platform: 'Mobile' },
-                                { name: 'Honor of Kings', genre: 'MOBA', image: '/images/games/hok.svg', platform: 'Mobile' },
-                                { name: 'Call of Duty: Mobile', genre: 'FPS', image: '/images/games/codm.svg', platform: 'Mobile' },
+                                { name: 'Valorant', genre: 'Tactical Shooter', image: '/images/games/valorant.jpg', platform: 'PC' },
+                                { name: 'League of Legends', genre: 'MOBA', image: '/images/games/lol.jpg', platform: 'PC' },
+                                { name: 'Free Fire', genre: 'Battle Royale', image: '/images/games/freefire.jpg', platform: 'Mobile' },
+                                { name: 'Honor of Kings', genre: 'MOBA', image: '/images/games/hok.jpg', platform: 'Mobile' },
+                                { name: 'Call of Duty: Mobile', genre: 'FPS', image: '/images/games/codm.jpg', platform: 'Mobile' },
                             ].map((game) => (
                                 <div
                                     key={game.name}
