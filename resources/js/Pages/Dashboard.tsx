@@ -255,11 +255,14 @@ export default function Dashboard({
                             {recentMatches.length > 0 ? (
                                 <div className="space-y-3">
                                     {recentMatches.map((match) => (
-                                        <Link
+                                        <div
                                             key={match.id}
-                                            href={route('chat.show', { playerMatch: match.id })}
-                                            className="flex items-center gap-3 rounded-xl border border-white/10 bg-navy-800 p-4 transition hover:border-gaming-green/30"
+                                            className="flex items-center gap-3 rounded-xl border border-white/10 bg-navy-800 p-4"
                                         >
+                                            <Link
+                                                href={route('player.show', { username: match.partner.profile?.username || match.partner.id })}
+                                                className="flex flex-1 items-center gap-3 transition hover:opacity-80"
+                                            >
                                             <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-gaming-purple/30 to-gaming-green/30 font-bold text-white">
                                                 {match.partner.profile?.avatar ? (
                                                     <img src={match.partner.profile.avatar} alt="" className="h-full w-full object-cover" />
@@ -267,12 +270,18 @@ export default function Dashboard({
                                                     (match.partner.profile?.username?.[0] || match.partner.name[0]).toUpperCase()
                                                 )}
                                             </div>
-                                            <div className="min-w-0 flex-1">
+                                            <div className="min-w-0">
                                                 <p className="font-semibold text-white">{match.partner.profile?.username || match.partner.name}</p>
                                                 <p className="text-xs text-gray-500">{match.partner.profile?.region || 'No region'}</p>
                                             </div>
-                                            <span className="shrink-0 rounded-lg bg-gaming-green/10 px-3 py-1.5 text-xs font-medium text-gaming-green">Chat</span>
-                                        </Link>
+                                            </Link>
+                                            <Link
+                                                href={route('chat.show', { playerMatch: match.id })}
+                                                className="shrink-0 rounded-lg bg-gaming-green/10 px-3 py-1.5 text-xs font-semibold text-gaming-green transition hover:bg-gaming-green/20"
+                                            >
+                                                Chat
+                                            </Link>
+                                        </div>
                                     ))}
                                 </div>
                             ) : (
