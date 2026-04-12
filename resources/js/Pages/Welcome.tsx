@@ -40,39 +40,55 @@ export default function Welcome({
                 </nav>
 
                 {/* Hero */}
-                <section className="relative flex min-h-[80vh] flex-col items-center justify-center px-6 text-center">
-                    {/* Glow background */}
-                    <div className="pointer-events-none absolute inset-0 overflow-hidden">
-                        <div className="absolute left-1/2 top-1/4 h-96 w-96 -translate-x-1/2 rounded-full bg-gaming-purple/20 blur-[128px]" />
-                        <div className="absolute right-1/4 top-1/2 h-64 w-64 rounded-full bg-gaming-green/10 blur-[96px]" />
+                <section className="relative overflow-hidden px-6 pb-20 pt-12 lg:px-12 lg:pt-20">
+                    {/* Hero background image */}
+                    <div className="pointer-events-none absolute inset-0">
+                        <img
+                            src="/images/hero.jpg"
+                            alt=""
+                            className="h-full w-full object-cover object-top opacity-30"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-navy-900 via-navy-900/80 to-navy-900/40" />
                     </div>
 
-                    <div className="relative z-10 max-w-4xl">
-                        <h1 className="mb-6 text-5xl font-extrabold leading-tight sm:text-6xl lg:text-7xl">
-                            <span className="bg-gradient-to-r from-gaming-purple via-gaming-pink to-gaming-green bg-clip-text text-transparent">
-                                Find Your Squad
-                            </span>
-                        </h1>
-                        <p className="mx-auto mb-10 max-w-2xl text-lg text-gray-400 sm:text-xl">
-                            The premier matchmaking platform for SEA gamers. Connect with
-                            teammates who match your playstyle, rank, and schedule. From
-                            casual sessions to competitive grinding.
-                        </p>
-                        <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-                            {canRegister && (
+                    <div className="relative z-10 mx-auto flex max-w-6xl flex-col items-center gap-12 lg:flex-row lg:gap-16">
+                        {/* Text */}
+                        <div className="flex-1 text-center lg:text-left">
+                            <h1 className="mb-6 text-5xl font-extrabold leading-tight sm:text-6xl lg:text-7xl">
+                                <span className="bg-gradient-to-r from-gaming-purple via-gaming-pink to-gaming-green bg-clip-text text-transparent">
+                                    Find Your Squad
+                                </span>
+                            </h1>
+                            <p className="mx-auto mb-10 max-w-2xl text-lg text-gray-400 sm:text-xl lg:mx-0">
+                                The premier matchmaking platform for SEA gamers. Connect with
+                                teammates who match your playstyle, rank, and schedule. From
+                                casual sessions to competitive grinding.
+                            </p>
+                            <div className="flex flex-col items-center justify-center gap-4 sm:flex-row lg:justify-start">
+                                {canRegister && (
+                                    <Link
+                                        href={route('register')}
+                                        className="w-full rounded-xl bg-gaming-purple px-8 py-4 text-lg font-bold text-white shadow-lg shadow-gaming-purple/25 transition hover:bg-gaming-purple/80 hover:shadow-gaming-purple/40 sm:w-auto"
+                                    >
+                                        Get Started
+                                    </Link>
+                                )}
                                 <Link
-                                    href={route('register')}
-                                    className="w-full rounded-xl bg-gaming-purple px-8 py-4 text-lg font-bold text-white shadow-lg shadow-gaming-purple/25 transition hover:bg-gaming-purple/80 hover:shadow-gaming-purple/40 sm:w-auto"
+                                    href={route('login')}
+                                    className="w-full rounded-xl border border-white/10 bg-navy-800 px-8 py-4 text-lg font-bold text-white transition hover:border-white/20 hover:bg-navy-700 sm:w-auto"
                                 >
-                                    Get Started
+                                    Browse Players
                                 </Link>
-                            )}
-                            <Link
-                                href={route('login')}
-                                className="w-full rounded-xl border border-white/10 bg-navy-800 px-8 py-4 text-lg font-bold text-white transition hover:border-white/20 hover:bg-navy-700 sm:w-auto"
-                            >
-                                Browse Players
-                            </Link>
+                            </div>
+                        </div>
+
+                        {/* Hero image */}
+                        <div className="hidden flex-1 lg:block">
+                            <img
+                                src="/images/hero.jpg"
+                                alt="Gamers finding their squad on SquadSpawn"
+                                className="rounded-2xl shadow-2xl shadow-gaming-purple/20"
+                            />
                         </div>
                     </div>
                 </section>
