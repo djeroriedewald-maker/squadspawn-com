@@ -149,6 +149,7 @@ export default function Index({ matches }: PageProps<{ matches: FriendItem[] }>)
                                                     <span className="text-[10px] text-gray-600">{match.partner.profile.region}</span>
                                                 )}
                                             </div>
+                                        </div>
                                         </Link>
 
                                         {/* Actions */}
