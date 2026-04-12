@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 
 export default function Welcome({
     canLogin,
@@ -9,6 +9,7 @@ export default function Welcome({
     laravelVersion: string;
     phpVersion: string;
 }) {
+    const user = usePage().props.auth?.user;
     return (
         <>
             <Head title="Find Your Squad" />
@@ -19,24 +20,35 @@ export default function Welcome({
                     <span className="text-2xl font-bold text-gaming-purple">
                         SquadSpawn
                     </span>
-                    {canLogin && (
-                        <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4">
+                        {user ? (
                             <Link
-                                href={route('login')}
-                                className="text-sm font-medium text-gray-300 transition hover:text-white"
+                                href={route('dashboard')}
+                                className="rounded-lg bg-gaming-purple px-4 py-2 text-sm font-semibold text-white transition hover:bg-gaming-purple/80"
                             >
-                                Log in
+                                Dashboard
                             </Link>
-                            {canRegister && (
-                                <Link
-                                    href={route('register')}
-                                    className="rounded-lg bg-gaming-purple px-4 py-2 text-sm font-semibold text-white transition hover:bg-gaming-purple/80"
-                                >
-                                    Sign up
-                                </Link>
-                            )}
-                        </div>
-                    )}
+                        ) : (
+                            <>
+                                {canLogin && (
+                                    <Link
+                                        href={route('login')}
+                                        className="text-sm font-medium text-gray-300 transition hover:text-white"
+                                    >
+                                        Log in
+                                    </Link>
+                                )}
+                                {canRegister && (
+                                    <Link
+                                        href={route('register')}
+                                        className="rounded-lg bg-gaming-purple px-4 py-2 text-sm font-semibold text-white transition hover:bg-gaming-purple/80"
+                                    >
+                                        Sign up
+                                    </Link>
+                                )}
+                            </>
+                        )}
+                    </div>
                 </nav>
 
                 {/* Hero */}
