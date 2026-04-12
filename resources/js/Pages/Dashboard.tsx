@@ -21,8 +21,12 @@ export default function Dashboard() {
                     {/* Welcome Card */}
                     <div className="mb-8 rounded-xl border border-white/10 bg-navy-800 p-6">
                         <div className="flex items-center gap-4">
-                            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gaming-purple/20 text-2xl font-bold text-gaming-purple">
-                                {user.name.charAt(0).toUpperCase()}
+                            <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-gaming-purple/20 text-2xl font-bold text-gaming-purple">
+                                {user.profile?.avatar ? (
+                                    <img src={user.profile.avatar} alt={user.name} className="h-full w-full object-cover" />
+                                ) : (
+                                    user.name.charAt(0).toUpperCase()
+                                )}
                             </div>
                             <div>
                                 <h3 className="text-xl font-bold text-white">
