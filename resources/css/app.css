@@ -5,3 +5,17 @@
 body {
     @apply bg-navy-900 text-white antialiased;
 }
+
+@keyframes scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-33.333%); }
+}
+
+.animate-scroll {
+    animation: scroll 30s linear infinite;
+    width: max-content;
+}
+
+.animate-scroll:hover {
+    animation-play-state: paused;
+}

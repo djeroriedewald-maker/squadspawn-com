@@ -1,5 +1,15 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 
+const gameCovers = [
+    { name: 'Mobile Legends', image: '/images/games/mlbb.jpg' },
+    { name: 'PUBG Mobile', image: '/images/games/pubgm.jpg' },
+    { name: 'Valorant', image: '/images/games/valorant.jpg' },
+    { name: 'League of Legends', image: '/images/games/lol.jpg' },
+    { name: 'Free Fire', image: '/images/games/freefire.jpg' },
+    { name: 'Honor of Kings', image: '/images/games/hok.jpg' },
+    { name: 'Call of Duty: Mobile', image: '/images/games/codm.jpg' },
+];
+
 export default function Welcome({
     canLogin,
     canRegister,
@@ -51,12 +61,32 @@ export default function Welcome({
                     </div>
                 </nav>
 
-                {/* Hero */}
-                <section className="relative overflow-hidden px-6 pb-24 pt-12 lg:px-12 lg:pt-20">
-                    <div className="pointer-events-none absolute inset-0">
-                        <img src="/images/hero.jpg" alt="" className="h-full w-full object-cover object-top opacity-30" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-navy-900 via-navy-900/80 to-navy-900/40" />
+                {/* Scrolling Game Banner */}
+                <div className="relative overflow-hidden border-y border-white/5 bg-navy-800/50 py-3">
+                    <div className="animate-scroll flex gap-4">
+                        {[...gameCovers, ...gameCovers, ...gameCovers].map((game, i) => (
+                            <div key={i} className="flex-shrink-0">
+                                <img
+                                    src={game.image}
+                                    alt={game.name}
+                                    className="h-16 w-28 rounded-lg object-cover opacity-60 transition hover:opacity-100 sm:h-20 sm:w-36"
+                                />
+                            </div>
+                        ))}
                     </div>
+                    <div className="pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-navy-900 to-transparent" />
+                    <div className="pointer-events-none absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-navy-900 to-transparent" />
+                </div>
+
+                {/* Hero */}
+                <section className="relative overflow-hidden px-6 pb-24 pt-16 lg:px-12 lg:pt-24">
+                    {/* Game collage background */}
+                    <div className="pointer-events-none absolute inset-0 grid grid-cols-4 gap-1 opacity-[0.07]">
+                        {[...gameCovers, ...gameCovers, ...gameCovers, ...gameCovers].slice(0, 16).map((game, i) => (
+                            <img key={i} src={game.image} alt="" className="h-full w-full object-cover" />
+                        ))}
+                    </div>
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-navy-900/60 via-navy-900/90 to-navy-900" />
 
                     <div className="relative z-10 mx-auto flex max-w-6xl flex-col items-center gap-12 lg:flex-row lg:gap-16">
                         <div className="flex-1 text-center lg:text-left">
@@ -96,11 +126,18 @@ export default function Welcome({
                         </div>
 
                         <div className="hidden flex-1 lg:block">
-                            <img
-                                src="/images/hero.jpg"
-                                alt="Gamers finding their squad"
-                                className="rounded-2xl shadow-2xl shadow-gaming-purple/20"
-                            />
+                            <div className="grid grid-cols-2 gap-3">
+                                {gameCovers.slice(0, 4).map((game, i) => (
+                                    <img
+                                        key={game.name}
+                                        src={game.image}
+                                        alt={game.name}
+                                        className={`rounded-xl object-cover shadow-lg shadow-black/30 transition hover:scale-105 ${
+                                            i === 0 ? 'col-span-2 h-48' : 'h-32'
+                                        } w-full`}
+                                    />
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </section>
