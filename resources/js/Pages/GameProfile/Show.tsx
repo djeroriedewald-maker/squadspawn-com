@@ -1,13 +1,32 @@
 import SocialLinks from '@/Components/SocialLinks';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Game, PageProps, Profile } from '@/types';
+import { Clip, Game, PageProps, Profile } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
+
+function getYouTubeThumbnail(url: string): string | null {
+    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]+)/);
+    return match ? `https://img.youtube.com/vi/${match[1]}/mqdefault.jpg` : null;
+}
+
+const platformBadge = (platform: string) => {
+    switch (platform) {
+        case 'youtube':
+            return <span className="rounded-full bg-red-600/20 px-2 py-0.5 text-[10px] font-bold uppercase text-red-400">YouTube</span>;
+        case 'twitch':
+            return <span className="rounded-full bg-purple-600/20 px-2 py-0.5 text-[10px] font-bold uppercase text-purple-400">Twitch</span>;
+        case 'tiktok':
+            return <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-bold uppercase text-gray-200">TikTok</span>;
+        default:
+            return null;
+    }
+};
 
 export default function Show({
     profile,
     userGames,
-}: PageProps<{ profile: Profile | null; userGames: Game[] }>) {
+    clips = [],
+}: PageProps<{ profile: Profile | null; userGames: Game[]; clips: Clip[] }>) {
     const { flash } = usePage().props as any;
     const [copied, setCopied] = useState(false);
     const [showToast, setShowToast] = useState(false);

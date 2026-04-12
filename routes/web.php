@@ -8,6 +8,7 @@ use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\GameProfileController;
 use App\Http\Controllers\GamesController;
 use App\Http\Controllers\BlockController;
+use App\Http\Controllers\ClipController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\MatchController;
 use App\Http\Controllers\ProfileController;
@@ -135,12 +136,17 @@ Route::get('/dashboard', function () {
 Route::get('/games', [GamesController::class, 'index'])->name('games.index');
 Route::get('/player/{username}', [PlayerController::class, 'show'])->name('player.show');
 Route::get('/players', [\App\Http\Controllers\DiscoveryController::class, 'publicIndex'])->name('players.public');
+Route::get('/clips', [ClipController::class, 'index'])->name('clips.index');
 Route::get('/search', [SearchController::class, 'search'])->middleware('auth')->name('search');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Clips
+    Route::post('/clips', [ClipController::class, 'store'])->name('clips.store');
+    Route::delete('/clips/{clip}', [ClipController::class, 'destroy'])->name('clips.destroy');
 
     // Avatar
     Route::post('/avatar/upload', [AvatarController::class, 'upload'])->name('avatar.upload');

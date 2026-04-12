@@ -10,6 +10,7 @@ class Profile extends Model
     protected $fillable = [
         'user_id', 'username', 'avatar', 'bio', 'looking_for',
         'region', 'timezone', 'available_times', 'socials',
+        'is_creator', 'stream_url', 'is_live',
     ];
 
     protected function casts(): array
@@ -17,6 +18,8 @@ class Profile extends Model
         return [
             'available_times' => 'array',
             'socials' => 'array',
+            'is_creator' => 'boolean',
+            'is_live' => 'boolean',
         ];
     }
 

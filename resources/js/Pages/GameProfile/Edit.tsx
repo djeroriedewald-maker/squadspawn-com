@@ -117,6 +117,8 @@ export default function GameProfileEdit({
         looking_for: string;
         region: string;
         timezone: string;
+        is_creator: boolean;
+        stream_url: string;
         socials: Record<string, string>;
         games: Record<number, { selected: boolean; rank: string; role: string; platform: string }>;
     }>({
@@ -125,6 +127,8 @@ export default function GameProfileEdit({
         looking_for: profile?.looking_for ?? 'any',
         region: profile?.region ?? '',
         timezone: profile?.timezone ?? '',
+        is_creator: profile?.is_creator ?? false,
+        stream_url: profile?.stream_url ?? '',
         socials: {
             discord: profile?.socials?.discord ?? '',
             instagram: profile?.socials?.instagram ?? '',
@@ -401,6 +405,43 @@ export default function GameProfileEdit({
                                     </div>
                                 ))}
                             </div>
+                        </div>
+
+                        {/* Creator Settings */}
+                        <div className="rounded-xl border border-white/10 bg-navy-800 p-6">
+                            <h3 className="mb-2 text-lg font-semibold text-white">Creator Settings</h3>
+                            <p className="mb-5 text-sm text-gray-400">Enable creator features to showcase your content and streams.</p>
+
+                            <label className="flex cursor-pointer items-center gap-3">
+                                <input
+                                    type="checkbox"
+                                    checked={data.is_creator}
+                                    onChange={(e) => setData('is_creator', e.target.checked)}
+                                    className="h-5 w-5 rounded border-white/10 bg-navy-700 text-gaming-purple focus:ring-gaming-purple focus:ring-offset-0"
+                                />
+                                <span className="text-sm font-medium text-white">I'm a Content Creator</span>
+                            </label>
+
+                            {data.is_creator && (
+                                <div className="mt-5 space-y-4 border-t border-white/10 pt-5">
+                                    <div>
+                                        <label className="mb-1 block text-sm font-medium text-gray-300">
+                                            Stream URL
+                                        </label>
+                                        <input
+                                            type="url"
+                                            value={data.stream_url}
+                                            onChange={(e) => setData('stream_url', e.target.value)}
+                                            placeholder="https://twitch.tv/yourchannel or https://youtube.com/@yourchannel"
+                                            className="w-full rounded-lg border border-white/10 bg-navy-700 px-4 py-2 text-white placeholder-gray-500 focus:border-gaming-purple focus:outline-none focus:ring-1 focus:ring-gaming-purple"
+                                        />
+                                        {errors.stream_url && (
+                                            <p className="mt-1 text-sm text-red-400">{errors.stream_url}</p>
+                                        )}
+                                        <p className="mt-1 text-xs text-gray-500">Your Twitch or YouTube channel URL</p>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {/* Games */}

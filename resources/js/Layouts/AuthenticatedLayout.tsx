@@ -62,6 +62,12 @@ export default function Authenticated({
                                     Games
                                 </NavLink>
                                 <NavLink
+                                    href={route('clips.index')}
+                                    active={route().current('clips.*')}
+                                >
+                                    Clips
+                                </NavLink>
+                                <NavLink
                                     href={route('game-profile.show')}
                                     active={route().current('game-profile.*')}
                                 >
@@ -276,6 +282,12 @@ export default function Authenticated({
                             active={route().current('games.*')}
                         >
                             Games
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            href={route('clips.index')}
+                            active={route().current('clips.*')}
+                        >
+                            Clips
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
                             href={route('game-profile.show')}

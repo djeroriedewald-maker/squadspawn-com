@@ -17,6 +17,9 @@ export interface Profile {
     region?: string;
     timezone?: string;
     available_times?: Record<string, boolean>;
+    is_creator?: boolean;
+    stream_url?: string;
+    is_live?: boolean;
     socials?: {
         discord?: string;
         instagram?: string;
@@ -26,6 +29,19 @@ export interface Profile {
         twitch?: string;
         facebook?: string;
     };
+}
+
+export interface Clip {
+    id: number;
+    user_id: number;
+    game_id: number | null;
+    title: string;
+    url: string;
+    platform: 'youtube' | 'twitch' | 'tiktok';
+    thumbnail?: string;
+    created_at?: string;
+    user?: User;
+    game?: Game;
 }
 
 export interface Game {

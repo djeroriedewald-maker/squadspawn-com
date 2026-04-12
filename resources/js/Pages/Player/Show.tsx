@@ -1,9 +1,27 @@
 import SocialLinks from '@/Components/SocialLinks';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { PageProps, User } from '@/types';
+import { Clip, PageProps, User } from '@/types';
 import { Head, Link, usePage, router } from '@inertiajs/react';
 import { useState } from 'react';
 import axios from 'axios';
+
+function getYouTubeThumbnail(url: string): string | null {
+    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]+)/);
+    return match ? `https://img.youtube.com/vi/${match[1]}/mqdefault.jpg` : null;
+}
+
+const platformBadge = (platform: string) => {
+    switch (platform) {
+        case 'youtube':
+            return <span className="rounded-full bg-red-600/20 px-2 py-0.5 text-[10px] font-bold uppercase text-red-400">YouTube</span>;
+        case 'twitch':
+            return <span className="rounded-full bg-purple-600/20 px-2 py-0.5 text-[10px] font-bold uppercase text-purple-400">Twitch</span>;
+        case 'tiktok':
+            return <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-bold uppercase text-gray-200">TikTok</span>;
+        default:
+            return null;
+    }
+};
 
 const REPORT_REASONS = [
     'Inappropriate content',
@@ -13,7 +31,7 @@ const REPORT_REASONS = [
     'Other',
 ];
 
-export default function PlayerShow({ player }: PageProps<{ player: User }>) {
+export default function PlayerShow({ player, clips = [] }: PageProps<{ player: User; clips: Clip[] }>) {
     const { auth } = usePage<PageProps>().props;
     const isLoggedIn = !!auth?.user;
     const isOwnProfile = auth?.user?.id === player.id;
@@ -84,9 +102,23 @@ export default function PlayerShow({ player }: PageProps<{ player: User }>) {
                                 )}
                             </div>
                             <div className="text-center sm:text-left">
-                                <h1 className="text-2xl font-bold text-white">
+                                <h1 className="flex items-center gap-2 text-2xl font-bold text-white">
                                     {player.profile?.username || player.name}
+                                    {player.profile?.is_creator && (
+                                        <span className="rounded-full bg-gaming-purple/20 px-2.5 py-0.5 text-xs font-semibold text-gaming-purple">Creator</span>
+                                    )}
                                 </h1>
+                                {player.profile?.stream_url && (
+                                    <a
+                                        href={player.profile.stream_url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-gaming-green/10 px-3 py-1.5 text-xs font-semibold text-gaming-green transition hover:bg-gaming-green/20"
+                                    >
+                                        <svg className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                                        Watch Stream
+                                    </a>
+                                )}
                                 <div className="mt-2 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
                                     {player.profile?.looking_for && (
                                         <span className="rounded-full bg-gaming-purple/20 px-3 py-0.5 text-xs font-medium text-gaming-purple">
@@ -242,6 +274,53 @@ export default function PlayerShow({ player }: PageProps<{ player: User }>) {
                             </div>
                         </div>
                     )}
+                    {/* Clips */}
+                    {clips && clips.length > 0 && (
+                        <div className="mt-6 rounded-2xl border border-white/10 bg-navy-800 p-8">
+                            <h3 className="mb-4 text-lg font-bold text-white">
+                                Clips & Highlights ({clips.length})
+                            </h3>
+                            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                                {clips.map((clip) => {
+                                    const thumbnail = clip.thumbnail || (clip.platform === 'youtube' ? getYouTubeThumbnail(clip.url) : null);
+                                    return (
+                                        <a
+                                            key={clip.id}
+                                            href={clip.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="group overflow-hidden rounded-xl border border-white/5 bg-navy-900 transition hover:border-gaming-purple/30"
+                                        >
+                                            <div className="relative aspect-video overflow-hidden">
+                                                {thumbnail ? (
+                                                    <img src={thumbnail} alt={clip.title} className="h-full w-full object-cover transition group-hover:scale-105" />
+                                                ) : (
+                                                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gaming-purple/20 to-gaming-green/20">
+                                                        <svg className="h-8 w-8 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" /></svg>
+                                                    </div>
+                                                )}
+                                                <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 transition group-hover:opacity-100">
+                                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur">
+                                                        <svg className="h-5 w-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                                                    </div>
+                                                </div>
+                                                <div className="absolute right-2 top-2">
+                                                    {platformBadge(clip.platform)}
+                                                </div>
+                                            </div>
+                                            <div className="p-2.5">
+                                                <p className="truncate text-sm font-semibold text-white">{clip.title}</p>
+                                                {clip.game && (
+                                                    <p className="mt-0.5 text-xs text-gray-500">{clip.game.name}</p>
+                                                )}
+                                            </div>
+                                        </a>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
+
                     {/* CTA for guests */}
                     {!isLoggedIn && (
                         <div className="mt-6 rounded-xl border border-gaming-purple/20 bg-gaming-purple/5 p-6 text-center">

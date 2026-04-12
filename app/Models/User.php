@@ -55,4 +55,9 @@ class User extends Authenticatable
         return PlayerMatch::where('user_one_id', $this->id)
             ->orWhere('user_two_id', $this->id);
     }
+
+    public function clips()
+    {
+        return $this->hasMany(Clip::class);
+    }
 }

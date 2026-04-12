@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Clip;
 use App\Models\Game;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -14,9 +15,12 @@ class GameProfileController extends Controller
         $user = auth()->user();
         $user->load(['profile', 'games']);
 
+        $clips = Clip::where('user_id', $user->id)->with('game')->latest()->take(6)->get();
+
         return Inertia::render('GameProfile/Show', [
             'profile' => $user->profile,
             'userGames' => $user->games,
+            'clips' => $clips,
         ]);
     }
 
@@ -52,6 +56,8 @@ class GameProfileController extends Controller
             'socials.youtube' => ['nullable', 'string', 'max:100'],
             'socials.twitch' => ['nullable', 'string', 'max:100'],
             'socials.facebook' => ['nullable', 'string', 'max:100'],
+            'is_creator' => ['nullable', 'boolean'],
+            'stream_url' => ['nullable', 'url', 'max:255'],
             'games' => ['nullable', 'array'],
             'games.*.game_id' => ['required', 'exists:games,id'],
             'games.*.rank' => ['nullable', 'string', 'max:50'],
@@ -68,6 +74,8 @@ class GameProfileController extends Controller
             'timezone' => $validated['timezone'] ?? null,
             'available_times' => $validated['available_times'] ?? null,
             'socials' => $validated['socials'] ?? null,
+            'is_creator' => $validated['is_creator'] ?? false,
+            'stream_url' => $validated['stream_url'] ?? null,
         ];
 
         $user->profile()->updateOrCreate(
