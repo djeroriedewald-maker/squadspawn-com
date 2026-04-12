@@ -9,13 +9,14 @@ class Profile extends Model
 {
     protected $fillable = [
         'user_id', 'username', 'avatar', 'bio', 'looking_for',
-        'region', 'timezone', 'available_times',
+        'region', 'timezone', 'available_times', 'socials',
     ];
 
     protected function casts(): array
     {
         return [
             'available_times' => 'array',
+            'socials' => 'array',
         ];
     }
 

@@ -1,3 +1,4 @@
+import SocialLinks from '@/Components/SocialLinks';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { PageProps, User } from '@/types';
 import { Head, Link, usePage, router } from '@inertiajs/react';
@@ -100,6 +101,12 @@ export default function PlayerShow({ player }: PageProps<{ player: User }>) {
                                 </div>
                                 {player.profile?.bio && (
                                     <p className="mt-4 text-sm leading-relaxed text-gray-300">{player.profile.bio}</p>
+                                )}
+
+                                {player.profile?.socials && Object.values(player.profile.socials).some(v => v) && (
+                                    <div className="mt-4">
+                                        <SocialLinks socials={player.profile.socials} />
+                                    </div>
                                 )}
                             </div>
                         </div>

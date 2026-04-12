@@ -44,6 +44,14 @@ class GameProfileController extends Controller
             'timezone' => ['nullable', 'string', 'max:50'],
             'available_times' => ['nullable', 'array'],
             'avatar' => ['nullable', 'string', 'max:255'],
+            'socials' => ['nullable', 'array'],
+            'socials.discord' => ['nullable', 'string', 'max:100'],
+            'socials.instagram' => ['nullable', 'string', 'max:100'],
+            'socials.twitter' => ['nullable', 'string', 'max:100'],
+            'socials.tiktok' => ['nullable', 'string', 'max:100'],
+            'socials.youtube' => ['nullable', 'string', 'max:100'],
+            'socials.twitch' => ['nullable', 'string', 'max:100'],
+            'socials.facebook' => ['nullable', 'string', 'max:100'],
             'games' => ['nullable', 'array'],
             'games.*.game_id' => ['required', 'exists:games,id'],
             'games.*.rank' => ['nullable', 'string', 'max:50'],
@@ -59,6 +67,7 @@ class GameProfileController extends Controller
             'region' => $validated['region'] ?? null,
             'timezone' => $validated['timezone'] ?? null,
             'available_times' => $validated['available_times'] ?? null,
+            'socials' => $validated['socials'] ?? null,
         ];
 
         $user->profile()->updateOrCreate(

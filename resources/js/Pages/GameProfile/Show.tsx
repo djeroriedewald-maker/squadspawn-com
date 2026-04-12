@@ -1,3 +1,4 @@
+import SocialLinks from '@/Components/SocialLinks';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Game, PageProps, Profile } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
@@ -92,6 +93,12 @@ export default function Show({
 
                                 {profile.bio && (
                                     <p className="mt-6 text-sm leading-relaxed text-gray-300">{profile.bio}</p>
+                                )}
+
+                                {profile.socials && Object.values(profile.socials).some(v => v) && (
+                                    <div className="mt-4">
+                                        <SocialLinks socials={profile.socials} />
+                                    </div>
                                 )}
                             </div>
 

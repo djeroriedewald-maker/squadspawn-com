@@ -17,6 +17,15 @@ export interface Profile {
     region?: string;
     timezone?: string;
     available_times?: Record<string, boolean>;
+    socials?: {
+        discord?: string;
+        instagram?: string;
+        twitter?: string;
+        tiktok?: string;
+        youtube?: string;
+        twitch?: string;
+        facebook?: string;
+    };
 }
 
 export interface Game {
