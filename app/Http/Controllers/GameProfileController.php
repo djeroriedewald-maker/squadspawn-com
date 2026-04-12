@@ -9,6 +9,17 @@ use Inertia\Response;
 
 class GameProfileController extends Controller
 {
+    public function show(): Response
+    {
+        $user = auth()->user();
+        $user->load(['profile', 'games']);
+
+        return Inertia::render('GameProfile/Show', [
+            'profile' => $user->profile,
+            'userGames' => $user->games,
+        ]);
+    }
+
     public function edit(): Response
     {
         $user = auth()->user();
@@ -69,7 +80,7 @@ class GameProfileController extends Controller
             $user->games()->detach();
         }
 
-        return redirect()->route('game-profile.edit')
-            ->with('message', 'Profile updated successfully.');
+        return redirect()->route('game-profile.show')
+            ->with('message', 'Profile saved successfully!');
     }
 }

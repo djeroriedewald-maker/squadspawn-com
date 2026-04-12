@@ -35,6 +35,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Game Profile
+    Route::get('/profile/me', [GameProfileController::class, 'show'])->name('game-profile.show');
     Route::get('/profile/setup', [GameProfileController::class, 'edit'])->name('game-profile.edit');
     Route::put('/profile/setup', [GameProfileController::class, 'update'])->name('game-profile.update');
 

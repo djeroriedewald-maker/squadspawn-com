@@ -51,7 +51,7 @@ export default function Authenticated({
                                     Games
                                 </NavLink>
                                 <NavLink
-                                    href={route('game-profile.edit')}
+                                    href={route('game-profile.show')}
                                     active={route().current('game-profile.*')}
                                 >
                                     Profile
@@ -179,7 +179,7 @@ export default function Authenticated({
                             Games
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
-                            href={route('game-profile.edit')}
+                            href={route('game-profile.show')}
                             active={route().current('game-profile.*')}
                         >
                             Profile
