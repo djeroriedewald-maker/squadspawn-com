@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class Game extends Model
 {
     protected $fillable = [
-        'name', 'slug', 'genre', 'platforms', 'cover_image', 'rank_system',
+        'name', 'slug', 'genre', 'platforms', 'cover_image', 'rank_system', 'roles',
     ];
 
     protected function casts(): array
@@ -16,6 +16,7 @@ class Game extends Model
         return [
             'platforms' => 'array',
             'rank_system' => 'array',
+            'roles' => 'array',
         ];
     }
 

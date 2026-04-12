@@ -9,6 +9,7 @@ export default function Show({
     userGames,
 }: PageProps<{ profile: Profile | null; userGames: Game[] }>) {
     const { flash } = usePage().props as any;
+    const [copied, setCopied] = useState(false);
     const [showToast, setShowToast] = useState(false);
 
     useEffect(() => {
@@ -83,12 +84,24 @@ export default function Show({
                                             </div>
                                         </div>
                                     </div>
-                                    <Link
-                                        href={route('game-profile.edit')}
-                                        className="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-gray-300 transition hover:bg-navy-700 hover:text-white"
-                                    >
-                                        Edit
-                                    </Link>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => {
+                                                navigator.clipboard.writeText(window.location.origin + '/player/' + profile.username);
+                                                setCopied(true);
+                                                setTimeout(() => setCopied(false), 2000);
+                                            }}
+                                            className="rounded-lg border border-white/10 px-3 py-2 text-sm text-gray-300 transition hover:bg-navy-700 hover:text-white"
+                                        >
+                                            {copied ? 'Copied!' : 'Share'}
+                                        </button>
+                                        <Link
+                                            href={route('game-profile.edit')}
+                                            className="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-gray-300 transition hover:bg-navy-700 hover:text-white"
+                                        >
+                                            Edit
+                                        </Link>
+                                    </div>
                                 </div>
 
                                 {profile.bio && (

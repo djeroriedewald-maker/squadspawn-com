@@ -26,6 +26,15 @@ class ChatController extends Controller
             ? $playerMatch->userTwo
             : $playerMatch->userOne;
 
+        // Mark partner's messages as read
+        $playerMatch->messages()
+            ->where('sender_id', '!=', $user->id)
+            ->whereNull('read_at')
+            ->update(['read_at' => now()]);
+
+        // Reload messages so read_at is up-to-date
+        $playerMatch->load('messages.sender');
+
         // Mark notifications as read for this match
         $user->unreadNotifications()
             ->where('type', NewMessageNotification::class)
@@ -67,5 +76,21 @@ class ChatController extends Controller
         $partner->notify(new NewMessageNotification($message, $user, $playerMatch->id));
 
         return response()->json($message, HttpResponse::HTTP_CREATED);
+    }
+
+    public function markRead(PlayerMatch $playerMatch): JsonResponse
+    {
+        $user = auth()->user();
+
+        if ($playerMatch->user_one_id !== $user->id && $playerMatch->user_two_id !== $user->id) {
+            abort(HttpResponse::HTTP_FORBIDDEN, 'You are not part of this match.');
+        }
+
+        $playerMatch->messages()
+            ->where('sender_id', '!=', $user->id)
+            ->whereNull('read_at')
+            ->update(['read_at' => now()]);
+
+        return response()->json(['ok' => true]);
     }
 }

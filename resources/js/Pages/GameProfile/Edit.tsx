@@ -118,7 +118,7 @@ export default function GameProfileEdit({
         region: string;
         timezone: string;
         socials: Record<string, string>;
-        games: Record<number, { selected: boolean; rank: string; platform: string }>;
+        games: Record<number, { selected: boolean; rank: string; role: string; platform: string }>;
     }>({
         username: profile?.username ?? '',
         bio: profile?.bio ?? '',
@@ -140,11 +140,12 @@ export default function GameProfileEdit({
                 acc[game.id] = {
                     selected: userGameIds.includes(game.id),
                     rank: userGame?.pivot?.rank ?? '',
+                    role: userGame?.pivot?.role ?? '',
                     platform: userGame?.pivot?.platform ?? (game.platforms[0] ?? ''),
                 };
                 return acc;
             },
-            {} as Record<number, { selected: boolean; rank: string; platform: string }>,
+            {} as Record<number, { selected: boolean; rank: string; role: string; platform: string }>,
         ),
     });
 
@@ -156,6 +157,7 @@ export default function GameProfileEdit({
             .map(([id, g]) => ({
                 game_id: parseInt(id),
                 rank: g.rank,
+                role: g.role,
                 platform: g.platform,
             }));
 
@@ -179,7 +181,7 @@ export default function GameProfileEdit({
 
     const updateGameField = (
         gameId: number,
-        field: 'rank' | 'platform',
+        field: 'rank' | 'role' | 'platform',
         value: string,
     ) => {
         setData('games', {
@@ -477,6 +479,18 @@ export default function GameProfileEdit({
                                                                 <option value="">Select rank</option>
                                                                 {game.rank_system.map((rank) => (
                                                                     <option key={rank} value={rank}>{rank}</option>
+                                                                ))}
+                                                            </select>
+                                                        )}
+                                                        {game.roles && game.roles.length > 0 && (
+                                                            <select
+                                                                value={gameData.role}
+                                                                onChange={(e) => updateGameField(game.id, 'role', e.target.value)}
+                                                                className="w-full rounded-md border border-white/10 bg-navy-800 px-2 py-1.5 text-xs text-white focus:border-gaming-purple focus:outline-none focus:ring-1 focus:ring-gaming-purple"
+                                                            >
+                                                                <option value="">Select role</option>
+                                                                {game.roles.map((role) => (
+                                                                    <option key={role} value={role}>{role}</option>
                                                                 ))}
                                                             </select>
                                                         )}

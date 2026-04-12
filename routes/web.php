@@ -11,7 +11,9 @@ use App\Http\Controllers\BlockController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\MatchController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\LfgController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SearchController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -133,6 +135,7 @@ Route::get('/dashboard', function () {
 Route::get('/games', [GamesController::class, 'index'])->name('games.index');
 Route::get('/player/{username}', [PlayerController::class, 'show'])->name('player.show');
 Route::get('/players', [\App\Http\Controllers\DiscoveryController::class, 'publicIndex'])->name('players.public');
+Route::get('/search', [SearchController::class, 'search'])->middleware('auth')->name('search');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -161,6 +164,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/friends', [MatchController::class, 'index'])->name('friends.index');
         Route::get('/friends/{playerMatch}/chat', [ChatController::class, 'show'])->name('chat.show');
         Route::post('/friends/{playerMatch}/messages', [ChatController::class, 'store'])->name('chat.store');
+        Route::post('/friends/{playerMatch}/read', [ChatController::class, 'markRead'])->name('chat.markRead');
+
+        // LFG
+        Route::get('/lfg', [LfgController::class, 'index'])->name('lfg.index');
+        Route::get('/lfg/create', [LfgController::class, 'create'])->name('lfg.create');
+        Route::post('/lfg', [LfgController::class, 'store'])->name('lfg.store');
+        Route::post('/lfg/{lfgPost}/respond', [LfgController::class, 'respond'])->name('lfg.respond');
     });
 });
 

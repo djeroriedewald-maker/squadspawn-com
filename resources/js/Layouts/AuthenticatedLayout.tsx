@@ -1,6 +1,7 @@
 import Dropdown from '@/Components/Dropdown';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
+import SearchBar from '@/Components/SearchBar';
 import { Link, usePage } from '@inertiajs/react';
 import { PropsWithChildren, ReactNode, useState } from 'react';
 
@@ -43,6 +44,12 @@ export default function Authenticated({
                                     Discover
                                 </NavLink>
                                 <NavLink
+                                    href={route('lfg.index')}
+                                    active={route().current('lfg.*')}
+                                >
+                                    LFG
+                                </NavLink>
+                                <NavLink
                                     href={route('friends.index')}
                                     active={route().current('friends.*')}
                                 >
@@ -64,6 +71,9 @@ export default function Authenticated({
                         </div>
 
                         <div className="hidden sm:ms-6 sm:flex sm:items-center sm:gap-3">
+                            {/* Search */}
+                            <SearchBar />
+
                             {/* Notification Bell */}
                             <div className="relative">
                                 <button
@@ -248,6 +258,12 @@ export default function Authenticated({
                             active={route().current('discovery.*')}
                         >
                             Discover
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            href={route('lfg.index')}
+                            active={route().current('lfg.*')}
+                        >
+                            LFG
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
                             href={route('friends.index')}

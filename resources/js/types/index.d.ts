@@ -36,6 +36,7 @@ export interface Game {
     platforms: string[];
     cover_image?: string;
     rank_system?: string[];
+    roles?: string[];
     pivot?: {
         rank?: string;
         role?: string;
