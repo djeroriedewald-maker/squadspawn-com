@@ -177,26 +177,32 @@ export default function DiscoveryIndex({
                                     </p>
                                 )}
 
-                                {/* Games */}
+                                {/* Games with covers */}
                                 {currentPlayer.games && currentPlayer.games.length > 0 && (
                                     <div className="mb-6">
-                                        <h4 className="mb-2 text-sm font-medium text-gray-400">
+                                        <h4 className="mb-3 text-sm font-medium text-gray-400">
                                             Games
                                         </h4>
-                                        <div className="flex flex-wrap gap-2">
+                                        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                                             {currentPlayer.games.map((game) => (
                                                 <div
                                                     key={game.id}
-                                                    className="rounded-lg border border-white/10 bg-navy-700 px-3 py-2"
+                                                    className="overflow-hidden rounded-lg border border-white/10 bg-navy-700"
                                                 >
-                                                    <p className="text-sm font-medium text-white">
-                                                        {game.name}
-                                                    </p>
-                                                    {game.pivot?.rank && (
-                                                        <p className="text-xs text-gaming-green">
-                                                            {game.pivot.rank}
-                                                        </p>
-                                                    )}
+                                                    <div className="relative h-16 overflow-hidden">
+                                                        <img
+                                                            src={game.cover_image || `/images/games/${game.slug}.svg`}
+                                                            alt={game.name}
+                                                            className="h-full w-full object-cover"
+                                                        />
+                                                        <div className="absolute inset-0 bg-gradient-to-t from-navy-700 to-transparent" />
+                                                    </div>
+                                                    <div className="px-2 py-1.5">
+                                                        <p className="truncate text-xs font-semibold text-white">{game.name}</p>
+                                                        {game.pivot?.rank && (
+                                                            <p className="text-[10px] font-medium text-gaming-green">{game.pivot.rank}</p>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             ))}
                                         </div>

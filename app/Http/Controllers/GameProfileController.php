@@ -81,6 +81,14 @@ class GameProfileController extends Controller
             $user->games()->detach();
         }
 
+        // If this was the first time setup, redirect to discovery
+        $isFirstSetup = !$user->profile()->where('created_at', '<', now()->subMinute())->exists();
+
+        if ($isFirstSetup) {
+            return redirect()->route('discovery.index')
+                ->with('message', 'Profile created! Start discovering players.');
+        }
+
         return redirect()->route('game-profile.show')
             ->with('message', 'Profile saved successfully!');
     }

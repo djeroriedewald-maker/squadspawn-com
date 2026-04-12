@@ -28,8 +28,33 @@ Route::get('/', function () {
 Route::get('/dashboard', function () {
     $user = auth()->user();
     $user->load(['profile', 'games']);
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+
+    $matchCount = \App\Models\PlayerMatch::where('user_one_id', $user->id)
+        ->orWhere('user_two_id', $user->id)
+        ->count();
+
+    $recentMatches = \App\Models\PlayerMatch::where('user_one_id', $user->id)
+        ->orWhere('user_two_id', $user->id)
+        ->with(['userOne.profile', 'userTwo.profile'])
+        ->latest()
+        ->take(5)
+        ->get()
+        ->map(function ($match) use ($user) {
+            return [
+                'id' => $match->id,
+                'partner' => $match->user_one_id === $user->id ? $match->userTwo : $match->userOne,
+                'created_at' => $match->created_at,
+            ];
+        });
+
+    $allGames = \App\Models\Game::all();
+
+    return Inertia::render('Dashboard', [
+        'matchCount' => $matchCount,
+        'recentMatches' => $recentMatches,
+        'allGames' => $allGames,
+    ]);
+})->middleware(['auth', 'verified', 'profile.complete'])->name('dashboard');
 
 // Public
 Route::get('/games', [GamesController::class, 'index'])->name('games.index');
@@ -48,19 +73,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/setup', [GameProfileController::class, 'edit'])->name('game-profile.edit');
     Route::put('/profile/setup', [GameProfileController::class, 'update'])->name('game-profile.update');
 
-    // Discovery
-    Route::get('/players', [DiscoveryController::class, 'index'])->name('discovery.index');
-
-    // Likes
-    Route::post('/likes', [LikeController::class, 'store'])->name('likes.store');
-    Route::post('/likes/pass', [LikeController::class, 'pass'])->name('likes.pass');
-
-    // Matches
-    Route::get('/matches', [MatchController::class, 'index'])->name('matches.index');
-
-    // Chat
-    Route::get('/matches/{match}/chat', [ChatController::class, 'show'])->name('chat.show');
-    Route::post('/matches/{match}/messages', [ChatController::class, 'store'])->name('chat.store');
+    // Discovery (requires complete profile)
+    Route::middleware('profile.complete')->group(function () {
+        Route::get('/players', [DiscoveryController::class, 'index'])->name('discovery.index');
+        Route::post('/likes', [LikeController::class, 'store'])->name('likes.store');
+        Route::post('/likes/pass', [LikeController::class, 'pass'])->name('likes.pass');
+        Route::get('/matches', [MatchController::class, 'index'])->name('matches.index');
+        Route::get('/matches/{match}/chat', [ChatController::class, 'show'])->name('chat.show');
+        Route::post('/matches/{match}/messages', [ChatController::class, 'store'])->name('chat.store');
+    });
 });
 
 require __DIR__.'/auth.php';

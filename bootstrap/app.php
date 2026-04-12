@@ -16,7 +16,9 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-        //
+        $middleware->alias([
+            'profile.complete' => \App\Http\Middleware\EnsureProfileComplete::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

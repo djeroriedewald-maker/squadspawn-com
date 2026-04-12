@@ -95,30 +95,44 @@ export default function Show({
                                 )}
                             </div>
 
-                            {/* Games */}
+                            {/* Games with covers */}
                             <div className="rounded-2xl border border-white/10 bg-navy-800 p-8">
-                                <h3 className="mb-4 text-lg font-bold text-white">My Games</h3>
+                                <div className="mb-4 flex items-center justify-between">
+                                    <h3 className="text-lg font-bold text-white">My Games</h3>
+                                    <span className="text-sm text-gray-500">{userGames.length} game{userGames.length !== 1 ? 's' : ''}</span>
+                                </div>
                                 {userGames.length === 0 ? (
-                                    <p className="text-sm text-gray-500">No games added yet.</p>
+                                    <div className="text-center py-6">
+                                        <p className="text-gray-500">No games added yet.</p>
+                                        <Link href={route('game-profile.edit')} className="mt-3 inline-block text-sm text-gaming-purple hover:underline">Add Games</Link>
+                                    </div>
                                 ) : (
-                                    <div className="space-y-3">
+                                    <div className="grid gap-3 sm:grid-cols-2">
                                         {userGames.map((game) => (
-                                            <div key={game.id} className="flex items-center justify-between rounded-xl bg-navy-900 p-4">
-                                                <div>
-                                                    <p className="font-semibold text-white">{game.name}</p>
-                                                    <p className="text-xs text-gray-500">{game.genre} &middot; {game.platforms.join(', ')}</p>
+                                            <div key={game.id} className="overflow-hidden rounded-xl border border-white/5 bg-navy-900">
+                                                <div className="relative h-24 overflow-hidden">
+                                                    <img
+                                                        src={game.cover_image || `/images/games/${game.slug}.svg`}
+                                                        alt={game.name}
+                                                        className="h-full w-full object-cover"
+                                                    />
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-navy-900/90 to-transparent" />
+                                                    <div className="absolute bottom-2 left-3">
+                                                        <p className="font-bold text-white">{game.name}</p>
+                                                    </div>
                                                 </div>
-                                                <div className="flex items-center gap-3">
+                                                <div className="flex items-center gap-2 px-3 py-2.5">
                                                     {game.pivot?.rank && (
-                                                        <span className="rounded-lg bg-gaming-green/10 px-3 py-1 text-sm font-medium text-gaming-green">
+                                                        <span className="rounded-md bg-gaming-green/10 px-2.5 py-0.5 text-xs font-semibold text-gaming-green">
                                                             {game.pivot.rank}
                                                         </span>
                                                     )}
                                                     {game.pivot?.platform && (
-                                                        <span className="rounded-lg bg-white/5 px-3 py-1 text-sm text-gray-400">
+                                                        <span className="rounded-md bg-white/5 px-2.5 py-0.5 text-xs text-gray-400 capitalize">
                                                             {game.pivot.platform}
                                                         </span>
                                                     )}
+                                                    <span className="text-xs text-gray-600">{game.genre}</span>
                                                 </div>
                                             </div>
                                         ))}
