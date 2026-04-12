@@ -23,7 +23,7 @@ class PlayerMatch extends Model
 
     public function messages(): HasMany
     {
-        return $this->hasMany(Message::class);
+        return $this->hasMany(Message::class, 'match_id');
     }
 
     public function partner(int $userId): BelongsTo
