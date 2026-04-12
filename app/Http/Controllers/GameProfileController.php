@@ -51,18 +51,19 @@ class GameProfileController extends Controller
             'games.*.platform' => ['nullable', 'string', 'max:50'],
         ]);
 
-        // Update or create the profile
+        // Update or create the profile (avatar is managed separately via AvatarController)
+        $profileData = [
+            'username' => $validated['username'],
+            'bio' => $validated['bio'] ?? null,
+            'looking_for' => $validated['looking_for'] ?? null,
+            'region' => $validated['region'] ?? null,
+            'timezone' => $validated['timezone'] ?? null,
+            'available_times' => $validated['available_times'] ?? null,
+        ];
+
         $user->profile()->updateOrCreate(
             ['user_id' => $user->id],
-            [
-                'username' => $validated['username'],
-                'bio' => $validated['bio'] ?? null,
-                'looking_for' => $validated['looking_for'] ?? null,
-                'region' => $validated['region'] ?? null,
-                'timezone' => $validated['timezone'] ?? null,
-                'available_times' => $validated['available_times'] ?? null,
-                'avatar' => $validated['avatar'] ?? null,
-            ]
+            $profileData
         );
 
         // Sync user games
