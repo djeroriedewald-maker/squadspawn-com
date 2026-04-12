@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Game, Profile } from '@/types';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
 import axios from 'axios';
 import { ChangeEvent, FormEventHandler, useRef, useState } from 'react';
 
@@ -140,7 +140,21 @@ export default function GameProfileEdit({
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        put(route('game-profile.update'));
+        // Transform games record into array format the backend expects
+        const gamesArray = Object.entries(data.games)
+            .filter(([_, g]) => g.selected)
+            .map(([id, g]) => ({
+                game_id: parseInt(id),
+                rank: g.rank,
+                platform: g.platform,
+            }));
+
+        router.put(route('game-profile.update'), {
+            ...data,
+            games: gamesArray,
+        }, {
+            preserveScroll: true,
+        });
     };
 
     const toggleGame = (gameId: number) => {
@@ -351,88 +365,94 @@ export default function GameProfileEdit({
 
                         {/* Games */}
                         <div className="rounded-xl border border-white/10 bg-navy-800 p-6">
-                            <h3 className="mb-6 text-lg font-semibold text-white">
-                                Your Games
-                            </h3>
+                            <div className="mb-2 flex items-center justify-between">
+                                <h3 className="text-lg font-semibold text-white">Your Games</h3>
+                                <span className="text-sm text-gray-500">
+                                    {Object.values(data.games).filter((g) => g.selected).length} selected
+                                </span>
+                            </div>
+                            <p className="mb-6 text-sm text-gray-400">Click a game to add it to your profile. Set your rank and platform for each.</p>
 
-                            <div className="space-y-4">
+                            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                                 {games.map((game) => {
                                     const gameData = data.games[game.id];
                                     if (!gameData) return null;
+                                    const isSelected = gameData.selected;
 
                                     return (
                                         <div
                                             key={game.id}
-                                            className={`rounded-lg border p-4 transition ${
-                                                gameData.selected
-                                                    ? 'border-gaming-purple/50 bg-gaming-purple/5'
-                                                    : 'border-white/10 bg-navy-700'
+                                            className={`overflow-hidden rounded-xl border transition ${
+                                                isSelected
+                                                    ? 'border-gaming-purple ring-1 ring-gaming-purple/50'
+                                                    : 'border-white/10 hover:border-white/20'
                                             }`}
                                         >
-                                            <label className="flex cursor-pointer items-center gap-3">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={gameData.selected}
-                                                    onChange={() => toggleGame(game.id)}
-                                                    className="h-5 w-5 rounded border-white/20 bg-navy-700 text-gaming-purple focus:ring-gaming-purple"
-                                                />
-                                                <span className="font-medium text-white">
-                                                    {game.name}
-                                                </span>
-                                                <span className="text-sm text-gray-400">
-                                                    {game.genre}
-                                                </span>
-                                            </label>
+                                            {/* Cover + Toggle */}
+                                            <button
+                                                type="button"
+                                                onClick={() => toggleGame(game.id)}
+                                                className="relative w-full"
+                                            >
+                                                <div className="relative h-24 overflow-hidden">
+                                                    <img
+                                                        src={game.cover_image || `/images/games/${game.slug}.svg`}
+                                                        alt={game.name}
+                                                        className={`h-full w-full object-cover transition ${isSelected ? '' : 'grayscale opacity-50'}`}
+                                                    />
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-navy-900/90 to-transparent" />
 
-                                            {gameData.selected && (
-                                                <div className="mt-4 grid gap-4 pl-8 sm:grid-cols-2">
-                                                    {game.rank_system && game.rank_system.length > 0 && (
-                                                        <div>
-                                                            <label className="mb-1 block text-xs font-medium text-gray-400">
-                                                                Rank
-                                                            </label>
-                                                            <select
-                                                                value={gameData.rank}
-                                                                onChange={(e) =>
-                                                                    updateGameField(
-                                                                        game.id,
-                                                                        'rank',
-                                                                        e.target.value,
-                                                                    )
-                                                                }
-                                                                className="w-full rounded-lg border border-white/10 bg-navy-900 px-3 py-1.5 text-sm text-white focus:border-gaming-purple focus:outline-none focus:ring-1 focus:ring-gaming-purple"
-                                                            >
-                                                                <option value="">Select rank</option>
-                                                                {game.rank_system.map((rank) => (
-                                                                    <option key={rank} value={rank}>
-                                                                        {rank}
-                                                                    </option>
-                                                                ))}
-                                                            </select>
+                                                    {/* Selected badge */}
+                                                    {isSelected && (
+                                                        <div className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-gaming-purple">
+                                                            <svg className="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                                            </svg>
                                                         </div>
                                                     )}
 
-                                                    <div>
-                                                        <label className="mb-1 block text-xs font-medium text-gray-400">
-                                                            Platform
-                                                        </label>
-                                                        <select
-                                                            value={gameData.platform}
-                                                            onChange={(e) =>
-                                                                updateGameField(
-                                                                    game.id,
-                                                                    'platform',
-                                                                    e.target.value,
-                                                                )
-                                                            }
-                                                            className="w-full rounded-lg border border-white/10 bg-navy-900 px-3 py-1.5 text-sm text-white focus:border-gaming-purple focus:outline-none focus:ring-1 focus:ring-gaming-purple"
-                                                        >
-                                                            {game.platforms.map((p) => (
-                                                                <option key={p} value={p}>
-                                                                    {p}
-                                                                </option>
-                                                            ))}
-                                                        </select>
+                                                    {/* Not selected overlay */}
+                                                    {!isSelected && (
+                                                        <div className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full border border-white/30 bg-black/30">
+                                                            <svg className="h-3 w-3 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                                                            </svg>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="px-3 py-2 text-left">
+                                                    <p className="text-sm font-semibold text-white">{game.name}</p>
+                                                    <p className="text-[10px] text-gray-500">{game.genre} &middot; {game.platforms.join(', ')}</p>
+                                                </div>
+                                            </button>
+
+                                            {/* Rank & Platform (when selected) */}
+                                            {isSelected && (
+                                                <div className="border-t border-white/5 bg-navy-900/50 px-3 py-2.5">
+                                                    <div className="grid gap-2 sm:grid-cols-2">
+                                                        {game.rank_system && game.rank_system.length > 0 && (
+                                                            <select
+                                                                value={gameData.rank}
+                                                                onChange={(e) => updateGameField(game.id, 'rank', e.target.value)}
+                                                                className="w-full rounded-md border border-white/10 bg-navy-800 px-2 py-1.5 text-xs text-white focus:border-gaming-purple focus:outline-none focus:ring-1 focus:ring-gaming-purple"
+                                                            >
+                                                                <option value="">Select rank</option>
+                                                                {game.rank_system.map((rank) => (
+                                                                    <option key={rank} value={rank}>{rank}</option>
+                                                                ))}
+                                                            </select>
+                                                        )}
+                                                        {game.platforms.length > 1 && (
+                                                            <select
+                                                                value={gameData.platform}
+                                                                onChange={(e) => updateGameField(game.id, 'platform', e.target.value)}
+                                                                className="w-full rounded-md border border-white/10 bg-navy-800 px-2 py-1.5 text-xs text-white focus:border-gaming-purple focus:outline-none focus:ring-1 focus:ring-gaming-purple"
+                                                            >
+                                                                {game.platforms.map((p) => (
+                                                                    <option key={p} value={p}>{p}</option>
+                                                                ))}
+                                                            </select>
+                                                        )}
                                                     </div>
                                                 </div>
                                             )}
