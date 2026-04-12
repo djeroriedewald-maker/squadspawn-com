@@ -187,9 +187,9 @@ export default function Welcome({
                             </div>
                             <div className="flex-1 text-center lg:text-left">
                                 <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-gaming-green text-lg font-bold text-navy-900">2</div>
-                                <h3 className="mb-4 text-2xl font-bold">Match by Rank</h3>
+                                <h3 className="mb-4 text-2xl font-bold">Connect by Rank</h3>
                                 <p className="text-gray-400 leading-relaxed">
-                                    When both of you like each other — it's a match! Find players at your skill level,
+                                    When both of you like each other — you're friends! Find players at your skill level,
                                     from Iron to Radiant, from Warrior to Mythic. No more carrying or getting carried.
                                 </p>
                             </div>
@@ -204,7 +204,7 @@ export default function Welcome({
                                 <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-gaming-pink text-lg font-bold">3</div>
                                 <h3 className="mb-4 text-2xl font-bold">Chat & Play</h3>
                                 <p className="text-gray-400 leading-relaxed">
-                                    Start chatting with your matches instantly. Coordinate game sessions,
+                                    Start chatting with your friends instantly. Coordinate game sessions,
                                     share strategies, and build a squad that grows together. From solo queue
                                     to five-stack — your team awaits.
                                 </p>

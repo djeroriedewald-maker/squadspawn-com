@@ -32,7 +32,7 @@ class NewMessageNotification extends Notification
             ->greeting("Hey {$notifiable->profile?->username ?? $notifiable->name}!")
             ->line("{$senderName} sent you a message:")
             ->line("\"{$this->message->body}\"")
-            ->action('Reply Now', url("/matches/{$this->matchId}/chat"))
+            ->action('Reply Now', url("/friends/{$this->matchId}/chat"))
             ->line('Find your squad on SquadSpawn!');
     }
 

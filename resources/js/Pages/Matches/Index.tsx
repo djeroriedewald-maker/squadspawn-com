@@ -10,8 +10,8 @@ interface MatchItem {
 
 export default function Index({ matches }: PageProps<{ matches: MatchItem[] }>) {
     return (
-        <AuthenticatedLayout header={<h2 className="text-xl font-bold text-white">Your Matches</h2>}>
-            <Head title="Matches" />
+        <AuthenticatedLayout header={<h2 className="text-xl font-bold text-white">Your Friends</h2>}>
+            <Head title="Friends" />
 
             <div className="py-8">
                 <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
@@ -20,7 +20,7 @@ export default function Index({ matches }: PageProps<{ matches: MatchItem[] }>) 
                             <svg className="mx-auto h-16 w-16 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
                             </svg>
-                            <p className="mt-4 text-lg font-medium text-gray-400">No matches yet</p>
+                            <p className="mt-4 text-lg font-medium text-gray-400">No friends yet</p>
                             <p className="mt-2 text-sm text-gray-500">Start discovering players to find your squad!</p>
                             <Link
                                 href={route('discovery.index')}

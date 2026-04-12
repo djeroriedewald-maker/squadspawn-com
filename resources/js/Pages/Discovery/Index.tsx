@@ -236,7 +236,7 @@ export default function DiscoveryIndex({
                 </div>
             </div>
 
-            {/* Match Overlay */}
+            {/* Friend Overlay */}
             {showMatch && matchedUser && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
                     <div className="mx-4 max-w-md animate-bounce rounded-2xl border border-gaming-green/30 bg-navy-800 p-8 text-center">
@@ -246,7 +246,7 @@ export default function DiscoveryIndex({
                             </svg>
                         </div>
                         <h2 className="mb-2 bg-gradient-to-r from-gaming-purple to-gaming-green bg-clip-text text-3xl font-extrabold text-transparent">
-                            It's a Match!
+                            New Friend!
                         </h2>
                         <p className="mb-6 text-gray-400">
                             You and{' '}
@@ -265,11 +265,11 @@ export default function DiscoveryIndex({
                             <button
                                 onClick={() => {
                                     setShowMatch(false);
-                                    router.visit(route('matches.index'));
+                                    router.visit(route('friends.index'));
                                 }}
                                 className="flex-1 rounded-xl bg-gaming-green px-4 py-3 font-semibold text-white transition hover:bg-gaming-green/80"
                             >
-                                Go to Matches
+                                View Friends
                             </button>
                         </div>
                     </div>

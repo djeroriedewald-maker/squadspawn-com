@@ -26,10 +26,10 @@ class NewMatchNotification extends Notification
         $partnerName = $this->matchedUser->profile?->username ?? $this->matchedUser->name;
 
         return (new MailMessage)
-            ->subject("You have a new match on SquadSpawn!")
+            ->subject("New friend on SquadSpawn!")
             ->greeting("Hey {$notifiable->profile?->username ?? $notifiable->name}!")
-            ->line("You matched with **{$partnerName}**! You can now chat and team up.")
-            ->action('Start Chatting', url("/matches/{$this->matchId}/chat"))
+            ->line("You and **{$partnerName}** are now friends! You can chat and team up.")
+            ->action('Start Chatting', url("/friends/{$this->matchId}/chat"))
             ->line('Find your squad on SquadSpawn!');
     }
 

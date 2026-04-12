@@ -43,10 +43,10 @@ export default function Authenticated({
                                     Discover
                                 </NavLink>
                                 <NavLink
-                                    href={route('matches.index')}
-                                    active={route().current('matches.*')}
+                                    href={route('friends.index')}
+                                    active={route().current('friends.*')}
                                 >
-                                    Matches
+                                    Friends
                                 </NavLink>
                                 <NavLink
                                     href={route('games.index')}
@@ -116,7 +116,7 @@ export default function Authenticated({
                                                             <div className="min-w-0 flex-1">
                                                                 <p className="text-sm text-white">
                                                                     {notif.data.type === 'new_match' ? (
-                                                                        <>New match with <strong>{notif.data.partner_name}</strong>!</>
+                                                                        <>New friend: <strong>{notif.data.partner_name}</strong>!</>
                                                                     ) : (
                                                                         <><strong>{notif.data.sender_name}</strong>: {notif.data.message_preview}</>
                                                                     )}
@@ -239,10 +239,10 @@ export default function Authenticated({
                             Discover
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
-                            href={route('matches.index')}
-                            active={route().current('matches.*')}
+                            href={route('friends.index')}
+                            active={route().current('friends.*')}
                         >
-                            Matches
+                            Friends
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
                             href={route('games.index')}

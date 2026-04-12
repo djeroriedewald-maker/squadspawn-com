@@ -70,7 +70,7 @@ export default function Show({
                 <div className="border-b border-white/10 bg-navy-800 px-6 py-4">
                     <div className="mx-auto flex max-w-3xl items-center gap-3">
                         <a
-                            href={route('matches.index')}
+                            href={route('friends.index')}
                             className="mr-2 text-gray-400 transition hover:text-white"
                         >
                             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

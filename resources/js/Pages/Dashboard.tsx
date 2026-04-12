@@ -85,7 +85,7 @@ export default function Dashboard({
                         </div>
                         <div className="rounded-xl border border-white/10 bg-navy-800 p-6 text-center">
                             <p className="text-3xl font-bold text-gaming-green">{matchCount}</p>
-                            <p className="mt-1 text-sm text-gray-400">Matches</p>
+                            <p className="mt-1 text-sm text-gray-400">Friends</p>
                         </div>
                     </div>
 
@@ -147,14 +147,14 @@ export default function Dashboard({
                         )}
                     </div>
 
-                    {/* Recent Matches & Discover */}
+                    {/* Recent Friends & Discover */}
                     <div className="grid gap-8 lg:grid-cols-2">
-                        {/* Recent Matches */}
+                        {/* Recent Friends */}
                         <div>
                             <div className="mb-4 flex items-center justify-between">
-                                <h3 className="text-lg font-bold text-white">Recent Matches</h3>
+                                <h3 className="text-lg font-bold text-white">Recent Friends</h3>
                                 {matchCount > 0 && (
-                                    <Link href={route('matches.index')} className="text-sm text-gaming-purple transition hover:text-gaming-purple/80">
+                                    <Link href={route('friends.index')} className="text-sm text-gaming-purple transition hover:text-gaming-purple/80">
                                         View All
                                     </Link>
                                 )}
@@ -186,7 +186,7 @@ export default function Dashboard({
                                 </div>
                             ) : (
                                 <div className="rounded-xl border border-dashed border-white/10 bg-navy-800/50 p-8 text-center">
-                                    <p className="text-gray-400">No matches yet</p>
+                                    <p className="text-gray-400">No friends yet</p>
                                     <Link
                                         href={route('discovery.index')}
                                         className="mt-3 inline-block rounded-lg bg-gaming-purple/10 px-4 py-2 text-sm font-medium text-gaming-purple transition hover:bg-gaming-purple/20"
