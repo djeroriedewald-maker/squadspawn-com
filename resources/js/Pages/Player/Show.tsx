@@ -1,11 +1,66 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { PageProps, User } from '@/types';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link, usePage, router } from '@inertiajs/react';
+import { useState } from 'react';
+import axios from 'axios';
+
+const REPORT_REASONS = [
+    'Inappropriate content',
+    'Harassment',
+    'Spam',
+    'Fake profile',
+    'Other',
+];
 
 export default function PlayerShow({ player }: PageProps<{ player: User }>) {
     const { auth } = usePage<PageProps>().props;
     const isLoggedIn = !!auth?.user;
     const isOwnProfile = auth?.user?.id === player.id;
+
+    const [showReportModal, setShowReportModal] = useState(false);
+    const [reportReason, setReportReason] = useState('');
+    const [reportDetails, setReportDetails] = useState('');
+    const [reportSubmitting, setReportSubmitting] = useState(false);
+    const [reportSuccess, setReportSuccess] = useState(false);
+    const [blockLoading, setBlockLoading] = useState(false);
+
+    const handleBlock = async () => {
+        if (!confirm(`Are you sure you want to block ${player.profile?.username || player.name}? They won't be able to see your profile or match with you.`)) {
+            return;
+        }
+        setBlockLoading(true);
+        try {
+            await axios.post('/block', { blocked_id: player.id });
+            alert('User blocked.');
+            router.visit('/discover');
+        } catch {
+            alert('Failed to block user. Please try again.');
+            setBlockLoading(false);
+        }
+    };
+
+    const handleReport = async () => {
+        if (!reportReason) return;
+        setReportSubmitting(true);
+        try {
+            await axios.post('/report', {
+                reported_id: player.id,
+                reason: reportReason,
+                details: reportDetails || undefined,
+            });
+            setReportSuccess(true);
+            setTimeout(() => {
+                setShowReportModal(false);
+                setReportSuccess(false);
+                setReportReason('');
+                setReportDetails('');
+            }, 2000);
+        } catch {
+            alert('Failed to submit report. Please try again.');
+        } finally {
+            setReportSubmitting(false);
+        }
+    };
 
     const lookingForLabels: Record<string, string> = {
         casual: 'Casual', ranked: 'Ranked', friends: 'Friends', any: 'Open to Anything',
@@ -49,6 +104,98 @@ export default function PlayerShow({ player }: PageProps<{ player: User }>) {
                             </div>
                         </div>
                     </div>
+
+                    {/* Report & Block buttons */}
+                    {isLoggedIn && !isOwnProfile && (
+                        <div className="mt-4 flex items-center gap-3 px-1">
+                            <button
+                                onClick={() => setShowReportModal(true)}
+                                className="rounded-lg border border-white/10 bg-navy-800 px-4 py-2 text-sm font-medium text-gray-300 transition hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-400"
+                            >
+                                Report
+                            </button>
+                            <button
+                                onClick={handleBlock}
+                                disabled={blockLoading}
+                                className="rounded-lg border border-white/10 bg-navy-800 px-4 py-2 text-sm font-medium text-gray-300 transition hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-400 disabled:opacity-50"
+                            >
+                                {blockLoading ? 'Blocking...' : 'Block'}
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Report Modal */}
+                    {showReportModal && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+                            <div className="w-full max-w-md rounded-2xl border border-white/10 bg-navy-800 p-6">
+                                {reportSuccess ? (
+                                    <div className="text-center">
+                                        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gaming-green/20 text-gaming-green">
+                                            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                                        </div>
+                                        <p className="font-semibold text-white">Report submitted</p>
+                                        <p className="mt-1 text-sm text-gray-400">Thank you. We will review it shortly.</p>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <h3 className="text-lg font-bold text-white">
+                                            Report {player.profile?.username || player.name}
+                                        </h3>
+                                        <p className="mt-1 text-sm text-gray-400">
+                                            Please select a reason for your report.
+                                        </p>
+
+                                        <div className="mt-4">
+                                            <label className="mb-1.5 block text-sm font-medium text-gray-300">Reason</label>
+                                            <select
+                                                value={reportReason}
+                                                onChange={(e) => setReportReason(e.target.value)}
+                                                className="w-full rounded-lg border border-white/10 bg-navy-900 px-3 py-2 text-sm text-white focus:border-gaming-purple focus:outline-none focus:ring-1 focus:ring-gaming-purple"
+                                            >
+                                                <option value="">Select a reason...</option>
+                                                {REPORT_REASONS.map((r) => (
+                                                    <option key={r} value={r}>{r}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+
+                                        <div className="mt-4">
+                                            <label className="mb-1.5 block text-sm font-medium text-gray-300">
+                                                Details <span className="text-gray-500">(optional)</span>
+                                            </label>
+                                            <textarea
+                                                value={reportDetails}
+                                                onChange={(e) => setReportDetails(e.target.value)}
+                                                rows={3}
+                                                placeholder="Provide additional context..."
+                                                className="w-full resize-none rounded-lg border border-white/10 bg-navy-900 px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-gaming-purple focus:outline-none focus:ring-1 focus:ring-gaming-purple"
+                                            />
+                                        </div>
+
+                                        <div className="mt-5 flex items-center justify-end gap-3">
+                                            <button
+                                                onClick={() => {
+                                                    setShowReportModal(false);
+                                                    setReportReason('');
+                                                    setReportDetails('');
+                                                }}
+                                                className="rounded-lg px-4 py-2 text-sm font-medium text-gray-400 transition hover:text-white"
+                                            >
+                                                Cancel
+                                            </button>
+                                            <button
+                                                onClick={handleReport}
+                                                disabled={!reportReason || reportSubmitting}
+                                                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-red-500 disabled:opacity-50"
+                                            >
+                                                {reportSubmitting ? 'Submitting...' : 'Submit Report'}
+                                            </button>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    )}
 
                     {/* Games */}
                     {player.games && player.games.length > 0 && (

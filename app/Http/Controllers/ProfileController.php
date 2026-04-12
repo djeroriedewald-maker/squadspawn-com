@@ -53,6 +53,21 @@ class ProfileController extends Controller
 
         Auth::logout();
 
+        // GDPR: delete all user data
+        $user->profile?->delete();
+        $user->games()->detach();
+        \App\Models\Like::where('liker_id', $user->id)->orWhere('liked_id', $user->id)->delete();
+        \App\Models\Pass::where('passer_id', $user->id)->orWhere('passed_id', $user->id)->delete();
+        \App\Models\Message::where('sender_id', $user->id)->delete();
+        \App\Models\PlayerMatch::where('user_one_id', $user->id)->orWhere('user_two_id', $user->id)->delete();
+        $user->notifications()->delete();
+
+        // Delete uploaded avatar
+        if ($user->profile?->avatar && str_starts_with($user->profile->avatar, '/storage/avatars/')) {
+            $path = str_replace('/storage/', '', $user->profile->avatar);
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($path);
+        }
+
         $user->delete();
 
         $request->session()->invalidate();

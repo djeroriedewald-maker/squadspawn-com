@@ -1,14 +1,17 @@
 <?php
 
 use App\Http\Controllers\AvatarController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\DiscoveryController;
 use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\GameProfileController;
 use App\Http\Controllers\GamesController;
+use App\Http\Controllers\BlockController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\MatchController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReportController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -97,6 +100,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/setup', [GameProfileController::class, 'edit'])->name('game-profile.edit');
     Route::put('/profile/setup', [GameProfileController::class, 'update'])->name('game-profile.update');
 
+    // Block & Report
+    Route::post('/block', [BlockController::class, 'store'])->name('block.store');
+    Route::delete('/block/{user}', [BlockController::class, 'destroy'])->name('block.destroy');
+    Route::post('/report', [ReportController::class, 'store'])->name('report.store');
+
     // Discovery (requires complete profile)
     Route::middleware('profile.complete')->group(function () {
         Route::get('/discover', [DiscoveryController::class, 'index'])->name('discovery.index');
@@ -107,5 +115,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/friends/{playerMatch}/messages', [ChatController::class, 'store'])->name('chat.store');
     });
 });
+
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
 require __DIR__.'/auth.php';

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Block;
 use App\Models\Game;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -18,10 +19,16 @@ class DiscoveryController extends Controller
         $likedUserIds = $user->likedUsers()->pluck('liked_id');
         $passedUserIds = \App\Models\Pass::where('passer_id', $user->id)->pluck('passed_id');
 
+        // IDs to exclude: blocked users (both directions)
+        $blockedByMe = Block::where('blocker_id', $user->id)->pluck('blocked_id');
+        $blockedMe = Block::where('blocked_id', $user->id)->pluck('blocker_id');
+
         $query = User::query()
             ->where('id', '!=', $user->id)
             ->whereNotIn('id', $likedUserIds)
             ->whereNotIn('id', $passedUserIds)
+            ->whereNotIn('id', $blockedByMe)
+            ->whereNotIn('id', $blockedMe)
             ->whereHas('profile')
             ->with(['profile', 'games']);
 

@@ -6,6 +6,18 @@
         <meta name="description" content="Find your gaming squad. Match with players by game, rank, and playstyle across Southeast Asia and beyond.">
         <meta name="theme-color" content="#0F172A">
 
+        <!-- Open Graph / Social -->
+        <meta property="og:type" content="website">
+        <meta property="og:site_name" content="SquadSpawn">
+        <meta property="og:title" content="SquadSpawn - Find Your Gaming Squad">
+        <meta property="og:description" content="Match with gamers by game, rank, and playstyle. Find your perfect gaming squad.">
+        <meta property="og:image" content="{{ url('/images/hero.jpg') }}">
+        <meta property="og:url" content="{{ url()->current() }}">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="SquadSpawn - Find Your Gaming Squad">
+        <meta name="twitter:description" content="Match with gamers by game, rank, and playstyle. Find your perfect gaming squad.">
+        <meta name="twitter:image" content="{{ url('/images/hero.jpg') }}">
+
         <title inertia>{{ config('app.name', 'SquadSpawn') }}</title>
 
         <!-- Fonts -->
