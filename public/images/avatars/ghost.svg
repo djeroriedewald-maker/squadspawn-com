@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <circle cx="100" cy="100" r="100" fill="#4338CA"/>
+  <!-- Ghost body -->
+  <path d="M65,100 L65,80 Q65,45 100,45 Q135,45 135,80 L135,100 L135,145 L122,135 L110,150 L100,138 L90,150 L78,135 L65,145 Z" fill="#fff"/>
+  <!-- Eyes -->
+  <ellipse cx="85" cy="85" rx="8" ry="10" fill="#4338CA"/>
+  <ellipse cx="115" cy="85" rx="8" ry="10" fill="#4338CA"/>
+</svg>

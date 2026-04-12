@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AvatarController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\DiscoveryController;
 use App\Http\Controllers\GameProfileController;
@@ -33,6 +34,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Avatar
+    Route::post('/avatar/upload', [AvatarController::class, 'upload'])->name('avatar.upload');
+    Route::post('/avatar/preset', [AvatarController::class, 'setPreset'])->name('avatar.preset');
 
     // Game Profile
     Route::get('/profile/me', [GameProfileController::class, 'show'])->name('game-profile.show');

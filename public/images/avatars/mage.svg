@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <circle cx="100" cy="100" r="100" fill="#7B2FBE"/>
+  <!-- Four-pointed star/sparkle -->
+  <polygon points="100,35 108,85 155,100 108,115 100,165 92,115 45,100 92,85" fill="#fff"/>
+  <circle cx="100" cy="100" r="8" fill="#7B2FBE"/>
+</svg>

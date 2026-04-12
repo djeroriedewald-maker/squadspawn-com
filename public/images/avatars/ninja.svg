@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <circle cx="100" cy="100" r="100" fill="#581C87"/>
+  <!-- Shuriken (ninja star) - 4 pointed -->
+  <path d="M100,40 L108,88 L100,92 L92,88 Z" fill="#fff"/>
+  <path d="M160,100 L112,108 L108,100 L112,92 Z" fill="#fff"/>
+  <path d="M100,160 L92,112 L100,108 L108,112 Z" fill="#fff"/>
+  <path d="M40,100 L88,92 L92,100 L88,108 Z" fill="#fff"/>
+  <!-- Center circle -->
+  <circle cx="100" cy="100" r="10" fill="#fff"/>
+  <circle cx="100" cy="100" r="5" fill="#581C87"/>
+</svg>

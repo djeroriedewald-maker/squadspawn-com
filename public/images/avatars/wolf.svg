@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <circle cx="100" cy="100" r="100" fill="#5A7A9A"/>
+  <!-- Wolf head silhouette -->
+  <path d="M60,50 L70,85 L50,100 L60,105 L55,120 L70,115 L80,140 L90,130 L100,155 L110,130 L120,140 L130,115 L145,120 L140,105 L150,100 L130,85 L140,50 L120,75 L100,65 L80,75 Z" fill="#fff"/>
+  <!-- Eyes -->
+  <circle cx="85" cy="95" r="4" fill="#5A7A9A"/>
+  <circle cx="115" cy="95" r="4" fill="#5A7A9A"/>
+  <!-- Nose -->
+  <ellipse cx="100" cy="120" rx="5" ry="3" fill="#5A7A9A"/>
+</svg>

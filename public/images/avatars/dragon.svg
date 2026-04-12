@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <circle cx="100" cy="100" r="100" fill="#E07020"/>
+  <!-- Dragon head silhouette -->
+  <path d="M60,60 L50,45 L65,55 L75,40 L78,58 L95,50 L90,65 L110,60 L105,75 L130,70 L120,85 L145,90 L130,100 L145,115 L125,110 L130,130 L110,120 L100,140 L90,130 L75,145 L75,125 L60,130 L65,115 L50,110 L65,100 L50,85 L65,80 Z" fill="#fff"/>
+  <!-- Eye -->
+  <circle cx="95" cy="90" r="5" fill="#E07020"/>
+</svg>

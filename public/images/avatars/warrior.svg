@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <circle cx="100" cy="100" r="100" fill="#E04030"/>
+  <!-- Sword -->
+  <rect x="95" y="40" width="10" height="80" rx="2" fill="#fff"/>
+  <polygon points="100,30 90,50 110,50" fill="#fff"/>
+  <rect x="82" y="120" width="36" height="10" rx="3" fill="#fff"/>
+  <rect x="96" y="130" width="8" height="30" rx="3" fill="#fff"/>
+  <rect x="90" y="155" width="20" height="6" rx="3" fill="#fff"/>
+</svg>

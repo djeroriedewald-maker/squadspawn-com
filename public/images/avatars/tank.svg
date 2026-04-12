@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <circle cx="100" cy="100" r="100" fill="#2E6BC6"/>
+  <!-- Shield -->
+  <path d="M100,40 L145,60 L145,105 Q145,145 100,170 Q55,145 55,105 L55,60 Z" fill="none" stroke="#fff" stroke-width="8" stroke-linejoin="round"/>
+  <path d="M100,65 L130,78 L130,105 Q130,133 100,150 Q70,133 70,105 L70,78 Z" fill="#fff" opacity="0.3"/>
+</svg>

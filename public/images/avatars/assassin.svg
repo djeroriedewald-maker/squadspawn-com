@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <circle cx="100" cy="100" r="100" fill="#8B1A1A"/>
+  <!-- Dagger -->
+  <polygon points="100,35 108,100 100,110 92,100" fill="#fff"/>
+  <rect x="86" y="110" width="28" height="8" rx="2" fill="#fff"/>
+  <rect x="94" y="118" width="12" height="28" rx="3" fill="#fff"/>
+  <polygon points="90,146 100,160 110,146" fill="#fff"/>
+</svg>

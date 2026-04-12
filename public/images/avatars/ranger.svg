@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <circle cx="100" cy="100" r="100" fill="#1A9E8E"/>
+  <!-- Bow -->
+  <path d="M70,50 Q40,100 70,150" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+  <line x1="70" y1="50" x2="70" y2="150" stroke="#fff" stroke-width="3"/>
+  <!-- Arrow -->
+  <line x1="70" y1="100" x2="150" y2="100" stroke="#fff" stroke-width="5" stroke-linecap="round"/>
+  <polygon points="155,100 140,90 140,110" fill="#fff"/>
+  <line x1="68" y1="95" x2="58" y2="90" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+  <line x1="68" y1="105" x2="58" y2="110" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+</svg>

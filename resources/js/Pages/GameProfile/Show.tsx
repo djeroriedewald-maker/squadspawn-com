@@ -54,8 +54,12 @@ export default function Show({
                             <div className="rounded-2xl border border-white/10 bg-navy-800 p-8">
                                 <div className="flex items-start justify-between">
                                     <div className="flex items-center gap-5">
-                                        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-gaming-purple/30 to-gaming-green/30 text-3xl font-bold text-white">
-                                            {profile.username[0]?.toUpperCase()}
+                                        <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-gaming-purple/30 to-gaming-green/30 text-3xl font-bold text-white">
+                                            {profile.avatar ? (
+                                                <img src={profile.avatar} alt={profile.username} className="h-full w-full object-cover" />
+                                            ) : (
+                                                profile.username[0]?.toUpperCase()
+                                            )}
                                         </div>
                                         <div>
                                             <h2 className="text-2xl font-bold text-white">{profile.username}</h2>
