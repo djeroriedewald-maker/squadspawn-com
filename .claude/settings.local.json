@@ -5,7 +5,14 @@
       "Bash(gh auth:*)",
       "Bash(git add:*)",
       "Bash(git push:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "WebFetch(domain:en.wikipedia.org)",
+      "Bash(curl -sL -o public/images/games/pubgm.jpg \"https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/578080/header.jpg\")",
+      "Bash(curl -sL -o public/images/games/freefire.jpg \"https://upload.wikimedia.org/wikipedia/en/b/b8/Garena_Free_Fire_Logo.png\")",
+      "Bash(curl -sL -o public/images/games/valorant.jpg \"https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Valorant_logo_-_pink_color_version.svg/500px-Valorant_logo_-_pink_color_version.svg.png\")",
+      "Bash(curl -sL -o public/images/games/lol.jpg \"https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/League_of_Legends_2019_vector.svg/500px-League_of_Legends_2019_vector.svg.png\")",
+      "Bash(curl -sL -o public/images/games/mlbb.jpg \"https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1456070/header.jpg\")",
+      "Bash(curl -sL -o public/images/games/codm.jpg \"https://upload.wikimedia.org/wikipedia/en/thumb/1/13/Call_of_Duty_Mobile_cover_art.jpg/220px-Call_of_Duty_Mobile_cover_art.jpg\")"
     ]
   }
 }

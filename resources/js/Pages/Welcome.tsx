@@ -61,7 +61,7 @@ export default function Welcome({
                     <div className="relative z-10 mx-auto flex max-w-6xl flex-col items-center gap-12 lg:flex-row lg:gap-16">
                         <div className="flex-1 text-center lg:text-left">
                             <div className="mb-4 inline-block rounded-full border border-gaming-purple/30 bg-gaming-purple/10 px-4 py-1.5 text-sm font-medium text-gaming-purple">
-                                #1 Gaming Matchmaking in SEA
+                                #1 Gaming Matchmaking Platform
                             </div>
                             <h1 className="mb-6 text-5xl font-extrabold leading-tight sm:text-6xl lg:text-7xl">
                                 <span className="bg-gradient-to-r from-gaming-purple via-gaming-pink to-gaming-green bg-clip-text text-transparent">
@@ -69,7 +69,7 @@ export default function Welcome({
                                 </span>
                             </h1>
                             <p className="mx-auto mb-10 max-w-2xl text-lg text-gray-400 sm:text-xl lg:mx-0">
-                                The premier matchmaking platform for SEA gamers. Connect with
+                                The premier matchmaking platform for gamers worldwide. Connect with
                                 teammates who match your playstyle, rank, and schedule.
                             </p>
                             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row lg:justify-start">
@@ -91,7 +91,7 @@ export default function Welcome({
                                 <span className="h-1 w-1 rounded-full bg-gray-600" />
                                 <span>Free to Join</span>
                                 <span className="h-1 w-1 rounded-full bg-gray-600" />
-                                <span>SEA Focused</span>
+                                <span>All Regions</span>
                             </div>
                         </div>
 
@@ -171,12 +171,12 @@ export default function Welcome({
                             Popular Games
                         </h2>
                         <p className="mx-auto mb-12 max-w-xl text-center text-gray-400">
-                            Find teammates across the most popular mobile and PC games in Southeast Asia.
+                            Find teammates across the most popular mobile and PC games worldwide.
                         </p>
                         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                             {[
-                                { name: 'Mobile Legends', genre: 'MOBA', image: '/images/games/mlbb.svg', platform: 'Mobile' },
-                                { name: 'PUBG Mobile', genre: 'Battle Royale', image: '/images/games/pubgm.svg', platform: 'Mobile' },
+                                { name: 'Mobile Legends', genre: 'MOBA', image: '/images/games/mlbb.jpg', platform: 'Mobile' },
+                                { name: 'PUBG Mobile', genre: 'Battle Royale', image: '/images/games/pubgm.jpg', platform: 'Mobile' },
                                 { name: 'Valorant', genre: 'Tactical Shooter', image: '/images/games/valorant.svg', platform: 'PC' },
                                 { name: 'League of Legends', genre: 'MOBA', image: '/images/games/lol.svg', platform: 'PC' },
                                 { name: 'Free Fire', genre: 'Battle Royale', image: '/images/games/freefire.svg', platform: 'Mobile' },
@@ -211,20 +211,20 @@ export default function Welcome({
                 <section className="border-y border-white/5 bg-navy-800/30 px-6 py-24 lg:px-12">
                     <div className="mx-auto max-w-6xl text-center">
                         <h2 className="mb-4 text-3xl font-bold sm:text-4xl">
-                            Built for <span className="text-gaming-purple">Southeast Asia</span>
+                            A <span className="text-gaming-purple">Global</span> Gaming Community
                         </h2>
                         <p className="mx-auto mb-12 max-w-xl text-gray-400">
-                            Connecting gamers across the Philippines, Indonesia, Malaysia, Thailand, Vietnam, Singapore and beyond.
+                            Connecting gamers worldwide — from Southeast Asia to Europe, North America and beyond. Find your squad, wherever you are.
                         </p>
                         <img
                             src="/images/regions-map.svg"
-                            alt="Southeast Asia gaming community"
+                            alt="Global gaming community"
                             className="mx-auto mb-12 w-full max-w-2xl"
                         />
                         <div className="grid gap-6 sm:grid-cols-3">
                             <div className="rounded-xl border border-white/10 bg-navy-800 p-6">
-                                <p className="text-4xl font-bold text-gaming-purple">6+</p>
-                                <p className="mt-2 text-sm text-gray-400">Countries in SEA</p>
+                                <p className="text-4xl font-bold text-gaming-purple">Global</p>
+                                <p className="mt-2 text-sm text-gray-400">Players Worldwide</p>
                             </div>
                             <div className="rounded-xl border border-white/10 bg-navy-800 p-6">
                                 <p className="text-4xl font-bold text-gaming-green">7</p>
@@ -273,7 +273,7 @@ export default function Welcome({
                             <a href="#" className="transition hover:text-white">Privacy</a>
                         </div>
                         <p className="text-sm text-gray-500">
-                            &copy; {new Date().getFullYear()} SquadSpawn. Built for SEA Gamers.
+                            &copy; {new Date().getFullYear()} SquadSpawn. Find Your Squad.
                         </p>
                     </div>
                 </footer>
