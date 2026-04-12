@@ -48,12 +48,33 @@ Route::get('/dashboard', function () {
             ];
         });
 
-    $allGames = \App\Models\Game::all();
+    $allGames = \App\Models\Game::withCount('users')->get();
+
+    // How many people liked this user (motivation to swipe)
+    $likedByCount = $user->likedByUsers()->count();
+
+    // Suggested players: share at least one game, not yet liked/passed
+    $likedIds = $user->likedUsers()->pluck('liked_id');
+    $passedIds = \App\Models\Pass::where('passer_id', $user->id)->pluck('passed_id');
+    $excludeIds = $likedIds->merge($passedIds)->push($user->id);
+    $userGameIds = $user->games->pluck('id');
+
+    $suggestedPlayers = $userGameIds->isNotEmpty()
+        ? \App\Models\User::whereNotIn('id', $excludeIds)
+            ->whereHas('profile')
+            ->whereHas('games', fn ($q) => $q->whereIn('games.id', $userGameIds))
+            ->with(['profile', 'games'])
+            ->inRandomOrder()
+            ->take(4)
+            ->get()
+        : collect();
 
     return Inertia::render('Dashboard', [
         'matchCount' => $matchCount,
         'recentMatches' => $recentMatches,
         'allGames' => $allGames,
+        'likedByCount' => $likedByCount,
+        'suggestedPlayers' => $suggestedPlayers,
     ]);
 })->middleware(['auth', 'verified', 'profile.complete'])->name('dashboard');
 
