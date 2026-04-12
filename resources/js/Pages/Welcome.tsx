@@ -298,20 +298,57 @@ export default function Welcome({
                 </section>
 
                 {/* Footer */}
-                <footer className="border-t border-white/10 px-6 py-12 lg:px-12">
-                    <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 sm:flex-row">
-                        <span className="text-lg font-bold text-gaming-purple">
-                            SquadSpawn
-                        </span>
-                        <div className="flex gap-6 text-sm text-gray-400">
-                            <Link href={route('games.index')} className="transition hover:text-white">Games</Link>
-                            <a href="#" className="transition hover:text-white">About</a>
-                            <a href="#" className="transition hover:text-white">Contact</a>
-                            <a href="#" className="transition hover:text-white">Privacy</a>
+                <footer className="border-t border-white/10 bg-navy-800/30 px-6 pt-16 pb-8 lg:px-12">
+                    <div className="mx-auto max-w-6xl">
+                        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+                            {/* Brand */}
+                            <div>
+                                <span className="text-xl font-bold text-gaming-purple">SquadSpawn</span>
+                                <p className="mt-3 text-sm leading-relaxed text-gray-400">
+                                    The premier matchmaking platform for gamers. Find your squad, wherever you are.
+                                </p>
+                            </div>
+
+                            {/* Platform */}
+                            <div>
+                                <h4 className="mb-3 text-sm font-semibold uppercase tracking-wider text-gray-300">Platform</h4>
+                                <ul className="space-y-2 text-sm text-gray-400">
+                                    <li><Link href={route('games.index')} className="transition hover:text-white">Games</Link></li>
+                                    <li><Link href={route('register')} className="transition hover:text-white">Sign Up</Link></li>
+                                    <li><Link href={route('login')} className="transition hover:text-white">Log In</Link></li>
+                                </ul>
+                            </div>
+
+                            {/* Legal */}
+                            <div>
+                                <h4 className="mb-3 text-sm font-semibold uppercase tracking-wider text-gray-300">Legal</h4>
+                                <ul className="space-y-2 text-sm text-gray-400">
+                                    <li><a href="/privacy-policy" className="transition hover:text-white">Privacy Policy</a></li>
+                                    <li><a href="/terms-of-service" className="transition hover:text-white">Terms of Service</a></li>
+                                    <li><a href="/cookie-policy" className="transition hover:text-white">Cookie Policy</a></li>
+                                </ul>
+                            </div>
+
+                            {/* Contact */}
+                            <div>
+                                <h4 className="mb-3 text-sm font-semibold uppercase tracking-wider text-gray-300">Contact</h4>
+                                <ul className="space-y-2 text-sm text-gray-400">
+                                    <li><a href="mailto:info@squadspawn.com" className="transition hover:text-white">info@squadspawn.com</a></li>
+                                </ul>
+                            </div>
                         </div>
-                        <p className="text-sm text-gray-500">
-                            &copy; {new Date().getFullYear()} SquadSpawn. Find Your Squad.
-                        </p>
+
+                        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 sm:flex-row">
+                            <p className="text-sm text-gray-500">
+                                &copy; {new Date().getFullYear()} SquadSpawn. All rights reserved.
+                            </p>
+                            <p className="text-sm text-gray-500">
+                                Built by{' '}
+                                <a href="https://budgetpixels.nl" target="_blank" rel="noopener noreferrer" className="text-gaming-purple transition hover:text-gaming-purple/80">
+                                    BudgetPixels.nl
+                                </a>
+                            </p>
+                        </div>
                     </div>
                 </footer>
             </div>

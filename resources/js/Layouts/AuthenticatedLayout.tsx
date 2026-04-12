@@ -221,6 +221,22 @@ export default function Authenticated({
             )}
 
             <main>{children}</main>
+
+            <footer className="mt-auto border-t border-white/10 bg-navy-800/30 px-6 py-6 lg:px-12">
+                <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 sm:flex-row">
+                    <div className="flex gap-4 text-xs text-gray-500">
+                        <a href="/privacy-policy" className="transition hover:text-gray-300">Privacy Policy</a>
+                        <a href="/terms-of-service" className="transition hover:text-gray-300">Terms of Service</a>
+                        <a href="/cookie-policy" className="transition hover:text-gray-300">Cookie Policy</a>
+                    </div>
+                    <p className="text-xs text-gray-500">
+                        &copy; {new Date().getFullYear()} SquadSpawn &middot; Built by{' '}
+                        <a href="https://budgetpixels.nl" target="_blank" rel="noopener noreferrer" className="text-gaming-purple hover:text-gaming-purple/80">
+                            BudgetPixels.nl
+                        </a>
+                    </p>
+                </div>
+            </footer>
         </div>
     );
 }
