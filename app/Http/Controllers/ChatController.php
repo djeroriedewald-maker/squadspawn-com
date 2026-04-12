@@ -27,7 +27,7 @@ class ChatController extends Controller
             : $playerMatch->userOne;
 
         return Inertia::render('Chat/Show', [
-            'match' => $match,
+            'match' => $playerMatch,
             'partner' => $partner,
             'messages' => $playerMatch->messages,
         ]);
