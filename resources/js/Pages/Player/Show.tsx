@@ -1,17 +1,18 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { PageProps, User } from '@/types';
-import { Head, usePage } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 
 export default function PlayerShow({ player }: PageProps<{ player: User }>) {
     const { auth } = usePage<PageProps>().props;
-    const isOwnProfile = auth.user?.id === player.id;
+    const isLoggedIn = !!auth?.user;
+    const isOwnProfile = auth?.user?.id === player.id;
 
     const lookingForLabels: Record<string, string> = {
         casual: 'Casual', ranked: 'Ranked', friends: 'Friends', any: 'Open to Anything',
     };
 
-    return (
-        <AuthenticatedLayout>
+    const pageContent = (
+        <>
             <Head title={`${player.profile?.username || player.name} - Player Profile`} />
 
             <div className="py-8">
@@ -87,8 +88,38 @@ export default function PlayerShow({ player }: PageProps<{ player: User }>) {
                             </div>
                         </div>
                     )}
+                    {/* CTA for guests */}
+                    {!isLoggedIn && (
+                        <div className="mt-6 rounded-xl border border-gaming-purple/20 bg-gaming-purple/5 p-6 text-center">
+                            <p className="font-semibold text-white">Want to team up with {player.profile?.username}?</p>
+                            <p className="mt-1 text-sm text-gray-400">Create a free account to match and chat.</p>
+                            <Link
+                                href={route('register')}
+                                className="mt-3 inline-block rounded-lg bg-gaming-purple px-5 py-2.5 text-sm font-bold text-white transition hover:bg-gaming-purple/80"
+                            >
+                                Sign Up Free
+                            </Link>
+                        </div>
+                    )}
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </>
+    );
+
+    if (isLoggedIn) {
+        return <AuthenticatedLayout>{pageContent}</AuthenticatedLayout>;
+    }
+
+    return (
+        <div className="min-h-screen bg-navy-900 text-white">
+            <nav className="flex items-center justify-between px-6 py-4 lg:px-12">
+                <Link href="/" className="text-2xl font-bold text-gaming-purple">SquadSpawn</Link>
+                <div className="flex items-center gap-4">
+                    <Link href={route('login')} className="text-sm text-gray-300 hover:text-white">Log in</Link>
+                    <Link href={route('register')} className="rounded-lg bg-gaming-purple px-4 py-2 text-sm font-semibold text-white">Sign up</Link>
+                </div>
+            </nav>
+            {pageContent}
+        </div>
     );
 }

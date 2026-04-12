@@ -122,10 +122,10 @@ export default function Welcome({
                                     Get Started Free
                                 </Link>
                                 <Link
-                                    href={route('games.index')}
+                                    href={route('players.public')}
                                     className="w-full rounded-xl border border-white/10 bg-navy-800 px-8 py-4 text-lg font-bold text-white transition hover:border-white/20 hover:bg-navy-700 sm:w-auto"
                                 >
-                                    Browse Games
+                                    Browse Players
                                 </Link>
                             </div>
                             <div className="mt-8 flex items-center justify-center gap-8 text-sm text-gray-500 lg:justify-start">

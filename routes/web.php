@@ -59,7 +59,8 @@ Route::get('/dashboard', function () {
 
 // Public
 Route::get('/games', [GamesController::class, 'index'])->name('games.index');
-Route::get('/player/{username}', [PlayerController::class, 'show'])->middleware('auth')->name('player.show');
+Route::get('/player/{username}', [PlayerController::class, 'show'])->name('player.show');
+Route::get('/players', [\App\Http\Controllers\DiscoveryController::class, 'publicIndex'])->name('players.public');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

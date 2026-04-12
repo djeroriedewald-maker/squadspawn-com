@@ -64,4 +64,31 @@ class DiscoveryController extends Controller
             'filters' => $request->only(['game_id', 'rank', 'region', 'playtime']),
         ]);
     }
+
+    public function publicIndex(Request $request): Response
+    {
+        $query = User::query()
+            ->whereHas('profile')
+            ->with(['profile', 'games']);
+
+        if ($request->filled('game_id')) {
+            $query->whereHas('games', function ($q) use ($request) {
+                $q->where('games.id', $request->input('game_id'));
+            });
+        }
+
+        if ($request->filled('region')) {
+            $query->whereHas('profile', function ($q) use ($request) {
+                $q->where('region', $request->input('region'));
+            });
+        }
+
+        $players = $query->latest()->paginate(24)->withQueryString();
+
+        return Inertia::render('Players/Index', [
+            'players' => $players,
+            'games' => Game::all(),
+            'filters' => $request->only(['game_id', 'region']),
+        ]);
+    }
 }
