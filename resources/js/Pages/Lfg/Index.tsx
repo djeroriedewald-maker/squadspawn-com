@@ -22,6 +22,10 @@ interface LfgPost {
     spots_filled: number;
     platform: string;
     rank_min?: string;
+    mic_required?: boolean;
+    language?: string;
+    age_requirement?: string;
+    requirements_note?: string;
     scheduled_at?: string;
     status: string;
     created_at: string;
@@ -32,10 +36,12 @@ interface LfgPost {
 
 export default function LfgIndex({
     posts,
+    myPosts,
     games,
     filters,
 }: {
     posts: { data: LfgPost[]; links: any };
+    myPosts?: LfgPost[];
     games: Game[];
     filters: { game_id?: number; platform?: string };
 }) {
@@ -147,6 +153,57 @@ export default function LfgIndex({
                         </select>
                     </div>
 
+                    {/* My Groups */}
+                    {myPosts && myPosts.length > 0 && (
+                        <div className="mb-8">
+                            <h2 className="mb-3 text-lg font-bold text-white">My Groups</h2>
+                            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                                {myPosts.map((mp) => (
+                                    <Link
+                                        key={mp.id}
+                                        href={route('lfg.show', { lfgPost: mp.id })}
+                                        className="overflow-hidden rounded-xl border border-gaming-purple/30 bg-navy-800 transition hover:border-gaming-purple/50"
+                                    >
+                                        {mp.game && (
+                                            <div className="relative h-[50px] overflow-hidden">
+                                                <img
+                                                    src={mp.game.cover_image || `/images/games/${mp.game.slug}.svg`}
+                                                    alt={mp.game.name}
+                                                    className="h-full w-full object-cover"
+                                                />
+                                                <div className="absolute inset-0 bg-gradient-to-t from-navy-800 to-transparent" />
+                                                <span className="absolute bottom-1 left-3 text-xs font-semibold text-white drop-shadow">
+                                                    {mp.game.name}
+                                                </span>
+                                            </div>
+                                        )}
+                                        <div className="p-3">
+                                            <h3 className="mb-1.5 text-sm font-bold text-white line-clamp-1">{mp.title}</h3>
+                                            <div className="mb-2 flex items-center justify-between text-xs">
+                                                <span className="text-gray-400">{mp.spots_filled}/{mp.spots_needed} spots</span>
+                                                <span className={`font-medium ${mp.status === 'full' ? 'text-red-400' : 'text-gaming-green'}`}>
+                                                    {mp.status === 'full' ? 'Full' : 'Open'}
+                                                </span>
+                                            </div>
+                                            <div className="flex flex-wrap gap-1">
+                                                <span className="rounded-full bg-gaming-purple/20 px-2 py-0.5 text-[10px] font-medium text-gaming-purple">{mp.platform}</span>
+                                                {mp.mic_required && (
+                                                    <span className="rounded-full bg-gaming-green/20 px-2 py-0.5 text-[10px] font-medium text-gaming-green">Mic</span>
+                                                )}
+                                                {mp.rank_min && (
+                                                    <span className="rounded-full bg-yellow-500/20 px-2 py-0.5 text-[10px] font-medium text-yellow-400">{mp.rank_min}</span>
+                                                )}
+                                                {mp.language && (
+                                                    <span className="rounded-full bg-blue-500/20 px-2 py-0.5 text-[10px] font-medium text-blue-400">{mp.language}</span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
                     {/* Posts Grid */}
                     {localPosts.length > 0 ? (
                         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -162,7 +219,8 @@ export default function LfgIndex({
                                 return (
                                     <div
                                         key={post.id}
-                                        className="overflow-hidden rounded-xl border border-white/10 bg-navy-800 transition hover:border-white/20"
+                                        className="overflow-hidden rounded-xl border border-white/10 bg-navy-800 transition hover:border-white/20 cursor-pointer"
+                                        onClick={() => router.visit(route('lfg.show', { lfgPost: post.id }))}
                                     >
                                         {/* Game banner */}
                                         {post.game && (
@@ -257,8 +315,18 @@ export default function LfgIndex({
                                                         Min: {post.rank_min}
                                                     </span>
                                                 )}
-                                                {post.scheduled_at && (
+                                                {post.mic_required && (
+                                                    <span className="rounded-full bg-gaming-green/20 px-2 py-0.5 text-[10px] font-medium text-gaming-green">
+                                                        Mic
+                                                    </span>
+                                                )}
+                                                {post.language && (
                                                     <span className="rounded-full bg-blue-500/20 px-2 py-0.5 text-[10px] font-medium text-blue-400">
+                                                        {post.language}
+                                                    </span>
+                                                )}
+                                                {post.scheduled_at && (
+                                                    <span className="rounded-full bg-cyan-500/20 px-2 py-0.5 text-[10px] font-medium text-cyan-400">
                                                         {formatScheduled(post.scheduled_at)}
                                                     </span>
                                                 )}
@@ -301,7 +369,7 @@ export default function LfgIndex({
 
                                             {/* Join button */}
                                             <button
-                                                onClick={() => handleJoin(post.id)}
+                                                onClick={(e) => { e.stopPropagation(); handleJoin(post.id); }}
                                                 disabled={isFull || isOwn || joined || joiningId === post.id}
                                                 className={`w-full rounded-lg px-4 py-2 text-sm font-semibold transition ${
                                                     joined

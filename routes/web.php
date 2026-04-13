@@ -118,6 +118,15 @@ Route::get('/dashboard', function () {
         ->take(8)
         ->values();
 
+    $relevantLfg = $userGameIds->isNotEmpty()
+        ? \App\Models\LfgPost::open()
+            ->whereIn('game_id', $userGameIds)
+            ->with(['user.profile', 'game'])
+            ->latest()
+            ->take(3)
+            ->get()
+        : collect();
+
     return Inertia::render('Dashboard', [
         'matchCount' => $matchCount,
         'recentMatches' => $recentMatches,
@@ -129,6 +138,7 @@ Route::get('/dashboard', function () {
         'onlineRecent' => $onlineRecent,
         'trendingGames' => $trendingGames,
         'activityFeed' => $activityFeed,
+        'relevantLfg' => $relevantLfg,
     ]);
 })->middleware(['auth', 'verified', 'profile.complete'])->name('dashboard');
 
@@ -176,7 +186,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/lfg', [LfgController::class, 'index'])->name('lfg.index');
         Route::get('/lfg/create', [LfgController::class, 'create'])->name('lfg.create');
         Route::post('/lfg', [LfgController::class, 'store'])->name('lfg.store');
+        Route::get('/lfg/{lfgPost}', [LfgController::class, 'show'])->name('lfg.show');
         Route::post('/lfg/{lfgPost}/respond', [LfgController::class, 'respond'])->name('lfg.respond');
+        Route::post('/lfg/{lfgPost}/accept/{response}', [LfgController::class, 'acceptResponse'])->name('lfg.accept');
+        Route::post('/lfg/{lfgPost}/reject/{response}', [LfgController::class, 'rejectResponse'])->name('lfg.reject');
+        Route::post('/lfg/{lfgPost}/message', [LfgController::class, 'sendMessage'])->name('lfg.message');
+        Route::post('/lfg/{lfgPost}/rate', [LfgController::class, 'rate'])->name('lfg.rate');
+        Route::post('/lfg/{lfgPost}/close', [LfgController::class, 'close'])->name('lfg.close');
+        Route::post('/lfg/{lfgPost}/repost', [LfgController::class, 'repost'])->name('lfg.repost');
     });
 });
 

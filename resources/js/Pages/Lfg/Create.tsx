@@ -1,7 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Game } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { FormEventHandler, useState } from 'react';
+import { FormEventHandler, useEffect, useState } from 'react';
 
 export default function LfgCreate({ games }: { games: Game[] }) {
     const { data, setData, post, processing, errors } = useForm({
@@ -11,10 +11,23 @@ export default function LfgCreate({ games }: { games: Game[] }) {
         spots_needed: 2,
         platform: '',
         rank_min: '',
+        mic_required: false,
+        language: '',
+        age_requirement: 'None',
+        requirements_note: '',
         scheduled_at: '',
     });
 
     const [selectedGame, setSelectedGame] = useState<Game | null>(null);
+
+    // Pre-select game from URL params (e.g., /lfg/create?game_id=5)
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const gameId = params.get('game_id');
+        if (gameId && !data.game_id) {
+            handleGameChange(gameId);
+        }
+    }, []);
 
     const handleGameChange = (gameId: string) => {
         setData('game_id', gameId);
@@ -172,6 +185,63 @@ export default function LfgCreate({ games }: { games: Game[] }) {
                                 {errors.rank_min && <p className={errorClass}>{errors.rank_min}</p>}
                             </div>
                         )}
+
+                        {/* Mic Required */}
+                        <div className="flex items-center gap-3">
+                            <input
+                                type="checkbox"
+                                id="mic_required"
+                                checked={data.mic_required}
+                                onChange={(e) => setData('mic_required', e.target.checked)}
+                                className="h-4 w-4 rounded border-white/10 bg-navy-900 text-gaming-purple focus:ring-gaming-purple"
+                            />
+                            <label htmlFor="mic_required" className="text-sm font-medium text-gray-300">
+                                Mic Required
+                            </label>
+                        </div>
+
+                        {/* Language */}
+                        <div>
+                            <label className={labelClass}>Language (optional)</label>
+                            <input
+                                type="text"
+                                value={data.language}
+                                onChange={(e) => setData('language', e.target.value)}
+                                placeholder="e.g., English, Tagalog"
+                                className={inputClass}
+                                maxLength={50}
+                            />
+                            {errors.language && <p className={errorClass}>{errors.language}</p>}
+                        </div>
+
+                        {/* Age Requirement */}
+                        <div>
+                            <label className={labelClass}>Age Requirement</label>
+                            <select
+                                value={data.age_requirement}
+                                onChange={(e) => setData('age_requirement', e.target.value)}
+                                className={inputClass}
+                            >
+                                <option value="None">None</option>
+                                <option value="16+">16+</option>
+                                <option value="18+">18+</option>
+                                <option value="21+">21+</option>
+                            </select>
+                            {errors.age_requirement && <p className={errorClass}>{errors.age_requirement}</p>}
+                        </div>
+
+                        {/* Requirements Note */}
+                        <div>
+                            <label className={labelClass}>Requirements Note (optional)</label>
+                            <textarea
+                                value={data.requirements_note}
+                                onChange={(e) => setData('requirements_note', e.target.value)}
+                                placeholder="Any custom requirements for your group..."
+                                className={inputClass + ' min-h-[60px] resize-y'}
+                                maxLength={500}
+                            />
+                            {errors.requirements_note && <p className={errorClass}>{errors.requirements_note}</p>}
+                        </div>
 
                         {/* Scheduled At */}
                         <div>
