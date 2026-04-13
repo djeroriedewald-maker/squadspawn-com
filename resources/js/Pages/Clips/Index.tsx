@@ -5,8 +5,8 @@ import axios from 'axios';
 import { FormEvent, useState } from 'react';
 
 function getYouTubeThumbnail(url: string): string | null {
-    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]+)/);
-    return match ? `https://img.youtube.com/vi/${match[1]}/mqdefault.jpg` : null;
+    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/|youtube\.com\/embed\/|youtube\.com\/live\/)([a-zA-Z0-9_-]{11})/);
+    return match ? `https://img.youtube.com/vi/${match[1]}/hqdefault.jpg` : null;
 }
 
 function detectPlatform(url: string): 'youtube' | 'twitch' | 'tiktok' | '' {
@@ -58,20 +58,27 @@ function ClipCard({ clip, onDelete }: { clip: Clip; onDelete?: (id: number) => v
             {/* Info */}
             <div className="p-3">
                 <h4 className="truncate text-sm font-semibold text-white">{clip.title}</h4>
-                <div className="mt-1.5 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
+                <div className="mt-2 flex items-center gap-2.5">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-gaming-purple/30 to-gaming-green/30">
                         {clip.user?.profile?.avatar ? (
-                            <img src={clip.user.profile.avatar} alt="" className="h-5 w-5 rounded-full object-cover" />
+                            <img src={clip.user.profile.avatar} alt="" className="h-full w-full object-cover" />
                         ) : (
-                            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-gaming-purple/20 text-[9px] font-bold text-gaming-purple">
+                            <span className="text-xs font-bold text-gaming-purple">
                                 {(clip.user?.profile?.username?.[0] || clip.user?.name?.[0] || '?').toUpperCase()}
-                            </div>
+                            </span>
                         )}
-                        <span className="text-xs text-gray-400">{clip.user?.profile?.username || clip.user?.name}</span>
                     </div>
-                    {clip.game && (
-                        <span className="truncate text-xs text-gray-500">{clip.game.name}</span>
-                    )}
+                    <div className="min-w-0 flex-1">
+                        <Link
+                            href={route('player.show', { username: clip.user?.profile?.username || clip.user?.id })}
+                            className="block truncate text-xs font-medium text-white hover:text-gaming-purple"
+                        >
+                            {clip.user?.profile?.username || clip.user?.name}
+                        </Link>
+                        {clip.game && (
+                            <span className="text-[10px] text-gray-500">{clip.game.name}</span>
+                        )}
+                    </div>
                 </div>
                 {onDelete && (
                     <button
