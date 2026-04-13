@@ -20,12 +20,12 @@ export default function Authenticated({
 
     return (
         <div className="min-h-screen bg-navy-900">
-            <nav className="border-b border-white/10 bg-navy-800">
+            <nav className="border-b border-white/5 bg-navy-900/80 backdrop-blur-xl">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="flex h-16 justify-between">
                         <div className="flex">
                             <div className="flex shrink-0 items-center">
-                                <Link href="/" className="text-xl font-bold text-gaming-purple">
+                                <Link href="/" className="text-xl font-bold text-gaming-purple text-neon-purple">
                                     SquadSpawn
                                 </Link>
                             </div>
@@ -99,7 +99,7 @@ export default function Authenticated({
                                 {showNotifications && (
                                     <>
                                         <div className="fixed inset-0 z-40" onClick={() => setShowNotifications(false)} />
-                                        <div className="absolute right-0 z-50 mt-2 w-80 rounded-xl border border-white/10 bg-navy-800 shadow-lg">
+                                        <div className="absolute right-0 z-50 mt-2 w-80 rounded-xl border border-white/10 bg-navy-800 shadow-lg shadow-glow-purple">
                                             <div className="border-b border-white/10 px-4 py-3">
                                                 <h3 className="text-sm font-semibold text-white">Notifications</h3>
                                             </div>
@@ -333,7 +333,7 @@ export default function Authenticated({
 
             <main>{children}</main>
 
-            <footer className="mt-auto border-t border-white/10 bg-navy-800/30 px-6 py-6 lg:px-12">
+            <footer className="mt-auto border-t border-white/5 bg-navy-900 px-6 py-6 lg:px-12">
                 <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 sm:flex-row">
                     <div className="flex gap-4 text-xs text-gray-500">
                         <a href="/privacy-policy" className="transition hover:text-gray-300">Privacy Policy</a>

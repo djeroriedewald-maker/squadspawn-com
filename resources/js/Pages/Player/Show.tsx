@@ -85,41 +85,61 @@ export default function PlayerShow({ player, clips = [] }: PageProps<{ player: U
         casual: 'Casual', ranked: 'Ranked', friends: 'Friends', any: 'Open to Anything',
     };
 
+    const mainGame = player.games && player.games.length > 0 ? player.games[0] : null;
+    const username = player.profile?.username || player.name;
+
     const pageContent = (
         <>
-            <Head title={`${player.profile?.username || player.name} - Player Profile`} />
+            <Head title={`${username} - Player Profile`} />
 
-            <div className="py-8">
-                <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-                    {/* Profile card */}
-                    <div className="rounded-2xl border border-white/10 bg-navy-800 p-8">
-                        <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
-                            <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-gaming-purple/30 to-gaming-green/30 text-4xl font-bold text-white">
-                                {player.profile?.avatar ? (
-                                    <img src={player.profile.avatar} alt={player.profile.username} className="h-full w-full object-cover" />
-                                ) : (
-                                    (player.profile?.username?.[0] || player.name[0]).toUpperCase()
-                                )}
-                            </div>
+            <div className="pb-12">
+                {/* Cover Banner */}
+                <div className="relative h-48 w-full overflow-hidden">
+                    {mainGame?.cover_image ? (
+                        <img
+                            src={mainGame.cover_image}
+                            alt=""
+                            className="h-full w-full object-cover"
+                        />
+                    ) : (
+                        <div className="h-full w-full bg-gradient-to-r from-gaming-purple/30 via-navy-800 to-gaming-cyan/30" />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-navy-900 via-navy-900/60 to-transparent" />
+                    <div className="absolute inset-0 bg-grid opacity-20" />
+                </div>
+
+                <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+                    {/* Avatar + Header */}
+                    <div className="relative -mt-16 flex flex-col items-center sm:flex-row sm:items-end sm:gap-6">
+                        {/* Avatar with gradient border */}
+                        <div className="gradient-border relative z-10 flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden rounded-full bg-navy-800 text-4xl font-bold text-white">
+                            {player.profile?.avatar ? (
+                                <img src={player.profile.avatar} alt={username} className="h-full w-full object-cover" />
+                            ) : (
+                                (player.profile?.username?.[0] || player.name[0]).toUpperCase()
+                            )}
+                        </div>
+
+                        <div className="mt-4 flex flex-1 flex-col items-center gap-3 sm:mt-0 sm:flex-row sm:items-end sm:justify-between">
                             <div className="text-center sm:text-left">
-                                <h1 className="flex items-center gap-2 text-2xl font-bold text-white">
-                                    {player.profile?.username || player.name}
-                                    {player.profile?.is_creator && (
-                                        <span className="rounded-full bg-gaming-purple/20 px-2.5 py-0.5 text-xs font-semibold text-gaming-purple">Creator</span>
-                                    )}
+                                <h1 className={`text-3xl font-bold text-white ${player.profile?.is_creator ? 'text-neon-purple' : ''}`}>
+                                    {username}
                                 </h1>
-                                {player.profile?.stream_url && (
-                                    <a
-                                        href={player.profile.stream_url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-gaming-green/10 px-3 py-1.5 text-xs font-semibold text-gaming-green transition hover:bg-gaming-green/20"
-                                    >
-                                        <svg className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
-                                        Watch Stream
-                                    </a>
-                                )}
-                                <div className="mt-2 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+                                <div className="mt-1.5 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+                                    {player.profile?.is_creator && (
+                                        <span className="glow-border-cyan rounded-full bg-gaming-cyan/10 px-3 py-0.5 text-xs font-bold text-gaming-cyan">
+                                            Creator
+                                        </span>
+                                    )}
+                                    {player.profile?.is_live && (
+                                        <span className="flex items-center gap-1.5 rounded-full bg-red-500/10 px-3 py-0.5 text-xs font-bold text-red-400">
+                                            <span className="relative flex h-2 w-2">
+                                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
+                                                <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500"></span>
+                                            </span>
+                                            Currently Live
+                                        </span>
+                                    )}
                                     {player.profile?.looking_for && (
                                         <span className="rounded-full bg-gaming-purple/20 px-3 py-0.5 text-xs font-medium text-gaming-purple">
                                             {lookingForLabels[player.profile.looking_for] || player.profile.looking_for}
@@ -131,22 +151,57 @@ export default function PlayerShow({ player, clips = [] }: PageProps<{ player: U
                                         </span>
                                     )}
                                 </div>
-                                {player.profile?.bio && (
-                                    <p className="mt-4 text-sm leading-relaxed text-gray-300">{player.profile.bio}</p>
-                                )}
-
-                                {player.profile?.socials && Object.values(player.profile.socials).some(v => v) && (
-                                    <div className="mt-4">
-                                        <SocialLinks socials={player.profile.socials} />
-                                    </div>
-                                )}
                             </div>
+
+                            {/* Stream button */}
+                            {player.profile?.stream_url && (
+                                <a
+                                    href={player.profile.stream_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-2 rounded-lg bg-gaming-green/10 px-4 py-2 text-sm font-bold text-gaming-green shadow-glow-green transition hover:bg-gaming-green/20"
+                                >
+                                    <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                                    Watch Stream
+                                </a>
+                            )}
                         </div>
                     </div>
 
+                    {/* Stats Row */}
+                    <div className="mt-6 grid grid-cols-3 gap-3">
+                        <div className="glow-border rounded-xl border border-white/5 bg-navy-800 p-4 text-center">
+                            <p className="text-2xl font-bold text-neon-purple text-gaming-purple">{player.games?.length || 0}</p>
+                            <p className="mt-0.5 text-xs font-medium uppercase tracking-wider text-gray-500">Games</p>
+                        </div>
+                        <div className="glow-border-green rounded-xl border border-white/5 bg-navy-800 p-4 text-center">
+                            <p className="text-2xl font-bold text-neon-green text-gaming-green">{clips.length}</p>
+                            <p className="mt-0.5 text-xs font-medium uppercase tracking-wider text-gray-500">Clips</p>
+                        </div>
+                        <div className="glow-border-cyan rounded-xl border border-white/5 bg-navy-800 p-4 text-center">
+                            <p className="text-2xl font-bold text-neon-cyan text-gaming-cyan">--</p>
+                            <p className="mt-0.5 text-xs font-medium uppercase tracking-wider text-gray-500">Friends</p>
+                        </div>
+                    </div>
+
+                    {/* Bio */}
+                    {player.profile?.bio && (
+                        <div className="card-gaming mt-6 rounded-2xl border border-white/5 bg-navy-800 p-6">
+                            <h3 className="mb-2 text-sm font-bold uppercase tracking-wider text-gray-500">About</h3>
+                            <p className="text-sm leading-relaxed text-gray-300">{player.profile.bio}</p>
+                        </div>
+                    )}
+
+                    {/* Socials */}
+                    {player.profile?.socials && Object.values(player.profile.socials).some(v => v) && (
+                        <div className="mt-4">
+                            <SocialLinks socials={player.profile.socials} />
+                        </div>
+                    )}
+
                     {/* Report & Block buttons */}
                     {isLoggedIn && !isOwnProfile && (
-                        <div className="mt-4 flex items-center gap-3 px-1">
+                        <div className="mt-6 flex items-center gap-3">
                             <button
                                 onClick={() => setShowReportModal(true)}
                                 className="rounded-lg border border-white/10 bg-navy-800 px-4 py-2 text-sm font-medium text-gray-300 transition hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-400"
@@ -166,7 +221,7 @@ export default function PlayerShow({ player, clips = [] }: PageProps<{ player: U
                     {/* Report Modal */}
                     {showReportModal && (
                         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-                            <div className="w-full max-w-md rounded-2xl border border-white/10 bg-navy-800 p-6">
+                            <div className="glow-border w-full max-w-md rounded-2xl border border-white/10 bg-navy-800 p-6">
                                 {reportSuccess ? (
                                     <div className="text-center">
                                         <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gaming-green/20 text-gaming-green">
@@ -178,7 +233,7 @@ export default function PlayerShow({ player, clips = [] }: PageProps<{ player: U
                                 ) : (
                                     <>
                                         <h3 className="text-lg font-bold text-white">
-                                            Report {player.profile?.username || player.name}
+                                            Report {username}
                                         </h3>
                                         <p className="mt-1 text-sm text-gray-400">
                                             Please select a reason for your report.
@@ -189,7 +244,7 @@ export default function PlayerShow({ player, clips = [] }: PageProps<{ player: U
                                             <select
                                                 value={reportReason}
                                                 onChange={(e) => setReportReason(e.target.value)}
-                                                className="w-full rounded-lg border border-white/10 bg-navy-900 px-3 py-2 text-sm text-white focus:border-gaming-purple focus:outline-none focus:ring-1 focus:ring-gaming-purple"
+                                                className="w-full rounded-lg border border-white/10 bg-navy-600 px-3 py-2 text-sm text-white focus:border-gaming-purple focus:outline-none focus:ring-1 focus:ring-gaming-purple"
                                             >
                                                 <option value="">Select a reason...</option>
                                                 {REPORT_REASONS.map((r) => (
@@ -207,7 +262,7 @@ export default function PlayerShow({ player, clips = [] }: PageProps<{ player: U
                                                 onChange={(e) => setReportDetails(e.target.value)}
                                                 rows={3}
                                                 placeholder="Provide additional context..."
-                                                className="w-full resize-none rounded-lg border border-white/10 bg-navy-900 px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-gaming-purple focus:outline-none focus:ring-1 focus:ring-gaming-purple"
+                                                className="w-full resize-none rounded-lg border border-white/10 bg-navy-600 px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-gaming-purple focus:outline-none focus:ring-1 focus:ring-gaming-purple"
                                             />
                                         </div>
 
@@ -238,28 +293,36 @@ export default function PlayerShow({ player, clips = [] }: PageProps<{ player: U
 
                     {/* Games */}
                     {player.games && player.games.length > 0 && (
-                        <div className="mt-6 rounded-2xl border border-white/10 bg-navy-800 p-8">
+                        <div className="mt-8">
                             <h3 className="mb-4 text-lg font-bold text-white">
                                 Games ({player.games.length})
                             </h3>
-                            <div className="grid gap-3 sm:grid-cols-2">
+                            <div className="grid gap-4 sm:grid-cols-2">
                                 {player.games.map((game) => (
-                                    <div key={game.id} className="overflow-hidden rounded-xl border border-white/5 bg-navy-900">
-                                        <div className="relative h-24 overflow-hidden">
+                                    <div key={game.id} className="card-gaming group overflow-hidden rounded-xl border border-white/5 bg-navy-800 transition">
+                                        <div className="relative h-32 overflow-hidden">
                                             <img
                                                 src={game.cover_image || `/images/games/${game.slug}.svg`}
                                                 alt={game.name}
-                                                className="h-full w-full object-cover"
+                                                className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
                                             />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-navy-900/90 to-transparent" />
-                                            <div className="absolute bottom-2 left-3">
-                                                <p className="font-bold text-white">{game.name}</p>
+                                            <div className="absolute inset-0 bg-gradient-to-t from-navy-800 via-navy-800/40 to-transparent" />
+                                            <div className="absolute bottom-3 left-4 right-4">
+                                                <p className="text-lg font-bold text-white">{game.name}</p>
+                                                <p className="text-xs text-gray-400">{game.genre}</p>
                                             </div>
-                                        </div>
-                                        <div className="flex items-center gap-2 px-3 py-2.5">
                                             {game.pivot?.rank && (
-                                                <span className="rounded-md bg-gaming-green/10 px-2.5 py-0.5 text-xs font-semibold text-gaming-green">
-                                                    {game.pivot.rank}
+                                                <div className="absolute right-3 top-3">
+                                                    <span className="glow-border-green rounded-lg bg-navy-900/80 px-3 py-1 text-xs font-bold text-gaming-green backdrop-blur-sm">
+                                                        {game.pivot.rank}
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="flex items-center gap-2 px-4 py-3">
+                                            {game.pivot?.role && (
+                                                <span className="rounded-md bg-gaming-orange/10 px-2.5 py-0.5 text-xs font-semibold text-gaming-orange">
+                                                    {game.pivot.role}
                                                 </span>
                                             )}
                                             {game.pivot?.platform && (
@@ -267,20 +330,20 @@ export default function PlayerShow({ player, clips = [] }: PageProps<{ player: U
                                                     {game.pivot.platform}
                                                 </span>
                                             )}
-                                            <span className="text-xs text-gray-600">{game.genre}</span>
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         </div>
                     )}
+
                     {/* Clips */}
                     {clips && clips.length > 0 && (
-                        <div className="mt-6 rounded-2xl border border-white/10 bg-navy-800 p-8">
+                        <div className="mt-8">
                             <h3 className="mb-4 text-lg font-bold text-white">
                                 Clips & Highlights ({clips.length})
                             </h3>
-                            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                                 {clips.map((clip) => {
                                     const thumbnail = clip.thumbnail || (clip.platform === 'youtube' ? getYouTubeThumbnail(clip.url) : null);
                                     return (
@@ -289,26 +352,26 @@ export default function PlayerShow({ player, clips = [] }: PageProps<{ player: U
                                             href={clip.url}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="group overflow-hidden rounded-xl border border-white/5 bg-navy-900 transition hover:border-gaming-purple/30"
+                                            className="card-gaming group overflow-hidden rounded-xl border border-white/5 bg-navy-800 transition"
                                         >
                                             <div className="relative aspect-video overflow-hidden">
                                                 {thumbnail ? (
-                                                    <img src={thumbnail} alt={clip.title} className="h-full w-full object-cover transition group-hover:scale-105" />
+                                                    <img src={thumbnail} alt={clip.title} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
                                                 ) : (
-                                                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gaming-purple/20 to-gaming-green/20">
+                                                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gaming-purple/20 to-gaming-cyan/20">
                                                         <svg className="h-8 w-8 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" /></svg>
                                                     </div>
                                                 )}
                                                 <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 transition group-hover:opacity-100">
-                                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur">
-                                                        <svg className="h-5 w-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                                                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gaming-purple/30 shadow-glow-purple backdrop-blur">
+                                                        <svg className="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
                                                     </div>
                                                 </div>
                                                 <div className="absolute right-2 top-2">
                                                     {platformBadge(clip.platform)}
                                                 </div>
                                             </div>
-                                            <div className="p-2.5">
+                                            <div className="p-3">
                                                 <p className="truncate text-sm font-semibold text-white">{clip.title}</p>
                                                 {clip.game && (
                                                     <p className="mt-0.5 text-xs text-gray-500">{clip.game.name}</p>
@@ -323,12 +386,12 @@ export default function PlayerShow({ player, clips = [] }: PageProps<{ player: U
 
                     {/* CTA for guests */}
                     {!isLoggedIn && (
-                        <div className="mt-6 rounded-xl border border-gaming-purple/20 bg-gaming-purple/5 p-6 text-center">
-                            <p className="font-semibold text-white">Want to team up with {player.profile?.username}?</p>
+                        <div className="mt-8 glow-border rounded-xl border border-gaming-purple/20 bg-gaming-purple/5 p-8 text-center">
+                            <p className="text-lg font-bold text-white">Want to team up with {username}?</p>
                             <p className="mt-1 text-sm text-gray-400">Create a free account to match and chat.</p>
                             <Link
                                 href={route('register')}
-                                className="mt-3 inline-block rounded-lg bg-gaming-purple px-5 py-2.5 text-sm font-bold text-white transition hover:bg-gaming-purple/80"
+                                className="mt-4 inline-block rounded-lg bg-gaming-purple px-6 py-3 text-sm font-bold text-white shadow-glow-purple transition hover:bg-gaming-purple/80"
                             >
                                 Sign Up Free
                             </Link>
@@ -345,11 +408,11 @@ export default function PlayerShow({ player, clips = [] }: PageProps<{ player: U
 
     return (
         <div className="min-h-screen bg-navy-900 text-white">
-            <nav className="flex items-center justify-between px-6 py-4 lg:px-12">
-                <Link href="/" className="text-2xl font-bold text-gaming-purple">SquadSpawn</Link>
+            <nav className="flex items-center justify-between border-b border-white/5 bg-navy-900/80 px-6 py-4 backdrop-blur-xl lg:px-12">
+                <Link href="/" className="text-2xl font-bold text-gaming-purple text-neon-purple">SquadSpawn</Link>
                 <div className="flex items-center gap-4">
                     <Link href={route('login')} className="text-sm text-gray-300 hover:text-white">Log in</Link>
-                    <Link href={route('register')} className="rounded-lg bg-gaming-purple px-4 py-2 text-sm font-semibold text-white">Sign up</Link>
+                    <Link href={route('register')} className="rounded-lg bg-gaming-purple px-4 py-2 text-sm font-semibold text-white shadow-glow-purple">Sign up</Link>
                 </div>
             </nav>
             {pageContent}
