@@ -17,6 +17,7 @@ interface LfgPost {
     user_id: number;
     game_id: number;
     title: string;
+    slug: string;
     description?: string;
     spots_needed: number;
     spots_filled: number;
@@ -161,7 +162,7 @@ export default function LfgIndex({
                                 {myPosts.map((mp) => (
                                     <Link
                                         key={mp.id}
-                                        href={route('lfg.show', { lfgPost: mp.id })}
+                                        href={route('lfg.show', { lfgPost: mp.slug })}
                                         className="overflow-hidden rounded-xl border border-gaming-purple/30 bg-navy-800 transition hover:border-gaming-purple/50"
                                     >
                                         {mp.game && (
@@ -220,7 +221,7 @@ export default function LfgIndex({
                                     <div
                                         key={post.id}
                                         className="overflow-hidden rounded-xl border border-white/10 bg-navy-800 transition hover:border-white/20 cursor-pointer"
-                                        onClick={() => router.visit(route('lfg.show', { lfgPost: post.id }))}
+                                        onClick={() => router.visit(route('lfg.show', { lfgPost: post.slug }))}
                                     >
                                         {/* Game banner */}
                                         {post.game && (

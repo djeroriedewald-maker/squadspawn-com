@@ -26,6 +26,7 @@ interface LfgPost {
     user_id: number;
     game_id: number;
     title: string;
+    slug: string;
     description?: string;
     spots_needed: number;
     spots_filled: number;
@@ -101,7 +102,7 @@ export default function LfgShow({
         if (!isMember) return;
         const interval = setInterval(async () => {
             try {
-                const response = await axios.get(route('lfg.show', { lfgPost: post.id }), {
+                const response = await axios.get(route('lfg.show', { lfgPost: post.slug }), {
                     headers: { 'X-Inertia': 'true', 'X-Inertia-Version': '' },
                 });
                 if (response.data?.props?.messages) {
@@ -135,7 +136,7 @@ export default function LfgShow({
         if (!body.trim() || sending) return;
         setSending(true);
         try {
-            const response = await axios.post(route('lfg.message', { lfgPost: post.id }), { body });
+            const response = await axios.post(route('lfg.message', { lfgPost: post.slug }), { body });
             setMessages((prev) => [...prev, response.data]);
             setBody('');
             if (textareaRef.current) textareaRef.current.style.height = 'auto';
@@ -155,7 +156,7 @@ export default function LfgShow({
     const handleJoin = async () => {
         setJoining(true);
         try {
-            await axios.post(route('lfg.respond', { lfgPost: post.id }), { message: joinMessage || undefined });
+            await axios.post(route('lfg.respond', { lfgPost: post.slug }), { message: joinMessage || undefined });
             setPost((p) => ({
                 ...p,
                 responses: [
@@ -173,7 +174,7 @@ export default function LfgShow({
 
     const handleAccept = async (responseId: number) => {
         try {
-            const { data } = await axios.post(route('lfg.accept', { lfgPost: post.id, response: responseId }));
+            const { data } = await axios.post(route('lfg.accept', { lfgPost: post.slug, response: responseId }));
             setPost((p) => ({
                 ...p,
                 status: data.status || p.status,
@@ -187,7 +188,7 @@ export default function LfgShow({
 
     const handleReject = async (responseId: number) => {
         try {
-            await axios.post(route('lfg.reject', { lfgPost: post.id, response: responseId }));
+            await axios.post(route('lfg.reject', { lfgPost: post.slug, response: responseId }));
             setPost((p) => ({
                 ...p,
                 responses: p.responses?.map((r) => (r.id === responseId ? { ...r, status: 'rejected' } : r)),
@@ -201,7 +202,7 @@ export default function LfgShow({
         if (!confirm('Close this group? Members can still rate each other.')) return;
         setClosing(true);
         try {
-            await axios.post(route('lfg.close', { lfgPost: post.id }));
+            await axios.post(route('lfg.close', { lfgPost: post.slug }));
             setPost((p) => ({ ...p, status: 'closed' }));
         } catch (err: any) {
             alert(err.response?.data?.error || 'Failed to close.');
@@ -541,7 +542,7 @@ export default function LfgShow({
                                     <h3 className="text-base font-bold text-white">Group Actions</h3>
                                     {(isOpen || isFull) && (
                                         <Link
-                                            href={route('lfg.edit', { lfgPost: post.id })}
+                                            href={route('lfg.edit', { lfgPost: post.slug })}
                                             className="block w-full rounded-lg bg-navy-700 px-4 py-2 text-center text-sm font-semibold text-white transition hover:bg-navy-600"
                                         >
                                             Edit Post
@@ -558,7 +559,7 @@ export default function LfgShow({
                                     )}
                                     {isClosed && (
                                         <Link
-                                            href={route('lfg.repost', { lfgPost: post.id })}
+                                            href={route('lfg.repost', { lfgPost: post.slug })}
                                             method="post"
                                             as="button"
                                             className="w-full rounded-lg bg-gaming-purple/10 px-4 py-2 text-sm font-semibold text-gaming-purple transition hover:bg-gaming-purple/20"

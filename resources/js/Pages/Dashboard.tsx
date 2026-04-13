@@ -27,6 +27,7 @@ function AnimatedNumber({ value, className }: { value: number; className?: strin
 interface LfgPostItem {
     id: number;
     title: string;
+    slug: string;
     spots_needed: number;
     spots_filled: number;
     platform: string;
@@ -238,7 +239,7 @@ export default function Dashboard({
                                     return (
                                         <Link
                                             key={lfg.id}
-                                            href={route('lfg.show', { lfgPost: lfg.id })}
+                                            href={route('lfg.show', { lfgPost: lfg.slug })}
                                             className="overflow-hidden rounded-xl border border-white/10 bg-navy-800 transition hover:border-gaming-green/30"
                                         >
                                             {lfg.game && (
