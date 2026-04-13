@@ -76,6 +76,12 @@ class LfgController extends Controller
     {
         $lfgPost->load(['user.profile', 'game', 'responses.user.profile', 'messages.user.profile', 'ratings']);
 
+        // Sync spots_filled with actual accepted count + host
+        $actualFilled = $lfgPost->responses()->where('status', 'accepted')->count() + 1;
+        if ($lfgPost->spots_filled !== $actualFilled) {
+            $lfgPost->update(['spots_filled' => $actualFilled]);
+        }
+
         $user = auth()->user();
         $isMember = $lfgPost->user_id === $user->id
             || $lfgPost->responses()->where('user_id', $user->id)->where('status', 'accepted')->exists();
@@ -128,8 +134,11 @@ class LfgController extends Controller
         $response = $lfgPost->responses()->findOrFail($responseId);
         $response->update(['status' => 'accepted']);
 
-        $lfgPost->increment('spots_filled');
-        if ($lfgPost->fresh()->spots_filled >= $lfgPost->spots_needed) {
+        // Recalculate spots_filled from actual accepted responses (+ 1 for host)
+        $acceptedCount = $lfgPost->responses()->where('status', 'accepted')->count();
+        $lfgPost->update(['spots_filled' => $acceptedCount + 1]); // +1 for the host
+
+        if ($lfgPost->spots_filled >= $lfgPost->spots_needed) {
             $lfgPost->update(['status' => 'full']);
         }
 
