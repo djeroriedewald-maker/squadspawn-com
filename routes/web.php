@@ -24,11 +24,22 @@ Route::get('/terms-of-service', fn () => Inertia::render('Legal/TermsOfService')
 Route::get('/cookie-policy', fn () => Inertia::render('Legal/CookiePolicy'))->name('legal.cookies');
 
 Route::get('/', function () {
+    $totalPlayers = \App\Models\User::whereHas('profile')->count();
+    $totalGames = \App\Models\Game::count();
+    $activeLfg = \App\Models\LfgPost::where('status', 'open')->count();
+    $topGames = \App\Models\Game::withCount('users')->orderByDesc('users_count')->take(8)->get();
+    $recentPlayers = \App\Models\Profile::with('user')->latest()->take(8)->get();
+    $onlineNow = \App\Models\User::where('updated_at', '>=', now()->subMinutes(15))->count();
+
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
+        'totalPlayers' => $totalPlayers,
+        'totalGames' => $totalGames,
+        'activeLfg' => $activeLfg,
+        'topGames' => $topGames,
+        'recentPlayers' => $recentPlayers,
+        'onlineNow' => $onlineNow,
     ]);
 });
 

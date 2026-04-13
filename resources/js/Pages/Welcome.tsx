@@ -1,4 +1,20 @@
 import { Head, Link, usePage } from '@inertiajs/react';
+import { Game } from '@/types';
+
+interface GameWithCount extends Game {
+    users_count: number;
+}
+
+interface WelcomeProps {
+    canLogin: boolean;
+    canRegister: boolean;
+    totalPlayers: number;
+    totalGames: number;
+    activeLfg: number;
+    topGames: GameWithCount[];
+    recentPlayers: { id: number; username: string; avatar?: string; created_at: string }[];
+    onlineNow: number;
+}
 
 const gameCovers = [
     { name: 'Mobile Legends', image: '/images/games/mlbb.jpg' },
@@ -25,13 +41,15 @@ const gameCovers = [
 export default function Welcome({
     canLogin,
     canRegister,
-}: {
-    canLogin: boolean;
-    canRegister: boolean;
-    laravelVersion: string;
-    phpVersion: string;
-}) {
+    totalPlayers,
+    totalGames,
+    activeLfg,
+    topGames,
+    recentPlayers,
+    onlineNow,
+}: WelcomeProps) {
     const user = usePage().props.auth?.user;
+
     return (
         <>
             <Head title="Find Your Gaming Squad" />
@@ -103,16 +121,17 @@ export default function Welcome({
                     <div className="relative z-10 mx-auto flex max-w-6xl flex-col items-center gap-12 lg:flex-row lg:gap-16">
                         <div className="flex-1 text-center lg:text-left">
                             <div className="mb-4 inline-block rounded-full border border-gaming-purple/30 bg-gaming-purple/10 px-4 py-1.5 text-sm font-medium text-gaming-purple">
-                                #1 Gaming Matchmaking Platform
+                                🎮 Join {totalPlayers.toLocaleString()}+ gamers worldwide
                             </div>
                             <h1 className="mb-6 text-5xl font-extrabold leading-tight sm:text-6xl lg:text-7xl">
                                 <span className="bg-gradient-to-r from-gaming-purple via-gaming-pink to-gaming-green bg-clip-text text-transparent">
-                                    Find Your Squad
+                                    Find Your Gaming Squad
                                 </span>
                             </h1>
                             <p className="mx-auto mb-10 max-w-2xl text-lg text-gray-400 sm:text-xl lg:mx-0">
-                                The premier matchmaking platform for gamers worldwide. Connect with
-                                teammates who match your playstyle, rank, and schedule.
+                                The ultimate platform for finding teammates, creating LFG groups,
+                                and sharing your best gaming clips. Connect with players who match
+                                your playstyle, rank, and schedule.
                             </p>
                             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row lg:justify-start">
                                 <Link
@@ -128,12 +147,14 @@ export default function Welcome({
                                     Browse Players
                                 </Link>
                             </div>
-                            <div className="mt-8 flex items-center justify-center gap-8 text-sm text-gray-500 lg:justify-start">
-                                <span>19+ Games</span>
-                                <span className="h-1 w-1 rounded-full bg-gray-600" />
-                                <span>Free to Join</span>
-                                <span className="h-1 w-1 rounded-full bg-gray-600" />
-                                <span>All Regions</span>
+                            <div className="mt-8 flex flex-wrap items-center justify-center gap-4 text-sm text-gray-400 sm:gap-8 lg:justify-start">
+                                <span className="font-semibold text-gaming-purple">{totalPlayers.toLocaleString()} Gamers</span>
+                                <span className="hidden h-1 w-1 rounded-full bg-gray-600 sm:block" />
+                                <span className="font-semibold text-gaming-green">{totalGames} Games</span>
+                                <span className="hidden h-1 w-1 rounded-full bg-gray-600 sm:block" />
+                                <span className="font-semibold text-gaming-pink">{activeLfg} Groups Active</span>
+                                <span className="hidden h-1 w-1 rounded-full bg-gray-600 sm:block" />
+                                <span className="font-semibold text-white">{onlineNow} Online Now</span>
                             </div>
                         </div>
 
@@ -154,7 +175,7 @@ export default function Welcome({
                     </div>
                 </section>
 
-                {/* How It Works - with images */}
+                {/* How It Works */}
                 <section className="border-y border-white/5 bg-navy-800/30 px-6 py-24 lg:px-12">
                     <div className="mx-auto max-w-6xl">
                         <h2 className="mb-4 text-center text-3xl font-bold sm:text-4xl">
@@ -164,96 +185,157 @@ export default function Welcome({
                             Three simple steps to find your perfect gaming squad.
                         </p>
 
-                        {/* Step 1 - Discover */}
+                        {/* Step 1 - Create Your Profile */}
                         <div className="mb-20 flex flex-col items-center gap-10 lg:flex-row lg:gap-16">
                             <div className="flex-1">
-                                <img src="/images/matchmaking.svg" alt="Discover players" className="mx-auto w-full max-w-md" />
+                                <img src="/images/matchmaking.svg" alt="Create your profile" className="mx-auto w-full max-w-md" />
                             </div>
                             <div className="flex-1 text-center lg:text-left">
                                 <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-gaming-purple text-lg font-bold">1</div>
-                                <h3 className="mb-4 text-2xl font-bold">Discover Players</h3>
+                                <h3 className="mb-4 text-2xl font-bold">Create Your Profile</h3>
                                 <p className="text-gray-400 leading-relaxed">
-                                    Browse through player profiles filtered by your favorite games, rank, and region.
-                                    See their playstyle, availability, and what they're looking for. Like the ones you
-                                    want to play with — pass on the rest.
+                                    Set up your gaming identity. Add your games, ranks, and preferred roles.
+                                    Link your Discord and socials so teammates can find and connect with you easily.
                                 </p>
                             </div>
                         </div>
 
-                        {/* Step 2 - Match */}
+                        {/* Step 2 - Find Your Squad */}
                         <div className="mb-20 flex flex-col items-center gap-10 lg:flex-row-reverse lg:gap-16">
                             <div className="flex-1">
-                                <img src="/images/leaderboard.svg" alt="Match and compete" className="mx-auto w-full max-w-md" />
+                                <img src="/images/leaderboard.svg" alt="Find your squad" className="mx-auto w-full max-w-md" />
                             </div>
                             <div className="flex-1 text-center lg:text-left">
                                 <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-gaming-green text-lg font-bold text-navy-900">2</div>
-                                <h3 className="mb-4 text-2xl font-bold">Connect by Rank</h3>
+                                <h3 className="mb-4 text-2xl font-bold">Find Your Squad</h3>
                                 <p className="text-gray-400 leading-relaxed">
-                                    When both of you like each other — you're friends! Find players at your skill level,
-                                    from Iron to Radiant, from Warrior to Mythic. No more carrying or getting carried.
+                                    Browse players, see who liked you, and join LFG groups. Filter by game,
+                                    rank, region, and playstyle to find the perfect teammates for your sessions.
                                 </p>
                             </div>
                         </div>
 
-                        {/* Step 3 - Chat */}
+                        {/* Step 3 - Connect & Play */}
                         <div className="flex flex-col items-center gap-10 lg:flex-row lg:gap-16">
                             <div className="flex-1">
-                                <img src="/images/squad-chat.svg" alt="Team chat" className="mx-auto w-full max-w-md" />
+                                <img src="/images/squad-chat.svg" alt="Connect and play" className="mx-auto w-full max-w-md" />
                             </div>
                             <div className="flex-1 text-center lg:text-left">
                                 <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-gaming-pink text-lg font-bold">3</div>
-                                <h3 className="mb-4 text-2xl font-bold">Chat & Play</h3>
+                                <h3 className="mb-4 text-2xl font-bold">Connect & Play</h3>
                                 <p className="text-gray-400 leading-relaxed">
-                                    Start chatting with your friends instantly. Coordinate game sessions,
-                                    share strategies, and build a squad that grows together. From solo queue
-                                    to five-stack — your team awaits.
+                                    Chat with friends, join Discord servers, share clips and highlights.
+                                    Build your gaming crew and go from solo queue to a full squad ready to dominate.
                                 </p>
                             </div>
                         </div>
                     </div>
                 </section>
 
-                {/* Games Section */}
+                {/* Platform Features */}
                 <section className="px-6 py-24 lg:px-12">
+                    <div className="mx-auto max-w-6xl">
+                        <h2 className="mb-4 text-center text-3xl font-bold sm:text-4xl">
+                            Platform Features
+                        </h2>
+                        <p className="mx-auto mb-12 max-w-xl text-center text-gray-400">
+                            Everything you need to find teammates and build your gaming community.
+                        </p>
+                        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                            {/* Find Players */}
+                            <div className="group rounded-xl border border-white/10 bg-navy-800 p-6 transition hover:border-gaming-purple/50 hover:shadow-lg hover:shadow-gaming-purple/10">
+                                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-gaming-purple/20">
+                                    <svg className="h-6 w-6 text-gaming-purple" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                </div>
+                                <h3 className="mb-2 text-lg font-bold">Find Players</h3>
+                                <p className="text-sm text-gray-400">Discover gamers by game, rank, and region. Filter by playstyle and availability to find your ideal teammates.</p>
+                            </div>
+
+                            {/* Friend Requests */}
+                            <div className="group rounded-xl border border-white/10 bg-navy-800 p-6 transition hover:border-gaming-purple/50 hover:shadow-lg hover:shadow-gaming-purple/10">
+                                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-gaming-pink/20">
+                                    <svg className="h-6 w-6 text-gaming-pink" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                    </svg>
+                                </div>
+                                <h3 className="mb-2 text-lg font-bold">Friend Requests</h3>
+                                <p className="text-sm text-gray-400">See who wants to play with you and accept instantly. Build your friends list with gamers who share your vibe.</p>
+                            </div>
+
+                            {/* Looking for Group */}
+                            <div className="group rounded-xl border border-white/10 bg-navy-800 p-6 transition hover:border-gaming-purple/50 hover:shadow-lg hover:shadow-gaming-purple/10">
+                                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-gaming-green/20">
+                                    <svg className="h-6 w-6 text-gaming-green" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                    </svg>
+                                </div>
+                                <h3 className="mb-2 text-lg font-bold">Looking for Group</h3>
+                                <p className="text-sm text-gray-400">Create or join game sessions with specific requirements. Set rank, region, and player count to fill your squad.</p>
+                            </div>
+
+                            {/* Group Chat */}
+                            <div className="group rounded-xl border border-white/10 bg-navy-800 p-6 transition hover:border-gaming-purple/50 hover:shadow-lg hover:shadow-gaming-purple/10">
+                                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-gaming-purple/20">
+                                    <svg className="h-6 w-6 text-gaming-purple" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                    </svg>
+                                </div>
+                                <h3 className="mb-2 text-lg font-bold">Group Chat</h3>
+                                <p className="text-sm text-gray-400">Chat with friends and LFG groups in real-time. Coordinate sessions, share strats, and stay connected.</p>
+                            </div>
+
+                            {/* Gaming Clips */}
+                            <div className="group rounded-xl border border-white/10 bg-navy-800 p-6 transition hover:border-gaming-purple/50 hover:shadow-lg hover:shadow-gaming-purple/10">
+                                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-gaming-pink/20">
+                                    <svg className="h-6 w-6 text-gaming-pink" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <h3 className="mb-2 text-lg font-bold">Gaming Clips</h3>
+                                <p className="text-sm text-gray-400">Share your best moments from YouTube, Twitch, and TikTok. Show off highlights and clutch plays to your crew.</p>
+                            </div>
+
+                            {/* Creator Profiles */}
+                            <div className="group rounded-xl border border-white/10 bg-navy-800 p-6 transition hover:border-gaming-purple/50 hover:shadow-lg hover:shadow-gaming-purple/10">
+                                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-gaming-green/20">
+                                    <svg className="h-6 w-6 text-gaming-green" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                                    </svg>
+                                </div>
+                                <h3 className="mb-2 text-lg font-bold">Creator Profiles</h3>
+                                <p className="text-sm text-gray-400">Showcase your stream and build your audience. Let other gamers discover your content and grow together.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Popular Games */}
+                <section className="border-y border-white/5 bg-navy-800/30 px-6 py-24 lg:px-12">
                     <div className="mx-auto max-w-6xl">
                         <h2 className="mb-4 text-center text-3xl font-bold sm:text-4xl">
                             Popular Games
                         </h2>
                         <p className="mx-auto mb-12 max-w-xl text-center text-gray-400">
-                            Find teammates across the most popular mobile and PC games worldwide.
+                            Find teammates across the most popular games with live player counts.
                         </p>
                         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                            {[
-                                { name: 'Valorant', genre: 'Tactical Shooter', image: '/images/games/valorant.jpg', platforms: ['PC', 'Console'] },
-                                { name: 'Fortnite', genre: 'Battle Royale', image: '/images/games/fortnite.jpg', platforms: ['PC', 'Console', 'Mobile'] },
-                                { name: 'League of Legends', genre: 'MOBA', image: '/images/games/lol.jpg', platforms: ['PC'] },
-                                { name: 'Apex Legends', genre: 'Battle Royale', image: '/images/games/apex.jpg', platforms: ['PC', 'Console'] },
-                                { name: 'Counter-Strike 2', genre: 'Tactical Shooter', image: '/images/games/cs2.jpg', platforms: ['PC'] },
-                                { name: 'Mobile Legends', genre: 'MOBA', image: '/images/games/mlbb.jpg', platforms: ['Mobile'] },
-                                { name: 'PUBG Mobile', genre: 'Battle Royale', image: '/images/games/pubgm.jpg', platforms: ['Mobile'] },
-                                { name: 'Genshin Impact', genre: 'Action RPG', image: '/images/games/genshin.jpg', platforms: ['PC', 'Console', 'Mobile'] },
-                                { name: 'Overwatch 2', genre: 'Hero Shooter', image: '/images/games/overwatch2.jpg', platforms: ['PC', 'Console'] },
-                                { name: 'Dota 2', genre: 'MOBA', image: '/images/games/dota2.jpg', platforms: ['PC'] },
-                                { name: 'Rocket League', genre: 'Sports', image: '/images/games/rocketleague.jpg', platforms: ['PC', 'Console'] },
-                                { name: 'Free Fire', genre: 'Battle Royale', image: '/images/games/freefire.jpg', platforms: ['Mobile'] },
-                                { name: 'Honor of Kings', genre: 'MOBA', image: '/images/games/hok.jpg', platforms: ['Mobile', 'PC'] },
-                                { name: 'Call of Duty: Mobile', genre: 'FPS', image: '/images/games/codm.jpg', platforms: ['Mobile'] },
-                                { name: 'Minecraft', genre: 'Sandbox', image: '/images/games/minecraft.png', platforms: ['PC', 'Console', 'Mobile'] },
-                                { name: 'Brawl Stars', genre: 'Action', image: '/images/games/brawlstars.jpg', platforms: ['Mobile'] },
-                                { name: 'Clash Royale', genre: 'Strategy', image: '/images/games/clashroyale.jpg', platforms: ['Mobile'] },
-                                { name: 'Arena of Valor', genre: 'MOBA', image: '/images/games/aov.jpg', platforms: ['Mobile'] },
-                                { name: 'Stumble Guys', genre: 'Party', image: '/images/games/stumbleguys.jpg', platforms: ['Mobile', 'PC'] },
-                            ].map((game) => (
-                                <div
-                                    key={game.name}
+                            {topGames.slice(0, 8).map((game) => (
+                                <Link
+                                    key={game.id}
+                                    href={user ? `/discover?game_id=${game.id}` : `/players?game_id=${game.id}`}
                                     className="group overflow-hidden rounded-xl border border-white/10 bg-navy-800 transition hover:border-gaming-purple/40 hover:shadow-lg hover:shadow-gaming-purple/10"
                                 >
-                                    <div className="aspect-[3/2] overflow-hidden">
+                                    <div className="relative aspect-[3/2] overflow-hidden">
                                         <img
-                                            src={game.image}
+                                            src={game.cover_image || '/images/games/default.jpg'}
                                             alt={game.name}
                                             className="h-full w-full object-cover transition group-hover:scale-105"
                                         />
+                                        <div className="absolute right-2 top-2 rounded-full bg-gaming-green/90 px-2.5 py-0.5 text-xs font-bold text-navy-900">
+                                            {game.users_count} players
+                                        </div>
                                     </div>
                                     <div className="p-4">
                                         <h3 className="font-semibold text-white">{game.name}</h3>
@@ -264,38 +346,83 @@ export default function Welcome({
                                             ))}
                                         </div>
                                     </div>
-                                </div>
+                                </Link>
                             ))}
+                        </div>
+                        <div className="mt-10 text-center">
+                            <Link
+                                href="/games"
+                                className="inline-flex items-center gap-2 text-gaming-purple transition hover:text-gaming-purple/80"
+                            >
+                                <span className="font-semibold">View All Games</span>
+                                <span aria-hidden="true">&rarr;</span>
+                            </Link>
                         </div>
                     </div>
                 </section>
 
-                {/* SEA Community */}
+                {/* Recently Joined */}
+                <section className="px-6 py-24 lg:px-12">
+                    <div className="mx-auto max-w-6xl text-center">
+                        <h2 className="mb-4 text-3xl font-bold sm:text-4xl">
+                            Recently Joined
+                        </h2>
+                        <p className="mx-auto mb-12 max-w-xl text-gray-400">
+                            New gamers are joining every day. Here are some of the latest members.
+                        </p>
+                        <div className="flex flex-wrap items-center justify-center gap-6">
+                            {recentPlayers.map((player) => (
+                                <div key={player.id} className="flex flex-col items-center gap-2">
+                                    <div className="h-16 w-16 overflow-hidden rounded-full border-2 border-gaming-purple/40 bg-navy-700">
+                                        {player.avatar ? (
+                                            <img
+                                                src={player.avatar}
+                                                alt={player.username}
+                                                className="h-full w-full object-cover"
+                                            />
+                                        ) : (
+                                            <div className="flex h-full w-full items-center justify-center text-lg font-bold text-gaming-purple">
+                                                {player.username.charAt(0).toUpperCase()}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <span className="max-w-[80px] truncate text-xs text-gray-400">{player.username}</span>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="mt-10">
+                            <Link
+                                href={route('register')}
+                                className="inline-flex items-center gap-2 rounded-xl bg-gaming-purple px-6 py-3 font-bold text-white transition hover:bg-gaming-purple/80"
+                            >
+                                <span>Join them</span>
+                                <span aria-hidden="true">&rarr;</span>
+                            </Link>
+                        </div>
+                    </div>
+                </section>
+
+                {/* A Global Gaming Community */}
                 <section className="border-y border-white/5 bg-navy-800/30 px-6 py-24 lg:px-12">
                     <div className="mx-auto max-w-6xl text-center">
                         <h2 className="mb-4 text-3xl font-bold sm:text-4xl">
                             A <span className="text-gaming-purple">Global</span> Gaming Community
                         </h2>
                         <p className="mx-auto mb-12 max-w-xl text-gray-400">
-                            Connecting gamers worldwide — from Southeast Asia to Europe, North America and beyond. Find your squad, wherever you are.
+                            Connecting gamers worldwide. No matter where you are, your next teammate is just a click away.
                         </p>
-                        <img
-                            src="/images/regions-map.svg"
-                            alt="Global gaming community"
-                            className="mx-auto mb-12 w-full max-w-2xl"
-                        />
                         <div className="grid gap-6 sm:grid-cols-3">
                             <div className="rounded-xl border border-white/10 bg-navy-800 p-6">
-                                <p className="text-4xl font-bold text-gaming-purple">Global</p>
-                                <p className="mt-2 text-sm text-gray-400">Players Worldwide</p>
+                                <p className="text-4xl font-bold text-gaming-purple">{totalPlayers.toLocaleString()}+</p>
+                                <p className="mt-2 text-sm text-gray-400">Gamers</p>
                             </div>
                             <div className="rounded-xl border border-white/10 bg-navy-800 p-6">
-                                <p className="text-4xl font-bold text-gaming-green">19</p>
-                                <p className="mt-2 text-sm text-gray-400">Games Supported</p>
+                                <p className="text-4xl font-bold text-gaming-green">{totalGames}</p>
+                                <p className="mt-2 text-sm text-gray-400">Games</p>
                             </div>
                             <div className="rounded-xl border border-white/10 bg-navy-800 p-6">
-                                <p className="text-4xl font-bold text-gaming-pink">24/7</p>
-                                <p className="mt-2 text-sm text-gray-400">Players Online</p>
+                                <p className="text-4xl font-bold text-gaming-pink">{activeLfg}</p>
+                                <p className="mt-2 text-sm text-gray-400">Groups Active</p>
                             </div>
                         </div>
                     </div>
@@ -312,7 +439,7 @@ export default function Welcome({
                             Ready to Find Your Squad?
                         </h2>
                         <p className="mb-10 text-lg text-gray-400">
-                            Join thousands of gamers already building their dream teams. It's free, it's fast, and your next teammate is waiting.
+                            Join {totalPlayers.toLocaleString()}+ gamers already building their dream teams. It's free, it's fast, and your next teammate is waiting.
                         </p>
                         <Link
                             href={route('register')}
