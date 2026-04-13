@@ -36,6 +36,7 @@ interface LfgPost {
     language?: string;
     age_requirement?: string;
     requirements_note?: string;
+    discord_url?: string;
     scheduled_at?: string;
     status: string;
     created_at: string;
@@ -292,6 +293,25 @@ export default function LfgShow({
                     <div className="grid gap-6 lg:grid-cols-3">
                         {/* Left column */}
                         <div className="space-y-6 lg:col-span-2">
+                            {/* Discord Server */}
+                            {post.discord_url && isMember && (
+                                <a
+                                    href={post.discord_url.startsWith('http') ? post.discord_url : 'https://' + post.discord_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-3 rounded-xl border border-[#5865F2]/30 bg-[#5865F2]/10 px-5 py-4 transition hover:bg-[#5865F2]/20"
+                                >
+                                    <svg className="h-6 w-6 text-[#5865F2]" fill="currentColor" viewBox="0 0 24 24"><path d="M20.317 4.3698a19.791 19.791 0 00-4.885-1.5152.0729.0729 0 00-.0785.0378c-.2107.3748-.4443.8632-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1641-.3933-.4058-.8747-.6177-1.2495a.077.077 0 00-.0785-.0378 19.736 19.736 0 00-4.8852 1.5152.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.299 12.299 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286z" /></svg>
+                                    <div className="flex-1">
+                                        <p className="font-semibold text-white">Join Discord Server</p>
+                                        <p className="text-xs text-gray-400">Join voice chat with your squad</p>
+                                    </div>
+                                    <svg className="h-5 w-5 text-[#5865F2]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                                    </svg>
+                                </a>
+                            )}
+
                             {/* Requirements */}
                             <div className="rounded-xl border border-white/10 bg-navy-800 p-6">
                                 <h2 className="mb-4 text-lg font-bold text-white">Requirements</h2>

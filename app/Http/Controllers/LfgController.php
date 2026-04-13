@@ -63,6 +63,7 @@ class LfgController extends Controller
             'language' => 'nullable|string|max:50',
             'age_requirement' => 'nullable|string|max:20',
             'requirements_note' => 'nullable|string|max:500',
+            'discord_url' => 'nullable|string|max:255',
             'scheduled_at' => 'nullable|date|after:now',
         ]);
 
@@ -231,6 +232,7 @@ class LfgController extends Controller
             'language' => 'nullable|string|max:50',
             'age_requirement' => 'nullable|string|max:20',
             'requirements_note' => 'nullable|string|max:500',
+            'discord_url' => 'nullable|string|max:255',
             'scheduled_at' => 'nullable|date',
         ]);
 

@@ -16,6 +16,7 @@ interface LfgPost {
     language?: string;
     age_requirement?: string;
     requirements_note?: string;
+    discord_url?: string;
     scheduled_at?: string;
     game?: Game;
 }
@@ -31,6 +32,7 @@ export default function LfgEdit({ post, games }: { post: LfgPost; games: Game[] 
         language: post.language || '',
         age_requirement: post.age_requirement || 'None',
         requirements_note: post.requirements_note || '',
+        discord_url: post.discord_url || '',
         scheduled_at: post.scheduled_at ? post.scheduled_at.slice(0, 16) : '',
     });
 
@@ -119,6 +121,10 @@ export default function LfgEdit({ post, games }: { post: LfgPost; games: Game[] 
                         <div>
                             <label className={labelClass}>Requirements Note</label>
                             <textarea value={data.requirements_note} onChange={(e) => setData('requirements_note', e.target.value)} className={inputClass + ' min-h-[60px] resize-y'} maxLength={500} />
+                        </div>
+                        <div>
+                            <label className={labelClass}>Discord Server</label>
+                            <input type="text" value={data.discord_url} onChange={(e) => setData('discord_url', e.target.value)} placeholder="https://discord.gg/your-server" className={inputClass} maxLength={255} />
                         </div>
                         <div>
                             <label className={labelClass}>Scheduled Time</label>
