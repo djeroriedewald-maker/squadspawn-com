@@ -156,12 +156,12 @@ Route::get('/dashboard', function () {
 // Public
 Route::get('/games', [GamesController::class, 'index'])->name('games.index');
 Route::get('/player/{username}', [PlayerController::class, 'show'])->name('player.show');
-Route::get('/players', [\App\Http\Controllers\DiscoveryController::class, 'publicIndex'])->name('players.public');
 Route::get('/clips', [ClipController::class, 'index'])->name('clips.index');
 Route::get('/redirect', [\App\Http\Controllers\RedirectController::class, 'redirect'])->name('external.redirect');
 Route::get('/search', [SearchController::class, 'search'])->middleware('auth')->name('search');
 
 Route::middleware('auth')->group(function () {
+    Route::get('/players', [\App\Http\Controllers\DiscoveryController::class, 'publicIndex'])->name('players.public');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
