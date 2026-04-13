@@ -150,20 +150,6 @@ Route::get('/clips', [ClipController::class, 'index'])->name('clips.index');
 Route::get('/redirect', [\App\Http\Controllers\RedirectController::class, 'redirect'])->name('external.redirect');
 Route::get('/search', [SearchController::class, 'search'])->middleware('auth')->name('search');
 
-Route::get('/debug-users', function () {
-    $all = \App\Models\User::with(['profile', 'games'])->get();
-    return response()->json($all->map(fn ($u) => [
-        'id' => $u->id,
-        'name' => $u->name,
-        'email' => $u->email,
-        'has_profile' => !!$u->profile,
-        'username' => $u->profile?->username,
-        'games' => $u->games->pluck('name'),
-        'region' => $u->profile?->region,
-        'created_at' => $u->created_at->toDateTimeString(),
-    ]));
-})->middleware('auth');
-
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
