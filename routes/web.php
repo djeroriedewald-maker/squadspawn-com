@@ -151,7 +151,7 @@ Route::get('/dashboard', function () {
         'activityFeed' => $activityFeed,
         'relevantLfg' => $relevantLfg,
     ]);
-})->middleware(['auth', 'verified', 'profile.complete'])->name('dashboard');
+})->middleware(['auth', 'verified', 'age.verified', 'profile.complete'])->name('dashboard');
 
 // Public
 Route::get('/games', [GamesController::class, 'index'])->name('games.index');
@@ -161,6 +161,10 @@ Route::get('/redirect', [\App\Http\Controllers\RedirectController::class, 'redir
 Route::get('/search', [SearchController::class, 'search'])->middleware('auth')->name('search');
 
 Route::middleware('auth')->group(function () {
+    // Age verification (for Google OAuth users who skipped registration form)
+    Route::get('/verify-age', [\App\Http\Controllers\Auth\AgeVerificationController::class, 'show'])->name('age-verification');
+    Route::post('/verify-age', [\App\Http\Controllers\Auth\AgeVerificationController::class, 'store'])->name('age-verification.store');
+
     Route::get('/players', [\App\Http\Controllers\DiscoveryController::class, 'publicIndex'])->name('players.public');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
