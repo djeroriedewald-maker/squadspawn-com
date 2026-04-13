@@ -23,12 +23,19 @@ class DiscoveryController extends Controller
         $myRegion = $user->profile?->region;
         $myLookingFor = $user->profile?->looking_for;
 
-        // IDs to exclude
-        $likedIds = $user->likedUsers()->pluck('liked_id');
+        // IDs to exclude (use direct queries to avoid pivot pluck issues)
+        $likedIds = Like::where('liker_id', $user->id)->pluck('liked_id');
         $passedIds = Pass::where('passer_id', $user->id)->pluck('passed_id');
         $blockedByMe = Block::where('blocker_id', $user->id)->pluck('blocked_id');
         $blockedMe = Block::where('blocked_id', $user->id)->pluck('blocker_id');
-        $excludeIds = $likedIds->merge($passedIds)->merge($blockedByMe)->merge($blockedMe)->push($user->id);
+        $excludeIds = collect([$user->id])
+            ->merge($likedIds)
+            ->merge($passedIds)
+            ->merge($blockedByMe)
+            ->merge($blockedMe)
+            ->unique()
+            ->values()
+            ->toArray();
 
         // Who liked me (for boosting priority, not revealing identity)
         $likedMeIds = Like::where('liked_id', $user->id)->pluck('liker_id')->toArray();
