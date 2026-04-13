@@ -176,6 +176,7 @@ Route::middleware('auth')->group(function () {
     // Discovery (requires complete profile)
     Route::middleware('profile.complete')->group(function () {
         Route::get('/discover', [DiscoveryController::class, 'index'])->name('discovery.index');
+        Route::post('/discover/undo', [DiscoveryController::class, 'undo'])->name('discovery.undo');
         Route::post('/likes', [LikeController::class, 'store'])->name('likes.store');
         Route::post('/likes/pass', [LikeController::class, 'pass'])->name('likes.pass');
         Route::get('/friends', [MatchController::class, 'index'])->name('friends.index');

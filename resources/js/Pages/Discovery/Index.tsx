@@ -4,20 +4,27 @@ import { Head, Link, router, usePage } from '@inertiajs/react';
 import axios from 'axios';
 import { useState, useCallback, useEffect } from 'react';
 
-const REGIONS = [
-    'Philippines', 'Indonesia', 'Malaysia', 'Singapore', 'Thailand', 'Vietnam',
-    'Netherlands', 'Germany', 'United Kingdom', 'France', 'Spain', 'Italy',
-    'United States', 'Canada', 'Brazil', 'Japan', 'South Korea', 'Australia',
+const LOOKING_FOR = [
+    { value: '', label: 'Any' },
+    { value: 'casual', label: 'Casual' },
+    { value: 'ranked', label: 'Ranked' },
+    { value: 'friends', label: 'Friends' },
 ];
 
 export default function DiscoveryIndex({
     players,
     games,
     filters,
+    likedByCount,
+    lastPassId,
+    regions,
 }: {
-    players: { data: User[]; links: any };
+    players: { data: (User & { compatibility_score?: number; common_game_count?: number })[]; total: number };
     games: Game[];
-    filters: { game_id?: number; region?: string };
+    filters: { game_id?: number; region?: string; looking_for?: string; platform?: string };
+    likedByCount: number;
+    lastPassId: number | null;
+    regions: string[];
 }) {
     const { auth } = usePage<PageProps>().props;
     const myGames = auth.user?.games || [];
@@ -27,15 +34,15 @@ export default function DiscoveryIndex({
     const [animating, setAnimating] = useState<'left' | 'right' | null>(null);
     const [showMatch, setShowMatch] = useState(false);
     const [matchedUser, setMatchedUser] = useState<User | null>(null);
+    const [canUndo, setCanUndo] = useState(!!lastPassId);
+    const [showFilters, setShowFilters] = useState(false);
 
     const currentPlayer = players.data[currentIndex] ?? null;
     const remaining = Math.max(0, players.data.length - currentIndex - 1);
-
-    // Games in common
     const commonGames = currentPlayer?.games?.filter((g) => myGameIds.includes(g.id)) || [];
 
     const handleFilter = (key: string, value: string) => {
-        router.get(route('discovery.index'), { ...filters, [key]: value || undefined }, { preserveState: true, replace: true });
+        router.get(route('discovery.index'), { ...filters, [key]: value || undefined }, { preserveState: false });
     };
 
     const advance = useCallback(() => {
@@ -50,7 +57,7 @@ export default function DiscoveryIndex({
     const handlePass = async () => {
         if (!currentPlayer || animating) return;
         setAnimating('left');
-        try { await axios.post(route('likes.pass'), { passed_id: currentPlayer.id }); } catch {}
+        try { await axios.post(route('likes.pass'), { passed_id: currentPlayer.id }); setCanUndo(true); } catch {}
         setTimeout(advance, 300);
     };
 
@@ -61,7 +68,18 @@ export default function DiscoveryIndex({
             const { data } = await axios.post(route('likes.store'), { liked_id: currentPlayer.id });
             if (data.matched) { setMatchedUser(currentPlayer); setShowMatch(true); }
         } catch {}
+        setCanUndo(false);
         setTimeout(advance, 300);
+    };
+
+    const handleUndo = async () => {
+        if (!canUndo) return;
+        try {
+            await axios.post(route('discovery.undo'));
+            setCanUndo(false);
+            // Reload page to get the undone player back
+            router.reload();
+        } catch {}
     };
 
     // Keyboard shortcuts
@@ -70,13 +88,29 @@ export default function DiscoveryIndex({
             if (showMatch || !currentPlayer || animating) return;
             if (e.key === 'ArrowLeft' || e.key === 'a') handlePass();
             if (e.key === 'ArrowRight' || e.key === 'd') handleLike();
+            if (e.key === 'z' && canUndo) handleUndo();
         };
         window.addEventListener('keydown', handler);
         return () => window.removeEventListener('keydown', handler);
-    }, [currentPlayer, animating, showMatch]);
+    }, [currentPlayer, animating, showMatch, canUndo]);
 
     const lookingForLabel = (val?: string) => {
         switch (val) { case 'casual': return 'Casual'; case 'ranked': return 'Ranked'; case 'friends': return 'Friends'; case 'any': return 'Open'; default: return val ?? ''; }
+    };
+
+    const scoreColor = (score?: number) => {
+        if (!score) return 'text-gray-500';
+        if (score >= 30) return 'text-gaming-green';
+        if (score >= 15) return 'text-gaming-purple';
+        return 'text-gray-400';
+    };
+
+    const scoreLabel = (score?: number) => {
+        if (!score || score < 5) return null;
+        if (score >= 30) return 'Great Match';
+        if (score >= 20) return 'Good Match';
+        if (score >= 10) return 'Some in Common';
+        return null;
     };
 
     return (
@@ -85,65 +119,101 @@ export default function DiscoveryIndex({
 
             <div className="py-6">
                 <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8">
-                    {/* Header + Filters */}
-                    <div className="mb-6">
-                        <div className="mb-4 flex items-center justify-between">
+                    {/* Header */}
+                    <div className="mb-4 flex items-center justify-between">
+                        <div>
                             <h1 className="text-xl font-bold text-white">Discover</h1>
-                            {currentPlayer && (
-                                <span className="rounded-full bg-navy-800 px-3 py-1 text-xs text-gray-400">
-                                    {remaining} more {remaining === 1 ? 'player' : 'players'}
-                                </span>
-                            )}
+                            <p className="text-xs text-gray-500">{players.total} players available</p>
                         </div>
-                        <div className="flex flex-wrap gap-2">
-                            <select
-                                value={filters.game_id ?? ''}
-                                onChange={(e) => handleFilter('game_id', e.target.value)}
-                                className="rounded-lg border border-white/10 bg-navy-800 px-3 py-2 text-sm text-white focus:border-gaming-purple focus:outline-none focus:ring-1 focus:ring-gaming-purple"
+                        <div className="flex items-center gap-2">
+                            {remaining > 0 && (
+                                <span className="rounded-full bg-navy-800 px-3 py-1 text-xs text-gray-400">{remaining} more</span>
+                            )}
+                            <button
+                                onClick={() => setShowFilters(!showFilters)}
+                                className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${showFilters ? 'bg-gaming-purple text-white' : 'bg-navy-800 text-gray-400 hover:text-white'}`}
                             >
-                                <option value="">All Games</option>
-                                {games.map((game) => (
-                                    <option key={game.id} value={game.id}>{game.name}</option>
-                                ))}
-                            </select>
-                            <select
-                                value={filters.region ?? ''}
-                                onChange={(e) => handleFilter('region', e.target.value)}
-                                className="rounded-lg border border-white/10 bg-navy-800 px-3 py-2 text-sm text-white focus:border-gaming-purple focus:outline-none focus:ring-1 focus:ring-gaming-purple"
-                            >
-                                <option value="">All Regions</option>
-                                {REGIONS.map((r) => (
-                                    <option key={r} value={r}>{r}</option>
-                                ))}
-                            </select>
+                                <svg className="mr-1 inline h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
+                                </svg>
+                                Filters
+                            </button>
                         </div>
                     </div>
+
+                    {/* Liked by banner */}
+                    {likedByCount > 0 && (
+                        <div className="mb-4 flex items-center gap-2 rounded-xl border border-gaming-pink/20 bg-gaming-pink/5 px-4 py-2.5">
+                            <svg className="h-4 w-4 text-gaming-pink" fill="currentColor" viewBox="0 0 24 24"><path d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" /></svg>
+                            <p className="flex-1 text-sm text-gray-300"><strong className="text-gaming-pink">{likedByCount}</strong> {likedByCount === 1 ? 'gamer has' : 'gamers have'} liked you — keep swiping to find them!</p>
+                        </div>
+                    )}
+
+                    {/* Filters */}
+                    {showFilters && (
+                        <div className="mb-4 rounded-xl border border-white/10 bg-navy-800 p-4">
+                            <div className="grid gap-3 sm:grid-cols-2">
+                                <div>
+                                    <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-gray-500">Game</label>
+                                    <select value={filters.game_id ?? ''} onChange={(e) => handleFilter('game_id', e.target.value)} className="w-full rounded-lg border border-white/10 bg-navy-900 px-3 py-2 text-sm text-white focus:border-gaming-purple focus:outline-none focus:ring-1 focus:ring-gaming-purple">
+                                        <option value="">All Games</option>
+                                        {games.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-gray-500">Region</label>
+                                    <select value={filters.region ?? ''} onChange={(e) => handleFilter('region', e.target.value)} className="w-full rounded-lg border border-white/10 bg-navy-900 px-3 py-2 text-sm text-white focus:border-gaming-purple focus:outline-none focus:ring-1 focus:ring-gaming-purple">
+                                        <option value="">All Regions</option>
+                                        {regions.map((r) => <option key={r} value={r}>{r}</option>)}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-gray-500">Looking For</label>
+                                    <select value={filters.looking_for ?? ''} onChange={(e) => handleFilter('looking_for', e.target.value)} className="w-full rounded-lg border border-white/10 bg-navy-900 px-3 py-2 text-sm text-white focus:border-gaming-purple focus:outline-none focus:ring-1 focus:ring-gaming-purple">
+                                        {LOOKING_FOR.map((l) => <option key={l.value} value={l.value}>{l.label}</option>)}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-gray-500">Platform</label>
+                                    <select value={filters.platform ?? ''} onChange={(e) => handleFilter('platform', e.target.value)} className="w-full rounded-lg border border-white/10 bg-navy-900 px-3 py-2 text-sm text-white focus:border-gaming-purple focus:outline-none focus:ring-1 focus:ring-gaming-purple">
+                                        <option value="">All Platforms</option>
+                                        <option value="pc">PC</option>
+                                        <option value="console">Console</option>
+                                        <option value="mobile">Mobile</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Player Card */}
                     {currentPlayer ? (
                         <div className="relative">
-                            <div
-                                className={`overflow-hidden rounded-2xl border border-white/10 bg-navy-800 transition-all duration-300 ${
-                                    animating === 'left' ? '-translate-x-full rotate-[-12deg] opacity-0'
-                                    : animating === 'right' ? 'translate-x-full rotate-[12deg] opacity-0'
-                                    : 'translate-x-0 rotate-0 opacity-100'
-                                }`}
-                            >
-                                {/* Hero banner - main game cover */}
+                            <div className={`overflow-hidden rounded-2xl border border-white/10 bg-navy-800 transition-all duration-300 ${
+                                animating === 'left' ? '-translate-x-full rotate-[-12deg] opacity-0'
+                                : animating === 'right' ? 'translate-x-full rotate-[12deg] opacity-0'
+                                : 'translate-x-0 rotate-0 opacity-100'
+                            }`}>
+                                {/* Game banner */}
                                 {currentPlayer.games && currentPlayer.games.length > 0 && (
                                     <div className="relative h-36 overflow-hidden">
-                                        <img
-                                            src={currentPlayer.games[0].cover_image || `/images/games/${currentPlayer.games[0].slug}.svg`}
-                                            alt=""
-                                            className="h-full w-full object-cover"
-                                        />
+                                        <img src={currentPlayer.games[0].cover_image || `/images/games/${currentPlayer.games[0].slug}.svg`} alt="" className="h-full w-full object-cover" />
                                         <div className="absolute inset-0 bg-gradient-to-t from-navy-800 via-navy-800/60 to-transparent" />
+
+                                        {/* Compatibility badge */}
+                                        {scoreLabel(currentPlayer.compatibility_score) && (
+                                            <div className="absolute left-3 top-3 rounded-lg bg-black/60 px-2.5 py-1 backdrop-blur-sm">
+                                                <span className={`text-xs font-bold ${scoreColor(currentPlayer.compatibility_score)}`}>
+                                                    {scoreLabel(currentPlayer.compatibility_score)}
+                                                </span>
+                                            </div>
+                                        )}
                                     </div>
                                 )}
 
                                 <div className="p-6">
                                     {/* Avatar & Info */}
-                                    <div className={`mb-5 flex items-center gap-4 ${currentPlayer.games?.length ? '-mt-14 relative z-10' : ''}`}>
+                                    <div className={`mb-4 flex items-center gap-4 ${currentPlayer.games?.length ? '-mt-14 relative z-10' : ''}`}>
                                         <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border-4 border-navy-800 bg-gaming-purple/20 text-2xl font-bold text-gaming-purple">
                                             {currentPlayer.profile?.avatar ? (
                                                 <img src={currentPlayer.profile.avatar} alt="" className="h-full w-full object-cover" />
@@ -151,21 +221,19 @@ export default function DiscoveryIndex({
                                                 (currentPlayer.profile?.username ?? currentPlayer.name).charAt(0).toUpperCase()
                                             )}
                                         </div>
-                                        <div>
-                                            <Link
-                                                href={route('player.show', { username: currentPlayer.profile?.username || currentPlayer.id })}
-                                                className="text-xl font-bold text-white hover:text-gaming-purple"
-                                            >
+                                        <div className="min-w-0 flex-1">
+                                            <Link href={route('player.show', { username: currentPlayer.profile?.username || currentPlayer.id })} className="text-xl font-bold text-white hover:text-gaming-purple">
                                                 {currentPlayer.profile?.username ?? currentPlayer.name}
                                             </Link>
                                             <div className="mt-1 flex flex-wrap items-center gap-2">
-                                                {currentPlayer.profile?.region && (
-                                                    <span className="text-sm text-gray-400">{currentPlayer.profile.region}</span>
-                                                )}
+                                                {currentPlayer.profile?.region && <span className="text-sm text-gray-400">{currentPlayer.profile.region}</span>}
                                                 {currentPlayer.profile?.looking_for && (
                                                     <span className="rounded-full bg-gaming-purple/20 px-2.5 py-0.5 text-xs font-medium text-gaming-purple">
                                                         {lookingForLabel(currentPlayer.profile.looking_for)}
                                                     </span>
+                                                )}
+                                                {currentPlayer.profile?.is_creator && (
+                                                    <span className="rounded-full bg-gaming-pink/20 px-2.5 py-0.5 text-xs font-medium text-gaming-pink">Creator</span>
                                                 )}
                                             </div>
                                         </div>
@@ -197,13 +265,14 @@ export default function DiscoveryIndex({
                                                             <div className="relative h-14 overflow-hidden">
                                                                 <img src={game.cover_image || `/images/games/${game.slug}.svg`} alt={game.name} className="h-full w-full object-cover" />
                                                                 <div className="absolute inset-0 bg-gradient-to-t from-navy-700 to-transparent" />
-                                                                {isCommon && (
-                                                                    <div className="absolute right-1 top-1 rounded-full bg-gaming-green px-1.5 py-0.5 text-[8px] font-bold text-white">COMMON</div>
-                                                                )}
+                                                                {isCommon && <div className="absolute right-1 top-1 rounded-full bg-gaming-green px-1.5 py-0.5 text-[8px] font-bold text-white">COMMON</div>}
                                                             </div>
                                                             <div className="px-2 py-1">
                                                                 <p className="truncate text-[11px] font-semibold text-white">{game.name}</p>
-                                                                {game.pivot?.rank && <p className="text-[10px] font-medium text-gaming-green">{game.pivot.rank}</p>}
+                                                                <div className="flex items-center gap-1">
+                                                                    {game.pivot?.rank && <span className="text-[10px] font-medium text-gaming-green">{game.pivot.rank}</span>}
+                                                                    {game.pivot?.role && <span className="text-[10px] text-gray-500">{game.pivot.role}</span>}
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     );
@@ -213,29 +282,49 @@ export default function DiscoveryIndex({
                                     )}
 
                                     {/* Action Buttons */}
-                                    <div className="flex items-center justify-center gap-4">
+                                    <div className="flex items-center justify-center gap-3">
+                                        {/* Undo */}
+                                        <button
+                                            onClick={handleUndo}
+                                            disabled={!canUndo || !!animating}
+                                            className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-400 transition hover:scale-110 hover:bg-white/10 hover:text-yellow-400 disabled:opacity-30"
+                                            title="Undo last pass (Z)"
+                                        >
+                                            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+                                            </svg>
+                                        </button>
+
+                                        {/* Pass */}
                                         <button
                                             onClick={handlePass}
                                             disabled={!!animating}
-                                            className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-red-500/30 bg-red-500/10 text-red-400 transition hover:border-red-500 hover:bg-red-500/20 hover:scale-110 disabled:opacity-50"
+                                            className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-red-500/30 bg-red-500/10 text-red-400 transition hover:border-red-500 hover:bg-red-500/20 hover:scale-110 disabled:opacity-50"
+                                            title="Pass (A)"
                                         >
                                             <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                                             </svg>
                                         </button>
+
+                                        {/* Like */}
                                         <button
                                             onClick={handleLike}
                                             disabled={!!animating}
                                             className="flex h-20 w-20 items-center justify-center rounded-full border-2 border-gaming-green/40 bg-gaming-green/10 text-gaming-green shadow-lg shadow-gaming-green/10 transition hover:border-gaming-green hover:bg-gaming-green/20 hover:scale-110 hover:shadow-gaming-green/25 disabled:opacity-50"
+                                            title="Like (D)"
                                         >
                                             <svg className="h-9 w-9" fill="currentColor" viewBox="0 0 24 24">
                                                 <path d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
                                             </svg>
                                         </button>
+
+                                        {/* Skip */}
                                         <button
                                             onClick={handlePass}
                                             disabled={!!animating}
-                                            className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-white/10 bg-white/5 text-gray-400 transition hover:border-white/20 hover:bg-white/10 hover:scale-110 disabled:opacity-50"
+                                            className="flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-400 transition hover:border-white/20 hover:bg-white/10 hover:scale-110 disabled:opacity-50"
+                                            title="Skip"
                                         >
                                             <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 8.689c0-.864.933-1.405 1.683-.977l7.108 4.061a1.125 1.125 0 010 1.954l-7.108 4.061A1.125 1.125 0 013 16.811V8.69zM12.75 8.689c0-.864.933-1.405 1.683-.977l7.108 4.061a1.125 1.125 0 010 1.954l-7.108 4.061a1.125 1.125 0 01-1.683-.977V8.69z" />
@@ -243,7 +332,11 @@ export default function DiscoveryIndex({
                                         </button>
                                     </div>
                                     <p className="mt-3 text-center text-[10px] text-gray-600">
-                                        Keyboard: <kbd className="rounded bg-navy-700 px-1.5 py-0.5 text-gray-400">A</kbd> Pass &middot; <kbd className="rounded bg-navy-700 px-1.5 py-0.5 text-gray-400">D</kbd> Like
+                                        <kbd className="rounded bg-navy-700 px-1.5 py-0.5 text-gray-400">A</kbd> Pass
+                                        <span className="mx-2">&middot;</span>
+                                        <kbd className="rounded bg-navy-700 px-1.5 py-0.5 text-gray-400">D</kbd> Like
+                                        <span className="mx-2">&middot;</span>
+                                        <kbd className="rounded bg-navy-700 px-1.5 py-0.5 text-gray-400">Z</kbd> Undo
                                     </p>
                                 </div>
                             </div>
@@ -259,12 +352,7 @@ export default function DiscoveryIndex({
                             <p className="mb-6 text-gray-400">No more players to discover right now. New gamers join every day!</p>
                             <div className="flex flex-col items-center gap-3">
                                 <Link href={route('friends.index')} className="rounded-xl bg-gaming-purple px-6 py-3 font-semibold text-white hover:bg-gaming-purple/80">Chat With Friends</Link>
-                                <button
-                                    onClick={() => router.visit(route('discovery.index'))}
-                                    className="text-sm text-gray-400 hover:text-white"
-                                >
-                                    Refresh
-                                </button>
+                                <button onClick={() => router.visit(route('discovery.index'))} className="text-sm text-gray-400 hover:text-white">Refresh</button>
                             </div>
                         </div>
                     )}
@@ -276,14 +364,10 @@ export default function DiscoveryIndex({
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
                     <div className="mx-4 max-w-md animate-bounce rounded-2xl border border-gaming-green/30 bg-navy-800 p-8 text-center">
                         <div className="mb-4 text-gaming-green">
-                            <svg className="mx-auto h-16 w-16" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-                            </svg>
+                            <svg className="mx-auto h-16 w-16" fill="currentColor" viewBox="0 0 24 24"><path d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" /></svg>
                         </div>
                         <h2 className="mb-2 bg-gradient-to-r from-gaming-purple to-gaming-green bg-clip-text text-3xl font-extrabold text-transparent">New Friend!</h2>
-                        <p className="mb-6 text-gray-400">
-                            You and <span className="font-semibold text-white">{matchedUser.profile?.username ?? matchedUser.name}</span> can now chat!
-                        </p>
+                        <p className="mb-6 text-gray-400">You and <span className="font-semibold text-white">{matchedUser.profile?.username ?? matchedUser.name}</span> can now chat!</p>
                         <div className="flex gap-3">
                             <button onClick={() => setShowMatch(false)} className="flex-1 rounded-xl border border-white/10 bg-navy-700 px-4 py-3 font-semibold text-white hover:bg-navy-900">Keep Swiping</button>
                             <button onClick={() => { setShowMatch(false); router.visit(route('friends.index')); }} className="flex-1 rounded-xl bg-gaming-green px-4 py-3 font-semibold text-white hover:bg-gaming-green/80">View Friends</button>
