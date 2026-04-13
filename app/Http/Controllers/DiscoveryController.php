@@ -143,6 +143,39 @@ class DiscoveryController extends Controller
         ]);
     }
 
+    public function passed(Request $request): Response
+    {
+        $user = auth()->user();
+        $user->load('games');
+        $myGameIds = $user->games->pluck('id')->toArray();
+
+        $passedUserIds = Pass::where('passer_id', $user->id)->pluck('passed_id');
+
+        $players = User::whereIn('id', $passedUserIds)
+            ->whereHas('profile')
+            ->with(['profile', 'games'])
+            ->get()
+            ->map(function (User $player) use ($myGameIds) {
+                $playerGameIds = $player->games->pluck('id')->toArray();
+                $player->common_game_count = count(array_intersect($myGameIds, $playerGameIds));
+                return $player;
+            })
+            ->sortByDesc('common_game_count')
+            ->values();
+
+        return Inertia::render('Discovery/Passed', [
+            'players' => $players,
+        ]);
+    }
+
+    public function removePass(int $userId): JsonResponse
+    {
+        $user = auth()->user();
+        Pass::where('passer_id', $user->id)->where('passed_id', $userId)->delete();
+
+        return response()->json(['success' => true]);
+    }
+
     public function undo(): JsonResponse
     {
         $user = auth()->user();

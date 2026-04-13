@@ -351,6 +351,9 @@ export default function DiscoveryIndex({
                             <h3 className="mb-2 text-xl font-bold text-white">You've seen everyone!</h3>
                             <p className="mb-6 text-gray-400">No more players to discover right now. New gamers join every day!</p>
                             <div className="flex flex-col items-center gap-3">
+                                <Link href={route('discovery.passed')} className="rounded-xl bg-gaming-green/10 px-6 py-3 font-semibold text-gaming-green transition hover:bg-gaming-green/20">
+                                    Review Passed Players
+                                </Link>
                                 <Link href={route('friends.index')} className="rounded-xl bg-gaming-purple px-6 py-3 font-semibold text-white hover:bg-gaming-purple/80">Chat With Friends</Link>
                                 <button onClick={() => router.visit(route('discovery.index'))} className="text-sm text-gray-400 hover:text-white">Refresh</button>
                             </div>
