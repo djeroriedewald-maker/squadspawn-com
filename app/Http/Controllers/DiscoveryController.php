@@ -143,6 +143,34 @@ class DiscoveryController extends Controller
         ]);
     }
 
+    public function likedYou(): Response
+    {
+        $user = auth()->user();
+        $user->load('games');
+        $myGameIds = $user->games->pluck('id')->toArray();
+
+        // Users who liked me but I haven't liked back yet (no match)
+        $likedMeIds = Like::where('liked_id', $user->id)->pluck('liker_id');
+        $iLikedIds = Like::where('liker_id', $user->id)->pluck('liked_id');
+        $pendingLikerIds = $likedMeIds->diff($iLikedIds);
+
+        $players = User::whereIn('id', $pendingLikerIds)
+            ->whereHas('profile')
+            ->with(['profile', 'games'])
+            ->get()
+            ->map(function (User $player) use ($myGameIds) {
+                $playerGameIds = $player->games->pluck('id')->toArray();
+                $player->common_game_count = count(array_intersect($myGameIds, $playerGameIds));
+                return $player;
+            })
+            ->sortByDesc('common_game_count')
+            ->values();
+
+        return Inertia::render('Discovery/LikedYou', [
+            'players' => $players,
+        ]);
+    }
+
     public function passed(Request $request): Response
     {
         $user = auth()->user();

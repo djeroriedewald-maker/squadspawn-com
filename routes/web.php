@@ -177,6 +177,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('profile.complete')->group(function () {
         Route::get('/discover', [DiscoveryController::class, 'index'])->name('discovery.index');
         Route::get('/discover/passed', [DiscoveryController::class, 'passed'])->name('discovery.passed');
+        Route::get('/discover/liked-you', [DiscoveryController::class, 'likedYou'])->name('discovery.likedYou');
         Route::post('/discover/undo', [DiscoveryController::class, 'undo'])->name('discovery.undo');
         Route::delete('/discover/pass/{user}', [DiscoveryController::class, 'removePass'])->name('discovery.removePass');
         Route::post('/likes', [LikeController::class, 'store'])->name('likes.store');
