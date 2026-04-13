@@ -203,6 +203,42 @@ class LfgController extends Controller
         return response()->json(['success' => true]);
     }
 
+    public function edit(LfgPost $lfgPost): Response
+    {
+        if ($lfgPost->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        return Inertia::render('Lfg/Edit', [
+            'post' => $lfgPost->load('game'),
+            'games' => Game::all(),
+        ]);
+    }
+
+    public function update(Request $request, LfgPost $lfgPost)
+    {
+        if ($lfgPost->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string|max:1000',
+            'spots_needed' => 'required|integer|min:1|max:9',
+            'platform' => 'required|string|max:50',
+            'rank_min' => 'nullable|string|max:50',
+            'mic_required' => 'nullable|boolean',
+            'language' => 'nullable|string|max:50',
+            'age_requirement' => 'nullable|string|max:20',
+            'requirements_note' => 'nullable|string|max:500',
+            'scheduled_at' => 'nullable|date',
+        ]);
+
+        $lfgPost->update($validated);
+
+        return redirect()->route('lfg.show', $lfgPost)->with('message', 'LFG post updated!');
+    }
+
     public function close(LfgPost $lfgPost): JsonResponse
     {
         if ($lfgPost->user_id !== auth()->id()) {

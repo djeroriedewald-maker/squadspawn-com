@@ -57,7 +57,7 @@ class GameProfileController extends Controller
             'socials.twitch' => ['nullable', 'string', 'max:100'],
             'socials.facebook' => ['nullable', 'string', 'max:100'],
             'is_creator' => ['nullable', 'boolean'],
-            'stream_url' => ['nullable', 'url', 'max:255'],
+            'stream_url' => ['nullable', 'url', 'max:255', new \App\Rules\SafeUrl],
             'games' => ['nullable', 'array'],
             'games.*.game_id' => ['required', 'exists:games,id'],
             'games.*.rank' => ['nullable', 'string', 'max:50'],

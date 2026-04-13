@@ -32,7 +32,7 @@ class ClipController extends Controller
     {
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:100'],
-            'url' => ['required', 'url', 'max:500'],
+            'url' => ['required', 'url', 'max:500', new \App\Rules\SafeUrl],
             'game_id' => ['nullable', 'exists:games,id'],
             'platform' => ['required', 'in:youtube,twitch,tiktok'],
         ]);

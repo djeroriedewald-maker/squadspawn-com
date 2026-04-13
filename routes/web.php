@@ -147,6 +147,7 @@ Route::get('/games', [GamesController::class, 'index'])->name('games.index');
 Route::get('/player/{username}', [PlayerController::class, 'show'])->name('player.show');
 Route::get('/players', [\App\Http\Controllers\DiscoveryController::class, 'publicIndex'])->name('players.public');
 Route::get('/clips', [ClipController::class, 'index'])->name('clips.index');
+Route::get('/redirect', [\App\Http\Controllers\RedirectController::class, 'redirect'])->name('external.redirect');
 Route::get('/search', [SearchController::class, 'search'])->middleware('auth')->name('search');
 
 Route::middleware('auth')->group(function () {
@@ -187,6 +188,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/lfg/create', [LfgController::class, 'create'])->name('lfg.create');
         Route::post('/lfg', [LfgController::class, 'store'])->name('lfg.store');
         Route::get('/lfg/{lfgPost}', [LfgController::class, 'show'])->name('lfg.show');
+        Route::get('/lfg/{lfgPost}/edit', [LfgController::class, 'edit'])->name('lfg.edit');
+        Route::put('/lfg/{lfgPost}', [LfgController::class, 'update'])->name('lfg.update');
         Route::post('/lfg/{lfgPost}/respond', [LfgController::class, 'respond'])->name('lfg.respond');
         Route::post('/lfg/{lfgPost}/accept/{response}', [LfgController::class, 'acceptResponse'])->name('lfg.accept');
         Route::post('/lfg/{lfgPost}/reject/{response}', [LfgController::class, 'rejectResponse'])->name('lfg.reject');

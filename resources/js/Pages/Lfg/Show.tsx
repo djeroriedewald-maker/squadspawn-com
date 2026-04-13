@@ -540,6 +540,14 @@ export default function LfgShow({
                                 <div className="space-y-3 rounded-xl border border-white/10 bg-navy-800 p-6">
                                     <h3 className="text-base font-bold text-white">Group Actions</h3>
                                     {(isOpen || isFull) && (
+                                        <Link
+                                            href={route('lfg.edit', { lfgPost: post.id })}
+                                            className="block w-full rounded-lg bg-navy-700 px-4 py-2 text-center text-sm font-semibold text-white transition hover:bg-navy-600"
+                                        >
+                                            Edit Post
+                                        </Link>
+                                    )}
+                                    {(isOpen || isFull) && (
                                         <button
                                             onClick={handleClose}
                                             disabled={closing}
