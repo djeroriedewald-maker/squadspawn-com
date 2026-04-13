@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Clip;
 use App\Models\Game;
+use App\Services\AchievementService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -39,6 +40,8 @@ class ClipController extends Controller
 
         $clip = auth()->user()->clips()->create($validated);
         $clip->load(['user.profile', 'game']);
+
+        app(AchievementService::class)->check(auth()->user());
 
         return response()->json($clip, 201);
     }

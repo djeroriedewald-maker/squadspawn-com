@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PlayerMatch;
 use App\Notifications\NewMessageNotification;
+use App\Services\AchievementService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -74,6 +75,8 @@ class ChatController extends Controller
             : $playerMatch->userOne;
 
         $partner->notify(new NewMessageNotification($message, $user, $playerMatch->id));
+
+        app(AchievementService::class)->check($user);
 
         return response()->json($message, HttpResponse::HTTP_CREATED);
     }

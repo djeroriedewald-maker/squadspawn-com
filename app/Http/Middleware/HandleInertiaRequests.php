@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\UserAchievement;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -26,6 +27,7 @@ class HandleInertiaRequests extends Middleware
             $authData = [
                 'user' => $user,
                 'unreadCount' => $user->unreadNotifications()->count(),
+                'achievementCount' => UserAchievement::where('user_id', $user->id)->count(),
                 'notifications' => $user->unreadNotifications()->take(10)->get()->map(fn ($n) => [
                     'id' => $n->id,
                     'data' => $n->data,

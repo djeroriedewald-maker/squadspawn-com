@@ -20,6 +20,8 @@ export interface Profile {
     is_creator?: boolean;
     stream_url?: string;
     is_live?: boolean;
+    reputation_score?: number;
+    achievement_points?: number;
     socials?: {
         discord?: string;
         instagram?: string;
@@ -79,8 +81,22 @@ export interface Message {
     sender?: User;
 }
 
+export interface Achievement {
+    id: number;
+    slug: string;
+    name: string;
+    description: string;
+    icon: string;
+    color: string;
+    points: number;
+    pivot?: {
+        created_at: string;
+    };
+}
+
 export type PageProps<T extends Record<string, unknown> = Record<string, unknown>> = T & {
     auth: {
         user: User;
+        achievementCount?: number;
     };
 };

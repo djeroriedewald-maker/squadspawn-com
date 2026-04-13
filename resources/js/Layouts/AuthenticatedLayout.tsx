@@ -13,6 +13,7 @@ export default function Authenticated({
     const user = auth.user;
     const unreadCount = auth.unreadCount || 0;
     const notifications = auth.notifications || [];
+    const achievementCount = auth.achievementCount || 0;
 
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
@@ -60,6 +61,12 @@ export default function Authenticated({
                                     active={route().current('games.*')}
                                 >
                                     Games
+                                </NavLink>
+                                <NavLink
+                                    href={route('community.index')}
+                                    active={route().current('community.*')}
+                                >
+                                    Community
                                 </NavLink>
                                 <NavLink
                                     href={route('clips.index')}
@@ -176,6 +183,18 @@ export default function Authenticated({
 
                                     <Dropdown.Content>
                                         <Dropdown.Link
+                                            href={route('achievements.index')}
+                                        >
+                                            <span className="flex items-center gap-2">
+                                                <span>Achievements</span>
+                                                {achievementCount > 0 && (
+                                                    <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-gaming-purple/20 px-1.5 text-[10px] font-bold text-gaming-purple">
+                                                        {achievementCount}
+                                                    </span>
+                                                )}
+                                            </span>
+                                        </Dropdown.Link>
+                                        <Dropdown.Link
                                             href={route('profile.edit')}
                                         >
                                             Settings
@@ -284,6 +303,12 @@ export default function Authenticated({
                             Games
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
+                            href={route('community.index')}
+                            active={route().current('community.*')}
+                        >
+                            Community
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
                             href={route('clips.index')}
                             active={route().current('clips.*')}
                         >
@@ -308,6 +333,14 @@ export default function Authenticated({
                         </div>
 
                         <div className="mt-3 space-y-1">
+                            <ResponsiveNavLink href={route('achievements.index')}>
+                                Achievements
+                                {achievementCount > 0 && (
+                                    <span className="ml-2 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-gaming-purple/20 px-1.5 text-[10px] font-bold text-gaming-purple">
+                                        {achievementCount}
+                                    </span>
+                                )}
+                            </ResponsiveNavLink>
                             <ResponsiveNavLink href={route('profile.edit')}>
                                 Settings
                             </ResponsiveNavLink>

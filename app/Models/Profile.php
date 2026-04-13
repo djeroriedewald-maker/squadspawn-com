@@ -11,6 +11,7 @@ class Profile extends Model
         'user_id', 'username', 'avatar', 'bio', 'looking_for',
         'region', 'timezone', 'available_times', 'socials',
         'is_creator', 'stream_url', 'is_live',
+        'reputation_score', 'achievement_points',
     ];
 
     protected function casts(): array

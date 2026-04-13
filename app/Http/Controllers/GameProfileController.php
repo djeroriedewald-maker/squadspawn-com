@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Clip;
 use App\Models\Game;
+use App\Services\AchievementService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -13,14 +14,19 @@ class GameProfileController extends Controller
     public function show(): Response
     {
         $user = auth()->user();
-        $user->load(['profile', 'games']);
+        $user->load(['profile', 'games', 'achievements']);
 
         $clips = Clip::where('user_id', $user->id)->with('game')->latest()->take(6)->get();
+
+        // Recalculate reputation
+        app(\App\Services\ReputationService::class)->calculate($user);
+        $user->load('profile'); // Reload to get updated reputation_score
 
         return Inertia::render('GameProfile/Show', [
             'profile' => $user->profile,
             'userGames' => $user->games,
             'clips' => $clips,
+            'earnedAchievements' => $user->achievements,
         ]);
     }
 
@@ -97,6 +103,8 @@ class GameProfileController extends Controller
         } else {
             $user->games()->detach();
         }
+
+        app(AchievementService::class)->check($user);
 
         // If this was the first time setup, redirect to discovery
         $isFirstSetup = !$user->profile()->where('created_at', '<', now()->subMinute())->exists();

@@ -60,4 +60,15 @@ class User extends Authenticatable
     {
         return $this->hasMany(Clip::class);
     }
+
+    public function communityPosts()
+    {
+        return $this->hasMany(CommunityPost::class);
+    }
+
+    public function achievements(): BelongsToMany
+    {
+        return $this->belongsToMany(Achievement::class, 'user_achievements')
+            ->withTimestamps();
+    }
 }

@@ -6,6 +6,7 @@ use App\Models\Like;
 use App\Models\Pass;
 use App\Models\PlayerMatch;
 use App\Notifications\NewMatchNotification;
+use App\Services\AchievementService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -52,6 +53,10 @@ class LikeController extends Controller
             $liked = \App\Models\User::find($likedId);
             $liker->notify(new NewMatchNotification($liked, $match->id));
             $liked->notify(new NewMatchNotification($liker, $match->id));
+        }
+
+        if ($mutualLike) {
+            app(AchievementService::class)->check(auth()->user());
         }
 
         return response()->json([

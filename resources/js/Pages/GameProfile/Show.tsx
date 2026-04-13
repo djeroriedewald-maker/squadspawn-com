@@ -1,8 +1,70 @@
 import SocialLinks from '@/Components/SocialLinks';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Clip, Game, PageProps, Profile } from '@/types';
+import { Achievement, Clip, Game, PageProps, Profile } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
+
+const achievementIconMap: Record<string, string> = {
+    heart: '\u2764\uFE0F',
+    users: '\uD83D\uDC65',
+    flag: '\uD83D\uDEA9',
+    shield: '\uD83D\uDEE1\uFE0F',
+    video: '\uD83C\uDFA5',
+    gamepad: '\uD83C\uDFAE',
+    chat: '\uD83D\uDCAC',
+    star: '\u2B50',
+    trophy: '\uD83C\uDFC6',
+    megaphone: '\uD83D\uDCE3',
+    fire: '\uD83D\uDD25',
+    check: '\u2705',
+};
+
+const achievementColorMap: Record<string, string> = {
+    purple: 'bg-gaming-purple/20 border-gaming-purple/40',
+    green: 'bg-gaming-green/20 border-gaming-green/40',
+    cyan: 'bg-gaming-cyan/20 border-gaming-cyan/40',
+    pink: 'bg-gaming-pink/20 border-gaming-pink/40',
+    orange: 'bg-gaming-orange/20 border-gaming-orange/40',
+};
+
+function StarRating({ score }: { score: number }) {
+    const fullStars = Math.floor(score);
+    const hasHalf = score - fullStars >= 0.25 && score - fullStars < 0.75;
+    const extraFull = score - fullStars >= 0.75;
+    const totalFull = fullStars + (extraFull ? 1 : 0);
+    const stars = [];
+
+    for (let i = 0; i < totalFull; i++) {
+        stars.push(
+            <svg key={`full-${i}`} className="h-4 w-4 text-gaming-orange" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            </svg>
+        );
+    }
+    if (hasHalf) {
+        stars.push(
+            <svg key="half" className="h-4 w-4 text-gaming-orange" viewBox="0 0 20 20">
+                <defs>
+                    <linearGradient id="halfStar">
+                        <stop offset="50%" stopColor="currentColor" />
+                        <stop offset="50%" stopColor="#374151" />
+                    </linearGradient>
+                </defs>
+                <path fill="url(#halfStar)" d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            </svg>
+        );
+    }
+    const remaining = 5 - totalFull - (hasHalf ? 1 : 0);
+    for (let i = 0; i < remaining; i++) {
+        stars.push(
+            <svg key={`empty-${i}`} className="h-4 w-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            </svg>
+        );
+    }
+
+    return <div className="flex items-center gap-0.5">{stars}</div>;
+}
 
 function getYouTubeThumbnail(url: string): string | null {
     const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/|youtube\.com\/embed\/|youtube\.com\/live\/)([a-zA-Z0-9_-]{11})/);
@@ -26,7 +88,8 @@ export default function Show({
     profile,
     userGames,
     clips = [],
-}: PageProps<{ profile: Profile | null; userGames: Game[]; clips: Clip[] }>) {
+    earnedAchievements = [],
+}: PageProps<{ profile: Profile | null; userGames: Game[]; clips: Clip[]; earnedAchievements: Achievement[] }>) {
     const { flash } = usePage().props as any;
     const [copied, setCopied] = useState(false);
     const [showToast, setShowToast] = useState(false);
@@ -158,7 +221,7 @@ export default function Show({
                         </div>
 
                         {/* Stats Row */}
-                        <div className="mt-6 grid grid-cols-3 gap-3">
+                        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
                             <div className="glow-border rounded-xl border border-white/5 bg-navy-800 p-4 text-center">
                                 <p className="text-2xl font-bold text-neon-purple text-gaming-purple">{userGames.length}</p>
                                 <p className="mt-0.5 text-xs font-medium uppercase tracking-wider text-gray-500">Games</p>
@@ -170,6 +233,13 @@ export default function Show({
                             <div className="glow-border-cyan rounded-xl border border-white/5 bg-navy-800 p-4 text-center">
                                 <p className="text-2xl font-bold text-neon-cyan text-gaming-cyan">--</p>
                                 <p className="mt-0.5 text-xs font-medium uppercase tracking-wider text-gray-500">Friends</p>
+                            </div>
+                            <div className="rounded-xl border border-gaming-orange/20 bg-navy-800 p-4 text-center">
+                                <div className="flex items-center justify-center gap-1.5">
+                                    <StarRating score={profile.reputation_score || 0} />
+                                    <span className="text-sm font-bold text-gaming-orange">{profile.reputation_score || '0.0'}</span>
+                                </div>
+                                <p className="mt-0.5 text-xs font-medium uppercase tracking-wider text-gray-500">Reputation</p>
                             </div>
                         </div>
 
@@ -185,6 +255,37 @@ export default function Show({
                         {profile.socials && Object.values(profile.socials).some(v => v) && (
                             <div className="mt-4">
                                 <SocialLinks socials={profile.socials} />
+                            </div>
+                        )}
+
+                        {/* Achievements */}
+                        {earnedAchievements.length > 0 && (
+                            <div className="mt-6">
+                                <div className="mb-3 flex items-center justify-between">
+                                    <h3 className="text-sm font-bold uppercase tracking-wider text-gray-500">Achievements</h3>
+                                    <Link href={route('achievements.index')} className="text-xs text-gaming-purple hover:underline">
+                                        View All
+                                    </Link>
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                    {earnedAchievements.map((achievement) => {
+                                        const colorCls = achievementColorMap[achievement.color] || achievementColorMap.purple;
+                                        return (
+                                            <div
+                                                key={achievement.id}
+                                                className={`group relative flex items-center gap-1.5 rounded-lg border px-3 py-1.5 ${colorCls}`}
+                                                title={`${achievement.name}: ${achievement.description}`}
+                                            >
+                                                <span className="text-base">{achievementIconMap[achievement.icon] || '\uD83C\uDFC6'}</span>
+                                                <span className="text-xs font-semibold text-gray-300">{achievement.name}</span>
+                                                {/* Tooltip */}
+                                                <div className="pointer-events-none absolute -top-10 left-1/2 z-50 -translate-x-1/2 whitespace-nowrap rounded-lg bg-navy-700 px-3 py-1.5 text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
+                                                    {achievement.description}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
                             </div>
                         )}
 

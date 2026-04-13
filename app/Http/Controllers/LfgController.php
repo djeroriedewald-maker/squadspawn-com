@@ -6,6 +6,7 @@ use App\Models\Game;
 use App\Models\LfgMessage;
 use App\Models\LfgPost;
 use App\Models\LfgRating;
+use App\Services\AchievementService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -69,6 +70,8 @@ class LfgController extends Controller
 
         $validated['user_id'] = auth()->id();
         LfgPost::create($validated);
+
+        app(AchievementService::class)->check(auth()->user());
 
         return redirect()->route('lfg.index')->with('message', 'LFG post created!');
     }

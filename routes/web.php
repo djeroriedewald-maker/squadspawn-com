@@ -14,6 +14,8 @@ use App\Http\Controllers\MatchController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\LfgController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\AchievementController;
+use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\SearchController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -160,6 +162,11 @@ Route::get('/clips', [ClipController::class, 'index'])->name('clips.index');
 Route::get('/redirect', [\App\Http\Controllers\RedirectController::class, 'redirect'])->name('external.redirect');
 Route::get('/search', [SearchController::class, 'search'])->middleware('auth')->name('search');
 
+// Community (public viewing)
+Route::get('/community', [CommunityController::class, 'index'])->name('community.index');
+Route::get('/community/create', [CommunityController::class, 'create'])->middleware('auth')->name('community.create');
+Route::get('/community/{communityPost}', [CommunityController::class, 'show'])->name('community.show');
+
 Route::middleware('auth')->group(function () {
     // Age verification (for Google OAuth users who skipped registration form)
     Route::get('/verify-age', [\App\Http\Controllers\Auth\AgeVerificationController::class, 'show'])->name('age-verification');
@@ -182,6 +189,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/me', [GameProfileController::class, 'show'])->name('game-profile.show');
     Route::get('/profile/setup', [GameProfileController::class, 'edit'])->name('game-profile.edit');
     Route::put('/profile/setup', [GameProfileController::class, 'update'])->name('game-profile.update');
+
+    // Achievements
+    Route::get('/achievements', [AchievementController::class, 'index'])->name('achievements.index');
+
+    // Community (auth actions)
+    Route::post('/community', [CommunityController::class, 'store'])->name('community.store');
+    Route::post('/community/{communityPost}/vote', [CommunityController::class, 'vote'])->name('community.vote');
+    Route::post('/community/{communityPost}/comment', [CommunityController::class, 'comment'])->name('community.comment');
+    Route::delete('/community/comment/{postComment}', [CommunityController::class, 'destroyComment'])->name('community.comment.destroy');
 
     // Block & Report
     Route::post('/block', [BlockController::class, 'store'])->name('block.store');
