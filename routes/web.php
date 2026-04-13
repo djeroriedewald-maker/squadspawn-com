@@ -150,36 +150,6 @@ Route::get('/clips', [ClipController::class, 'index'])->name('clips.index');
 Route::get('/redirect', [\App\Http\Controllers\RedirectController::class, 'redirect'])->name('external.redirect');
 Route::get('/search', [SearchController::class, 'search'])->middleware('auth')->name('search');
 
-// Temporary debug route - REMOVE AFTER FIXING
-Route::get('/debug-discover', function () {
-    $user = auth()->user();
-    $user->load(['profile', 'games']);
-
-    $likedIds = \App\Models\Like::where('liker_id', $user->id)->pluck('liked_id')->toArray();
-    $passedIds = \App\Models\Pass::where('passer_id', $user->id)->pluck('passed_id')->toArray();
-    $blockedByMe = \App\Models\Block::where('blocker_id', $user->id)->pluck('blocked_id')->toArray();
-    $blockedMe = \App\Models\Block::where('blocked_id', $user->id)->pluck('blocker_id')->toArray();
-
-    $allUsersWithProfile = \App\Models\User::whereHas('profile')->count();
-    $excludeIds = array_unique(array_merge([$user->id], $likedIds, $passedIds, $blockedByMe, $blockedMe));
-
-    $availablePlayers = \App\Models\User::whereNotIn('id', $excludeIds)->whereHas('profile')->count();
-
-    return response()->json([
-        'your_id' => $user->id,
-        'your_username' => $user->profile?->username,
-        'your_games' => $user->games->pluck('name'),
-        'total_users_with_profile' => $allUsersWithProfile,
-        'liked_ids' => $likedIds,
-        'passed_ids' => $passedIds,
-        'blocked_by_me' => $blockedByMe,
-        'blocked_me' => $blockedMe,
-        'total_excluded' => count($excludeIds),
-        'exclude_ids' => $excludeIds,
-        'available_players' => $availablePlayers,
-    ]);
-})->middleware('auth');
-
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
