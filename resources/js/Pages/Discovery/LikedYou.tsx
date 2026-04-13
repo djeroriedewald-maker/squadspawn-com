@@ -9,15 +9,19 @@ export default function LikedYou({ players: initialPlayers }: PageProps<{ player
     const myGameIds = (auth.user?.games || []).map((g) => g.id);
     const [players, setPlayers] = useState(initialPlayers);
     const [processing, setProcessing] = useState<number | null>(null);
+    const [toast, setToast] = useState<{ name: string; matchId?: number } | null>(null);
 
     const handleAccept = async (playerId: number) => {
         setProcessing(playerId);
+        const player = players.find((p) => p.id === playerId);
         try {
             const { data } = await axios.post(route('likes.store'), { liked_id: playerId });
             setPlayers((prev) => prev.filter((p) => p.id !== playerId));
-            if (data.matched) {
-                // They already liked us, so this will always match
-            }
+            setToast({
+                name: player?.profile?.username || player?.name || 'Player',
+                matchId: data.match?.id,
+            });
+            setTimeout(() => setToast(null), 5000);
         } catch {}
         setProcessing(null);
     };
@@ -34,6 +38,31 @@ export default function LikedYou({ players: initialPlayers }: PageProps<{ player
     return (
         <AuthenticatedLayout>
             <Head title="Liked You" />
+
+            {/* Success toast */}
+            {toast && (
+                <div className="fixed left-1/2 top-20 z-50 -translate-x-1/2 animate-slide-in">
+                    <div className="flex items-center gap-3 rounded-xl border border-gaming-green/30 bg-navy-800 px-5 py-3 shadow-lg shadow-gaming-green/10">
+                        <svg className="h-5 w-5 text-gaming-green" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                        </svg>
+                        <p className="text-sm text-white">You and <strong>{toast.name}</strong> are now friends!</p>
+                        {toast.matchId && (
+                            <Link
+                                href={route('chat.show', { playerMatch: toast.matchId })}
+                                className="rounded-lg bg-gaming-green px-3 py-1 text-xs font-bold text-white hover:bg-gaming-green/80"
+                            >
+                                Chat
+                            </Link>
+                        )}
+                        <button onClick={() => setToast(null)} className="text-gray-500 hover:text-white">
+                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            )}
 
             <div className="py-6">
                 <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
