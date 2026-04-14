@@ -33,15 +33,50 @@ class LfgController extends Controller
 
         $posts = $query->paginate(20)->withQueryString();
 
-        $myPosts = LfgPost::where('user_id', auth()->id())
+        $userId = auth()->id();
+
+        $myPosts = LfgPost::where('user_id', $userId)
             ->whereIn('status', ['open', 'full'])
             ->with(['game', 'responses.user.profile'])
             ->latest()
             ->get();
 
+        // History: closed groups I hosted or participated in
+        $myHistory = LfgPost::where(function ($q) use ($userId) {
+            $q->where('user_id', $userId)
+                ->orWhereHas('responses', fn ($r) => $r->where('user_id', $userId)->where('status', 'accepted'));
+        })
+            ->where('status', 'closed')
+            ->with(['game', 'user.profile', 'responses' => fn ($q) => $q->where('status', 'accepted')->with('user.profile'), 'ratings'])
+            ->withCount(['responses as member_count' => fn ($q) => $q->where('status', 'accepted')])
+            ->latest()
+            ->take(20)
+            ->get()
+            ->map(function (LfgPost $post) use ($userId) {
+                $myRatingsGiven = $post->ratings->where('rater_id', $userId)->count();
+                $myRatingsReceived = $post->ratings->where('rated_id', $userId);
+                $avgReceived = $myRatingsReceived->count() > 0 ? round($myRatingsReceived->avg('score'), 1) : null;
+
+                return [
+                    'id' => $post->id,
+                    'slug' => $post->slug,
+                    'title' => $post->title,
+                    'game' => $post->game,
+                    'platform' => $post->platform,
+                    'spots_needed' => $post->spots_needed,
+                    'member_count' => $post->member_count + 1,
+                    'is_host' => $post->user_id === $userId,
+                    'host' => $post->user,
+                    'created_at' => $post->created_at->diffForHumans(),
+                    'ratings_given' => $myRatingsGiven,
+                    'avg_received' => $avgReceived,
+                ];
+            });
+
         return Inertia::render('Lfg/Index', [
             'posts' => $posts,
             'myPosts' => $myPosts,
+            'myHistory' => $myHistory,
             'games' => Game::all(),
             'filters' => $request->only(['game_id', 'platform']),
         ]);

@@ -35,20 +35,38 @@ interface LfgPost {
     responses?: LfgResponse[];
 }
 
+interface HistoryItem {
+    id: number;
+    slug: string;
+    title: string;
+    game?: Game;
+    platform: string;
+    spots_needed: number;
+    member_count: number;
+    is_host: boolean;
+    host?: User;
+    created_at: string;
+    ratings_given: number;
+    avg_received: number | null;
+}
+
 export default function LfgIndex({
     posts,
     myPosts,
+    myHistory,
     games,
     filters,
 }: {
     posts: { data: LfgPost[]; links: any };
     myPosts?: LfgPost[];
+    myHistory?: HistoryItem[];
     games: Game[];
     filters: { game_id?: number; platform?: string };
 }) {
     const { auth } = usePage<PageProps>().props;
     const [joiningId, setJoiningId] = useState<number | null>(null);
     const [localPosts, setLocalPosts] = useState<LfgPost[]>(posts.data);
+    const [showHistory, setShowHistory] = useState(false);
 
     const handleFilter = (key: string, value: string) => {
         router.get(
@@ -227,8 +245,82 @@ export default function LfgIndex({
                         </div>
                     )}
 
-                    {/* Posts Grid */}
-                    {localPosts.length > 0 ? (
+                    {/* Tab: Active / History */}
+                    {myHistory && myHistory.length > 0 && (
+                        <div className="mb-6 flex items-center gap-1 rounded-lg bg-navy-800 p-1">
+                            <button
+                                onClick={() => setShowHistory(false)}
+                                className={`flex-1 rounded-md px-4 py-2 text-sm font-semibold transition ${!showHistory ? 'bg-gaming-purple text-white' : 'text-gray-400 hover:text-white'}`}
+                            >
+                                Active Groups
+                            </button>
+                            <button
+                                onClick={() => setShowHistory(true)}
+                                className={`flex-1 rounded-md px-4 py-2 text-sm font-semibold transition ${showHistory ? 'bg-gaming-purple text-white' : 'text-gray-400 hover:text-white'}`}
+                            >
+                                My History ({myHistory.length})
+                            </button>
+                        </div>
+                    )}
+
+                    {/* History View */}
+                    {showHistory && myHistory && myHistory.length > 0 && (
+                        <div className="space-y-3">
+                            {myHistory.map((item) => (
+                                <Link
+                                    key={item.id}
+                                    href={route('lfg.show', { lfgPost: item.slug })}
+                                    className="flex items-center gap-4 rounded-xl border border-white/10 bg-navy-800 p-4 transition hover:border-white/20"
+                                >
+                                    {/* Game cover */}
+                                    <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-navy-700">
+                                        {item.game?.cover_image ? (
+                                            <img src={item.game.cover_image} alt="" className="h-full w-full object-cover" />
+                                        ) : (
+                                            <span className="text-xs font-bold text-gaming-purple">{(item.game?.name || 'LFG')[0]}</span>
+                                        )}
+                                    </div>
+
+                                    {/* Info */}
+                                    <div className="min-w-0 flex-1">
+                                        <div className="flex items-center gap-2">
+                                            <h3 className="truncate text-sm font-bold text-white">{item.title}</h3>
+                                            <span className="rounded-full bg-gray-500/20 px-2 py-0.5 text-[10px] font-medium text-gray-400">Completed</span>
+                                            {item.is_host && <span className="rounded-full bg-gaming-purple/20 px-2 py-0.5 text-[10px] font-medium text-gaming-purple">Host</span>}
+                                        </div>
+                                        <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-gray-500">
+                                            <span>{item.game?.name}</span>
+                                            <span>{item.platform}</span>
+                                            <span>{item.member_count}/{item.spots_needed} players</span>
+                                            <span>{item.created_at}</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Rating info */}
+                                    <div className="hidden shrink-0 items-center gap-4 sm:flex">
+                                        {item.avg_received !== null && (
+                                            <div className="text-center">
+                                                <p className="text-lg font-bold text-yellow-400">{item.avg_received}<span className="ml-0.5 text-xs">&#9733;</span></p>
+                                                <p className="text-[9px] text-gray-500">Received</p>
+                                            </div>
+                                        )}
+                                        <div className="text-center">
+                                            <p className={`text-lg font-bold ${item.ratings_given > 0 ? 'text-gaming-green' : 'text-gray-600'}`}>
+                                                {item.ratings_given > 0 ? item.ratings_given : '--'}
+                                            </p>
+                                            <p className="text-[9px] text-gray-500">Rated</p>
+                                        </div>
+                                        <svg className="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                                        </svg>
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Posts Grid (only show when not in history mode) */}
+                    {!showHistory && localPosts.length > 0 ? (
                         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                             {localPosts.map((post) => {
                                 const isFull = post.status === 'full';
@@ -449,8 +541,8 @@ export default function LfgIndex({
                         </div>
                     )}
 
-                    {/* Pagination */}
-                    {posts.links && posts.data.length > 0 && (
+                    {/* Pagination (only for active view) */}
+                    {!showHistory && posts.links && posts.data.length > 0 && (
                         <div className="mt-6 flex justify-center gap-1">
                             {posts.links.map((link: any, i: number) => (
                                 <Link
