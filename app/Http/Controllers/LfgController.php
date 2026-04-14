@@ -326,22 +326,27 @@ class LfgController extends Controller
         }
         $tagString = !empty($tags) ? implode(',', $tags) : null;
 
-        $rating = LfgRating::updateOrCreate(
-            [
-                'lfg_post_id' => $lfgPost->id,
-                'rater_id' => $user->id,
-                'rated_id' => (int) $validated['rated_id'],
-            ],
-            [
-                'score' => (int) $validated['score'],
-                'tag' => $tagString,
-                'comment' => $validated['comment'] ?? null,
-            ]
-        );
+        try {
+            $rating = LfgRating::updateOrCreate(
+                [
+                    'lfg_post_id' => $lfgPost->id,
+                    'rater_id' => $user->id,
+                    'rated_id' => (int) $validated['rated_id'],
+                ],
+                [
+                    'score' => (int) $validated['score'],
+                    'tag' => $tagString,
+                    'comment' => $validated['comment'] ?? null,
+                ]
+            );
 
-        \Log::info('LFG rating saved', ['rating_id' => $rating->id, 'score' => $rating->score]);
+            \Log::info('LFG rating saved', ['rating_id' => $rating->id, 'score' => $rating->score]);
+        } catch (\Throwable $e) {
+            \Log::error('LFG rating save failed: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to save rating. Please try again.'], 500);
+        }
 
-        // Auto-recalculate the rated user's reputation immediately
+        // Auto-recalculate the rated user's reputation (non-blocking)
         try {
             $ratedUser = \App\Models\User::find($validated['rated_id']);
             if ($ratedUser) {

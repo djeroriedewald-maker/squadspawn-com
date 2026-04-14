@@ -21,7 +21,13 @@ class ReputationService
     {
         // Combine LFG ratings and player (friend) ratings
         $lfgRatings = LfgRating::where('rated_id', $user->id)->get();
-        $playerRatings = PlayerRating::where('rated_id', $user->id)->get();
+
+        // Player ratings table may not exist yet (migration pending)
+        try {
+            $playerRatings = PlayerRating::where('rated_id', $user->id)->get();
+        } catch (\Throwable) {
+            $playerRatings = collect();
+        }
 
         $allScores = $lfgRatings->pluck('score')->merge($playerRatings->pluck('score'));
         // Tags can be comma-separated (multiple tags per rating)
