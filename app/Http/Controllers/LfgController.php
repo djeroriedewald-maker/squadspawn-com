@@ -260,17 +260,24 @@ class LfgController extends Controller
             return response()->json(['error' => 'Only group members can rate.'], 403);
         }
 
+        $validTags = ['great_teammate', 'good_comms', 'skilled', 'friendly', 'toxic', 'no_show'];
+
         $validated = $request->validate([
             'rated_id' => 'required|exists:users,id',
             'score' => 'required|integer|min:1|max:5',
-            'tag' => 'nullable|in:great_teammate,good_comms,skilled,friendly,toxic,no_show',
+            'tag' => 'nullable|string', // legacy single tag
+            'tags' => 'nullable|array',
+            'tags.*' => 'in:' . implode(',', $validTags),
             'comment' => 'nullable|string|max:500',
         ]);
 
-        // Can't rate yourself
         if ((int) $validated['rated_id'] === $user->id) {
             return response()->json(['error' => 'You cannot rate yourself.'], 422);
         }
+
+        // Support multiple tags: store as comma-separated string
+        $tags = $validated['tags'] ?? ($validated['tag'] ? [$validated['tag']] : []);
+        $tagString = !empty($tags) ? implode(',', $tags) : null;
 
         LfgRating::updateOrCreate(
             [
@@ -280,7 +287,7 @@ class LfgController extends Controller
             ],
             [
                 'score' => $validated['score'],
-                'tag' => $validated['tag'] ?? null,
+                'tag' => $tagString,
                 'comment' => $validated['comment'] ?? null,
             ]
         );

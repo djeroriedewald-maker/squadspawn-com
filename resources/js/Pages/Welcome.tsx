@@ -129,9 +129,8 @@ export default function Welcome({
                                 </span>
                             </h1>
                             <p className="mx-auto mb-10 max-w-2xl text-lg text-gray-400 sm:text-xl lg:mx-0">
-                                The ultimate platform for finding teammates, creating LFG groups,
-                                and sharing your best gaming clips. Connect with players who match
-                                your playstyle, rank, and schedule.
+                                Create LFG groups, find verified teammates, and rate players after every session.
+                                Build your reputation and play with gamers you can trust.
                             </p>
                             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row lg:justify-start">
                                 <Link
@@ -178,76 +177,169 @@ export default function Welcome({
                     </div>
                 </section>
 
-                {/* How It Works */}
+                {/* How It Works - The Loop */}
                 <section className="border-y border-white/5 bg-navy-800/30 px-6 py-24 lg:px-12">
                     <div className="mx-auto max-w-6xl">
                         <h2 className="mb-4 text-center text-3xl font-bold sm:text-4xl">
-                            How It Works
+                            Find. Play. Rate. <span className="text-gaming-purple">Repeat.</span>
                         </h2>
                         <p className="mx-auto mb-16 max-w-xl text-center text-gray-400">
-                            Three simple steps to find your perfect gaming squad.
+                            The SquadSpawn loop: find teammates, play together, rate each other. Every session builds your reputation.
                         </p>
 
-                        {/* Step 1 - Create Your Profile */}
-                        <div className="mb-20 flex flex-col items-center gap-10 lg:flex-row lg:gap-16">
-                            <div className="flex-1">
-                                <div className="relative mx-auto max-w-md overflow-hidden rounded-2xl">
-                                    <img src="/images/gamer1.jpg" alt="Gamer setting up profile" className="w-full object-cover" />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-navy-900/80 via-transparent to-transparent" />
-                                    <div className="absolute bottom-4 left-4 rounded-lg bg-gaming-purple/90 px-3 py-1.5 text-xs font-bold text-white backdrop-blur-sm">
-                                        Your gaming identity
-                                    </div>
+                        {/* 4 Steps as connected cards */}
+                        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                            {/* Step 1 */}
+                            <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-navy-800 transition hover:border-gaming-purple/40">
+                                <div className="relative h-40 overflow-hidden">
+                                    <img src="/images/gamer1.jpg" alt="" className="h-full w-full object-cover opacity-60 transition group-hover:scale-105 group-hover:opacity-80" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-navy-800 via-navy-800/40 to-transparent" />
+                                    <div className="absolute left-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-gaming-purple text-sm font-bold text-white">1</div>
+                                </div>
+                                <div className="p-5">
+                                    <h3 className="mb-2 text-lg font-bold text-white">Create Your Profile</h3>
+                                    <p className="text-sm text-gray-400">Add your games, ranks, and playstyle. Show the community who you are as a gamer.</p>
                                 </div>
                             </div>
-                            <div className="flex-1 text-center lg:text-left">
-                                <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-gaming-purple text-lg font-bold">1</div>
-                                <h3 className="mb-4 text-2xl font-bold">Create Your Profile</h3>
-                                <p className="text-gray-400 leading-relaxed">
-                                    Set up your gaming identity. Add your games, ranks, and preferred roles.
-                                    Link your Discord and socials so teammates can find and connect with you easily.
-                                </p>
+
+                            {/* Step 2 */}
+                            <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-navy-800 transition hover:border-gaming-green/40">
+                                <div className="relative h-40 overflow-hidden">
+                                    <img src="/images/gamer5.jpg" alt="" className="h-full w-full object-cover opacity-60 transition group-hover:scale-105 group-hover:opacity-80" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-navy-800 via-navy-800/40 to-transparent" />
+                                    <div className="absolute left-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-gaming-green text-sm font-bold text-navy-900">2</div>
+                                </div>
+                                <div className="p-5">
+                                    <h3 className="mb-2 text-lg font-bold text-white">Create or Join LFG</h3>
+                                    <p className="text-sm text-gray-400">Post a Looking for Group or join someone's squad. Set requirements like rank, mic, and platform.</p>
+                                </div>
+                            </div>
+
+                            {/* Step 3 */}
+                            <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-navy-800 transition hover:border-gaming-pink/40">
+                                <div className="relative h-40 overflow-hidden">
+                                    <img src="/images/gamer3.jpg" alt="" className="h-full w-full object-cover opacity-60 transition group-hover:scale-105 group-hover:opacity-80" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-navy-800 via-navy-800/40 to-transparent" />
+                                    <div className="absolute left-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-gaming-pink text-sm font-bold text-white">3</div>
+                                </div>
+                                <div className="p-5">
+                                    <h3 className="mb-2 text-lg font-bold text-white">Play Together</h3>
+                                    <p className="text-sm text-gray-400">Group chat, Discord voice, coordinated gameplay. Experience what it's like to have a real squad.</p>
+                                </div>
+                            </div>
+
+                            {/* Step 4 */}
+                            <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-navy-800 transition hover:border-yellow-400/40">
+                                <div className="relative h-40 overflow-hidden">
+                                    <img src="/images/gamer7.jpg" alt="" className="h-full w-full object-cover opacity-60 transition group-hover:scale-105 group-hover:opacity-80" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-navy-800 via-navy-800/40 to-transparent" />
+                                    <div className="absolute left-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-yellow-400 text-sm font-bold text-navy-900">4</div>
+                                </div>
+                                <div className="p-5">
+                                    <h3 className="mb-2 text-lg font-bold text-white">Rate & Build Rep</h3>
+                                    <p className="text-sm text-gray-400">Rate your teammates after every session. Build your reputation so others know you're a great player.</p>
+                                </div>
                             </div>
                         </div>
 
-                        {/* Step 2 - Find Your Squad */}
-                        <div className="mb-20 flex flex-col items-center gap-10 lg:flex-row-reverse lg:gap-16">
-                            <div className="flex-1">
-                                <div className="relative mx-auto max-w-md overflow-hidden rounded-2xl">
-                                    <img src="/images/gamer2.jpg" alt="Gaming event with players" className="w-full object-cover" />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-navy-900/80 via-transparent to-transparent" />
-                                    <div className="absolute bottom-4 left-4 rounded-lg bg-gaming-green/90 px-3 py-1.5 text-xs font-bold text-navy-900 backdrop-blur-sm">
-                                        Discover players worldwide
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="flex-1 text-center lg:text-left">
-                                <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-gaming-green text-lg font-bold text-navy-900">2</div>
-                                <h3 className="mb-4 text-2xl font-bold">Find Your Squad</h3>
-                                <p className="text-gray-400 leading-relaxed">
-                                    Browse players, see who liked you, and join LFG groups. Filter by game,
-                                    rank, region, and playstyle to find the perfect teammates for your sessions.
-                                </p>
-                            </div>
+                        {/* Connecting arrow */}
+                        <div className="mt-8 flex items-center justify-center gap-3">
+                            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gaming-purple/30 to-transparent" />
+                            <span className="text-sm font-medium text-gaming-purple">The cycle continues - every game makes you a more trusted player</span>
+                            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gaming-purple/30 to-transparent" />
                         </div>
+                    </div>
+                </section>
 
-                        {/* Step 3 - Connect & Play */}
-                        <div className="flex flex-col items-center gap-10 lg:flex-row lg:gap-16">
-                            <div className="flex-1">
-                                <div className="relative mx-auto max-w-md overflow-hidden rounded-2xl">
-                                    <img src="/images/gamer3.jpg" alt="Squad gaming together" className="w-full object-cover" />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-navy-900/80 via-transparent to-transparent" />
-                                    <div className="absolute bottom-4 left-4 rounded-lg bg-gaming-pink/90 px-3 py-1.5 text-xs font-bold text-white backdrop-blur-sm">
-                                        Squad up and dominate
+                {/* How Reputation Works */}
+                <section className="relative overflow-hidden px-6 py-24 lg:px-12">
+                    <div className="pointer-events-none absolute inset-0">
+                        <img src="/images/gamer8.jpg" alt="" className="h-full w-full object-cover opacity-10" />
+                        <div className="absolute inset-0 bg-gradient-to-b from-navy-900 via-navy-900/95 to-navy-900" />
+                    </div>
+                    <div className="relative z-10 mx-auto max-w-6xl">
+                        <div className="flex flex-col items-center gap-12 lg:flex-row lg:gap-16">
+                            <div className="flex-1 text-center lg:text-left">
+                                <div className="mb-4 inline-block rounded-full border border-yellow-400/30 bg-yellow-400/10 px-4 py-1.5 text-sm font-medium text-yellow-400">
+                                    Reputation System
+                                </div>
+                                <h2 className="mb-6 text-3xl font-bold sm:text-4xl">
+                                    Know Who You're <span className="text-yellow-400">Playing With</span>
+                                </h2>
+                                <p className="mb-8 text-gray-400 leading-relaxed">
+                                    Every player on SquadSpawn has a reputation score built from real teammate ratings.
+                                    No more guessing if someone is toxic, a no-show, or an amazing teammate.
+                                    Check their score before you squad up.
+                                </p>
+                                <div className="space-y-4">
+                                    <div className="flex items-start gap-4">
+                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gaming-green/20">
+                                            <svg className="h-5 w-5 text-gaming-green" fill="currentColor" viewBox="0 0 24 24"><path d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" /></svg>
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-white">Star Ratings (1-5)</h4>
+                                            <p className="text-sm text-gray-400">After every LFG session, players rate each other. Your score reflects how you are as a teammate.</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-4">
+                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gaming-purple/20">
+                                            <svg className="h-5 w-5 text-gaming-purple" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" /><path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6z" /></svg>
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-white">Skill Tags</h4>
+                                            <p className="text-sm text-gray-400">"Great Teammate", "Good Comms", "Skilled" - or warnings like "Toxic" and "No Show". Tags show what kind of player someone is.</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-4">
+                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gaming-pink/20">
+                                            <svg className="h-5 w-5 text-gaming-pink" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" /></svg>
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-white">Trust Score</h4>
+                                            <p className="text-sm text-gray-400">The more you play and get rated, the more reliable your score becomes. High-rep players are trusted by the community.</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <div className="flex-1 text-center lg:text-left">
-                                <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-gaming-pink text-lg font-bold">3</div>
-                                <h3 className="mb-4 text-2xl font-bold">Connect & Play</h3>
-                                <p className="text-gray-400 leading-relaxed">
-                                    Chat with friends, join Discord servers, share clips and highlights.
-                                    Build your gaming crew and go from solo queue to a full squad ready to dominate.
-                                </p>
+                            {/* Visual: fake player card */}
+                            <div className="flex-1">
+                                <div className="mx-auto max-w-sm overflow-hidden rounded-2xl border border-white/10 bg-navy-800 shadow-2xl shadow-gaming-purple/10">
+                                    <div className="relative h-24 overflow-hidden">
+                                        <img src="/images/gamer6.jpg" alt="" className="h-full w-full object-cover" />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-navy-800 to-transparent" />
+                                    </div>
+                                    <div className="px-6 pb-6">
+                                        <div className="-mt-8 flex items-end gap-4">
+                                            <div className="flex h-16 w-16 items-center justify-center rounded-xl border-4 border-navy-800 bg-gaming-purple/20 text-2xl font-bold text-gaming-purple shadow-lg">P</div>
+                                            <div className="pb-1">
+                                                <p className="text-lg font-bold text-white">ProGamer_99</p>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="rounded-full bg-gaming-green/20 px-2 py-0.5 text-[10px] font-semibold text-gaming-green">Ranked</span>
+                                                    <span className="text-xs text-gray-500">Europe</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="mt-4 grid grid-cols-3 gap-2">
+                                            <div className="rounded-lg bg-navy-900 p-2.5 text-center">
+                                                <p className="text-lg font-bold text-yellow-400">4.8<span className="ml-0.5 text-xs">&#9733;</span></p>
+                                                <p className="text-[9px] text-gray-500">Reputation</p>
+                                            </div>
+                                            <div className="rounded-lg bg-navy-900 p-2.5 text-center">
+                                                <p className="text-lg font-bold text-gaming-green">47</p>
+                                                <p className="text-[9px] text-gray-500">Ratings</p>
+                                            </div>
+                                            <div className="rounded-lg bg-navy-900 p-2.5 text-center">
+                                                <p className="text-lg font-bold text-gaming-purple">12</p>
+                                                <p className="text-[9px] text-gray-500">Friends</p>
+                                            </div>
+                                        </div>
+                                        <div className="mt-3 flex flex-wrap gap-1.5">
+                                            <span className="rounded-full bg-gaming-green/15 px-2.5 py-1 text-[11px] font-medium text-gaming-green">Great Teammate (23)</span>
+                                            <span className="rounded-full bg-gaming-cyan/15 px-2.5 py-1 text-[11px] font-medium text-gaming-cyan">Good Comms (15)</span>
+                                            <span className="rounded-full bg-gaming-purple/15 px-2.5 py-1 text-[11px] font-medium text-gaming-purple">Skilled (9)</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -257,10 +349,10 @@ export default function Welcome({
                 <section className="px-6 py-24 lg:px-12">
                     <div className="mx-auto max-w-6xl">
                         <h2 className="mb-4 text-center text-3xl font-bold sm:text-4xl">
-                            Platform Features
+                            Everything Gamers Need
                         </h2>
                         <p className="mx-auto mb-12 max-w-xl text-center text-gray-400">
-                            Everything you need to find teammates and build your gaming community.
+                            Find teammates, play together, build your reputation. All in one platform.
                         </p>
                         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                             {/* Find Players */}
@@ -468,10 +560,10 @@ export default function Welcome({
                     </div>
                     <div className="relative z-10 mx-auto max-w-3xl text-center">
                         <h2 className="mb-6 text-4xl font-extrabold sm:text-5xl">
-                            Ready to Find Your Squad?
+                            Ready to Build Your Reputation?
                         </h2>
                         <p className="mb-10 text-lg text-gray-400">
-                            Join {totalPlayers.toLocaleString()}+ gamers already building their dream teams. It's free, it's fast, and your next teammate is waiting.
+                            Join {totalPlayers.toLocaleString()}+ gamers who play, rate, and build trust together. Your next great teammate is one session away.
                         </p>
                         <Link
                             href={route('register')}
@@ -490,7 +582,7 @@ export default function Welcome({
                             <div>
                                 <span className="text-xl font-bold text-gaming-purple">SquadSpawn</span>
                                 <p className="mt-3 text-sm leading-relaxed text-gray-400">
-                                    The premier matchmaking platform for gamers. Find your squad, wherever you are.
+                                    Find your squad, play together, and build your reputation. The trusted platform for gamers worldwide.
                                 </p>
                             </div>
 

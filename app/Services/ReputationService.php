@@ -24,7 +24,12 @@ class ReputationService
         $playerRatings = PlayerRating::where('rated_id', $user->id)->get();
 
         $allScores = $lfgRatings->pluck('score')->merge($playerRatings->pluck('score'));
-        $allTags = $lfgRatings->pluck('tag')->merge($playerRatings->pluck('tag'))->filter()->values();
+        // Tags can be comma-separated (multiple tags per rating)
+        $allTags = $lfgRatings->pluck('tag')->merge($playerRatings->pluck('tag'))
+            ->filter()
+            ->flatMap(fn ($t) => explode(',', $t))
+            ->filter()
+            ->values();
         $count = $allScores->count();
 
         if ($count === 0) {

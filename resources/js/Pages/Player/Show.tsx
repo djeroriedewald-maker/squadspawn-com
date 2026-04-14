@@ -70,7 +70,7 @@ export default function PlayerShow({ player, clips = [], reputationData, friends
     const [showRating, setShowRating] = useState(false);
     const [ratingScore, setRatingScore] = useState(myRating?.score || 0);
     const [ratingHover, setRatingHover] = useState(0);
-    const [ratingTag, setRatingTag] = useState(myRating?.tag || '');
+    const [ratingTags, setRatingTags] = useState<string[]>(myRating?.tag ? myRating.tag.split(',') : []);
     const [ratingSubmitting, setRatingSubmitting] = useState(false);
     const [ratingDone, setRatingDone] = useState(!!myRating);
 
@@ -78,7 +78,7 @@ export default function PlayerShow({ player, clips = [], reputationData, friends
         if (ratingScore === 0 || ratingSubmitting) return;
         setRatingSubmitting(true);
         try {
-            await axios.post(route('player.rate'), { rated_id: player.id, score: ratingScore, tag: ratingTag || undefined });
+            await axios.post(route('player.rate'), { rated_id: player.id, score: ratingScore, tag: ratingTags.length > 0 ? ratingTags.join(',') : undefined });
             setRatingDone(true);
             setShowRating(false);
         } catch {
@@ -317,10 +317,11 @@ export default function PlayerShow({ player, clips = [], reputationData, friends
                                             </button>
                                         ))}
                                     </div>
-                                    {/* Tags */}
+                                    {/* Tags - multiple selection */}
+                                    <p className="mb-2 text-[10px] font-medium uppercase tracking-wider text-gray-500">Select all that apply</p>
                                     <div className="mb-3 flex flex-wrap gap-1.5">
                                         {RATING_TAGS.map((t) => (
-                                            <button key={t.value} type="button" onClick={() => setRatingTag(ratingTag === t.value ? '' : t.value)} className={`rounded-full px-2.5 py-1 text-xs font-medium transition ${ratingTag === t.value ? (t.value === 'toxic' || t.value === 'no_show' ? 'bg-red-500/20 text-red-400' : 'bg-gaming-green/20 text-gaming-green') : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}>
+                                            <button key={t.value} type="button" onClick={() => setRatingTags((prev) => prev.includes(t.value) ? prev.filter((x) => x !== t.value) : [...prev, t.value])} className={`rounded-full px-2.5 py-1 text-xs font-medium transition ${ratingTags.includes(t.value) ? (t.value === 'toxic' || t.value === 'no_show' ? 'bg-red-500/20 text-red-400 ring-1 ring-red-500/40' : 'bg-gaming-green/20 text-gaming-green ring-1 ring-gaming-green/40') : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}>
                                                 {t.label}
                                             </button>
                                         ))}
