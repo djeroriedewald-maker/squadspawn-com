@@ -211,6 +211,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/block/{user}', [BlockController::class, 'destroy'])->middleware('throttle:10,1')->name('block.destroy');
     Route::post('/report', [ReportController::class, 'store'])->middleware('throttle:5,1')->name('report.store');
 
+    // Floating chat widget endpoints
+    Route::get('/chat/friends', [ChatController::class, 'friends'])->name('chat.friends');
+    Route::get('/chat/{playerMatch}/messages', [ChatController::class, 'messages'])->name('chat.messages');
+
     // Discovery (requires complete profile)
     Route::middleware('profile.complete')->group(function () {
         Route::get('/discover', [DiscoveryController::class, 'index'])->name('discovery.index');

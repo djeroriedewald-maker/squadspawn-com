@@ -13,6 +13,95 @@ use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 class ChatController extends Controller
 {
+    /**
+     * Return friends list with last messages for the floating chat widget.
+     */
+    public function friends(): JsonResponse
+    {
+        $user = auth()->user();
+
+        $matches = PlayerMatch::where('user_one_id', $user->id)
+            ->orWhere('user_two_id', $user->id)
+            ->with(['userOne.profile', 'userTwo.profile'])
+            ->latest()
+            ->get()
+            ->map(function (PlayerMatch $match) use ($user) {
+                $partner = $match->user_one_id === $user->id
+                    ? $match->userTwo
+                    : $match->userOne;
+
+                $lastMessage = Message::where('match_id', $match->id)
+                    ->latest()
+                    ->first();
+
+                $unreadCount = Message::where('match_id', $match->id)
+                    ->where('sender_id', '!=', $user->id)
+                    ->whereNull('read_at')
+                    ->count();
+
+                $isOnline = $partner->updated_at >= now()->subMinutes(15);
+
+                return [
+                    'id' => $match->id,
+                    'chat_id' => $match->uuid,
+                    'partner' => [
+                        'id' => $partner->id,
+                        'name' => $partner->name,
+                        'username' => $partner->profile?->username,
+                        'avatar' => $partner->profile?->avatar,
+                        'online' => $isOnline,
+                    ],
+                    'last_message' => $lastMessage ? [
+                        'body' => $lastMessage->body,
+                        'sender_id' => $lastMessage->sender_id,
+                        'created_at' => $lastMessage->created_at->diffForHumans(),
+                    ] : null,
+                    'unread_count' => $unreadCount,
+                ];
+            });
+
+        return response()->json(['friends' => $matches]);
+    }
+
+    /**
+     * Return messages for a specific match (used by floating chat widget).
+     */
+    public function messages(PlayerMatch $playerMatch): JsonResponse
+    {
+        $user = auth()->user();
+
+        if ($playerMatch->user_one_id !== $user->id && $playerMatch->user_two_id !== $user->id) {
+            abort(HttpResponse::HTTP_FORBIDDEN);
+        }
+
+        // Mark partner's messages as read
+        Message::where('match_id', $playerMatch->id)
+            ->where('sender_id', '!=', $user->id)
+            ->whereNull('read_at')
+            ->update(['read_at' => now()]);
+
+        $messages = Message::where('match_id', $playerMatch->id)
+            ->with('sender.profile')
+            ->orderBy('created_at')
+            ->get();
+
+        // Mark notifications for this match as read
+        $user->unreadNotifications()
+            ->get()
+            ->filter(fn ($n) =>
+                ($n->data['match_id'] ?? null) === $playerMatch->id ||
+                ($n->data['match_uuid'] ?? null) === $playerMatch->uuid
+            )
+            ->each->markAsRead();
+
+        \Cache::forget("user:{$user->id}:unread");
+
+        return response()->json([
+            'messages' => $messages,
+            'timestamp' => now()->toISOString(),
+        ]);
+    }
+
     public function show(PlayerMatch $playerMatch): Response
     {
         $user = auth()->user();

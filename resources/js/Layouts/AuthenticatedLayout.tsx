@@ -1,27 +1,10 @@
 import Dropdown from '@/Components/Dropdown';
+import FloatingChat from '@/Components/FloatingChat';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import SearchBar from '@/Components/SearchBar';
-import { Link, router, usePage } from '@inertiajs/react';
-import axios from 'axios';
-import { PropsWithChildren, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
-
-interface Notification {
-    id: string;
-    data: {
-        type: string;
-        match_id?: number;
-        match_uuid?: string;
-        partner_id?: number;
-        partner_name?: string;
-        partner_avatar?: string;
-        sender_id?: number;
-        sender_name?: string;
-        sender_avatar?: string;
-        message_preview?: string;
-    };
-    created_at: string;
-}
+import { Link, usePage } from '@inertiajs/react';
+import { PropsWithChildren, ReactNode, useState } from 'react';
 
 export default function Authenticated({
     header,
@@ -32,67 +15,6 @@ export default function Authenticated({
     const achievementCount = auth.achievementCount || 0;
 
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
-    const [showNotifications, setShowNotifications] = useState(false);
-    const [unreadCount, setUnreadCount] = useState(auth.unreadCount || 0);
-    const [notifications, setNotifications] = useState<Notification[]>(auth.notifications || []);
-    const notifRef = useRef<HTMLDivElement>(null);
-
-    // Poll notifications every 5 seconds (count + data)
-    useEffect(() => {
-        const interval = setInterval(async () => {
-            try {
-                const { data } = await axios.get(route('notifications.poll'));
-                setUnreadCount(data.unreadCount);
-                setNotifications(data.notifications);
-            } catch {}
-        }, 5000);
-        return () => clearInterval(interval);
-    }, []);
-
-    // Close dropdown when clicking outside
-    useEffect(() => {
-        const handleClick = (e: MouseEvent) => {
-            if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
-                setShowNotifications(false);
-            }
-        };
-        if (showNotifications) {
-            document.addEventListener('mousedown', handleClick);
-        }
-        return () => document.removeEventListener('mousedown', handleClick);
-    }, [showNotifications]);
-
-    const getNotificationLink = useCallback((notif: Notification): string => {
-        const uuid = notif.data.match_uuid;
-        if (uuid && (notif.data.type === 'new_message' || notif.data.type === 'new_match')) {
-            return route('chat.show', { playerMatch: uuid });
-        }
-        // Fallback for old notifications without UUID
-        if (notif.data.type === 'new_match' && notif.data.partner_id) {
-            return route('friends.index');
-        }
-        return route('dashboard');
-    }, []);
-
-    const handleNotificationClick = useCallback(async (notif: Notification) => {
-        setShowNotifications(false);
-        // Mark this notification as read
-        try {
-            await axios.post(route('notifications.markRead', { id: notif.id }));
-            setNotifications((prev) => prev.filter((n) => n.id !== notif.id));
-            setUnreadCount((prev: number) => Math.max(0, prev - 1));
-        } catch {}
-        // Navigate
-        router.visit(getNotificationLink(notif));
-    }, [getNotificationLink]);
-
-    const handleMarkAllRead = useCallback(async () => {
-        try {
-            await axios.post(route('notifications.readAll'));
-            setNotifications([]);
-            setUnreadCount(0);
-        } catch {}
-    }, []);
 
     return (
         <div className="min-h-screen bg-navy-900">
@@ -116,9 +38,6 @@ export default function Authenticated({
                                 <NavLink href={route('lfg.index')} active={route().current('lfg.*')}>
                                     LFG
                                 </NavLink>
-                                <NavLink href={route('friends.index')} active={route().current('friends.*')}>
-                                    Friends
-                                </NavLink>
                                 <NavLink href={route('games.index')} active={route().current('games.*')}>
                                     Games
                                 </NavLink>
@@ -136,23 +55,6 @@ export default function Authenticated({
 
                         <div className="hidden sm:ms-6 sm:flex sm:items-center sm:gap-3">
                             <SearchBar />
-
-                            {/* Desktop Notification Bell */}
-                            <div className="relative" ref={notifRef}>
-                                <button
-                                    onClick={() => setShowNotifications(!showNotifications)}
-                                    className="relative rounded-lg p-2 text-gray-400 transition hover:bg-navy-700 hover:text-white"
-                                >
-                                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
-                                    </svg>
-                                    {unreadCount > 0 && (
-                                        <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-gaming-pink text-[10px] font-bold text-white animate-pulse">
-                                            {unreadCount > 9 ? '9+' : unreadCount}
-                                        </span>
-                                    )}
-                                </button>
-                            </div>
 
                             <div className="relative">
                                 <Dropdown>
@@ -191,6 +93,9 @@ export default function Authenticated({
                                                 </span>
                                             </Dropdown.Link>
                                         )}
+                                        <Dropdown.Link href={route('friends.index')}>
+                                            Friends
+                                        </Dropdown.Link>
                                         <Dropdown.Link href={route('achievements.index')}>
                                             <span className="flex items-center gap-2">
                                                 <span>Achievements</span>
@@ -212,21 +117,7 @@ export default function Authenticated({
                             </div>
                         </div>
 
-                        <div className="-me-2 flex items-center gap-2 sm:hidden">
-                            {/* Mobile notification bell */}
-                            <button
-                                onClick={() => setShowNotifications(!showNotifications)}
-                                className="relative rounded-lg p-2 text-gray-400 hover:text-white"
-                            >
-                                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
-                                </svg>
-                                {unreadCount > 0 && (
-                                    <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-gaming-pink text-[10px] font-bold text-white animate-pulse">
-                                        {unreadCount > 9 ? '9+' : unreadCount}
-                                    </span>
-                                )}
-                            </button>
+                        <div className="-me-2 flex items-center sm:hidden">
                             <button
                                 onClick={() => setShowingNavigationDropdown((prev) => !prev)}
                                 className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 transition duration-150 ease-in-out hover:bg-navy-700 hover:text-white focus:bg-navy-700 focus:text-white focus:outline-none"
@@ -259,9 +150,6 @@ export default function Authenticated({
                         <ResponsiveNavLink href={route('lfg.index')} active={route().current('lfg.*')}>
                             LFG
                         </ResponsiveNavLink>
-                        <ResponsiveNavLink href={route('friends.index')} active={route().current('friends.*')}>
-                            Friends
-                        </ResponsiveNavLink>
                         <ResponsiveNavLink href={route('games.index')} active={route().current('games.*')}>
                             Games
                         </ResponsiveNavLink>
@@ -288,6 +176,9 @@ export default function Authenticated({
                                     <span className="text-gaming-purple">Admin Panel</span>
                                 </ResponsiveNavLink>
                             )}
+                            <ResponsiveNavLink href={route('friends.index')}>
+                                Friends
+                            </ResponsiveNavLink>
                             <ResponsiveNavLink href={route('achievements.index')}>
                                 Achievements
                                 {achievementCount > 0 && (
@@ -306,85 +197,6 @@ export default function Authenticated({
                     </div>
                 </div>
             </nav>
-
-            {/* Notification Dropdown - rendered outside nav so it works on all screen sizes */}
-            {showNotifications && (
-                <>
-                    <div className="fixed inset-0 z-40" onClick={() => setShowNotifications(false)} />
-                    <div ref={notifRef} className="fixed right-2 top-14 z-50 w-[calc(100vw-1rem)] max-w-sm rounded-xl border border-white/10 bg-navy-800 shadow-lg shadow-glow-purple sm:right-4 sm:w-80">
-                        <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
-                            <h3 className="text-sm font-semibold text-white">Notifications</h3>
-                            <div className="flex items-center gap-3">
-                                {notifications.length > 0 && (
-                                    <button
-                                        onClick={handleMarkAllRead}
-                                        className="text-[11px] text-gaming-purple transition hover:text-gaming-purple/80"
-                                    >
-                                        Mark all read
-                                    </button>
-                                )}
-                                <button
-                                    onClick={() => setShowNotifications(false)}
-                                    className="text-gray-500 transition hover:text-white"
-                                >
-                                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                        <div className="max-h-[70vh] overflow-y-auto sm:max-h-96">
-                            {notifications.length === 0 ? (
-                                <div className="px-4 py-8 text-center">
-                                    <svg className="mx-auto mb-2 h-8 w-8 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
-                                    </svg>
-                                    <p className="text-sm text-gray-500">All caught up!</p>
-                                </div>
-                            ) : (
-                                notifications.map((notif) => (
-                                    <button
-                                        key={notif.id}
-                                        onClick={() => handleNotificationClick(notif)}
-                                        className="flex w-full items-center gap-3 border-b border-white/5 px-4 py-3 text-left transition hover:bg-navy-700 active:bg-navy-600"
-                                    >
-                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gaming-purple/20">
-                                            {notif.data.sender_avatar || notif.data.partner_avatar ? (
-                                                <img src={notif.data.sender_avatar || notif.data.partner_avatar} alt="" className="h-full w-full object-cover" />
-                                            ) : (
-                                                <span className="text-sm font-bold text-gaming-purple">
-                                                    {(notif.data.sender_name || notif.data.partner_name || '?')[0].toUpperCase()}
-                                                </span>
-                                            )}
-                                        </div>
-                                        <div className="min-w-0 flex-1">
-                                            <p className="text-sm text-white">
-                                                {notif.data.type === 'new_match' ? (
-                                                    <>
-                                                        <span className="mr-1.5 inline-block h-2 w-2 rounded-full bg-gaming-green" />
-                                                        New friend: <strong>{notif.data.partner_name}</strong>
-                                                    </>
-                                                ) : notif.data.type === 'new_message' ? (
-                                                    <>
-                                                        <strong>{notif.data.sender_name}</strong>
-                                                        <span className="text-gray-400">: {notif.data.message_preview}</span>
-                                                    </>
-                                                ) : (
-                                                    'New notification'
-                                                )}
-                                            </p>
-                                            <p className="mt-0.5 text-[10px] text-gray-500">{notif.created_at}</p>
-                                        </div>
-                                        <svg className="h-4 w-4 shrink-0 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                                        </svg>
-                                    </button>
-                                ))
-                            )}
-                        </div>
-                    </div>
-                </>
-            )}
 
             {header && (
                 <header className="border-b border-white/5 bg-navy-800/50">
@@ -411,6 +223,9 @@ export default function Authenticated({
                     </p>
                 </div>
             </footer>
+
+            {/* Floating Chat Widget */}
+            <FloatingChat />
         </div>
     );
 }
