@@ -290,16 +290,25 @@ class LfgController extends Controller
     {
         $user = auth()->user();
 
-        // Verify rater is a member
+        \Log::info('LFG rate attempt', [
+            'user_id' => $user->id,
+            'post_id' => $lfgPost->id,
+            'post_slug' => $lfgPost->slug,
+            'is_host' => $lfgPost->user_id === $user->id,
+            'input' => $request->all(),
+        ]);
+
+        // Verify rater is a member (host or accepted participant)
         if (!$this->isMember($lfgPost, $user->id)) {
+            \Log::warning('LFG rate: not a member', ['user_id' => $user->id, 'post_id' => $lfgPost->id]);
             return response()->json(['error' => 'Only group members can rate.'], 403);
         }
 
         $validTags = ['great_teammate', 'good_comms', 'skilled', 'friendly', 'toxic', 'no_show'];
 
         $validated = $request->validate([
-            'rated_id' => 'required|exists:users,id',
-            'score' => 'required|integer|min:1|max:5',
+            'rated_id' => ['required', 'integer', 'exists:users,id'],
+            'score' => ['required', 'integer', 'min:1', 'max:5'],
             'tag' => ['nullable', 'string'],
             'tags' => ['nullable', 'array'],
             'tags.*' => ['string', 'in:' . implode(',', $validTags)],
@@ -311,26 +320,35 @@ class LfgController extends Controller
         }
 
         // Support multiple tags: store as comma-separated string
-        $tags = $validated['tags'] ?? ($validated['tag'] ? [$validated['tag']] : []);
+        $tags = $validated['tags'] ?? [];
+        if (empty($tags) && !empty($validated['tag'])) {
+            $tags = [$validated['tag']];
+        }
         $tagString = !empty($tags) ? implode(',', $tags) : null;
 
-        LfgRating::updateOrCreate(
+        $rating = LfgRating::updateOrCreate(
             [
                 'lfg_post_id' => $lfgPost->id,
                 'rater_id' => $user->id,
-                'rated_id' => $validated['rated_id'],
+                'rated_id' => (int) $validated['rated_id'],
             ],
             [
-                'score' => $validated['score'],
+                'score' => (int) $validated['score'],
                 'tag' => $tagString,
                 'comment' => $validated['comment'] ?? null,
             ]
         );
 
+        \Log::info('LFG rating saved', ['rating_id' => $rating->id, 'score' => $rating->score]);
+
         // Auto-recalculate the rated user's reputation immediately
-        $ratedUser = \App\Models\User::find($validated['rated_id']);
-        if ($ratedUser) {
-            app(\App\Services\ReputationService::class)->calculate($ratedUser);
+        try {
+            $ratedUser = \App\Models\User::find($validated['rated_id']);
+            if ($ratedUser) {
+                app(\App\Services\ReputationService::class)->calculate($ratedUser);
+            }
+        } catch (\Throwable $e) {
+            \Log::error('Reputation recalc failed: ' . $e->getMessage());
         }
 
         return response()->json(['success' => true]);

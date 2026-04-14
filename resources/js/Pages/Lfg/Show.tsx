@@ -694,6 +694,7 @@ function RatingCard({
         if (score === 0 || submitting) return;
         setSubmitting(true);
         try {
+            const url = route('lfg.rate', { lfgPost: postSlug });
             const payload: Record<string, unknown> = {
                 rated_id: member.id,
                 score,
@@ -702,11 +703,17 @@ function RatingCard({
                 payload.tag = tags[0];
                 payload.tags = tags;
             }
-            await axios.post(route('lfg.rate', { lfgPost: postSlug }), payload);
+            console.log('Rating submit:', url, payload);
+            const { data } = await axios.post(url, payload);
+            console.log('Rating response:', data);
             setDone(true);
             onRated(member.id);
         } catch (err: any) {
-            const msg = err?.response?.data?.error || err?.response?.data?.message || 'Failed to submit rating.';
+            console.error('Rating error:', err?.response?.status, err?.response?.data);
+            const errors = err?.response?.data?.errors;
+            const msg = errors
+                ? Object.values(errors).flat().join(', ')
+                : err?.response?.data?.error || err?.response?.data?.message || 'Failed to submit rating.';
             alert(msg);
         } finally {
             setSubmitting(false);
