@@ -98,24 +98,36 @@ export default function LfgShow({
         scrollToBottom();
     }, [messages, scrollToBottom]);
 
-    // Poll for new messages every 3 seconds (only if member)
+    // Track last message timestamp for efficient polling
+    const lastLfgTimestampRef = useRef<string | null>(
+        initialMessages.length > 0
+            ? initialMessages[initialMessages.length - 1].created_at
+            : null,
+    );
+
+    // Efficient polling: only fetch new messages since last timestamp
     useEffect(() => {
         if (!isMember) return;
         const interval = setInterval(async () => {
             try {
-                const response = await axios.get(route('lfg.show', { lfgPost: post.slug }), {
-                    headers: { 'X-Inertia': 'true', 'X-Inertia-Version': '' },
-                });
-                if (response.data?.props?.messages) {
-                    setMessages(response.data.props.messages);
+                const params: Record<string, string> = {};
+                if (lastLfgTimestampRef.current) {
+                    params.since = lastLfgTimestampRef.current;
                 }
-                if (response.data?.props?.post) {
-                    setPost(response.data.props.post);
+                const response = await axios.get(route('lfg.poll', { lfgPost: post.slug }), { params });
+                const newMessages: LfgMessage[] = response.data?.messages || [];
+                if (newMessages.length > 0) {
+                    setMessages((prev) => {
+                        const existingIds = new Set(prev.map((m) => m.id));
+                        const unique = newMessages.filter((m) => !existingIds.has(m.id));
+                        return unique.length > 0 ? [...prev, ...unique] : prev;
+                    });
+                    lastLfgTimestampRef.current = response.data.timestamp;
                 }
             } catch {
                 // ignore
             }
-        }, 3000);
+        }, 2000);
         return () => clearInterval(interval);
     }, [post.id, isMember]);
 
@@ -139,6 +151,9 @@ export default function LfgShow({
         try {
             const response = await axios.post(route('lfg.message', { lfgPost: post.slug }), { body });
             setMessages((prev) => [...prev, response.data]);
+            if (response.data.created_at) {
+                lastLfgTimestampRef.current = response.data.created_at;
+            }
             setBody('');
             if (textareaRef.current) textareaRef.current.style.height = 'auto';
         } catch {

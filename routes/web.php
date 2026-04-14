@@ -218,6 +218,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/friends/{playerMatch}/chat', [ChatController::class, 'show'])->name('chat.show');
         Route::post('/friends/{playerMatch}/messages', [ChatController::class, 'store'])->middleware('throttle:60,1')->name('chat.store');
         Route::post('/friends/{playerMatch}/read', [ChatController::class, 'markRead'])->name('chat.markRead');
+        Route::get('/friends/{playerMatch}/poll', [ChatController::class, 'poll'])->name('chat.poll');
 
         // LFG
         Route::get('/lfg', [LfgController::class, 'index'])->name('lfg.index');
@@ -230,6 +231,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/lfg/{lfgPost}/accept/{response}', [LfgController::class, 'acceptResponse'])->name('lfg.accept');
         Route::post('/lfg/{lfgPost}/reject/{response}', [LfgController::class, 'rejectResponse'])->name('lfg.reject');
         Route::post('/lfg/{lfgPost}/message', [LfgController::class, 'sendMessage'])->name('lfg.message');
+        Route::get('/lfg/{lfgPost}/poll', [LfgController::class, 'pollMessages'])->name('lfg.poll');
         Route::post('/lfg/{lfgPost}/rate', [LfgController::class, 'rate'])->name('lfg.rate');
         Route::post('/lfg/{lfgPost}/close', [LfgController::class, 'close'])->name('lfg.close');
         Route::post('/lfg/{lfgPost}/repost', [LfgController::class, 'repost'])->name('lfg.repost');
@@ -237,5 +239,17 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+
+// Admin Panel
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Admin\AdminController::class, 'dashboard'])->name('admin.dashboard');
+    Route::get('/users', [\App\Http\Controllers\Admin\AdminController::class, 'users'])->name('admin.users');
+    Route::post('/users/{user}/ban', [\App\Http\Controllers\Admin\AdminController::class, 'banUser'])->name('admin.ban');
+    Route::get('/reports', [\App\Http\Controllers\Admin\AdminController::class, 'reports'])->name('admin.reports');
+    Route::post('/reports/{report}/resolve', [\App\Http\Controllers\Admin\AdminController::class, 'resolveReport'])->name('admin.resolveReport');
+    Route::get('/games', [\App\Http\Controllers\Admin\AdminController::class, 'games'])->name('admin.games');
+    Route::post('/games', [\App\Http\Controllers\Admin\AdminController::class, 'storeGame'])->name('admin.storeGame');
+    Route::delete('/games/{game}', [\App\Http\Controllers\Admin\AdminController::class, 'deleteGame'])->name('admin.deleteGame');
+});
 
 require __DIR__.'/auth.php';

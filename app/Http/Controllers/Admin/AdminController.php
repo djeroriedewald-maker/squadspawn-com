@@ -1,0 +1,144 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\CommunityPost;
+use App\Models\Game;
+use App\Models\LfgPost;
+use App\Models\PlayerMatch;
+use App\Models\Report;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
+
+class AdminController extends Controller
+{
+    public function dashboard(): Response
+    {
+        $stats = [
+            'totalUsers' => User::count(),
+            'usersWithProfile' => User::whereHas('profile')->count(),
+            'usersToday' => User::whereDate('created_at', today())->count(),
+            'usersThisWeek' => User::where('created_at', '>=', now()->subWeek())->count(),
+            'totalFriends' => PlayerMatch::count(),
+            'totalGames' => Game::count(),
+            'activeLfg' => LfgPost::where('status', 'open')->count(),
+            'totalPosts' => CommunityPost::count(),
+            'pendingReports' => Report::where('status', 'pending')->count(),
+            'onlineNow' => User::where('updated_at', '>=', now()->subMinutes(15))->count(),
+        ];
+
+        $recentReports = Report::with(['reporter.profile', 'reported.profile'])
+            ->where('status', 'pending')
+            ->latest()
+            ->take(10)
+            ->get();
+
+        $recentUsers = User::with('profile')
+            ->latest()
+            ->take(10)
+            ->get();
+
+        return Inertia::render('Admin/Dashboard', [
+            'stats' => $stats,
+            'recentReports' => $recentReports,
+            'recentUsers' => $recentUsers,
+        ]);
+    }
+
+    public function users(Request $request): Response
+    {
+        $query = User::with('profile')->withCount(['games', 'clips']);
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhereHas('profile', fn ($p) => $p->where('username', 'like', "%{$search}%"));
+            });
+        }
+
+        $users = $query->latest()->paginate(25)->withQueryString();
+
+        return Inertia::render('Admin/Users', [
+            'users' => $users,
+            'filters' => $request->only('search'),
+        ]);
+    }
+
+    public function banUser(User $user)
+    {
+        if ($user->is_admin) {
+            return response()->json(['error' => 'Cannot ban admins'], 422);
+        }
+
+        $user->update(['is_admin' => false]);
+        // Delete their profile to effectively ban
+        $user->profile?->delete();
+        $user->games()->detach();
+
+        return response()->json(['success' => true]);
+    }
+
+    public function reports(Request $request): Response
+    {
+        $query = Report::with(['reporter.profile', 'reported.profile']);
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->input('status'));
+        } else {
+            $query->where('status', 'pending');
+        }
+
+        $reports = $query->latest()->paginate(25)->withQueryString();
+
+        return Inertia::render('Admin/Reports', [
+            'reports' => $reports,
+            'filters' => $request->only('status'),
+        ]);
+    }
+
+    public function resolveReport(Report $report, Request $request)
+    {
+        $request->validate(['status' => 'required|in:reviewed,resolved']);
+        $report->update(['status' => $request->input('status')]);
+
+        return response()->json(['success' => true]);
+    }
+
+    public function games(): Response
+    {
+        $games = Game::withCount('users')->get();
+
+        return Inertia::render('Admin/Games', [
+            'games' => $games,
+        ]);
+    }
+
+    public function storeGame(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'genre' => 'required|string|max:100',
+            'platforms' => 'required|array',
+            'cover_image' => 'nullable|string|max:255',
+            'rank_system' => 'nullable|array',
+            'roles' => 'nullable|array',
+        ]);
+
+        $validated['slug'] = \Illuminate\Support\Str::slug($validated['name']);
+
+        Game::create($validated);
+
+        return redirect()->route('admin.games')->with('message', 'Game added!');
+    }
+
+    public function deleteGame(Game $game)
+    {
+        $game->delete();
+        return response()->json(['success' => true]);
+    }
+}

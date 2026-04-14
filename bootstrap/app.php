@@ -23,6 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'profile.complete' => \App\Http\Middleware\EnsureProfileComplete::class,
             'age.verified' => \App\Http\Middleware\EnsureAgeVerified::class,
+            'admin' => \App\Http\Middleware\EnsureAdmin::class,
         ]);
 
     })

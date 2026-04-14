@@ -182,6 +182,34 @@ class LfgController extends Controller
         return response()->json($message, 201);
     }
 
+    public function pollMessages(Request $request, LfgPost $lfgPost): JsonResponse
+    {
+        $user = auth()->user();
+
+        $isMember = $lfgPost->user_id === $user->id
+            || $lfgPost->responses()->where('user_id', $user->id)->where('status', 'accepted')->exists();
+
+        if (!$isMember) {
+            return response()->json(['error' => 'Only group members can view chat.'], 403);
+        }
+
+        $since = $request->input('since');
+
+        $messages = $lfgPost->messages()
+            ->with('user.profile')
+            ->when($since, fn ($q) => $q->where('created_at', '>', $since))
+            ->latest()
+            ->take(50)
+            ->get()
+            ->reverse()
+            ->values();
+
+        return response()->json([
+            'messages' => $messages,
+            'timestamp' => now()->toISOString(),
+        ]);
+    }
+
     public function rate(Request $request, LfgPost $lfgPost): JsonResponse
     {
         $validated = $request->validate([

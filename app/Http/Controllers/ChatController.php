@@ -81,6 +81,37 @@ class ChatController extends Controller
         return response()->json($message, HttpResponse::HTTP_CREATED);
     }
 
+    public function poll(Request $request, PlayerMatch $playerMatch): JsonResponse
+    {
+        $user = auth()->user();
+
+        if ($playerMatch->user_one_id !== $user->id && $playerMatch->user_two_id !== $user->id) {
+            abort(HttpResponse::HTTP_FORBIDDEN);
+        }
+
+        $since = $request->input('since');
+
+        $messages = $playerMatch->messages()
+            ->with('sender.profile')
+            ->when($since, fn ($q) => $q->where('created_at', '>', $since))
+            ->latest()
+            ->take(20)
+            ->get()
+            ->reverse()
+            ->values();
+
+        // Mark partner's messages as read
+        $playerMatch->messages()
+            ->where('sender_id', '!=', $user->id)
+            ->whereNull('read_at')
+            ->update(['read_at' => now()]);
+
+        return response()->json([
+            'messages' => $messages,
+            'timestamp' => now()->toISOString(),
+        ]);
+    }
+
     public function markRead(PlayerMatch $playerMatch): JsonResponse
     {
         $user = auth()->user();

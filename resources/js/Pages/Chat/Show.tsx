@@ -21,6 +21,17 @@ export default function Show({
     const [sending, setSending] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const lastTimestampRef = useRef<string | null>(
+        initialMessages.length > 0
+            ? initialMessages[initialMessages.length - 1].created_at
+            : null,
+    );
+
+    // Determine if partner is online (active within last 15 minutes)
+    const partnerUpdatedAt = (partner as any).updated_at;
+    const isPartnerOnline = partnerUpdatedAt
+        ? Date.now() - new Date(partnerUpdatedAt).getTime() < 15 * 60 * 1000
+        : false;
 
     const scrollToBottom = useCallback(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -35,20 +46,28 @@ export default function Show({
         axios.post(route('chat.markRead', { playerMatch: match.id })).catch(() => {});
     }, [match.id]);
 
-    // Poll for new messages every 3 seconds
+    // Efficient polling: only fetch new messages since last timestamp
     useEffect(() => {
         const interval = setInterval(async () => {
             try {
-                const response = await axios.get(route('chat.show', { playerMatch: match.id }), {
-                    headers: { 'X-Inertia': 'true', 'X-Inertia-Version': '' },
-                });
-                if (response.data?.props?.messages) {
-                    setMessages(response.data.props.messages);
+                const params: Record<string, string> = {};
+                if (lastTimestampRef.current) {
+                    params.since = lastTimestampRef.current;
                 }
-            } catch (e) {
+                const response = await axios.get(route('chat.poll', { playerMatch: match.id }), { params });
+                const newMessages: Message[] = response.data?.messages || [];
+                if (newMessages.length > 0) {
+                    setMessages((prev) => {
+                        const existingIds = new Set(prev.map((m) => m.id));
+                        const unique = newMessages.filter((m) => !existingIds.has(m.id));
+                        return unique.length > 0 ? [...prev, ...unique] : prev;
+                    });
+                    lastTimestampRef.current = response.data.timestamp;
+                }
+            } catch {
                 // ignore polling errors
             }
-        }, 3000);
+        }, 2000);
         return () => clearInterval(interval);
     }, [match.id]);
 
@@ -73,11 +92,15 @@ export default function Show({
         try {
             const response = await axios.post(route('chat.store', { playerMatch: match.id }), { body });
             setMessages((prev) => [...prev, response.data]);
+            // Update timestamp so polling skips this message
+            if (response.data.created_at) {
+                lastTimestampRef.current = response.data.created_at;
+            }
             setBody('');
             if (textareaRef.current) {
                 textareaRef.current.style.height = 'auto';
             }
-        } catch (e) {
+        } catch {
             // ignore
         }
         setSending(false);
@@ -114,10 +137,16 @@ export default function Show({
                             {partner.profile?.username?.[0]?.toUpperCase() || partner.name[0]?.toUpperCase()}
                         </div>
                         <div>
-                            <h3 className="font-bold text-white">{partner.profile?.username || partner.name}</h3>
-                            {partner.profile?.region && (
-                                <p className="text-xs text-gray-400">{partner.profile.region}</p>
-                            )}
+                            <div className="flex items-center gap-2">
+                                <h3 className="font-bold text-white">{partner.profile?.username || partner.name}</h3>
+                                <span
+                                    className={`inline-block h-2.5 w-2.5 rounded-full ${isPartnerOnline ? 'bg-gaming-green animate-pulse' : 'bg-gray-500'}`}
+                                    title={isPartnerOnline ? 'Online' : 'Offline'}
+                                />
+                            </div>
+                            <p className="text-xs text-gray-400">
+                                {isPartnerOnline ? 'Online' : partner.profile?.region || 'Offline'}
+                            </p>
                         </div>
                     </div>
                 </div>
