@@ -137,7 +137,7 @@ export default function Authenticated({
                         <div className="hidden sm:ms-6 sm:flex sm:items-center sm:gap-3">
                             <SearchBar />
 
-                            {/* Notification Bell */}
+                            {/* Desktop Notification Bell */}
                             <div className="relative" ref={notifRef}>
                                 <button
                                     onClick={() => setShowNotifications(!showNotifications)}
@@ -152,71 +152,6 @@ export default function Authenticated({
                                         </span>
                                     )}
                                 </button>
-
-                                {showNotifications && (
-                                    <div className="absolute right-0 z-50 mt-2 w-80 rounded-xl border border-white/10 bg-navy-800 shadow-lg shadow-glow-purple">
-                                        <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
-                                            <h3 className="text-sm font-semibold text-white">Notifications</h3>
-                                            {notifications.length > 0 && (
-                                                <button
-                                                    onClick={handleMarkAllRead}
-                                                    className="text-[11px] text-gaming-purple transition hover:text-gaming-purple/80"
-                                                >
-                                                    Mark all read
-                                                </button>
-                                            )}
-                                        </div>
-                                        <div className="max-h-96 overflow-y-auto">
-                                            {notifications.length === 0 ? (
-                                                <div className="px-4 py-8 text-center">
-                                                    <svg className="mx-auto mb-2 h-8 w-8 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
-                                                    </svg>
-                                                    <p className="text-sm text-gray-500">All caught up!</p>
-                                                </div>
-                                            ) : (
-                                                notifications.map((notif) => (
-                                                    <button
-                                                        key={notif.id}
-                                                        onClick={() => handleNotificationClick(notif)}
-                                                        className="flex w-full items-center gap-3 border-b border-white/5 px-4 py-3 text-left transition hover:bg-navy-700"
-                                                    >
-                                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gaming-purple/20">
-                                                            {notif.data.sender_avatar || notif.data.partner_avatar ? (
-                                                                <img src={notif.data.sender_avatar || notif.data.partner_avatar} alt="" className="h-full w-full object-cover" />
-                                                            ) : (
-                                                                <span className="text-sm font-bold text-gaming-purple">
-                                                                    {(notif.data.sender_name || notif.data.partner_name || '?')[0].toUpperCase()}
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                        <div className="min-w-0 flex-1">
-                                                            <p className="text-sm text-white">
-                                                                {notif.data.type === 'new_match' ? (
-                                                                    <>
-                                                                        <span className="mr-1.5 inline-block h-2 w-2 rounded-full bg-gaming-green" />
-                                                                        New friend: <strong>{notif.data.partner_name}</strong>
-                                                                    </>
-                                                                ) : notif.data.type === 'new_message' ? (
-                                                                    <>
-                                                                        <strong>{notif.data.sender_name}</strong>
-                                                                        <span className="text-gray-400">: {notif.data.message_preview}</span>
-                                                                    </>
-                                                                ) : (
-                                                                    'New notification'
-                                                                )}
-                                                            </p>
-                                                            <p className="mt-0.5 text-[10px] text-gray-500">{notif.created_at}</p>
-                                                        </div>
-                                                        <svg className="h-4 w-4 shrink-0 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                                                        </svg>
-                                                    </button>
-                                                ))
-                                            )}
-                                        </div>
-                                    </div>
-                                )}
                             </div>
 
                             <div className="relative">
@@ -371,6 +306,85 @@ export default function Authenticated({
                     </div>
                 </div>
             </nav>
+
+            {/* Notification Dropdown - rendered outside nav so it works on all screen sizes */}
+            {showNotifications && (
+                <>
+                    <div className="fixed inset-0 z-40" onClick={() => setShowNotifications(false)} />
+                    <div ref={notifRef} className="fixed right-2 top-14 z-50 w-[calc(100vw-1rem)] max-w-sm rounded-xl border border-white/10 bg-navy-800 shadow-lg shadow-glow-purple sm:right-4 sm:w-80">
+                        <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+                            <h3 className="text-sm font-semibold text-white">Notifications</h3>
+                            <div className="flex items-center gap-3">
+                                {notifications.length > 0 && (
+                                    <button
+                                        onClick={handleMarkAllRead}
+                                        className="text-[11px] text-gaming-purple transition hover:text-gaming-purple/80"
+                                    >
+                                        Mark all read
+                                    </button>
+                                )}
+                                <button
+                                    onClick={() => setShowNotifications(false)}
+                                    className="text-gray-500 transition hover:text-white"
+                                >
+                                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div className="max-h-[70vh] overflow-y-auto sm:max-h-96">
+                            {notifications.length === 0 ? (
+                                <div className="px-4 py-8 text-center">
+                                    <svg className="mx-auto mb-2 h-8 w-8 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+                                    </svg>
+                                    <p className="text-sm text-gray-500">All caught up!</p>
+                                </div>
+                            ) : (
+                                notifications.map((notif) => (
+                                    <button
+                                        key={notif.id}
+                                        onClick={() => handleNotificationClick(notif)}
+                                        className="flex w-full items-center gap-3 border-b border-white/5 px-4 py-3 text-left transition hover:bg-navy-700 active:bg-navy-600"
+                                    >
+                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gaming-purple/20">
+                                            {notif.data.sender_avatar || notif.data.partner_avatar ? (
+                                                <img src={notif.data.sender_avatar || notif.data.partner_avatar} alt="" className="h-full w-full object-cover" />
+                                            ) : (
+                                                <span className="text-sm font-bold text-gaming-purple">
+                                                    {(notif.data.sender_name || notif.data.partner_name || '?')[0].toUpperCase()}
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div className="min-w-0 flex-1">
+                                            <p className="text-sm text-white">
+                                                {notif.data.type === 'new_match' ? (
+                                                    <>
+                                                        <span className="mr-1.5 inline-block h-2 w-2 rounded-full bg-gaming-green" />
+                                                        New friend: <strong>{notif.data.partner_name}</strong>
+                                                    </>
+                                                ) : notif.data.type === 'new_message' ? (
+                                                    <>
+                                                        <strong>{notif.data.sender_name}</strong>
+                                                        <span className="text-gray-400">: {notif.data.message_preview}</span>
+                                                    </>
+                                                ) : (
+                                                    'New notification'
+                                                )}
+                                            </p>
+                                            <p className="mt-0.5 text-[10px] text-gray-500">{notif.created_at}</p>
+                                        </div>
+                                        <svg className="h-4 w-4 shrink-0 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                                        </svg>
+                                    </button>
+                                ))
+                            )}
+                        </div>
+                    </div>
+                </>
+            )}
 
             {header && (
                 <header className="border-b border-white/5 bg-navy-800/50">
