@@ -89,7 +89,9 @@ export default function Show({
     userGames,
     clips = [],
     earnedAchievements = [],
-}: PageProps<{ profile: Profile | null; userGames: Game[]; clips: Clip[]; earnedAchievements: Achievement[] }>) {
+    reputationData,
+    friendsCount = 0,
+}: PageProps<{ profile: Profile | null; userGames: Game[]; clips: Clip[]; earnedAchievements: Achievement[]; reputationData?: { score: number; count: number; tags: Record<string, number> }; friendsCount?: number }>) {
     const { flash } = usePage().props as any;
     const [copied, setCopied] = useState(false);
     const [showToast, setShowToast] = useState(false);
@@ -231,7 +233,7 @@ export default function Show({
                                 <p className="mt-0.5 text-xs font-medium uppercase tracking-wider text-gray-500">Clips</p>
                             </div>
                             <div className="glow-border-cyan rounded-xl border border-white/5 bg-navy-800 p-4 text-center">
-                                <p className="text-2xl font-bold text-neon-cyan text-gaming-cyan">--</p>
+                                <p className="text-2xl font-bold text-neon-cyan text-gaming-cyan">{friendsCount}</p>
                                 <p className="mt-0.5 text-xs font-medium uppercase tracking-wider text-gray-500">Friends</p>
                             </div>
                             <div className="rounded-xl border border-gaming-orange/20 bg-navy-800 p-4 text-center">

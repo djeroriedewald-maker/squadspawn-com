@@ -22,12 +22,17 @@ class GameProfileController extends Controller
         $reputationData = app(\App\Services\ReputationService::class)->calculate($user);
         $user->load('profile');
 
+        $friendsCount = \App\Models\PlayerMatch::where('user_one_id', $user->id)
+            ->orWhere('user_two_id', $user->id)
+            ->count();
+
         return Inertia::render('GameProfile/Show', [
             'profile' => $user->profile,
             'userGames' => $user->games,
             'clips' => $clips,
             'earnedAchievements' => $user->achievements,
             'reputationData' => $reputationData,
+            'friendsCount' => $friendsCount,
         ]);
     }
 
