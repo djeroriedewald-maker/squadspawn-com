@@ -3,7 +3,8 @@ import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import SearchBar from '@/Components/SearchBar';
 import { Link, usePage } from '@inertiajs/react';
-import { PropsWithChildren, ReactNode, useState } from 'react';
+import axios from 'axios';
+import { PropsWithChildren, ReactNode, useEffect, useState } from 'react';
 
 export default function Authenticated({
     header,
@@ -11,13 +12,26 @@ export default function Authenticated({
 }: PropsWithChildren<{ header?: ReactNode }>) {
     const { auth } = usePage().props as any;
     const user = auth.user;
-    const unreadCount = auth.unreadCount || 0;
     const notifications = auth.notifications || [];
     const achievementCount = auth.achievementCount || 0;
 
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
+    const [liveUnreadCount, setLiveUnreadCount] = useState(auth.unreadCount || 0);
+
+    // Poll notification count every 5 seconds
+    useEffect(() => {
+        const interval = setInterval(async () => {
+            try {
+                const { data } = await axios.get(route('notifications.count'));
+                setLiveUnreadCount(data.unreadCount);
+            } catch {}
+        }, 5000);
+        return () => clearInterval(interval);
+    }, []);
+
+    const unreadCount = liveUnreadCount;
 
     return (
         <div className="min-h-screen bg-navy-900">

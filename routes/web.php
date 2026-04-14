@@ -170,6 +170,10 @@ Route::get('/community/create', [CommunityController::class, 'create'])->middlew
 Route::get('/community/{communityPost}', [CommunityController::class, 'show'])->name('community.show');
 
 Route::middleware('auth')->group(function () {
+    // Notification polling (lightweight, no throttle needed)
+    Route::get('/notifications/count', [\App\Http\Controllers\NotificationController::class, 'count'])->name('notifications.count');
+    Route::post('/notifications/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllRead'])->name('notifications.readAll');
+
     // Age verification (for Google OAuth users who skipped registration form)
     Route::get('/verify-age', [\App\Http\Controllers\Auth\AgeVerificationController::class, 'show'])->name('age-verification');
     Route::post('/verify-age', [\App\Http\Controllers\Auth\AgeVerificationController::class, 'store'])->name('age-verification.store');
