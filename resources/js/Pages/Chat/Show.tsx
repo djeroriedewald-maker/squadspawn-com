@@ -136,8 +136,12 @@ export default function Show({
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
                             </svg>
                         </a>
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-gaming-purple/30 to-gaming-green/30 font-bold text-white">
-                            {partner.profile?.username?.[0]?.toUpperCase() || partner.name[0]?.toUpperCase()}
+                        <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-gaming-purple/30 to-gaming-green/30 font-bold text-white">
+                            {partner.profile?.avatar ? (
+                                <img src={partner.profile.avatar} alt="" className="h-full w-full object-cover" />
+                            ) : (
+                                partner.profile?.username?.[0]?.toUpperCase() || partner.name[0]?.toUpperCase()
+                            )}
                         </div>
                         <div>
                             <div className="flex items-center gap-2">
@@ -182,8 +186,12 @@ export default function Show({
                                             {!isMe && (
                                                 <div className="mr-2 flex w-8 flex-shrink-0 items-end">
                                                     {isLastInGroup ? (
-                                                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-gaming-purple/30 to-gaming-green/30 text-xs font-bold text-white">
-                                                            {partner.profile?.username?.[0]?.toUpperCase() || partner.name[0]?.toUpperCase()}
+                                                        <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-gaming-purple/30 to-gaming-green/30 text-xs font-bold text-white">
+                                                            {partner.profile?.avatar ? (
+                                                                <img src={partner.profile.avatar} alt="" className="h-full w-full object-cover" />
+                                                            ) : (
+                                                                partner.profile?.username?.[0]?.toUpperCase() || partner.name[0]?.toUpperCase()
+                                                            )}
                                                         </div>
                                                     ) : null}
                                                 </div>
