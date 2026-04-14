@@ -102,43 +102,34 @@ class CommunityController extends Controller
         ]);
 
         $voteValue = (int) $request->input('vote');
-        $existing = PostVote::where('community_post_id', $communityPost->id)
-            ->where('user_id', auth()->id())
-            ->first();
 
-        if ($existing) {
-            if ($existing->vote === $voteValue) {
-                // Same vote: remove it
-                if ($voteValue === 1) {
-                    $communityPost->decrement('upvotes');
+        // Use transaction to prevent race conditions
+        \DB::transaction(function () use ($communityPost, $voteValue) {
+            $existing = PostVote::where('community_post_id', $communityPost->id)
+                ->where('user_id', auth()->id())
+                ->lockForUpdate()
+                ->first();
+
+            if ($existing) {
+                if ($existing->vote === $voteValue) {
+                    if ($voteValue === 1) { $communityPost->decrement('upvotes'); }
+                    else { $communityPost->decrement('downvotes'); }
+                    $existing->delete();
                 } else {
-                    $communityPost->decrement('downvotes');
+                    if ($voteValue === 1) { $communityPost->increment('upvotes'); $communityPost->decrement('downvotes'); }
+                    else { $communityPost->decrement('upvotes'); $communityPost->increment('downvotes'); }
+                    $existing->update(['vote' => $voteValue]);
                 }
-                $existing->delete();
             } else {
-                // Opposite vote: switch
-                if ($voteValue === 1) {
-                    $communityPost->increment('upvotes');
-                    $communityPost->decrement('downvotes');
-                } else {
-                    $communityPost->decrement('upvotes');
-                    $communityPost->increment('downvotes');
-                }
-                $existing->update(['vote' => $voteValue]);
+                PostVote::create([
+                    'community_post_id' => $communityPost->id,
+                    'user_id' => auth()->id(),
+                    'vote' => $voteValue,
+                ]);
+                if ($voteValue === 1) { $communityPost->increment('upvotes'); }
+                else { $communityPost->increment('downvotes'); }
             }
-        } else {
-            // New vote
-            PostVote::create([
-                'community_post_id' => $communityPost->id,
-                'user_id' => auth()->id(),
-                'vote' => $voteValue,
-            ]);
-            if ($voteValue === 1) {
-                $communityPost->increment('upvotes');
-            } else {
-                $communityPost->increment('downvotes');
-            }
-        }
+        });
 
         $communityPost->refresh();
 

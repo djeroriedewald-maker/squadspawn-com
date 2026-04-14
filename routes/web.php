@@ -18,6 +18,7 @@ use App\Http\Controllers\AchievementController;
 use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\SearchController;
 use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -26,21 +27,25 @@ Route::get('/terms-of-service', fn () => Inertia::render('Legal/TermsOfService')
 Route::get('/cookie-policy', fn () => Inertia::render('Legal/CookiePolicy'))->name('legal.cookies');
 
 Route::get('/', function () {
-    $totalPlayers = \App\Models\User::whereHas('profile')->count();
-    $totalGames = \App\Models\Game::count();
-    $activeLfg = \App\Models\LfgPost::where('status', 'open')->count();
-    $topGames = \App\Models\Game::withCount('users')->orderByDesc('users_count')->take(8)->get();
-    $recentPlayers = \App\Models\Profile::with('user')->latest()->take(8)->get();
-    $onlineNow = \App\Models\User::where('updated_at', '>=', now()->subMinutes(15))->count();
+    // Cache homepage stats for 5 minutes
+    $stats = Cache::remember('homepage:stats', 300, function () {
+        return [
+            'totalPlayers' => \App\Models\User::whereHas('profile')->count(),
+            'totalGames' => \App\Models\Game::count(),
+            'activeLfg' => \App\Models\LfgPost::where('status', 'open')->count(),
+            'topGames' => \App\Models\Game::withCount('users')->orderByDesc('users_count')->take(8)->get(),
+            'recentPlayers' => \App\Models\Profile::with('user')->latest()->take(8)->get(),
+        ];
+    });
+    // Online count: cache for 2 minutes (needs to be fresher)
+    $onlineNow = Cache::remember('homepage:online', 120, function () {
+        return \App\Models\User::where('updated_at', '>=', now()->subMinutes(15))->count();
+    });
 
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
-        'totalPlayers' => $totalPlayers,
-        'totalGames' => $totalGames,
-        'activeLfg' => $activeLfg,
-        'topGames' => $topGames,
-        'recentPlayers' => $recentPlayers,
+        ...$stats,
         'onlineNow' => $onlineNow,
     ]);
 });
@@ -178,11 +183,11 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Clips
-    Route::post('/clips', [ClipController::class, 'store'])->name('clips.store');
+    Route::post('/clips', [ClipController::class, 'store'])->middleware('throttle:10,1')->name('clips.store');
     Route::delete('/clips/{clip}', [ClipController::class, 'destroy'])->name('clips.destroy');
 
     // Avatar
-    Route::post('/avatar/upload', [AvatarController::class, 'upload'])->name('avatar.upload');
+    Route::post('/avatar/upload', [AvatarController::class, 'upload'])->middleware('throttle:10,1')->name('avatar.upload');
     Route::post('/avatar/preset', [AvatarController::class, 'setPreset'])->name('avatar.preset');
 
     // Game Profile
@@ -194,15 +199,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/achievements', [AchievementController::class, 'index'])->name('achievements.index');
 
     // Community (auth actions)
-    Route::post('/community', [CommunityController::class, 'store'])->name('community.store');
+    Route::post('/community', [CommunityController::class, 'store'])->middleware('throttle:10,1')->name('community.store');
     Route::post('/community/{communityPost}/vote', [CommunityController::class, 'vote'])->name('community.vote');
     Route::post('/community/{communityPost}/comment', [CommunityController::class, 'comment'])->name('community.comment');
     Route::delete('/community/comment/{postComment}', [CommunityController::class, 'destroyComment'])->name('community.comment.destroy');
 
     // Block & Report
-    Route::post('/block', [BlockController::class, 'store'])->name('block.store');
-    Route::delete('/block/{user}', [BlockController::class, 'destroy'])->name('block.destroy');
-    Route::post('/report', [ReportController::class, 'store'])->name('report.store');
+    Route::post('/block', [BlockController::class, 'store'])->middleware('throttle:10,1')->name('block.store');
+    Route::delete('/block/{user}', [BlockController::class, 'destroy'])->middleware('throttle:10,1')->name('block.destroy');
+    Route::post('/report', [ReportController::class, 'store'])->middleware('throttle:5,1')->name('report.store');
 
     // Discovery (requires complete profile)
     Route::middleware('profile.complete')->group(function () {
@@ -211,11 +216,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/discover/liked-you', [DiscoveryController::class, 'likedYou'])->name('discovery.likedYou');
         Route::post('/discover/undo', [DiscoveryController::class, 'undo'])->name('discovery.undo');
         Route::delete('/discover/pass/{user}', [DiscoveryController::class, 'removePass'])->name('discovery.removePass');
-        Route::post('/likes', [LikeController::class, 'store'])->name('likes.store');
-        Route::post('/likes/pass', [LikeController::class, 'pass'])->name('likes.pass');
+        Route::post('/likes', [LikeController::class, 'store'])->middleware('throttle:30,1')->name('likes.store');
+        Route::post('/likes/pass', [LikeController::class, 'pass'])->middleware('throttle:30,1')->name('likes.pass');
         Route::get('/friends', [MatchController::class, 'index'])->name('friends.index');
         Route::get('/friends/{playerMatch}/chat', [ChatController::class, 'show'])->name('chat.show');
-        Route::post('/friends/{playerMatch}/messages', [ChatController::class, 'store'])->name('chat.store');
+        Route::post('/friends/{playerMatch}/messages', [ChatController::class, 'store'])->middleware('throttle:60,1')->name('chat.store');
         Route::post('/friends/{playerMatch}/read', [ChatController::class, 'markRead'])->name('chat.markRead');
 
         // LFG

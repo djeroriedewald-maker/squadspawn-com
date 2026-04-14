@@ -15,7 +15,8 @@
       "Bash(curl -sL -o public/images/games/codm.jpg \"https://upload.wikimedia.org/wikipedia/en/thumb/1/13/Call_of_Duty_Mobile_cover_art.jpg/220px-Call_of_Duty_Mobile_cover_art.jpg\")",
       "Bash(git commit -m ':*)",
       "Bash(npm run:*)",
-      "Bash(wc:*)"
+      "Bash(wc:*)",
+      "Bash(php:*)"
     ]
   }
 }

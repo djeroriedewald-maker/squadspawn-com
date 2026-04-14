@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Block;
 use App\Models\Clip;
 use App\Models\Profile;
 use Inertia\Inertia;
@@ -12,17 +13,29 @@ class PlayerController extends Controller
     public function show(string $username): Response
     {
         $profile = Profile::where('username', $username)->firstOrFail();
-        $user = $profile->user;
-        $user->load(['profile', 'games']);
+        $player = $profile->user;
+        $player->load(['profile', 'games']);
 
-        $clips = Clip::where('user_id', $user->id)
+        // Check if the viewer is blocked by this player
+        $viewer = auth()->user();
+        if ($viewer) {
+            $isBlocked = Block::where('blocker_id', $player->id)
+                ->where('blocked_id', $viewer->id)
+                ->exists();
+
+            if ($isBlocked) {
+                abort(404);
+            }
+        }
+
+        $clips = Clip::where('user_id', $player->id)
             ->with('game')
             ->latest()
             ->take(6)
             ->get();
 
         return Inertia::render('Player/Show', [
-            'player' => $user,
+            'player' => $player,
             'clips' => $clips,
         ]);
     }
