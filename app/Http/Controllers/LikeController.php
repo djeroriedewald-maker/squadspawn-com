@@ -51,8 +51,8 @@ class LikeController extends Controller
             // Notify both users
             $liker = auth()->user();
             $liked = \App\Models\User::find($likedId);
-            $liker->notify(new NewMatchNotification($liked, $match->id));
-            $liked->notify(new NewMatchNotification($liker, $match->id));
+            $liker->notify(new NewMatchNotification($liked, $match->id, $match->uuid));
+            $liked->notify(new NewMatchNotification($liker, $match->id, $match->uuid));
         }
 
         if ($mutualLike) {

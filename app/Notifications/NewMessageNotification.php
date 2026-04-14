@@ -12,6 +12,7 @@ class NewMessageNotification extends Notification
         public Message $message,
         public User $sender,
         public int $matchId,
+        public string $matchUuid,
     ) {}
 
     public function via(object $notifiable): array
@@ -24,6 +25,7 @@ class NewMessageNotification extends Notification
         return [
             'type' => 'new_message',
             'match_id' => $this->matchId,
+            'match_uuid' => $this->matchUuid,
             'sender_id' => $this->sender->id,
             'sender_name' => $this->sender->profile?->username ?? $this->sender->name,
             'sender_avatar' => $this->sender->profile?->avatar,

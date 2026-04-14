@@ -46,12 +46,16 @@ class ChatController extends Controller
             'message_ids' => $messages->pluck('id')->toArray(),
         ]);
 
-        // Mark notifications as read for this match
+        // Mark all notifications for this match as read (both message and match notifications)
         $user->unreadNotifications()
-            ->where('type', NewMessageNotification::class)
             ->get()
-            ->filter(fn ($n) => ($n->data['match_id'] ?? null) === $playerMatch->id)
+            ->filter(fn ($n) =>
+                ($n->data['match_id'] ?? null) === $playerMatch->id ||
+                ($n->data['match_uuid'] ?? null) === $playerMatch->uuid
+            )
             ->each->markAsRead();
+
+        \Cache::forget("user:{$user->id}:unread");
 
         // Don't include messages in the match prop (avoid duplicate data)
         $playerMatch->unsetRelation('messages');
@@ -97,7 +101,7 @@ class ChatController extends Controller
 
         // Notify after response is ready - wrapped to never break chat
         try {
-            $partner->notify(new NewMessageNotification($message, $user, $playerMatch->id));
+            $partner->notify(new NewMessageNotification($message, $user, $playerMatch->id, $playerMatch->uuid));
         } catch (\Throwable $e) {
             \Log::error('Chat notification error: ' . $e->getMessage());
         }

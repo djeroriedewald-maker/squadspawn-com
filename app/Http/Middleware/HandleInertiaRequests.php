@@ -24,8 +24,8 @@ class HandleInertiaRequests extends Middleware
         if ($user) {
             $user->load(['profile', 'games']);
 
-            // Cache notification count for 60 seconds to reduce queries
-            $unreadCount = Cache::remember("user:{$user->id}:unread", 60, function () use ($user) {
+            // Cache notification count for 10 seconds (polling refreshes this)
+            $unreadCount = Cache::remember("user:{$user->id}:unread", 10, function () use ($user) {
                 return $user->unreadNotifications()->count();
             });
 
