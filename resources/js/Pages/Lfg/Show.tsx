@@ -741,8 +741,11 @@ function RatingCard({
 
             {!done && (
                 <>
-                    {/* Stars */}
-                    <div className="mb-3 flex gap-1">
+                    {/* Stars - required */}
+                    <p className={`mb-1.5 text-[10px] font-medium uppercase tracking-wider ${score === 0 ? 'text-yellow-400' : 'text-gray-500'}`}>
+                        {score === 0 ? 'Tap a star to rate *' : `${score}/5 stars`}
+                    </p>
+                    <div className={`mb-3 flex gap-1 rounded-lg p-1.5 ${score === 0 ? 'bg-yellow-400/5 ring-1 ring-yellow-400/20' : ''}`}>
                         {[1, 2, 3, 4, 5].map((s) => (
                             <button
                                 key={s}
@@ -753,7 +756,7 @@ function RatingCard({
                                 className="p-0.5"
                             >
                                 <svg
-                                    className={`h-6 w-6 transition ${(hoverScore || score) >= s ? 'text-yellow-400' : 'text-gray-600'}`}
+                                    className={`h-7 w-7 transition ${(hoverScore || score) >= s ? 'text-yellow-400' : 'text-gray-600 hover:text-gray-500'}`}
                                     fill={(hoverScore || score) >= s ? 'currentColor' : 'none'}
                                     viewBox="0 0 24 24"
                                     stroke="currentColor"
@@ -765,8 +768,8 @@ function RatingCard({
                         ))}
                     </div>
 
-                    {/* Tags - multiple selection */}
-                    <p className="mb-2 text-[10px] font-medium uppercase tracking-wider text-gray-500">Select all that apply</p>
+                    {/* Tags - optional, multiple selection */}
+                    <p className="mb-2 text-[10px] font-medium uppercase tracking-wider text-gray-500">Tags (optional)</p>
                     <div className="mb-3 flex flex-wrap gap-1.5">
                         {TAGS.map((t) => (
                             <button
@@ -787,11 +790,15 @@ function RatingCard({
                     </div>
 
                     <button
-                        onClick={handleSubmit}
-                        disabled={score === 0 || submitting}
-                        className="w-full rounded-lg bg-gaming-purple px-4 py-2 text-sm font-semibold text-white transition hover:bg-gaming-purple/80 disabled:opacity-50"
+                        onClick={score === 0 ? () => {} : handleSubmit}
+                        disabled={submitting}
+                        className={`w-full rounded-lg px-4 py-2 text-sm font-semibold transition ${
+                            score === 0
+                                ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                                : 'bg-gaming-purple text-white hover:bg-gaming-purple/80 disabled:opacity-50'
+                        }`}
                     >
-                        {submitting ? 'Submitting...' : 'Submit Rating'}
+                        {submitting ? 'Submitting...' : score === 0 ? 'Select stars to rate' : 'Submit Rating'}
                     </button>
                 </>
             )}
