@@ -57,8 +57,9 @@ class ReputationService
             $tagModifier = $totalMod / $count;
         }
 
-        // Weight: more ratings = score converges to true average
-        $weight = min($count / 10, 1.0);
+        // Weight: converges to true average quickly
+        // 1 rating = 70% real + 30% neutral, 3+ ratings = 100% real
+        $weight = min($count / 3, 1.0);
         $weighted = ($avg * $weight) + (3.0 * (1 - $weight));
 
         $score = round(max(1.0, min(5.0, $weighted + $tagModifier)), 1);
