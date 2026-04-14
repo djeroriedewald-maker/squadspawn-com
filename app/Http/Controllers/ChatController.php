@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Message;
 use App\Models\PlayerMatch;
 use App\Notifications\NewMessageNotification;
 use Illuminate\Http\JsonResponse;
@@ -20,26 +21,29 @@ class ChatController extends Controller
             abort(HttpResponse::HTTP_FORBIDDEN, 'You are not part of this match.');
         }
 
-        $playerMatch->load(['messages.sender', 'userOne.profile', 'userTwo.profile']);
+        $playerMatch->load(['userOne.profile', 'userTwo.profile']);
 
         $partner = $playerMatch->user_one_id === $user->id
             ? $playerMatch->userTwo
             : $playerMatch->userOne;
 
         // Mark partner's messages as read
-        $playerMatch->messages()
+        Message::where('match_id', $playerMatch->id)
             ->where('sender_id', '!=', $user->id)
             ->whereNull('read_at')
             ->update(['read_at' => now()]);
 
-        // Reload messages so read_at is up-to-date
-        $playerMatch->load('messages.sender');
+        // Query messages directly (not via eager loading)
+        $messages = Message::where('match_id', $playerMatch->id)
+            ->with('sender')
+            ->orderBy('created_at')
+            ->get();
 
         \Log::info('Chat show', [
             'match_id' => $playerMatch->id,
             'user_id' => $user->id,
-            'message_count' => $playerMatch->messages->count(),
-            'message_ids' => $playerMatch->messages->pluck('id')->toArray(),
+            'message_count' => $messages->count(),
+            'message_ids' => $messages->pluck('id')->toArray(),
         ]);
 
         // Mark notifications as read for this match
@@ -49,10 +53,13 @@ class ChatController extends Controller
             ->filter(fn ($n) => ($n->data['match_id'] ?? null) === $playerMatch->id)
             ->each->markAsRead();
 
+        // Don't include messages in the match prop (avoid duplicate data)
+        $playerMatch->unsetRelation('messages');
+
         return Inertia::render('Chat/Show', [
             'match' => $playerMatch,
             'partner' => $partner,
-            'messages' => $playerMatch->messages,
+            'messages' => $messages,
         ]);
     }
 
