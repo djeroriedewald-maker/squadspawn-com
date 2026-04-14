@@ -285,6 +285,12 @@ class LfgController extends Controller
             ]
         );
 
+        // Auto-recalculate the rated user's reputation immediately
+        $ratedUser = \App\Models\User::find($validated['rated_id']);
+        if ($ratedUser) {
+            app(\App\Services\ReputationService::class)->calculate($ratedUser);
+        }
+
         return response()->json(['success' => true]);
     }
 

@@ -19,14 +19,15 @@ class GameProfileController extends Controller
         $clips = Clip::where('user_id', $user->id)->with('game')->latest()->take(6)->get();
 
         // Recalculate reputation
-        app(\App\Services\ReputationService::class)->calculate($user);
-        $user->load('profile'); // Reload to get updated reputation_score
+        $reputationData = app(\App\Services\ReputationService::class)->calculate($user);
+        $user->load('profile');
 
         return Inertia::render('GameProfile/Show', [
             'profile' => $user->profile,
             'userGames' => $user->games,
             'clips' => $clips,
             'earnedAchievements' => $user->achievements,
+            'reputationData' => $reputationData,
         ]);
     }
 

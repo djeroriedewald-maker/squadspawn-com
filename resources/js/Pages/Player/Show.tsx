@@ -31,7 +31,23 @@ const REPORT_REASONS = [
     'Other',
 ];
 
-export default function PlayerShow({ player, clips = [] }: PageProps<{ player: User; clips: Clip[] }>) {
+interface ReputationData {
+    score: number;
+    count: number;
+    top_tag: string | null;
+    tags: Record<string, number>;
+}
+
+const TAG_LABELS: Record<string, { label: string; color: string }> = {
+    great_teammate: { label: 'Great Teammate', color: 'text-gaming-green' },
+    good_comms: { label: 'Good Comms', color: 'text-gaming-cyan' },
+    skilled: { label: 'Skilled', color: 'text-gaming-purple' },
+    friendly: { label: 'Friendly', color: 'text-gaming-green' },
+    toxic: { label: 'Toxic', color: 'text-red-400' },
+    no_show: { label: 'No Show', color: 'text-yellow-400' },
+};
+
+export default function PlayerShow({ player, clips = [], reputationData, friendsCount = 0 }: PageProps<{ player: User; clips: Clip[]; reputationData?: ReputationData; friendsCount?: number }>) {
     const { auth } = usePage<PageProps>().props;
     const isLoggedIn = !!auth?.user;
     const isOwnProfile = auth?.user?.id === player.id;
@@ -169,20 +185,45 @@ export default function PlayerShow({ player, clips = [] }: PageProps<{ player: U
                     </div>
 
                     {/* Stats Row */}
-                    <div className="mt-6 grid grid-cols-3 gap-3">
+                    <div className="mt-6 grid grid-cols-4 gap-3">
                         <div className="glow-border rounded-xl border border-white/5 bg-navy-800 p-4 text-center">
-                            <p className="text-2xl font-bold text-neon-purple text-gaming-purple">{player.games?.length || 0}</p>
+                            <p className="text-2xl font-bold text-gaming-purple">{player.games?.length || 0}</p>
                             <p className="mt-0.5 text-xs font-medium uppercase tracking-wider text-gray-500">Games</p>
                         </div>
-                        <div className="glow-border-green rounded-xl border border-white/5 bg-navy-800 p-4 text-center">
-                            <p className="text-2xl font-bold text-neon-green text-gaming-green">{clips.length}</p>
-                            <p className="mt-0.5 text-xs font-medium uppercase tracking-wider text-gray-500">Clips</p>
-                        </div>
-                        <div className="glow-border-cyan rounded-xl border border-white/5 bg-navy-800 p-4 text-center">
-                            <p className="text-2xl font-bold text-neon-cyan text-gaming-cyan">--</p>
+                        <div className="rounded-xl border border-white/5 bg-navy-800 p-4 text-center">
+                            <p className="text-2xl font-bold text-gaming-green">{friendsCount}</p>
                             <p className="mt-0.5 text-xs font-medium uppercase tracking-wider text-gray-500">Friends</p>
                         </div>
+                        <div className="rounded-xl border border-white/5 bg-navy-800 p-4 text-center">
+                            <p className="text-2xl font-bold text-gaming-cyan">{clips.length}</p>
+                            <p className="mt-0.5 text-xs font-medium uppercase tracking-wider text-gray-500">Clips</p>
+                        </div>
+                        <div className="rounded-xl border border-white/5 bg-navy-800 p-4 text-center">
+                            {reputationData && reputationData.count > 0 ? (
+                                <>
+                                    <p className="text-2xl font-bold text-yellow-400">{reputationData.score}<span className="ml-0.5 text-sm">&#9733;</span></p>
+                                    <p className="mt-0.5 text-xs font-medium uppercase tracking-wider text-gray-500">{reputationData.count} ratings</p>
+                                </>
+                            ) : (
+                                <>
+                                    <p className="text-2xl font-bold text-gray-600">--</p>
+                                    <p className="mt-0.5 text-xs font-medium uppercase tracking-wider text-gray-500">Reputation</p>
+                                </>
+                            )}
+                        </div>
                     </div>
+
+                    {/* Reputation Tags */}
+                    {reputationData && reputationData.count > 0 && Object.keys(reputationData.tags).length > 0 && (
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                            <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-600">Known for:</span>
+                            {Object.entries(reputationData.tags).slice(0, 4).map(([tag, count]) => (
+                                <span key={tag} className={`rounded-full bg-navy-800 px-2.5 py-1 text-[11px] font-medium ${TAG_LABELS[tag]?.color || 'text-gray-400'}`}>
+                                    {TAG_LABELS[tag]?.label || tag} ({count as number})
+                                </span>
+                            ))}
+                        </div>
+                    )}
 
                     {/* Bio */}
                     {player.profile?.bio && (
