@@ -265,10 +265,10 @@ class LfgController extends Controller
         $validated = $request->validate([
             'rated_id' => 'required|exists:users,id',
             'score' => 'required|integer|min:1|max:5',
-            'tag' => 'nullable|string', // legacy single tag
-            'tags' => 'nullable|array',
-            'tags.*' => 'in:' . implode(',', $validTags),
-            'comment' => 'nullable|string|max:500',
+            'tag' => ['nullable', 'string'],
+            'tags' => ['nullable', 'array'],
+            'tags.*' => ['string', 'in:' . implode(',', $validTags)],
+            'comment' => ['nullable', 'string', 'max:500'],
         ]);
 
         if ((int) $validated['rated_id'] === $user->id) {
