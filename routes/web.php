@@ -27,25 +27,21 @@ Route::get('/terms-of-service', fn () => Inertia::render('Legal/TermsOfService')
 Route::get('/cookie-policy', fn () => Inertia::render('Legal/CookiePolicy'))->name('legal.cookies');
 
 Route::get('/', function () {
-    // Cache homepage stats for 5 minutes
-    $stats = Cache::remember('homepage:stats', 300, function () {
-        return [
-            'totalPlayers' => \App\Models\User::whereHas('profile')->count(),
-            'totalGames' => \App\Models\Game::count(),
-            'activeLfg' => \App\Models\LfgPost::where('status', 'open')->count(),
-            'topGames' => \App\Models\Game::withCount('users')->orderByDesc('users_count')->take(8)->get(),
-            'recentPlayers' => \App\Models\Profile::with('user')->latest()->take(8)->get(),
-        ];
-    });
-    // Online count: cache for 2 minutes (needs to be fresher)
-    $onlineNow = Cache::remember('homepage:online', 120, function () {
-        return \App\Models\User::where('updated_at', '>=', now()->subMinutes(15))->count();
-    });
+    $totalPlayers = Cache::remember('home:players', 300, fn () => \App\Models\User::whereHas('profile')->count());
+    $totalGames = Cache::remember('home:games', 300, fn () => \App\Models\Game::count());
+    $activeLfg = Cache::remember('home:lfg', 300, fn () => \App\Models\LfgPost::where('status', 'open')->count());
+    $topGames = Cache::remember('home:topgames', 300, fn () => \App\Models\Game::withCount('users')->orderByDesc('users_count')->take(8)->get()->toArray());
+    $recentPlayers = Cache::remember('home:recent', 300, fn () => \App\Models\Profile::with('user')->latest()->take(8)->get()->toArray());
+    $onlineNow = Cache::remember('home:online', 120, fn () => \App\Models\User::where('updated_at', '>=', now()->subMinutes(15))->count());
 
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
-        ...$stats,
+        'totalPlayers' => $totalPlayers,
+        'totalGames' => $totalGames,
+        'activeLfg' => $activeLfg,
+        'topGames' => $topGames,
+        'recentPlayers' => $recentPlayers,
         'onlineNow' => $onlineNow,
     ]);
 });
