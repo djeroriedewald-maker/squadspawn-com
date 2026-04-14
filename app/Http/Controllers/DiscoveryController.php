@@ -9,6 +9,7 @@ use App\Models\Pass;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -135,7 +136,7 @@ class DiscoveryController extends Controller
                 'data' => $paginatedPlayers,
                 'total' => $scored->count(),
             ],
-            'games' => Game::all(),
+            'games' => Cache::remember('games:all', 300, fn () => Game::all()->toArray()),
             'filters' => $request->only(['game_id', 'region', 'looking_for', 'platform']),
             'likedByCount' => $likedByCount,
             'lastPassId' => $lastPass?->passed_id,
@@ -235,7 +236,7 @@ class DiscoveryController extends Controller
 
         return Inertia::render('Players/Index', [
             'players' => $players,
-            'games' => Game::all(),
+            'games' => Cache::remember('games:all', 300, fn () => Game::all()->toArray()),
             'filters' => $request->only(['game_id', 'region']),
         ]);
     }

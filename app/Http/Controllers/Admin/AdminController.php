@@ -69,16 +69,27 @@ class AdminController extends Controller
         ]);
     }
 
-    public function banUser(User $user)
+    public function banUser(Request $request, User $user)
     {
         if ($user->is_admin) {
             return response()->json(['error' => 'Cannot ban admins'], 422);
         }
 
-        $user->update(['is_admin' => false]);
-        // Delete their profile to effectively ban
-        $user->profile?->delete();
-        $user->games()->detach();
+        $user->update([
+            'is_banned' => true,
+            'banned_at' => now(),
+            'ban_reason' => $request->input('reason', 'Banned by admin'),
+        ]);
+
+        // Close all their active LFG groups
+        \App\Models\LfgPost::where('user_id', $user->id)
+            ->whereIn('status', ['open', 'full'])
+            ->update(['status' => 'closed']);
+
+        // Invalidate all sessions by cycling the remember token
+        $user->update(['remember_token' => null]);
+
+        \Log::info('User banned', ['user_id' => $user->id, 'admin_id' => auth()->id(), 'reason' => $request->input('reason')]);
 
         return response()->json(['success' => true]);
     }

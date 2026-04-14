@@ -69,7 +69,7 @@ Route::get('/dashboard', function () {
             ];
         });
 
-    $allGames = \App\Models\Game::withCount('users')->get();
+    $allGames = Cache::remember('dash:allgames', 300, fn () => \App\Models\Game::withCount('users')->get()->toArray());
 
     // How many people liked this user (motivation to swipe)
     $likedByCount = $user->likedByUsers()->count();
@@ -90,48 +90,53 @@ Route::get('/dashboard', function () {
             ->get()
         : collect();
 
-    // Platform stats
-    $totalPlayers = \App\Models\User::whereHas('profile')->count();
-    $newPlayersToday = \App\Models\User::whereHas('profile')->whereDate('created_at', today())->count();
-    $onlineRecent = \App\Models\User::where('updated_at', '>=', now()->subMinutes(15))->count();
+    // Platform stats (cached - shared across all users)
+    $totalPlayers = Cache::remember('dash:players', 120, fn () => \App\Models\User::whereHas('profile')->count());
+    $newPlayersToday = Cache::remember('dash:newtoday', 120, fn () => \App\Models\User::whereHas('profile')->whereDate('created_at', today())->count());
+    $onlineRecent = Cache::remember('dash:online', 30, fn () => \App\Models\User::where('updated_at', '>=', now()->subMinutes(15))->count());
 
-    // Trending games (most new user_games in last 7 days)
-    $trendingGameIds = \App\Models\UserGame::where('created_at', '>=', now()->subDays(7))
-        ->select('game_id')
-        ->selectRaw('count(*) as cnt')
-        ->groupBy('game_id')
-        ->orderByDesc('cnt')
-        ->take(5)
-        ->pluck('game_id');
-    $trendingGames = \App\Models\Game::whereIn('id', $trendingGameIds)->withCount('users')->get();
+    // Trending games (cached 5 min)
+    $trendingGames = Cache::remember('dash:trending', 300, function () {
+        $trendingGameIds = \App\Models\UserGame::where('created_at', '>=', now()->subDays(7))
+            ->select('game_id')
+            ->selectRaw('count(*) as cnt')
+            ->groupBy('game_id')
+            ->orderByDesc('cnt')
+            ->take(5)
+            ->pluck('game_id');
+        return \App\Models\Game::whereIn('id', $trendingGameIds)->withCount('users')->get();
+    });
 
-    // Activity feed: recent profiles created + recent friends made
-    $recentProfiles = \App\Models\Profile::with('user')
-        ->latest()
-        ->take(5)
-        ->get()
-        ->map(fn ($p) => [
-            'type' => 'joined',
-            'username' => $p->username,
-            'avatar' => $p->avatar,
-            'time' => $p->created_at->diffForHumans(),
-        ]);
+    // Activity feed (cached 1 min)
+    $activityFeed = Cache::remember('dash:activity', 60, function () {
+        $recentProfiles = \App\Models\Profile::with('user')
+            ->latest()
+            ->take(5)
+            ->get()
+            ->map(fn ($p) => [
+                'type' => 'joined',
+                'username' => $p->username,
+                'avatar' => $p->avatar,
+                'time' => $p->created_at->diffForHumans(),
+            ]);
 
-    $recentFriendships = \App\Models\PlayerMatch::with(['userOne.profile', 'userTwo.profile'])
-        ->latest()
-        ->take(5)
-        ->get()
-        ->map(fn ($m) => [
-            'type' => 'friends',
-            'user1' => $m->userOne->profile?->username ?? $m->userOne->name,
-            'user2' => $m->userTwo->profile?->username ?? $m->userTwo->name,
-            'time' => $m->created_at->diffForHumans(),
-        ]);
+        $recentFriendships = \App\Models\PlayerMatch::with(['userOne.profile', 'userTwo.profile'])
+            ->latest()
+            ->take(5)
+            ->get()
+            ->map(fn ($m) => [
+                'type' => 'friends',
+                'user1' => $m->userOne->profile?->username ?? $m->userOne->name,
+                'user2' => $m->userTwo->profile?->username ?? $m->userTwo->name,
+                'time' => $m->created_at->diffForHumans(),
+            ]);
 
-    $activityFeed = $recentProfiles->merge($recentFriendships)
-        ->sortByDesc('time')
-        ->take(8)
-        ->values();
+        return $recentProfiles->merge($recentFriendships)
+            ->sortByDesc('time')
+            ->take(8)
+            ->values()
+            ->toArray();
+    });
 
     $relevantLfg = $userGameIds->isNotEmpty()
         ? \App\Models\LfgPost::open()

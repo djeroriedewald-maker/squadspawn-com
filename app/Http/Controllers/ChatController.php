@@ -24,43 +24,50 @@ class ChatController extends Controller
             ->orWhere('user_two_id', $user->id)
             ->with(['userOne.profile', 'userTwo.profile'])
             ->latest()
+            ->get();
+
+        $matchIds = $matches->pluck('id');
+
+        // Batch: last messages (1 query)
+        $lastMessages = Message::whereIn('match_id', $matchIds)
+            ->whereIn('id', function ($q) use ($matchIds) {
+                $q->select(\DB::raw('MAX(id)'))->from('messages')->whereIn('match_id', $matchIds)->groupBy('match_id');
+            })
             ->get()
-            ->map(function (PlayerMatch $match) use ($user) {
-                $partner = $match->user_one_id === $user->id
-                    ? $match->userTwo
-                    : $match->userOne;
+            ->keyBy('match_id');
 
-                $lastMessage = Message::where('match_id', $match->id)
-                    ->latest()
-                    ->first();
+        // Batch: unread counts (1 query)
+        $unreadCounts = Message::whereIn('match_id', $matchIds)
+            ->where('sender_id', '!=', $user->id)
+            ->whereNull('read_at')
+            ->select('match_id', \DB::raw('count(*) as count'))
+            ->groupBy('match_id')
+            ->pluck('count', 'match_id');
 
-                $unreadCount = Message::where('match_id', $match->id)
-                    ->where('sender_id', '!=', $user->id)
-                    ->whereNull('read_at')
-                    ->count();
+        $result = $matches->map(function (PlayerMatch $match) use ($user, $lastMessages, $unreadCounts) {
+            $partner = $match->user_one_id === $user->id ? $match->userTwo : $match->userOne;
+            $lastMessage = $lastMessages->get($match->id);
 
-                $isOnline = $partner->updated_at >= now()->subMinutes(15);
+            return [
+                'id' => $match->id,
+                'chat_id' => $match->uuid,
+                'partner' => [
+                    'id' => $partner->id,
+                    'name' => $partner->name,
+                    'username' => $partner->profile?->username,
+                    'avatar' => $partner->profile?->avatar,
+                    'online' => $partner->updated_at >= now()->subMinutes(15),
+                ],
+                'last_message' => $lastMessage ? [
+                    'body' => $lastMessage->body,
+                    'sender_id' => $lastMessage->sender_id,
+                    'created_at' => $lastMessage->created_at->diffForHumans(),
+                ] : null,
+                'unread_count' => $unreadCounts->get($match->id, 0),
+            ];
+        });
 
-                return [
-                    'id' => $match->id,
-                    'chat_id' => $match->uuid,
-                    'partner' => [
-                        'id' => $partner->id,
-                        'name' => $partner->name,
-                        'username' => $partner->profile?->username,
-                        'avatar' => $partner->profile?->avatar,
-                        'online' => $isOnline,
-                    ],
-                    'last_message' => $lastMessage ? [
-                        'body' => $lastMessage->body,
-                        'sender_id' => $lastMessage->sender_id,
-                        'created_at' => $lastMessage->created_at->diffForHumans(),
-                    ] : null,
-                    'unread_count' => $unreadCount,
-                ];
-            });
-
-        return response()->json(['friends' => $matches]);
+        return response()->json(['friends' => $result]);
     }
 
     /**
