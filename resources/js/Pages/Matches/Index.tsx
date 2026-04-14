@@ -155,7 +155,7 @@ export default function Index({ matches }: PageProps<{ matches: FriendItem[] }>)
                                         {/* Actions */}
                                         <div className="flex shrink-0 flex-col items-end gap-2">
                                             <Link
-                                                href={route('chat.show', { playerMatch: match.id })}
+                                                href={route('chat.show', { playerMatch: match.chat_id })}
                                                 className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
                                                     match.unread_count > 0
                                                         ? 'animate-pulse-glow bg-gaming-green text-white hover:bg-gaming-green/80'

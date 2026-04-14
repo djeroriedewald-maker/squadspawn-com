@@ -43,7 +43,7 @@ export default function Show({
 
     // Mark messages as read on mount
     useEffect(() => {
-        axios.post(route('chat.markRead', { playerMatch: match.id })).catch(() => {});
+        axios.post(route('chat.markRead', { playerMatch: match.chat_id })).catch(() => {});
     }, [match.id]);
 
     // Efficient polling: only fetch new messages since last timestamp
@@ -54,7 +54,7 @@ export default function Show({
                 if (lastTimestampRef.current) {
                     params.since = lastTimestampRef.current;
                 }
-                const response = await axios.get(route('chat.poll', { playerMatch: match.id }), { params });
+                const response = await axios.get(route('chat.poll', { playerMatch: match.chat_id }), { params });
                 const newMessages: Message[] = response.data?.messages || [];
                 if (newMessages.length > 0) {
                     setMessages((prev) => {
@@ -94,7 +94,7 @@ export default function Show({
 
         setSending(true);
         try {
-            const response = await axios.post(route('chat.store', { playerMatch: match.id }), { body: messageBody });
+            const response = await axios.post(route('chat.store', { playerMatch: match.chat_id }), { body: messageBody });
             setMessages((prev) => [...prev, response.data]);
             if (response.data.created_at) {
                 lastTimestampRef.current = response.data.created_at;

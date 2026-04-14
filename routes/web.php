@@ -63,6 +63,7 @@ Route::get('/dashboard', function () {
         ->map(function ($match) use ($user) {
             return [
                 'id' => $match->id,
+                'chat_id' => $match->uuid,
                 'partner' => $match->user_one_id === $user->id ? $match->userTwo : $match->userOne,
                 'created_at' => $match->created_at,
             ];

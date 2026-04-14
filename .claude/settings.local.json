@@ -16,7 +16,10 @@
       "Bash(git commit -m ':*)",
       "Bash(npm run:*)",
       "Bash(wc:*)",
-      "Bash(php:*)"
+      "Bash(php:*)",
+      "Bash(sed -i 's/playerMatch: match\\\\.id/playerMatch: match.chat_id/g' resources/js/Pages/Chat/Show.tsx)",
+      "Bash(sed -i 's/playerMatch: match\\\\.id/playerMatch: match.chat_id/g' resources/js/Pages/Dashboard.tsx)",
+      "Bash(sed -i 's/playerMatch: match\\\\.id/playerMatch: match.chat_id/g' resources/js/Pages/Matches/Index.tsx)"
     ]
   }
 }

@@ -40,6 +40,7 @@ class MatchController extends Controller
 
                 return [
                     'id' => $match->id,
+                    'chat_id' => $match->uuid,
                     'partner' => $partner,
                     'created_at' => $match->created_at,
                     'last_message' => $lastMessage ? [

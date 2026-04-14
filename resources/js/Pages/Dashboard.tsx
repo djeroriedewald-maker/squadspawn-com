@@ -372,7 +372,7 @@ export default function Dashboard({
                                                     <p className="text-xs text-gray-500">{match.partner.profile?.region || 'No region'}</p>
                                                 </div>
                                             </Link>
-                                            <Link href={route('chat.show', { playerMatch: match.id })} className="shrink-0 rounded-lg bg-gaming-green/10 px-3 py-1.5 text-xs font-semibold text-gaming-green transition hover:bg-gaming-green/20">Chat</Link>
+                                            <Link href={route('chat.show', { playerMatch: match.chat_id })} className="shrink-0 rounded-lg bg-gaming-green/10 px-3 py-1.5 text-xs font-semibold text-gaming-green transition hover:bg-gaming-green/20">Chat</Link>
                                         </div>
                                     ))}
                                 </div>
