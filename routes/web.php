@@ -142,6 +142,12 @@ Route::get('/dashboard', function () {
             ->get()
         : collect();
 
+    // Achievements for dashboard showcase
+    $recentAchievements = $user->achievements()->latest('user_achievements.created_at')->take(4)->get();
+    $totalAchievementPoints = $user->achievements()->sum('points');
+    $lfgHosted = \App\Models\LfgPost::where('user_id', $user->id)->count();
+    $messagesCount = \App\Models\Message::where('sender_id', $user->id)->count();
+
     return Inertia::render('Dashboard', [
         'matchCount' => $matchCount,
         'recentMatches' => $recentMatches,
@@ -154,6 +160,10 @@ Route::get('/dashboard', function () {
         'trendingGames' => $trendingGames,
         'activityFeed' => $activityFeed,
         'relevantLfg' => $relevantLfg,
+        'recentAchievements' => $recentAchievements,
+        'totalAchievementPoints' => $totalAchievementPoints,
+        'lfgHosted' => $lfgHosted,
+        'messagesCount' => $messagesCount,
     ]);
 })->middleware(['auth', 'verified', 'age.verified', 'profile.complete'])->name('dashboard');
 
