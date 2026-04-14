@@ -17,8 +17,8 @@ export default function Show({
 }: PageProps<{ match: MatchData; partner: User; messages: Message[] }>) {
     const { auth } = usePage().props as any;
     const [messages, setMessages] = useState<Message[]>(initialMessages);
-    const [body, setBody] = useState('');
     const [sending, setSending] = useState(false);
+    const [inputKey, setInputKey] = useState(0);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const lastTimestampRef = useRef<string | null>(
@@ -82,18 +82,15 @@ export default function Show({
 
     useEffect(() => {
         adjustTextareaHeight();
-    }, [body, adjustTextareaHeight]);
+    }, [inputKey, adjustTextareaHeight]);
 
     const handleSend = async (e?: FormEvent) => {
         e?.preventDefault();
-        const messageBody = body.trim();
+        const messageBody = textareaRef.current?.value?.trim() || '';
         if (!messageBody || sending) return;
 
-        // Clear input immediately for better UX
-        setBody('');
-        if (textareaRef.current) {
-            textareaRef.current.style.height = 'auto';
-        }
+        // Force clear by remounting textarea
+        setInputKey((k) => k + 1);
 
         setSending(true);
         try {
@@ -104,7 +101,9 @@ export default function Show({
             }
         } catch {
             // Restore message if send failed
-            setBody(messageBody);
+            if (textareaRef.current) {
+                textareaRef.current.value = messageBody;
+            }
         }
         setSending(false);
     };
@@ -239,9 +238,8 @@ export default function Show({
                 <div className="border-t border-white/10 bg-navy-800 px-4 py-4">
                     <form onSubmit={handleSend} className="mx-auto flex max-w-3xl items-end gap-3">
                         <textarea
+                            key={inputKey}
                             ref={textareaRef}
-                            value={body}
-                            onChange={(e) => setBody(e.target.value)}
                             onKeyDown={handleKeyDown}
                             placeholder="Type a message..."
                             rows={1}
@@ -249,7 +247,7 @@ export default function Show({
                         />
                         <button
                             type="submit"
-                            disabled={sending || !body.trim()}
+                            disabled={sending}
                             className="rounded-xl bg-gaming-purple px-6 py-3 font-semibold text-white transition hover:bg-gaming-purple/90 disabled:opacity-50"
                         >
                             Send
