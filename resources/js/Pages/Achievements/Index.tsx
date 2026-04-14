@@ -129,6 +129,28 @@ export default function Index({
                         </div>
                     </div>
 
+                    {/* XP Sources info */}
+                    <div className="mb-6 rounded-xl border border-white/10 bg-navy-800 p-4">
+                        <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500">How to earn XP</p>
+                        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                            {[
+                                { action: 'Daily login', xp: '+5' },
+                                { action: 'Send message', xp: '+1 (max 10/day)' },
+                                { action: 'Host LFG', xp: '+20' },
+                                { action: 'Join LFG', xp: '+10' },
+                                { action: 'Give rating', xp: '+5' },
+                                { action: '5-star received', xp: '+15' },
+                                { action: 'New friend', xp: '+10' },
+                                { action: 'Share clip', xp: '+5' },
+                            ].map((item) => (
+                                <div key={item.action} className="rounded-lg bg-navy-900 px-3 py-2">
+                                    <p className="text-[11px] font-medium text-white">{item.action}</p>
+                                    <p className="text-[10px] text-gaming-green">{item.xp}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
                     {/* Achievement Grid */}
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {achievements.map((achievement) => {

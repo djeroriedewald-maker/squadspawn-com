@@ -166,8 +166,38 @@ export default function Authenticated({
 
                     <div className="border-t border-white/10 pb-1 pt-4">
                         <div className="px-4">
-                            <div className="text-base font-medium text-white">{user.name}</div>
-                            <div className="text-sm font-medium text-gray-400">{user.email}</div>
+                            <div className="flex items-center gap-2">
+                                <span className="text-base font-medium text-white">{user.name}</span>
+                                {user.profile?.level && user.profile.level > 1 && (
+                                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                                        user.profile.level >= 6 ? 'bg-yellow-400/20 text-yellow-400' :
+                                        user.profile.level >= 5 ? 'bg-gaming-pink/20 text-gaming-pink' :
+                                        user.profile.level >= 4 ? 'bg-gaming-purple/20 text-gaming-purple' :
+                                        user.profile.level >= 3 ? 'bg-gaming-cyan/20 text-gaming-cyan' :
+                                        'bg-gaming-green/20 text-gaming-green'
+                                    }`}>
+                                        Lv.{user.profile.level}
+                                    </span>
+                                )}
+                            </div>
+                            <div className="mt-0.5 text-sm font-medium text-gray-400">{user.email}</div>
+                            {user.profile?.xp !== undefined && (
+                                <div className="mt-2">
+                                    <div className="mb-1 flex items-center justify-between text-[10px]">
+                                        <span className="text-gray-500">{user.profile.xp || 0} XP</span>
+                                        <span className="text-gray-600">
+                                            {user.profile.level >= 6 ? 'Legend' :
+                                             user.profile.level >= 5 ? 'Champion' :
+                                             user.profile.level >= 4 ? 'Elite' :
+                                             user.profile.level >= 3 ? 'Veteran' :
+                                             user.profile.level >= 2 ? 'Player' : 'Rookie'}
+                                        </span>
+                                    </div>
+                                    <div className="h-1.5 overflow-hidden rounded-full bg-navy-700">
+                                        <div className="h-full rounded-full bg-gradient-to-r from-gaming-purple to-gaming-green transition-all" style={{ width: `${Math.min(((user.profile.xp || 0) / 5000) * 100, 100)}%` }} />
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         <div className="mt-3 space-y-1">
@@ -180,12 +210,14 @@ export default function Authenticated({
                                 Friends
                             </ResponsiveNavLink>
                             <ResponsiveNavLink href={route('achievements.index')}>
-                                Achievements
-                                {achievementCount > 0 && (
-                                    <span className="ml-2 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-gaming-purple/20 px-1.5 text-[10px] font-bold text-gaming-purple">
-                                        {achievementCount}
-                                    </span>
-                                )}
+                                <span className="flex items-center gap-2">
+                                    Achievements & XP
+                                    {achievementCount > 0 && (
+                                        <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-gaming-purple/20 px-1.5 text-[10px] font-bold text-gaming-purple">
+                                            {achievementCount}
+                                        </span>
+                                    )}
+                                </span>
                             </ResponsiveNavLink>
                             <ResponsiveNavLink href={route('profile.edit')}>
                                 Settings
