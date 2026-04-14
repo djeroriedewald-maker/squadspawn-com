@@ -595,7 +595,7 @@ function ChatHeader({ title, subtitle, subtitleColor, avatar, avatarName, online
 
 function MessageList({ messages, loading, userId, isGroup, endRef, formatTime, getMsgSender, getMsgSenderId }: {
     messages: ChatMessage[]; loading: boolean; userId: number; isGroup: boolean;
-    endRef: React.RefObject<HTMLDivElement | null>;
+    endRef: React.RefObject<HTMLDivElement>;
     formatTime: (s: string) => string;
     getMsgSender: (m: ChatMessage) => ChatMessage['sender'];
     getMsgSenderId: (m: ChatMessage) => number | undefined;
@@ -651,7 +651,7 @@ function MessageList({ messages, loading, userId, isGroup, endRef, formatTime, g
 }
 
 function ChatInput({ textareaRef, onSubmit, onKeyDown, sending }: {
-    textareaRef: React.RefObject<HTMLTextAreaElement | null>;
+    textareaRef: React.RefObject<HTMLTextAreaElement>;
     onSubmit: (e?: FormEvent) => void;
     onKeyDown: (e: KeyboardEvent<HTMLTextAreaElement>) => void;
     sending: boolean;
