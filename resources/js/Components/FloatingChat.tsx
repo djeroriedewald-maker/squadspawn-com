@@ -186,7 +186,7 @@ export default function FloatingChat() {
         try {
             await axios.post(route('notifications.markRead', { id: notif.id }));
             setNotifications((prev) => prev.filter((n) => n.id !== notif.id));
-            setUnreadCount((prev) => Math.max(0, prev - 1));
+            setUnreadCount((prev: number) => Math.max(0, prev - 1));
         } catch {}
 
         if (notif.data.match_uuid) {
