@@ -28,6 +28,14 @@ export default function Show({
             : null,
     );
 
+    // Sync messages when Inertia reloads page props (e.g. navigation, refresh)
+    useEffect(() => {
+        setMessages(initialMessages);
+        if (initialMessages.length > 0) {
+            lastTimestampRef.current = initialMessages[initialMessages.length - 1].created_at;
+        }
+    }, [initialMessages]);
+
     // Determine if partner is online (active within last 15 minutes)
     const partnerUpdatedAt = (partner as any).updated_at;
     const isPartnerOnline = partnerUpdatedAt

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\PlayerMatch;
 use App\Notifications\NewMessageNotification;
-use App\Services\AchievementService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -35,6 +34,13 @@ class ChatController extends Controller
 
         // Reload messages so read_at is up-to-date
         $playerMatch->load('messages.sender');
+
+        \Log::info('Chat show', [
+            'match_id' => $playerMatch->id,
+            'user_id' => $user->id,
+            'message_count' => $playerMatch->messages->count(),
+            'message_ids' => $playerMatch->messages->pluck('id')->toArray(),
+        ]);
 
         // Mark notifications as read for this match
         $user->unreadNotifications()
@@ -67,23 +73,27 @@ class ChatController extends Controller
             'body' => $validated['body'],
         ]);
 
+        \Log::info('Chat store', [
+            'match_id' => $playerMatch->id,
+            'message_id' => $message->id,
+            'sender_id' => $user->id,
+        ]);
+
         $message->load('sender');
 
-        // Notify the other user
+        // Send the response immediately, then handle notifications
         $partner = $playerMatch->user_one_id === $user->id
             ? $playerMatch->userTwo
             : $playerMatch->userOne;
 
+        \Cache::forget("user:{$partner->id}:unread");
+
+        // Notify after response is ready - wrapped to never break chat
         try {
             $partner->notify(new NewMessageNotification($message, $user, $playerMatch->id));
-            app(AchievementService::class)->check($user);
         } catch (\Throwable $e) {
-            // Don't let notification/achievement errors break the chat
-            \Log::error('Chat post-send error: ' . $e->getMessage());
+            \Log::error('Chat notification error: ' . $e->getMessage());
         }
-
-        // Clear notification cache so count updates
-        \Cache::forget("user:{$partner->id}:unread");
 
         return response()->json($message, HttpResponse::HTTP_CREATED);
     }
