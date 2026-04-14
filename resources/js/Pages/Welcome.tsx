@@ -159,17 +159,18 @@ export default function Welcome({
                         </div>
 
                         <div className="hidden flex-1 lg:block">
-                            <div className="grid grid-cols-2 gap-3">
-                                {gameCovers.slice(0, 4).map((game, i) => (
-                                    <img
-                                        key={game.name}
-                                        src={game.image}
-                                        alt={game.name}
-                                        className={`rounded-xl object-cover shadow-lg shadow-black/30 transition hover:scale-105 ${
-                                            i === 0 ? 'col-span-2 h-48' : 'h-32'
-                                        } w-full`}
-                                    />
-                                ))}
+                            <div className="relative">
+                                <div className="grid grid-cols-2 gap-3">
+                                    <img src="/images/gamer3.jpg" alt="Gamers playing together" className="col-span-2 h-52 w-full rounded-xl object-cover shadow-lg shadow-black/30" />
+                                    <img src="/images/gamer1.jpg" alt="Mobile gaming" className="h-36 w-full rounded-xl object-cover shadow-lg shadow-black/30" />
+                                    <img src="/images/gamer4.jpg" alt="Gaming squad" className="h-36 w-full rounded-xl object-cover shadow-lg shadow-black/30" />
+                                </div>
+                                <div className="absolute -bottom-3 -right-3 rounded-xl border border-gaming-purple/30 bg-navy-800/90 px-4 py-2 shadow-lg backdrop-blur-sm">
+                                    <div className="flex items-center gap-2">
+                                        <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-gaming-green" />
+                                        <span className="text-sm font-semibold text-white">{onlineNow} online now</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -188,7 +189,13 @@ export default function Welcome({
                         {/* Step 1 - Create Your Profile */}
                         <div className="mb-20 flex flex-col items-center gap-10 lg:flex-row lg:gap-16">
                             <div className="flex-1">
-                                <img src="/images/matchmaking.svg" alt="Create your profile" className="mx-auto w-full max-w-md" />
+                                <div className="relative mx-auto max-w-md overflow-hidden rounded-2xl">
+                                    <img src="/images/gamer1.jpg" alt="Gamer setting up profile" className="w-full object-cover" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-navy-900/80 via-transparent to-transparent" />
+                                    <div className="absolute bottom-4 left-4 rounded-lg bg-gaming-purple/90 px-3 py-1.5 text-xs font-bold text-white backdrop-blur-sm">
+                                        Your gaming identity
+                                    </div>
+                                </div>
                             </div>
                             <div className="flex-1 text-center lg:text-left">
                                 <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-gaming-purple text-lg font-bold">1</div>
@@ -203,7 +210,13 @@ export default function Welcome({
                         {/* Step 2 - Find Your Squad */}
                         <div className="mb-20 flex flex-col items-center gap-10 lg:flex-row-reverse lg:gap-16">
                             <div className="flex-1">
-                                <img src="/images/leaderboard.svg" alt="Find your squad" className="mx-auto w-full max-w-md" />
+                                <div className="relative mx-auto max-w-md overflow-hidden rounded-2xl">
+                                    <img src="/images/gamer2.jpg" alt="Gaming event with players" className="w-full object-cover" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-navy-900/80 via-transparent to-transparent" />
+                                    <div className="absolute bottom-4 left-4 rounded-lg bg-gaming-green/90 px-3 py-1.5 text-xs font-bold text-navy-900 backdrop-blur-sm">
+                                        Discover players worldwide
+                                    </div>
+                                </div>
                             </div>
                             <div className="flex-1 text-center lg:text-left">
                                 <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-gaming-green text-lg font-bold text-navy-900">2</div>
@@ -218,7 +231,13 @@ export default function Welcome({
                         {/* Step 3 - Connect & Play */}
                         <div className="flex flex-col items-center gap-10 lg:flex-row lg:gap-16">
                             <div className="flex-1">
-                                <img src="/images/squad-chat.svg" alt="Connect and play" className="mx-auto w-full max-w-md" />
+                                <div className="relative mx-auto max-w-md overflow-hidden rounded-2xl">
+                                    <img src="/images/gamer3.jpg" alt="Squad gaming together" className="w-full object-cover" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-navy-900/80 via-transparent to-transparent" />
+                                    <div className="absolute bottom-4 left-4 rounded-lg bg-gaming-pink/90 px-3 py-1.5 text-xs font-bold text-white backdrop-blur-sm">
+                                        Squad up and dominate
+                                    </div>
+                                </div>
                             </div>
                             <div className="flex-1 text-center lg:text-left">
                                 <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-gaming-pink text-lg font-bold">3</div>
@@ -403,26 +422,37 @@ export default function Welcome({
                 </section>
 
                 {/* A Global Gaming Community */}
-                <section className="border-y border-white/5 bg-navy-800/30 px-6 py-24 lg:px-12">
-                    <div className="mx-auto max-w-6xl text-center">
-                        <h2 className="mb-4 text-3xl font-bold sm:text-4xl">
-                            A <span className="text-gaming-purple">Global</span> Gaming Community
-                        </h2>
-                        <p className="mx-auto mb-12 max-w-xl text-gray-400">
-                            Connecting gamers worldwide. No matter where you are, your next teammate is just a click away.
-                        </p>
-                        <div className="grid gap-6 sm:grid-cols-3">
-                            <div className="rounded-xl border border-white/10 bg-navy-800 p-6">
-                                <p className="text-4xl font-bold text-gaming-purple">{totalPlayers.toLocaleString()}+</p>
-                                <p className="mt-2 text-sm text-gray-400">Gamers</p>
+                <section className="relative border-y border-white/5 overflow-hidden px-6 py-24 lg:px-12">
+                    <div className="pointer-events-none absolute inset-0">
+                        <img src="/images/gamer2.jpg" alt="" className="h-full w-full object-cover opacity-10" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-navy-900 via-navy-900/95 to-navy-900" />
+                    </div>
+                    <div className="relative z-10 mx-auto max-w-6xl">
+                        <div className="flex flex-col items-center gap-12 lg:flex-row lg:gap-16">
+                            <div className="flex-1 text-center lg:text-left">
+                                <h2 className="mb-4 text-3xl font-bold sm:text-4xl">
+                                    A <span className="text-gaming-purple">Global</span> Gaming Community
+                                </h2>
+                                <p className="mb-8 max-w-xl text-gray-400">
+                                    Connecting gamers worldwide. No matter where you are, your next teammate is just a click away.
+                                </p>
+                                <div className="grid gap-4 sm:grid-cols-3">
+                                    <div className="rounded-xl border border-white/10 bg-navy-800/80 p-5 backdrop-blur-sm">
+                                        <p className="text-3xl font-bold text-gaming-purple">{totalPlayers.toLocaleString()}+</p>
+                                        <p className="mt-1 text-sm text-gray-400">Gamers</p>
+                                    </div>
+                                    <div className="rounded-xl border border-white/10 bg-navy-800/80 p-5 backdrop-blur-sm">
+                                        <p className="text-3xl font-bold text-gaming-green">{totalGames}</p>
+                                        <p className="mt-1 text-sm text-gray-400">Games</p>
+                                    </div>
+                                    <div className="rounded-xl border border-white/10 bg-navy-800/80 p-5 backdrop-blur-sm">
+                                        <p className="text-3xl font-bold text-gaming-pink">{activeLfg}</p>
+                                        <p className="mt-1 text-sm text-gray-400">Groups Active</p>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="rounded-xl border border-white/10 bg-navy-800 p-6">
-                                <p className="text-4xl font-bold text-gaming-green">{totalGames}</p>
-                                <p className="mt-2 text-sm text-gray-400">Games</p>
-                            </div>
-                            <div className="rounded-xl border border-white/10 bg-navy-800 p-6">
-                                <p className="text-4xl font-bold text-gaming-pink">{activeLfg}</p>
-                                <p className="mt-2 text-sm text-gray-400">Groups Active</p>
+                            <div className="hidden flex-1 lg:block">
+                                <img src="/images/gamer2.jpg" alt="Gaming community" className="w-full max-w-sm rounded-2xl border border-white/10 shadow-2xl shadow-gaming-purple/10 ml-auto" />
                             </div>
                         </div>
                     </div>
@@ -431,8 +461,8 @@ export default function Welcome({
                 {/* CTA */}
                 <section className="relative overflow-hidden px-6 py-24 lg:px-12">
                     <div className="pointer-events-none absolute inset-0">
-                        <div className="absolute left-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gaming-purple/15 blur-[120px]" />
-                        <div className="absolute right-1/4 top-1/4 h-64 w-64 rounded-full bg-gaming-green/10 blur-[100px]" />
+                        <img src="/images/gamer4.jpg" alt="" className="h-full w-full object-cover opacity-20" />
+                        <div className="absolute inset-0 bg-gradient-to-b from-navy-900 via-navy-900/80 to-navy-900" />
                     </div>
                     <div className="relative z-10 mx-auto max-w-3xl text-center">
                         <h2 className="mb-6 text-4xl font-extrabold sm:text-5xl">
