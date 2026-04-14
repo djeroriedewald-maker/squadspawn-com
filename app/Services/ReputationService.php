@@ -3,13 +3,11 @@
 namespace App\Services;
 
 use App\Models\LfgRating;
+use App\Models\PlayerRating;
 use App\Models\User;
 
 class ReputationService
 {
-    /**
-     * Tag modifiers: positive tags boost score, negative tags reduce it.
-     */
     private const TAG_MODIFIERS = [
         'great_teammate' => +0.3,
         'good_comms' => +0.2,
@@ -21,53 +19,48 @@ class ReputationService
 
     public function calculate(User $user): array
     {
-        $ratings = LfgRating::where('rated_id', $user->id)->get();
-        $count = $ratings->count();
+        // Combine LFG ratings and player (friend) ratings
+        $lfgRatings = LfgRating::where('rated_id', $user->id)->get();
+        $playerRatings = PlayerRating::where('rated_id', $user->id)->get();
+
+        $allScores = $lfgRatings->pluck('score')->merge($playerRatings->pluck('score'));
+        $allTags = $lfgRatings->pluck('tag')->merge($playerRatings->pluck('tag'))->filter()->values();
+        $count = $allScores->count();
 
         if ($count === 0) {
             if ($user->profile) {
                 $user->profile->update(['reputation_score' => 0]);
             }
-            return [
-                'score' => 0,
-                'count' => 0,
-                'top_tag' => null,
-                'tags' => [],
-            ];
+            return ['score' => 0, 'count' => 0, 'top_tag' => null, 'tags' => []];
         }
 
-        // Base average from scores (1-5)
-        $avg = $ratings->avg('score');
+        $avg = $allScores->avg();
 
-        // Calculate tag modifier: average of all tag bonuses/penalties
+        // Tag modifier
         $tagModifier = 0;
-        $taggedRatings = $ratings->whereNotNull('tag')->where('tag', '!=', '');
-        if ($taggedRatings->count() > 0) {
+        if ($allTags->isNotEmpty()) {
             $totalMod = 0;
-            foreach ($taggedRatings as $r) {
-                $totalMod += self::TAG_MODIFIERS[$r->tag] ?? 0;
+            foreach ($allTags as $tag) {
+                $totalMod += self::TAG_MODIFIERS[$tag] ?? 0;
             }
-            $tagModifier = $totalMod / $count; // Spread across all ratings
+            $tagModifier = $totalMod / $count;
         }
 
         // Weight: more ratings = score converges to true average
-        // With fewer ratings, pull toward neutral (3.0)
         $weight = min($count / 10, 1.0);
         $weighted = ($avg * $weight) + (3.0 * (1 - $weight));
 
-        // Apply tag modifier (clamped to 1.0-5.0 range)
         $score = round(max(1.0, min(5.0, $weighted + $tagModifier)), 1);
 
-        // Count tags for breakdown
+        // Tag counts
         $tagCounts = [];
-        foreach ($taggedRatings as $r) {
-            $tagCounts[$r->tag] = ($tagCounts[$r->tag] ?? 0) + 1;
+        foreach ($allTags as $tag) {
+            $tagCounts[$tag] = ($tagCounts[$tag] ?? 0) + 1;
         }
         arsort($tagCounts);
 
         $topTag = !empty($tagCounts) ? array_key_first($tagCounts) : null;
 
-        // Update profile
         if ($user->profile) {
             $user->profile->update(['reputation_score' => $score]);
         }
@@ -75,6 +68,8 @@ class ReputationService
         return [
             'score' => $score,
             'count' => $count,
+            'lfg_count' => $lfgRatings->count(),
+            'friend_count' => $playerRatings->count(),
             'top_tag' => $topTag,
             'tags' => $tagCounts,
         ];

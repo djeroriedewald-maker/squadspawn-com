@@ -216,6 +216,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/community/{communityPost}/comment', [CommunityController::class, 'comment'])->name('community.comment');
     Route::delete('/community/comment/{postComment}', [CommunityController::class, 'destroyComment'])->name('community.comment.destroy');
 
+    // Player rating (friends)
+    Route::post('/player/rate', [PlayerController::class, 'rate'])->middleware('throttle:30,1')->name('player.rate');
+
     // Block & Report
     Route::post('/block', [BlockController::class, 'store'])->middleware('throttle:10,1')->name('block.store');
     Route::delete('/block/{user}', [BlockController::class, 'destroy'])->middleware('throttle:10,1')->name('block.destroy');

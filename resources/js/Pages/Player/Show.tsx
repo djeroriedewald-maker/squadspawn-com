@@ -47,7 +47,16 @@ const TAG_LABELS: Record<string, { label: string; color: string }> = {
     no_show: { label: 'No Show', color: 'text-yellow-400' },
 };
 
-export default function PlayerShow({ player, clips = [], reputationData, friendsCount = 0 }: PageProps<{ player: User; clips: Clip[]; reputationData?: ReputationData; friendsCount?: number }>) {
+const RATING_TAGS = [
+    { value: 'great_teammate', label: 'Great Teammate' },
+    { value: 'good_comms', label: 'Good Comms' },
+    { value: 'skilled', label: 'Skilled' },
+    { value: 'friendly', label: 'Friendly' },
+    { value: 'toxic', label: 'Toxic' },
+    { value: 'no_show', label: 'No Show' },
+];
+
+export default function PlayerShow({ player, clips = [], reputationData, friendsCount = 0, isFriend = false, myRating }: PageProps<{ player: User; clips: Clip[]; reputationData?: ReputationData; friendsCount?: number; isFriend?: boolean; myRating?: { score: number; tag?: string } | null }>) {
     const { auth } = usePage<PageProps>().props;
     const isLoggedIn = !!auth?.user;
     const isOwnProfile = auth?.user?.id === player.id;
@@ -58,6 +67,26 @@ export default function PlayerShow({ player, clips = [], reputationData, friends
     const [reportSubmitting, setReportSubmitting] = useState(false);
     const [reportSuccess, setReportSuccess] = useState(false);
     const [blockLoading, setBlockLoading] = useState(false);
+    const [showRating, setShowRating] = useState(false);
+    const [ratingScore, setRatingScore] = useState(myRating?.score || 0);
+    const [ratingHover, setRatingHover] = useState(0);
+    const [ratingTag, setRatingTag] = useState(myRating?.tag || '');
+    const [ratingSubmitting, setRatingSubmitting] = useState(false);
+    const [ratingDone, setRatingDone] = useState(!!myRating);
+
+    const handleRate = async () => {
+        if (ratingScore === 0 || ratingSubmitting) return;
+        setRatingSubmitting(true);
+        try {
+            await axios.post(route('player.rate'), { rated_id: player.id, score: ratingScore, tag: ratingTag || undefined });
+            setRatingDone(true);
+            setShowRating(false);
+        } catch {
+            alert('Failed to submit rating.');
+        } finally {
+            setRatingSubmitting(false);
+        }
+    };
 
     const handleBlock = async () => {
         if (!confirm(`Are you sure you want to block ${player.profile?.username || player.name}? They won't be able to see your profile or match with you.`)) {
@@ -256,6 +285,51 @@ export default function PlayerShow({ player, clips = [], reputationData, friends
                             >
                                 {blockLoading ? 'Blocking...' : 'Block'}
                             </button>
+                        </div>
+                    )}
+
+                    {/* Rate Friend */}
+                    {isLoggedIn && !isOwnProfile && isFriend && (
+                        <div className="mt-4">
+                            {!showRating ? (
+                                <button
+                                    onClick={() => setShowRating(true)}
+                                    className="flex items-center gap-2 rounded-lg border border-yellow-400/20 bg-yellow-400/5 px-4 py-2.5 text-sm font-medium text-yellow-400 transition hover:bg-yellow-400/10"
+                                >
+                                    <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" /></svg>
+                                    {ratingDone ? 'Update Rating' : 'Rate This Player'}
+                                </button>
+                            ) : (
+                                <div className="rounded-xl border border-yellow-400/20 bg-navy-800 p-5">
+                                    <div className="mb-3 flex items-center justify-between">
+                                        <h3 className="text-sm font-bold text-white">Rate {player.profile?.username || player.name}</h3>
+                                        <button onClick={() => setShowRating(false)} className="text-gray-500 hover:text-white">
+                                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                                        </button>
+                                    </div>
+                                    {/* Stars */}
+                                    <div className="mb-3 flex gap-1">
+                                        {[1, 2, 3, 4, 5].map((s) => (
+                                            <button key={s} type="button" onClick={() => setRatingScore(s)} onMouseEnter={() => setRatingHover(s)} onMouseLeave={() => setRatingHover(0)} className="p-0.5">
+                                                <svg className={`h-7 w-7 transition ${(ratingHover || ratingScore) >= s ? 'text-yellow-400' : 'text-gray-600'}`} fill={(ratingHover || ratingScore) >= s ? 'currentColor' : 'none'} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
+                                                </svg>
+                                            </button>
+                                        ))}
+                                    </div>
+                                    {/* Tags */}
+                                    <div className="mb-3 flex flex-wrap gap-1.5">
+                                        {RATING_TAGS.map((t) => (
+                                            <button key={t.value} type="button" onClick={() => setRatingTag(ratingTag === t.value ? '' : t.value)} className={`rounded-full px-2.5 py-1 text-xs font-medium transition ${ratingTag === t.value ? (t.value === 'toxic' || t.value === 'no_show' ? 'bg-red-500/20 text-red-400' : 'bg-gaming-green/20 text-gaming-green') : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}>
+                                                {t.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                    <button onClick={handleRate} disabled={ratingScore === 0 || ratingSubmitting} className="w-full rounded-lg bg-yellow-400/10 px-4 py-2 text-sm font-semibold text-yellow-400 transition hover:bg-yellow-400/20 disabled:opacity-50">
+                                        {ratingSubmitting ? 'Submitting...' : 'Submit Rating'}
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     )}
 

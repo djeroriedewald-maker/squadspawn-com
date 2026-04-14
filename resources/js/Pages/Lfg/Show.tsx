@@ -416,6 +416,40 @@ export default function LfgShow({
                                 )}
                             </div>
 
+                            {/* Session Complete Banner */}
+                            {isClosed && isMember && (
+                                <div className="overflow-hidden rounded-xl border border-gaming-green/30 bg-gradient-to-r from-gaming-green/10 via-gaming-green/5 to-transparent p-6">
+                                    <div className="flex items-start gap-4">
+                                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gaming-green/20">
+                                            <svg className="h-6 w-6 text-gaming-green" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                        </div>
+                                        <div>
+                                            <h2 className="text-lg font-bold text-white">Session Complete!</h2>
+                                            <p className="mt-1 text-sm text-gray-400">Rate your teammates below so other players know what to expect. Your ratings help build trust in the community.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* End Session Banner (for host, when group is active) */}
+                            {isCreator && (isOpen || isFull) && acceptedResponses.length > 0 && (
+                                <div className="overflow-hidden rounded-xl border border-gaming-purple/30 bg-navy-800 p-5">
+                                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                        <div>
+                                            <h3 className="font-bold text-white">Done playing?</h3>
+                                            <p className="mt-0.5 text-sm text-gray-400">End the session so everyone can rate each other.</p>
+                                        </div>
+                                        <button
+                                            onClick={handleClose}
+                                            disabled={closing}
+                                            className="shrink-0 rounded-xl bg-gaming-green px-6 py-2.5 text-sm font-bold text-navy-900 transition hover:bg-gaming-green/90 disabled:opacity-50"
+                                        >
+                                            {closing ? 'Ending...' : 'End Session & Rate'}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
                             {/* Creator: Manage Requests */}
                             {isCreator && pendingResponses.length > 0 && (
                                 <div className="rounded-xl border border-white/10 bg-navy-800 p-6">
@@ -583,21 +617,12 @@ export default function LfgShow({
                                             Edit Post
                                         </Link>
                                     )}
-                                    {(isOpen || isFull) && (
-                                        <button
-                                            onClick={handleClose}
-                                            disabled={closing}
-                                            className="w-full rounded-lg bg-red-500/10 px-4 py-2 text-sm font-semibold text-red-400 transition hover:bg-red-500/20 disabled:opacity-50"
-                                        >
-                                            {closing ? 'Closing...' : 'Close Group'}
-                                        </button>
-                                    )}
                                     {isClosed && (
                                         <Link
                                             href={route('lfg.repost', { lfgPost: post.slug })}
                                             method="post"
                                             as="button"
-                                            className="w-full rounded-lg bg-gaming-purple/10 px-4 py-2 text-sm font-semibold text-gaming-purple transition hover:bg-gaming-purple/20"
+                                            className="w-full rounded-lg bg-gaming-purple px-4 py-2 text-sm font-bold text-white transition hover:bg-gaming-purple/80"
                                         >
                                             Play Again
                                         </Link>
