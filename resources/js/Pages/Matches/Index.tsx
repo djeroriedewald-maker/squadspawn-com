@@ -17,13 +17,15 @@ export default function Index({ matches }: PageProps<{ matches: FriendItem[] }>)
         <AuthenticatedLayout>
             <Head title="Friends" />
 
-            <div className="py-6">
-                <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-                    {/* Header */}
-                    <div className="mb-6 flex items-center justify-between">
+            {/* Hero banner */}
+            <div className="relative h-32 overflow-hidden sm:h-40">
+                <img src="/images/gamer7.jpg" alt="" className="h-full w-full object-cover opacity-25" />
+                <div className="absolute inset-0 bg-gradient-to-b from-navy-900/30 via-navy-900/60 to-navy-900" />
+                <div className="absolute inset-0 flex items-end px-4 pb-5 sm:px-6 lg:px-8">
+                    <div className="mx-auto flex w-full max-w-4xl items-end justify-between">
                         <div>
-                            <h1 className="text-2xl font-bold text-white">Friends</h1>
-                            <p className="text-sm text-gray-400">{matches.length} {matches.length === 1 ? 'friend' : 'friends'}</p>
+                            <h1 className="text-2xl font-bold text-white sm:text-3xl">Friends</h1>
+                            <p className="mt-0.5 text-sm text-gray-400">{matches.length} {matches.length === 1 ? 'friend' : 'friends'}</p>
                         </div>
                         <Link
                             href={route('discovery.index')}
@@ -32,6 +34,11 @@ export default function Index({ matches }: PageProps<{ matches: FriendItem[] }>)
                             Find More
                         </Link>
                     </div>
+                </div>
+            </div>
+
+            <div className="py-6">
+                <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
 
                     {matches.length === 0 ? (
                         <div className="rounded-2xl border border-white/10 bg-navy-800 p-16 text-center">

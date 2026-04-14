@@ -110,14 +110,36 @@ export default function LfgIndex({
         <AuthenticatedLayout>
             <Head title="Looking for Group" />
 
-            <div className="py-6">
-                <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-                    {/* Header */}
-                    <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                        <h1 className="text-2xl font-bold text-white">Looking for Group</h1>
+            {/* Hero banner */}
+            <div className="relative h-36 overflow-hidden sm:h-44">
+                <img src="/images/gamer5.jpg" alt="" className="h-full w-full object-cover opacity-30" />
+                <div className="absolute inset-0 bg-gradient-to-b from-navy-900/30 via-navy-900/60 to-navy-900" />
+                <div className="absolute inset-0 flex items-end px-4 pb-6 sm:px-6 lg:px-8">
+                    <div className="mx-auto flex w-full max-w-6xl items-end justify-between">
+                        <div>
+                            <h1 className="text-2xl font-bold text-white sm:text-3xl">Looking for Group</h1>
+                            <p className="mt-1 text-sm text-gray-400">Find or create a squad for your next session</p>
+                        </div>
                         <Link
                             href={route('lfg.create')}
-                            className="inline-flex items-center gap-2 rounded-xl bg-gaming-purple px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-gaming-purple/80"
+                            className="hidden items-center gap-2 rounded-xl bg-gaming-purple px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-gaming-purple/80 sm:inline-flex"
+                        >
+                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                            </svg>
+                            Create Post
+                        </Link>
+                    </div>
+                </div>
+            </div>
+
+            <div className="py-6">
+                <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+                    {/* Mobile create button */}
+                    <div className="mb-4 sm:hidden">
+                        <Link
+                            href={route('lfg.create')}
+                            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gaming-purple px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-gaming-purple/80"
                         >
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />

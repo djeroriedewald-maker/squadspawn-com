@@ -61,14 +61,10 @@ export default function Dashboard({
             <div className="pb-8">
                 {/* Hero Banner */}
                 <div className="relative overflow-hidden">
-                    {mainGame ? (
-                        <div className="absolute inset-0">
-                            <img src={mainGame.cover_image || `/images/games/${mainGame.slug}.svg`} alt="" className="h-full w-full object-cover opacity-20" />
-                            <div className="absolute inset-0 bg-gradient-to-b from-navy-900/40 via-navy-900/80 to-navy-900" />
-                        </div>
-                    ) : (
-                        <div className="absolute inset-0 bg-gradient-to-b from-gaming-purple/10 to-navy-900" />
-                    )}
+                    <div className="absolute inset-0">
+                        <img src="/images/gamer8.jpg" alt="" className="h-full w-full object-cover opacity-15" />
+                        <div className="absolute inset-0 bg-gradient-to-b from-navy-900/40 via-navy-900/80 to-navy-900" />
+                    </div>
 
                     <div className="relative mx-auto max-w-7xl px-4 pb-6 pt-6 sm:px-6 lg:px-8">
                         {/* Live bar */}

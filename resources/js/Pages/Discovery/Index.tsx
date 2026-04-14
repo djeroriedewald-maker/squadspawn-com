@@ -117,12 +117,23 @@ export default function DiscoveryIndex({
         <AuthenticatedLayout>
             <Head title="Discover Players" />
 
+            {/* Hero banner */}
+            <div className="relative h-32 overflow-hidden sm:h-40">
+                <img src="/images/gamer6.jpg" alt="" className="h-full w-full object-cover opacity-30" />
+                <div className="absolute inset-0 bg-gradient-to-b from-navy-900/30 via-navy-900/60 to-navy-900" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="text-center">
+                        <h1 className="text-2xl font-bold text-white sm:text-3xl">Discover Players</h1>
+                        <p className="mt-1 text-sm text-gray-400">Find your perfect gaming partner</p>
+                    </div>
+                </div>
+            </div>
+
             <div className="py-6">
                 <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8">
                     {/* Header */}
                     <div className="mb-4 flex items-center justify-between">
                         <div>
-                            <h1 className="text-xl font-bold text-white">Discover</h1>
                             <p className="text-xs text-gray-500">{players.total} players available</p>
                         </div>
                         <div className="flex items-center gap-2">

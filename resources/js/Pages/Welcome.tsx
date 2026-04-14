@@ -160,10 +160,12 @@ export default function Welcome({
 
                         <div className="hidden flex-1 lg:block">
                             <div className="relative">
-                                <div className="grid grid-cols-2 gap-3">
-                                    <img src="/images/gamer3.jpg" alt="Gamers playing together" className="col-span-2 h-52 w-full rounded-xl object-cover shadow-lg shadow-black/30" />
-                                    <img src="/images/gamer1.jpg" alt="Mobile gaming" className="h-36 w-full rounded-xl object-cover shadow-lg shadow-black/30" />
-                                    <img src="/images/gamer4.jpg" alt="Gaming squad" className="h-36 w-full rounded-xl object-cover shadow-lg shadow-black/30" />
+                                <div className="grid grid-cols-3 gap-2">
+                                    <img src="/images/gamer3.jpg" alt="Gamers playing together" className="col-span-2 h-44 w-full rounded-xl object-cover shadow-lg shadow-black/30" />
+                                    <img src="/images/gamer8.jpg" alt="Pro gamer" className="h-44 w-full rounded-xl object-cover shadow-lg shadow-black/30" />
+                                    <img src="/images/gamer1.jpg" alt="Mobile gaming" className="h-32 w-full rounded-xl object-cover shadow-lg shadow-black/30" />
+                                    <img src="/images/gamer5.jpg" alt="LAN event" className="h-32 w-full rounded-xl object-cover shadow-lg shadow-black/30" />
+                                    <img src="/images/gamer4.jpg" alt="Gaming squad" className="h-32 w-full rounded-xl object-cover shadow-lg shadow-black/30" />
                                 </div>
                                 <div className="absolute -bottom-3 -right-3 rounded-xl border border-gaming-purple/30 bg-navy-800/90 px-4 py-2 shadow-lg backdrop-blur-sm">
                                     <div className="flex items-center gap-2">
