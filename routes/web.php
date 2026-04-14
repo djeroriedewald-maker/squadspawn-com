@@ -214,6 +214,8 @@ Route::middleware('auth')->group(function () {
     // Floating chat widget endpoints
     Route::get('/chat/friends', [ChatController::class, 'friends'])->name('chat.friends');
     Route::get('/chat/{playerMatch}/messages', [ChatController::class, 'messages'])->name('chat.messages');
+    Route::get('/chat/lfg-groups', [LfgController::class, 'myGroups'])->name('chat.lfgGroups');
+    Route::get('/chat/lfg/{lfgPost}/messages', [LfgController::class, 'widgetMessages'])->name('chat.lfgMessages');
 
     // Discovery (requires complete profile)
     Route::middleware('profile.complete')->group(function () {

@@ -6,9 +6,13 @@ use App\Models\Game;
 use App\Models\LfgMessage;
 use App\Models\LfgPost;
 use App\Models\LfgRating;
+use App\Notifications\LfgAcceptedNotification;
+use App\Notifications\LfgNewRequestNotification;
 use App\Services\AchievementService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -29,7 +33,6 @@ class LfgController extends Controller
 
         $posts = $query->paginate(20)->withQueryString();
 
-        // My active LFG posts
         $myPosts = LfgPost::where('user_id', auth()->id())
             ->whereIn('status', ['open', 'full'])
             ->with(['game', 'responses.user.profile'])
@@ -87,14 +90,22 @@ class LfgController extends Controller
         }
 
         $user = auth()->user();
-        $isMember = $lfgPost->user_id === $user->id
-            || $lfgPost->responses()->where('user_id', $user->id)->where('status', 'accepted')->exists();
+        $isMember = $this->isMember($lfgPost, $user->id);
 
-        // Has user already rated members of this LFG?
         $myRatings = LfgRating::where('lfg_post_id', $lfgPost->id)
             ->where('rater_id', $user->id)
             ->pluck('rated_id')
             ->toArray();
+
+        // Mark LFG notifications as read
+        $user->unreadNotifications()
+            ->get()
+            ->filter(fn ($n) => ($n->data['lfg_post_id'] ?? null) === $lfgPost->id)
+            ->each->markAsRead();
+        Cache::forget("user:{$user->id}:unread");
+
+        // Mark chat as read for widget unread tracking
+        Cache::put("lfg_read:{$user->id}:{$lfgPost->id}", now()->toISOString(), 86400 * 30);
 
         return Inertia::render('Lfg/Show', [
             'post' => $lfgPost,
@@ -126,6 +137,15 @@ class LfgController extends Controller
             'status' => 'pending',
         ]);
 
+        // Notify the host
+        try {
+            $lfgPost->load(['user', 'game']);
+            $lfgPost->user->notify(new LfgNewRequestNotification($lfgPost, auth()->user()));
+            Cache::forget("user:{$lfgPost->user_id}:unread");
+        } catch (\Throwable $e) {
+            \Log::error('LFG request notification error: ' . $e->getMessage());
+        }
+
         return response()->json(['success' => true]);
     }
 
@@ -135,18 +155,29 @@ class LfgController extends Controller
             return response()->json(['error' => 'Only the creator can manage responses.'], 403);
         }
 
-        $response = $lfgPost->responses()->findOrFail($responseId);
-        $response->update(['status' => 'accepted']);
+        // Use transaction to prevent race conditions
+        return DB::transaction(function () use ($lfgPost, $responseId) {
+            $response = $lfgPost->responses()->lockForUpdate()->findOrFail($responseId);
+            $response->update(['status' => 'accepted']);
 
-        // Recalculate spots_filled from actual accepted responses (+ 1 for host)
-        $acceptedCount = $lfgPost->responses()->where('status', 'accepted')->count();
-        $lfgPost->update(['spots_filled' => $acceptedCount + 1]); // +1 for the host
+            $acceptedCount = $lfgPost->responses()->where('status', 'accepted')->count();
+            $spotsFilled = $acceptedCount + 1; // +1 for host
 
-        if ($lfgPost->spots_filled >= $lfgPost->spots_needed) {
-            $lfgPost->update(['status' => 'full']);
-        }
+            $status = $spotsFilled >= $lfgPost->spots_needed ? 'full' : $lfgPost->status;
+            $lfgPost->update(['spots_filled' => $spotsFilled, 'status' => $status]);
 
-        return response()->json(['success' => true, 'status' => $lfgPost->fresh()->status]);
+            // Notify the accepted user
+            try {
+                $lfgPost->load(['user', 'game']);
+                $acceptedUser = $response->user;
+                $acceptedUser->notify(new LfgAcceptedNotification($lfgPost));
+                Cache::forget("user:{$acceptedUser->id}:unread");
+            } catch (\Throwable $e) {
+                \Log::error('LFG accept notification error: ' . $e->getMessage());
+            }
+
+            return response()->json(['success' => true, 'status' => $status]);
+        });
     }
 
     public function rejectResponse(LfgPost $lfgPost, int $responseId): JsonResponse
@@ -158,16 +189,26 @@ class LfgController extends Controller
         $response = $lfgPost->responses()->findOrFail($responseId);
         $response->update(['status' => 'rejected']);
 
-        return response()->json(['success' => true]);
+        // Recalculate spots and reopen if was full
+        $acceptedCount = $lfgPost->responses()->where('status', 'accepted')->count();
+        $spotsFilled = $acceptedCount + 1;
+        $status = $lfgPost->status;
+
+        // If group was full and now has room, reopen it
+        if ($status === 'full' && $spotsFilled < $lfgPost->spots_needed) {
+            $status = 'open';
+        }
+
+        $lfgPost->update(['spots_filled' => $spotsFilled, 'status' => $status]);
+
+        return response()->json(['success' => true, 'status' => $status]);
     }
 
     public function sendMessage(Request $request, LfgPost $lfgPost): JsonResponse
     {
         $user = auth()->user();
-        $isMember = $lfgPost->user_id === $user->id
-            || $lfgPost->responses()->where('user_id', $user->id)->where('status', 'accepted')->exists();
 
-        if (!$isMember) {
+        if (!$this->isMember($lfgPost, $user->id)) {
             return response()->json(['error' => 'Only group members can chat.'], 403);
         }
 
@@ -179,6 +220,9 @@ class LfgController extends Controller
         ]);
         $message->load('user.profile');
 
+        // Update sender's read timestamp
+        Cache::put("lfg_read:{$user->id}:{$lfgPost->id}", now()->toISOString(), 86400 * 30);
+
         return response()->json($message, 201);
     }
 
@@ -186,10 +230,7 @@ class LfgController extends Controller
     {
         $user = auth()->user();
 
-        $isMember = $lfgPost->user_id === $user->id
-            || $lfgPost->responses()->where('user_id', $user->id)->where('status', 'accepted')->exists();
-
-        if (!$isMember) {
+        if (!$this->isMember($lfgPost, $user->id)) {
             return response()->json(['error' => 'Only group members can view chat.'], 403);
         }
 
@@ -212,6 +253,13 @@ class LfgController extends Controller
 
     public function rate(Request $request, LfgPost $lfgPost): JsonResponse
     {
+        $user = auth()->user();
+
+        // Verify rater is a member
+        if (!$this->isMember($lfgPost, $user->id)) {
+            return response()->json(['error' => 'Only group members can rate.'], 403);
+        }
+
         $validated = $request->validate([
             'rated_id' => 'required|exists:users,id',
             'score' => 'required|integer|min:1|max:5',
@@ -219,10 +267,15 @@ class LfgController extends Controller
             'comment' => 'nullable|string|max:500',
         ]);
 
+        // Can't rate yourself
+        if ((int) $validated['rated_id'] === $user->id) {
+            return response()->json(['error' => 'You cannot rate yourself.'], 422);
+        }
+
         LfgRating::updateOrCreate(
             [
                 'lfg_post_id' => $lfgPost->id,
-                'rater_id' => auth()->id(),
+                'rater_id' => $user->id,
                 'rated_id' => $validated['rated_id'],
             ],
             [
@@ -303,5 +356,102 @@ class LfgController extends Controller
         ]);
 
         return redirect()->route('lfg.show', $new)->with('message', 'LFG reposted!');
+    }
+
+    // ── Widget endpoints ──────────────────────────────────────────
+
+    /**
+     * Return user's active LFG groups for the floating chat widget.
+     */
+    public function myGroups(): JsonResponse
+    {
+        $userId = auth()->id();
+
+        $groups = LfgPost::where(function ($q) use ($userId) {
+            $q->where('user_id', $userId)
+                ->orWhereHas('responses', fn ($r) => $r->where('user_id', $userId)->where('status', 'accepted'));
+        })
+            ->whereIn('status', ['open', 'full', 'closed'])
+            ->with(['user.profile', 'game'])
+            ->withCount(['responses as member_count' => fn ($q) => $q->where('status', 'accepted')])
+            ->latest()
+            ->take(20)
+            ->get()
+            ->map(function (LfgPost $post) use ($userId) {
+                $lastMessage = $post->messages()->with('user.profile')->latest()->first();
+
+                // Unread count: messages since user last read this chat
+                $lastRead = Cache::get("lfg_read:{$userId}:{$post->id}", '1970-01-01');
+                $unreadCount = LfgMessage::where('lfg_post_id', $post->id)
+                    ->where('user_id', '!=', $userId)
+                    ->where('created_at', '>', $lastRead)
+                    ->count();
+
+                return [
+                    'id' => $post->id,
+                    'slug' => $post->slug,
+                    'title' => $post->title,
+                    'status' => $post->status,
+                    'game_name' => $post->game?->name,
+                    'game_cover' => $post->game?->cover_image,
+                    'member_count' => $post->member_count + 1, // +1 for host
+                    'spots_needed' => $post->spots_needed,
+                    'is_host' => $post->user_id === $userId,
+                    'host' => [
+                        'name' => $post->user?->name,
+                        'username' => $post->user?->profile?->username,
+                        'avatar' => $post->user?->profile?->avatar,
+                    ],
+                    'last_message' => $lastMessage ? [
+                        'body' => $lastMessage->body,
+                        'user_name' => $lastMessage->user?->profile?->username ?? $lastMessage->user?->name,
+                        'created_at' => $lastMessage->created_at->diffForHumans(),
+                    ] : null,
+                    'unread_count' => $unreadCount,
+                ];
+            });
+
+        return response()->json(['groups' => $groups]);
+    }
+
+    /**
+     * Return messages for a specific LFG post (used by floating chat widget).
+     */
+    public function widgetMessages(LfgPost $lfgPost): JsonResponse
+    {
+        $user = auth()->user();
+
+        if (!$this->isMember($lfgPost, $user->id)) {
+            return response()->json(['error' => 'Only group members can view chat.'], 403);
+        }
+
+        $messages = $lfgPost->messages()
+            ->with('user.profile')
+            ->orderBy('created_at')
+            ->take(50)
+            ->get();
+
+        // Mark as read
+        Cache::put("lfg_read:{$user->id}:{$lfgPost->id}", now()->toISOString(), 86400 * 30);
+
+        // Clear LFG notifications for this post
+        $user->unreadNotifications()
+            ->get()
+            ->filter(fn ($n) => ($n->data['lfg_post_id'] ?? null) === $lfgPost->id)
+            ->each->markAsRead();
+        Cache::forget("user:{$user->id}:unread");
+
+        return response()->json([
+            'messages' => $messages,
+            'timestamp' => now()->toISOString(),
+        ]);
+    }
+
+    // ── Helpers ──────────────────────────────────────────────────
+
+    private function isMember(LfgPost $lfgPost, int $userId): bool
+    {
+        return $lfgPost->user_id === $userId
+            || $lfgPost->responses()->where('user_id', $userId)->where('status', 'accepted')->exists();
     }
 }
