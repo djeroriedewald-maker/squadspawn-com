@@ -21,7 +21,7 @@ export default function Authenticated({
 
     return (
         <div className="min-h-screen bg-navy-900">
-            <nav className="border-b border-white/5 bg-navy-900/80 backdrop-blur-xl">
+            <nav className="relative z-50 border-b border-white/5 bg-navy-900/80 backdrop-blur-xl">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="flex h-16 justify-between">
                         <div className="flex">
