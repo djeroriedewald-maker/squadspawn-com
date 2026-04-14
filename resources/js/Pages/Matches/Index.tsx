@@ -4,6 +4,7 @@ import { Head, Link } from '@inertiajs/react';
 
 interface FriendItem {
     id: number;
+    chat_id: string;
     partner: User;
     created_at: string;
     last_message: { body: string; sender_id: number; created_at: string } | null;

@@ -4,7 +4,7 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 
 interface GameWithCount extends Game { users_count: number; }
-interface FriendItem { id: number; partner: User; created_at: string; }
+interface FriendItem { id: number; chat_id: string; partner: User; created_at: string; }
 interface ActivityItem { type: string; username?: string; avatar?: string; user1?: string; user2?: string; time: string; }
 
 function AnimatedNumber({ value, className }: { value: number; className?: string }) {

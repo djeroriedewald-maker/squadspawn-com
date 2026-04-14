@@ -6,6 +6,7 @@ import axios from 'axios';
 
 interface MatchData {
     id: number;
+    chat_id: string;
     user_one_id: number;
     user_two_id: number;
 }
