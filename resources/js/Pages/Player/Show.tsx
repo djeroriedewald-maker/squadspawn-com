@@ -171,6 +171,22 @@ export default function PlayerShow({ player, clips = [], reputationData, friends
                                     {username}
                                 </h1>
                                 <div className="mt-1.5 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+                                    {player.profile?.level && player.profile.level > 1 && (
+                                        <span className={`rounded-full px-3 py-0.5 text-xs font-bold ${
+                                            player.profile.level >= 6 ? 'bg-yellow-400/20 text-yellow-400' :
+                                            player.profile.level >= 5 ? 'bg-gaming-pink/20 text-gaming-pink' :
+                                            player.profile.level >= 4 ? 'bg-gaming-purple/20 text-gaming-purple' :
+                                            player.profile.level >= 3 ? 'bg-gaming-cyan/20 text-gaming-cyan' :
+                                            'bg-gaming-green/20 text-gaming-green'
+                                        }`}>
+                                            Lv.{player.profile.level} {
+                                                player.profile.level >= 6 ? 'Legend' :
+                                                player.profile.level >= 5 ? 'Champion' :
+                                                player.profile.level >= 4 ? 'Elite' :
+                                                player.profile.level >= 3 ? 'Veteran' : 'Player'
+                                            }
+                                        </span>
+                                    )}
                                     {player.profile?.is_creator && (
                                         <span className="glow-border-cyan rounded-full bg-gaming-cyan/10 px-3 py-0.5 text-xs font-bold text-gaming-cyan">
                                             Creator

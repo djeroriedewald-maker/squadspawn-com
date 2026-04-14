@@ -156,6 +156,17 @@ export default function Dashboard({
                                     <div className="flex-1 pb-1">
                                         <div className="flex flex-wrap items-center gap-2">
                                             <h1 className="text-xl font-bold text-white sm:text-2xl">{user.profile?.username || user.name}</h1>
+                                            {user.profile?.level && user.profile.level > 1 && (
+                                                <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                                                    user.profile.level >= 6 ? 'bg-yellow-400/20 text-yellow-400' :
+                                                    user.profile.level >= 5 ? 'bg-gaming-pink/20 text-gaming-pink' :
+                                                    user.profile.level >= 4 ? 'bg-gaming-purple/20 text-gaming-purple' :
+                                                    user.profile.level >= 3 ? 'bg-gaming-cyan/20 text-gaming-cyan' :
+                                                    'bg-gaming-green/20 text-gaming-green'
+                                                }`}>
+                                                    Lv.{user.profile.level}
+                                                </span>
+                                            )}
                                             {user.profile?.looking_for && (
                                                 <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
                                                     user.profile.looking_for === 'ranked' ? 'bg-gaming-pink/20 text-gaming-pink' :

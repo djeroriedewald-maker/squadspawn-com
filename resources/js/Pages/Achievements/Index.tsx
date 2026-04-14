@@ -17,7 +17,7 @@ const colorClasses: Record<string, { bg: string; border: string; text: string; g
     orange: { bg: 'bg-gaming-orange/10', border: 'border-gaming-orange/30', text: 'text-gaming-orange', glow: 'shadow-[0_0_15px_rgba(245,158,11,0.3)]', bar: 'bg-yellow-500' },
 };
 
-const levelColors = ['text-gray-400', 'text-gaming-green', 'text-gaming-cyan', 'text-gaming-purple', 'text-yellow-400'];
+const levelColors = ['text-gray-400', 'text-gaming-green', 'text-gaming-cyan', 'text-gaming-purple', 'text-gaming-pink', 'text-yellow-400'];
 
 interface ProgressItem {
     current: number;
@@ -38,8 +38,10 @@ export default function Index({
     totalPoints,
     earnedPoints,
     progress,
+    userXp,
     currentLevel,
     nextLevel,
+    levels,
 }: PageProps<{
     achievements: Achievement[];
     earnedIds: number[];
@@ -47,13 +49,15 @@ export default function Index({
     totalPoints: number;
     earnedPoints: number;
     progress: Record<string, ProgressItem>;
+    userXp: number;
     currentLevel: XpLevel;
     nextLevel: XpLevel | null;
+    levels: XpLevel[];
 }>) {
     const earnedCount = earnedIds.length;
     const totalCount = achievements.length;
 
-    const xpInLevel = nextLevel ? earnedPoints - currentLevel.xp : 0;
+    const xpInLevel = nextLevel ? userXp - currentLevel.xp : 0;
     const xpNeeded = nextLevel ? nextLevel.xp - currentLevel.xp : 1;
     const levelProgress = nextLevel ? Math.min((xpInLevel / xpNeeded) * 100, 100) : 100;
 
@@ -86,7 +90,7 @@ export default function Index({
                                 </div>
                                 <div>
                                     <p className={`text-lg font-bold ${levelColors[currentLevel.level - 1] || 'text-white'}`}>{currentLevel.name}</p>
-                                    <p className="text-sm text-gray-400">{earnedPoints} XP earned</p>
+                                    <p className="text-sm text-gray-400">{userXp.toLocaleString()} XP earned</p>
                                 </div>
                             </div>
 
@@ -116,16 +120,10 @@ export default function Index({
 
                         {/* Level roadmap */}
                         <div className="flex border-t border-white/5">
-                            {[
-                                { level: 1, name: 'Rookie', xp: 0 },
-                                { level: 2, name: 'Player', xp: 50 },
-                                { level: 3, name: 'Veteran', xp: 150 },
-                                { level: 4, name: 'Elite', xp: 300 },
-                                { level: 5, name: 'Legend', xp: 500 },
-                            ].map((lvl) => (
-                                <div key={lvl.level} className={`flex-1 py-2.5 text-center text-[10px] ${earnedPoints >= lvl.xp ? levelColors[lvl.level - 1] + ' font-bold' : 'text-gray-600'}`}>
+                            {(levels || []).map((lvl: XpLevel) => (
+                                <div key={lvl.level} className={`flex-1 py-2.5 text-center text-[10px] ${userXp >= lvl.xp ? levelColors[lvl.level - 1] + ' font-bold' : 'text-gray-600'}`}>
                                     <p>{lvl.name}</p>
-                                    <p>{lvl.xp} XP</p>
+                                    <p>{lvl.xp.toLocaleString()} XP</p>
                                 </div>
                             ))}
                         </div>

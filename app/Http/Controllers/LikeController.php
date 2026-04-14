@@ -56,6 +56,11 @@ class LikeController extends Controller
         }
 
         if ($mutualLike) {
+            // XP for both users
+            try {
+                AchievementService::awardXp(auth()->user(), 'new_friend');
+                AchievementService::awardXp(\App\Models\User::find($likedId), 'new_friend');
+            } catch (\Throwable) {}
             app(AchievementService::class)->check(auth()->user());
         }
 

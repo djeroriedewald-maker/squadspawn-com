@@ -195,6 +195,16 @@ class ChatController extends Controller
 
         \Cache::forget("user:{$partner->id}:unread");
 
+        // XP for sending messages (max 10/day)
+        try {
+            $dailyMsgKey = "xp_msg:{$user->id}:" . today()->toDateString();
+            $dailyMsgCount = \Cache::get($dailyMsgKey, 0);
+            if ($dailyMsgCount < 10) {
+                \Cache::put($dailyMsgKey, $dailyMsgCount + 1, 86400);
+                \App\Services\AchievementService::awardXp($user, 'message_sent');
+            }
+        } catch (\Throwable) {}
+
         // Notify after response is ready - wrapped to never break chat
         try {
             $partner->notify(new NewMessageNotification($message, $user, $playerMatch->id, $playerMatch->uuid));

@@ -109,6 +109,9 @@ class LfgController extends Controller
         $validated['user_id'] = auth()->id();
         LfgPost::create($validated);
 
+        try {
+            AchievementService::awardXp(auth()->user(), 'lfg_hosted');
+        } catch (\Throwable) {}
         app(AchievementService::class)->check(auth()->user());
 
         return redirect()->route('lfg.index')->with('message', 'LFG post created!');
@@ -341,6 +344,13 @@ class LfgController extends Controller
             );
 
             \Log::info('LFG rating saved', ['rating_id' => $rating->id, 'score' => $rating->score]);
+
+            // XP for rating
+            AchievementService::awardXp($user, 'rating_given');
+            if ((int) $validated['score'] === 5) {
+                $ratedUser = \App\Models\User::find($validated['rated_id']);
+                if ($ratedUser) AchievementService::awardXp($ratedUser, 'rating_received_5star');
+            }
         } catch (\Throwable $e) {
             \Log::error('LFG rating save failed: ' . $e->getMessage());
             return response()->json(['error' => 'Failed to save rating. Please try again.'], 500);

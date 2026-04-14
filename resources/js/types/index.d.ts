@@ -22,6 +22,8 @@ export interface Profile {
     is_live?: boolean;
     reputation_score?: number;
     achievement_points?: number;
+    xp?: number;
+    level?: number;
     socials?: {
         discord?: string;
         instagram?: string;
