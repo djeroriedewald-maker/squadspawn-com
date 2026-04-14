@@ -86,22 +86,25 @@ export default function Show({
 
     const handleSend = async (e?: FormEvent) => {
         e?.preventDefault();
-        if (!body.trim() || sending) return;
+        const messageBody = body.trim();
+        if (!messageBody || sending) return;
+
+        // Clear input immediately for better UX
+        setBody('');
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+        }
 
         setSending(true);
         try {
-            const response = await axios.post(route('chat.store', { playerMatch: match.id }), { body });
+            const response = await axios.post(route('chat.store', { playerMatch: match.id }), { body: messageBody });
             setMessages((prev) => [...prev, response.data]);
-            // Update timestamp so polling skips this message
             if (response.data.created_at) {
                 lastTimestampRef.current = response.data.created_at;
             }
-            setBody('');
-            if (textareaRef.current) {
-                textareaRef.current.style.height = 'auto';
-            }
         } catch {
-            // ignore
+            // Restore message if send failed
+            setBody(messageBody);
         }
         setSending(false);
     };
