@@ -364,6 +364,8 @@ export default function FloatingChat() {
                 return <><span className="mr-1.5 inline-block h-2 w-2 rounded-full bg-gaming-green" />Accepted to <strong>{d.lfg_title}</strong></>;
             case 'lfg_request':
                 return <><strong>{d.applicant_name}</strong><span className="text-gray-400"> wants to join {d.lfg_title}</span></>;
+            case 'lfg_ended':
+                return <><span className="mr-1.5 inline-block h-2 w-2 rounded-full bg-yellow-400" />Session ended: <strong>{d.lfg_title}</strong><span className="text-gray-400"> — rate your teammates!</span></>;
             default:
                 return 'New notification';
         }

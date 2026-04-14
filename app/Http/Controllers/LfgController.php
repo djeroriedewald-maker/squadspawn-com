@@ -403,6 +403,23 @@ class LfgController extends Controller
         }
 
         $lfgPost->update(['status' => 'closed']);
+        $lfgPost->load(['user.profile', 'game']);
+
+        // Notify all accepted members to rate their teammates
+        try {
+            $acceptedMembers = $lfgPost->responses()
+                ->where('status', 'accepted')
+                ->with('user')
+                ->get();
+
+            foreach ($acceptedMembers as $response) {
+                $response->user->notify(new \App\Notifications\LfgSessionEndedNotification($lfgPost));
+                \Cache::forget("user:{$response->user_id}:unread");
+            }
+        } catch (\Throwable $e) {
+            \Log::error('LFG close notification error: ' . $e->getMessage());
+        }
+
         return response()->json(['success' => true]);
     }
 
