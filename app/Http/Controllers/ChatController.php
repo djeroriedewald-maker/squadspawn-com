@@ -74,9 +74,16 @@ class ChatController extends Controller
             ? $playerMatch->userTwo
             : $playerMatch->userOne;
 
-        $partner->notify(new NewMessageNotification($message, $user, $playerMatch->id));
+        try {
+            $partner->notify(new NewMessageNotification($message, $user, $playerMatch->id));
+            app(AchievementService::class)->check($user);
+        } catch (\Throwable $e) {
+            // Don't let notification/achievement errors break the chat
+            \Log::error('Chat post-send error: ' . $e->getMessage());
+        }
 
-        app(AchievementService::class)->check($user);
+        // Clear notification cache so count updates
+        \Cache::forget("user:{$partner->id}:unread");
 
         return response()->json($message, HttpResponse::HTTP_CREATED);
     }
