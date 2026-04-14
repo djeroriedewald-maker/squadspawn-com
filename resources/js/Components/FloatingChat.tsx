@@ -16,6 +16,14 @@ interface FriendItem {
     unread_count: number;
 }
 
+interface PendingRequest {
+    id: number;
+    user_id: number;
+    message?: string;
+    username: string;
+    avatar?: string;
+}
+
 interface LfgGroupItem {
     id: number;
     slug: string;
@@ -29,6 +37,7 @@ interface LfgGroupItem {
     host: { name: string; username?: string; avatar?: string };
     last_message: { body: string; user_name: string; created_at: string } | null;
     unread_count: number;
+    pending_requests?: PendingRequest[];
 }
 
 interface Notification {
@@ -91,7 +100,7 @@ export default function FloatingChat() {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     const friendUnread = friends.reduce((sum, f) => sum + f.unread_count, 0);
-    const groupUnread = lfgGroups.reduce((sum, g) => sum + g.unread_count, 0);
+    const groupUnread = lfgGroups.reduce((sum, g) => sum + g.unread_count + (g.pending_requests?.length || 0), 0);
     const totalUnread = friendUnread + groupUnread + unreadCount;
 
     const onlineFriends = friends.filter((f) => f.partner.online);
@@ -273,6 +282,46 @@ export default function FloatingChat() {
         } catch {}
     }, []);
 
+    // LFG request accept/reject
+    const handleAcceptRequest = useCallback(async (group: LfgGroupItem, requestId: number) => {
+        try {
+            await axios.post(route('lfg.accept', { lfgPost: group.slug, response: requestId }));
+            // Remove from pending, update member count
+            setLfgGroups((prev) => prev.map((g) => g.id === group.id ? {
+                ...g,
+                member_count: g.member_count + 1,
+                pending_requests: g.pending_requests?.filter((r) => r.id !== requestId),
+            } : g));
+            if (activeLfgChat?.id === group.id) {
+                setActiveLfgChat((prev) => prev ? {
+                    ...prev,
+                    member_count: prev.member_count + 1,
+                    pending_requests: prev.pending_requests?.filter((r) => r.id !== requestId),
+                } : prev);
+            }
+        } catch (err: any) {
+            alert(err?.response?.data?.error || 'Failed to accept.');
+        }
+    }, [activeLfgChat]);
+
+    const handleRejectRequest = useCallback(async (group: LfgGroupItem, requestId: number) => {
+        try {
+            await axios.post(route('lfg.reject', { lfgPost: group.slug, response: requestId }));
+            setLfgGroups((prev) => prev.map((g) => g.id === group.id ? {
+                ...g,
+                pending_requests: g.pending_requests?.filter((r) => r.id !== requestId),
+            } : g));
+            if (activeLfgChat?.id === group.id) {
+                setActiveLfgChat((prev) => prev ? {
+                    ...prev,
+                    pending_requests: prev.pending_requests?.filter((r) => r.id !== requestId),
+                } : prev);
+            }
+        } catch (err: any) {
+            alert(err?.response?.data?.error || 'Failed to reject.');
+        }
+    }, [activeLfgChat]);
+
     const formatTime = (dateStr: string) => new Date(dateStr).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
     const getMsgSender = (msg: ChatMessage) => msg.sender || msg.user;
@@ -420,6 +469,11 @@ export default function FloatingChat() {
                                                 <span className="text-[10px] text-gray-600">{group.game_name}</span>
                                                 <span className="text-[10px] text-gray-700">·</span>
                                                 <span className="text-[10px] text-gray-600">{group.member_count}/{group.spots_needed}</span>
+                                                {group.pending_requests && group.pending_requests.length > 0 && (
+                                                    <span className="rounded-full bg-yellow-400/20 px-1.5 py-0.5 text-[9px] font-bold text-yellow-400">
+                                                        {group.pending_requests.length} pending
+                                                    </span>
+                                                )}
                                             </div>
                                             <div className="flex items-center justify-between">
                                                 <p className={`truncate text-xs ${group.unread_count > 0 ? 'text-gray-300' : 'text-gray-500'}`}>
@@ -513,6 +567,43 @@ export default function FloatingChat() {
                             onExpand={() => { setView('closed'); router.visit(route('lfg.show', { lfgPost: activeLfgChat.slug })); }}
                             onClose={() => setView('closed')}
                         />
+
+                        {/* Pending requests banner (host only) */}
+                        {activeLfgChat.is_host && activeLfgChat.pending_requests && activeLfgChat.pending_requests.length > 0 && (
+                            <div className="border-b border-white/10 bg-gaming-purple/5">
+                                <div className="px-3 py-2">
+                                    <p className="mb-2 text-[11px] font-semibold text-gaming-purple">
+                                        {activeLfgChat.pending_requests.length} join {activeLfgChat.pending_requests.length === 1 ? 'request' : 'requests'}
+                                    </p>
+                                    <div className="space-y-2">
+                                        {activeLfgChat.pending_requests.map((req) => (
+                                            <div key={req.id} className="flex items-center gap-2 rounded-lg bg-navy-800 p-2">
+                                                <div className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gaming-purple/20 text-[10px] font-bold text-gaming-purple">
+                                                    {req.avatar ? <img src={req.avatar} alt="" className="h-full w-full object-cover" /> : req.username[0]?.toUpperCase()}
+                                                </div>
+                                                <div className="min-w-0 flex-1">
+                                                    <p className="truncate text-xs font-medium text-white">{req.username}</p>
+                                                    {req.message && <p className="truncate text-[10px] text-gray-500">{req.message}</p>}
+                                                </div>
+                                                <button
+                                                    onClick={() => handleAcceptRequest(activeLfgChat, req.id)}
+                                                    className="rounded-md bg-gaming-green/20 px-2.5 py-1 text-[10px] font-bold text-gaming-green transition hover:bg-gaming-green/30"
+                                                >
+                                                    Accept
+                                                </button>
+                                                <button
+                                                    onClick={() => handleRejectRequest(activeLfgChat, req.id)}
+                                                    className="rounded-md bg-red-500/20 px-2.5 py-1 text-[10px] font-bold text-red-400 transition hover:bg-red-500/30"
+                                                >
+                                                    Reject
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         <MessageList messages={messages} loading={loadingMessages} userId={userId} isGroup={true} endRef={messagesEndRef} formatTime={formatTime} getMsgSender={getMsgSender} getMsgSenderId={getMsgSenderId} />
                         <ChatInput textareaRef={textareaRef} onSubmit={handleSend} onKeyDown={handleKeyDown} sending={sending} />
                     </>

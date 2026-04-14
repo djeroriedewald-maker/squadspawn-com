@@ -453,6 +453,23 @@ class LfgController extends Controller
                     ->where('created_at', '>', $lastRead)
                     ->count();
 
+                // Pending requests (only for host)
+                $pendingRequests = [];
+                if ($post->user_id === $userId) {
+                    $pendingRequests = $post->responses()
+                        ->where('status', 'pending')
+                        ->with('user.profile')
+                        ->get()
+                        ->map(fn ($r) => [
+                            'id' => $r->id,
+                            'user_id' => $r->user_id,
+                            'message' => $r->message,
+                            'username' => $r->user?->profile?->username ?? $r->user?->name,
+                            'avatar' => $r->user?->profile?->avatar,
+                        ])
+                        ->toArray();
+                }
+
                 return [
                     'id' => $post->id,
                     'slug' => $post->slug,
@@ -460,7 +477,7 @@ class LfgController extends Controller
                     'status' => $post->status,
                     'game_name' => $post->game?->name,
                     'game_cover' => $post->game?->cover_image,
-                    'member_count' => $post->member_count + 1, // +1 for host
+                    'member_count' => $post->member_count + 1,
                     'spots_needed' => $post->spots_needed,
                     'is_host' => $post->user_id === $userId,
                     'host' => [
@@ -474,6 +491,7 @@ class LfgController extends Controller
                         'created_at' => $lastMessage->created_at->diffForHumans(),
                     ] : null,
                     'unread_count' => $unreadCount,
+                    'pending_requests' => $pendingRequests,
                 ];
             });
 
