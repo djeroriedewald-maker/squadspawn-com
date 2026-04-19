@@ -44,6 +44,13 @@ export default function GamesShow({ game, relatedGames, isInMyProfile }: Props) 
                     src={game.cover_image || `/images/games/${game.slug}.svg`}
                     alt={game.name}
                     className="h-full w-full object-cover opacity-70"
+                    onError={(e) => {
+                        const img = e.currentTarget;
+                        if (!img.dataset.fallback) {
+                            img.dataset.fallback = '1';
+                            img.src = '/icons/icon-512.png';
+                        }
+                    }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-bone-50 via-ink-900/30 to-transparent" />
             </div>
@@ -64,6 +71,14 @@ export default function GamesShow({ game, relatedGames, isInMyProfile }: Props) 
                                 src={game.cover_image || `/images/games/${game.slug}.svg`}
                                 alt={game.name}
                                 className="h-full w-full object-cover"
+                                onError={(e) => {
+                                    const img = e.currentTarget;
+                                    if (!img.dataset.fallback) {
+                                        img.dataset.fallback = '1';
+                                        img.src = '/icons/icon-512.png';
+                                        img.classList.add('opacity-30');
+                                    }
+                                }}
                             />
                         </div>
                         <div className="space-y-3 p-5">
@@ -168,6 +183,14 @@ export default function GamesShow({ game, relatedGames, isInMyProfile }: Props) 
                                             src={rg.cover_image || `/images/games/${rg.slug}.svg`}
                                             alt={rg.name}
                                             loading="lazy"
+                                            onError={(e) => {
+                                                const img = e.currentTarget;
+                                                if (!img.dataset.fallback) {
+                                                    img.dataset.fallback = '1';
+                                                    img.src = '/icons/icon-512.png';
+                                                    img.classList.add('opacity-30');
+                                                }
+                                            }}
                                             className="h-full w-full object-cover transition group-hover:scale-105"
                                         />
                                     </div>

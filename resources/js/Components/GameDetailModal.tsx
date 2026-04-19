@@ -67,6 +67,14 @@ export default function GameDetailModal({ game, open, onClose, inMyProfile, isAu
                         alt={game.name}
                         className="h-full w-full object-cover"
                         loading="lazy"
+                        onError={(e) => {
+                            const img = e.currentTarget;
+                            if (!img.dataset.fallback) {
+                                img.dataset.fallback = '1';
+                                img.src = '/icons/icon-512.png';
+                                img.classList.add('opacity-30');
+                            }
+                        }}
                     />
                     <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-ink-900/85 to-transparent" />
                     <button

@@ -126,7 +126,13 @@ class GamesController extends Controller
     {
         $user = auth()->user();
         if (!$user->games()->where('games.id', $game->id)->exists()) {
-            $user->games()->attach($game->id);
+            // user_games.platform is NOT NULL — default to the game's first
+            // listed platform (or 'any' as a safe sentinel). Users can refine
+            // via profile setup.
+            $defaultPlatform = (is_array($game->platforms) && !empty($game->platforms))
+                ? (string) $game->platforms[0]
+                : 'any';
+            $user->games()->attach($game->id, ['platform' => $defaultPlatform]);
         }
         return back();
     }

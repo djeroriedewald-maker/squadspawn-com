@@ -347,14 +347,22 @@ class ImportGames extends Command
 
         try {
             $response = Http::timeout(30)->get($remote);
-            if (!$response->successful() || !$response->body()) {
+            $body = $response->body();
+            if (!$response->successful() || $body === '' || strlen($body) < 1000) {
+                // Unusable response — keep the remote URL so the UI still shows *something*.
                 return $remote;
             }
-            $path = public_path("images/games/{$slug}.jpg");
-            if (!is_dir(dirname($path))) {
-                mkdir(dirname($path), 0755, true);
+            $dir = public_path('images/games');
+            if (!is_dir($dir) && !mkdir($dir, 0755, true) && !is_dir($dir)) {
+                $this->warn("  could not create images dir for {$slug}, using remote URL");
+                return $remote;
             }
-            file_put_contents($path, $response->body());
+            $path = "{$dir}/{$slug}.jpg";
+            $written = @file_put_contents($path, $body);
+            if ($written === false || !is_file($path)) {
+                $this->warn("  could not write cover for {$slug} (permissions?), using remote URL");
+                return $remote;
+            }
             return "/images/games/{$slug}.jpg";
         } catch (Throwable $e) {
             $this->warn("  image download failed for {$slug}: {$e->getMessage()}");

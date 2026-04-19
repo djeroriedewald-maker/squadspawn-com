@@ -265,6 +265,14 @@ function GameCard({ game, inMyProfile, onOpen }: { game: GameWithCount; inMyProf
                     src={game.cover_image || `/images/games/${game.slug}.svg`}
                     alt={game.name}
                     loading="lazy"
+                    onError={(e) => {
+                        const img = e.currentTarget;
+                        if (!img.dataset.fallback) {
+                            img.dataset.fallback = '1';
+                            img.src = '/icons/icon-512.png';
+                            img.classList.add('opacity-30');
+                        }
+                    }}
                     className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
                 />
                 <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-ink-900/80 to-transparent" />
