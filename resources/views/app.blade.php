@@ -40,16 +40,16 @@
         <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png">
         <link rel="alternate icon" href="/favicon.ico">
 
-        <!-- Structured data -->
+        {{-- Structured data. @@ escapes Blade directives so "@@context" outputs "@context". --}}
         <script type="application/ld+json">
         {
-            "@context": "https://schema.org",
-            "@type": "WebSite",
+            "@@context": "https://schema.org",
+            "@@type": "WebSite",
             "name": "SquadSpawn",
             "url": "{{ url('/') }}",
             "description": "Find your gaming squad, play together, and rate teammates. Build your reputation on the trusted platform for gamers worldwide.",
             "potentialAction": {
-                "@type": "SearchAction",
+                "@@type": "SearchAction",
                 "target": "{{ url('/players') }}?q={search_term_string}",
                 "query-input": "required name=search_term_string"
             }
@@ -57,8 +57,8 @@
         </script>
         <script type="application/ld+json">
         {
-            "@context": "https://schema.org",
-            "@type": "Organization",
+            "@@context": "https://schema.org",
+            "@@type": "Organization",
             "name": "SquadSpawn",
             "url": "{{ url('/') }}",
             "logo": "{{ url('/icons/icon-512.png') }}"
