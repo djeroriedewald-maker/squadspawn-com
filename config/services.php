@@ -41,4 +41,9 @@ return [
         ],
     ],
 
+    'rawg' => [
+        'key' => env('RAWG_API_KEY'),
+        'base' => env('RAWG_API_BASE', 'https://api.rawg.io/api'),
+    ],
+
 ];

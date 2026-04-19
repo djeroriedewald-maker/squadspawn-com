@@ -43,6 +43,12 @@ Route::get('/', function () {
         'topGames' => $topGames,
         'recentPlayers' => $recentPlayers,
         'onlineNow' => $onlineNow,
+        'seo' => [
+            'title' => 'SquadSpawn · Find Your Gaming Squad',
+            'description' => $totalPlayers < 500
+                ? "Join the founding squad of SquadSpawn. Create LFG groups, find verified teammates across {$totalGames}+ games, and build your reputation from day one."
+                : "Create LFG groups, find verified teammates across {$totalGames}+ games, and rate players after every session. Trusted by {$totalPlayers}+ gamers worldwide.",
+        ],
     ]);
 });
 

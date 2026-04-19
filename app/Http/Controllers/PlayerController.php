@@ -59,6 +59,18 @@ class PlayerController extends Controller
                 ->first();
         }
 
+        $gameNames = $player->games->pluck('name')->take(3)->implode(', ');
+        $extraGames = max($player->games->count() - 3, 0);
+        $playsLine = $gameNames
+            ? "Plays {$gameNames}" . ($extraGames ? " and {$extraGames} more" : '')
+            : 'Gaming profile';
+        $repLine = $reputationData['total_ratings'] ?? 0
+            ? " · Reputation {$reputationData['score']}/5 ({$reputationData['total_ratings']} ratings)"
+            : '';
+        $avatarUrl = $player->profile->avatar
+            ? url($player->profile->avatar)
+            : url('/icons/icon-512.png');
+
         return Inertia::render('Player/Show', [
             'player' => $player,
             'clips' => $clips,
@@ -69,6 +81,23 @@ class PlayerController extends Controller
                 'score' => $myRating->score,
                 'tag' => $myRating->tag,
             ] : null,
+            'seo' => [
+                'title' => "{$username} · Gamer Profile on SquadSpawn",
+                'description' => "{$username}. {$playsLine}{$repLine}. View game profile, clips, and reputation on SquadSpawn.",
+                'image' => $avatarUrl,
+                'type' => 'profile',
+            ],
+            'jsonLd' => [
+                '@context' => 'https://schema.org',
+                '@type' => 'ProfilePage',
+                'mainEntity' => [
+                    '@type' => 'Person',
+                    'name' => $username,
+                    'url' => url("/player/{$username}"),
+                    'image' => $avatarUrl,
+                    'description' => $playsLine,
+                ],
+            ],
         ]);
     }
 

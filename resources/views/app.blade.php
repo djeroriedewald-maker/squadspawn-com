@@ -1,29 +1,39 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
+        @php
+            // Per-page SEO: controllers may pass a 'seo' prop to override these
+            // defaults. Falls back to site-wide values otherwise.
+            $seo = $page['props']['seo'] ?? [];
+            $seoTitle = $seo['title'] ?? 'SquadSpawn - Find, Play, Rate. Build Your Gaming Reputation.';
+            $seoDescription = $seo['description'] ?? 'Find your gaming squad, play together, and rate teammates. Build your reputation on the trusted platform for gamers worldwide.';
+            $seoImage = $seo['image'] ?? url('/images/gamer3.jpg');
+            $seoType = $seo['type'] ?? 'website';
+            $jsonLd = $page['props']['jsonLd'] ?? null;
+        @endphp
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="description" content="Find your gaming squad, play together, and rate teammates. Build your reputation on the trusted platform for gamers worldwide.">
+        <meta name="description" content="{{ $seoDescription }}">
         <meta name="theme-color" content="#F4F1EC">
         <meta name="keywords" content="gaming, LFG, looking for group, find teammates, gaming squad, esports, multiplayer, reputation, player rating">
         <meta name="robots" content="index, follow">
 
         <!-- Open Graph / Social -->
-        <meta property="og:type" content="website">
+        <meta property="og:type" content="{{ $seoType }}">
         <meta property="og:site_name" content="SquadSpawn">
-        <meta property="og:title" content="SquadSpawn - Find, Play, Rate. Build Your Gaming Reputation.">
-        <meta property="og:description" content="Create LFG groups, find verified teammates, and rate players after every session. The trusted platform for gamers.">
-        <meta property="og:image" content="{{ url('/images/gamer3.jpg') }}">
+        <meta property="og:title" content="{{ $seoTitle }}">
+        <meta property="og:description" content="{{ $seoDescription }}">
+        <meta property="og:image" content="{{ $seoImage }}">
         <meta property="og:url" content="{{ url()->current() }}">
         <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:title" content="SquadSpawn - Find Your Gaming Squad">
-        <meta name="twitter:description" content="Create LFG groups, find verified teammates, and rate players. Build your reputation.">
-        <meta name="twitter:image" content="{{ url('/images/gamer3.jpg') }}">
+        <meta name="twitter:title" content="{{ $seoTitle }}">
+        <meta name="twitter:description" content="{{ $seoDescription }}">
+        <meta name="twitter:image" content="{{ $seoImage }}">
 
         <!-- Canonical -->
         <link rel="canonical" href="{{ url()->current() }}">
 
-        <title inertia>SquadSpawn</title>
+        <title inertia>{{ $seoTitle }}</title>
 
         <!-- PWA -->
         <link rel="manifest" href="/manifest.webmanifest">
@@ -64,6 +74,9 @@
             "logo": "{{ url('/icons/icon-512.png') }}"
         }
         </script>
+        @if ($jsonLd)
+        <script type="application/ld+json">{!! json_encode($jsonLd, JSON_UNESCAPED_SLASHES) !!}</script>
+        @endif
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">

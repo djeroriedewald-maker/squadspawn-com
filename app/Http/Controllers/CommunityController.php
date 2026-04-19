@@ -72,9 +72,25 @@ class CommunityController extends Controller
             $userVote = $vote?->vote;
         }
 
+        $author = $communityPost->user->profile->username ?? $communityPost->user->name;
+        $snippet = \Illuminate\Support\Str::limit(strip_tags($communityPost->body ?? ''), 160);
+
         return Inertia::render('Community/Show', [
             'post' => $communityPost,
             'userVote' => $userVote,
+            'seo' => [
+                'title' => "{$communityPost->title} · SquadSpawn Community",
+                'description' => $snippet ?: "Community post by {$author} on SquadSpawn.",
+                'type' => 'article',
+            ],
+            'jsonLd' => [
+                '@context' => 'https://schema.org',
+                '@type' => 'DiscussionForumPosting',
+                'headline' => $communityPost->title,
+                'author' => ['@type' => 'Person', 'name' => $author],
+                'datePublished' => $communityPost->created_at?->toAtomString(),
+                'url' => url("/community/{$communityPost->id}"),
+            ],
         ]);
     }
 

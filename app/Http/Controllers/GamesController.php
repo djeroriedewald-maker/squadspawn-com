@@ -14,6 +14,10 @@ class GamesController extends Controller
 
         return Inertia::render('Games/Index', [
             'games' => $games,
+            'seo' => [
+                'title' => 'All Games · SquadSpawn',
+                'description' => "Browse all {$games->count()} games on SquadSpawn and find teammates for your favourites. From Valorant and Fortnite to Mobile Legends and Counter-Strike.",
+            ],
         ]);
     }
 }
