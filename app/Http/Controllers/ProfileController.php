@@ -41,7 +41,9 @@ class ProfileController extends Controller
     }
 
     /**
-     * Delete the user's account.
+     * Delete the user's account. Exhaustive cleanup across every table
+     * that holds user-linked data, plus any uploaded files — so we don't
+     * depend on a specific FK cascade being configured.
      */
     public function destroy(Request $request): RedirectResponse
     {
@@ -50,29 +52,77 @@ class ProfileController extends Controller
         ]);
 
         $user = $request->user();
+        $userId = $user->id;
 
         Auth::logout();
 
-        // GDPR: delete all user data
-        $user->profile?->delete();
-        $user->games()->detach();
-        \App\Models\Like::where('liker_id', $user->id)->orWhere('liked_id', $user->id)->delete();
-        \App\Models\Pass::where('passer_id', $user->id)->orWhere('passed_id', $user->id)->delete();
-        \App\Models\Message::where('sender_id', $user->id)->delete();
-        \App\Models\PlayerMatch::where('user_one_id', $user->id)->orWhere('user_two_id', $user->id)->delete();
-        $user->notifications()->delete();
+        // Remove uploaded files before the DB rows disappear (we need the
+        // paths to clean disk).
+        $this->deleteUserFiles($user);
 
-        // Delete uploaded avatar
-        if ($user->profile?->avatar && str_starts_with($user->profile->avatar, '/storage/avatars/')) {
-            $path = str_replace('/storage/', '', $user->profile->avatar);
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($path);
+        // Profile
+        $user->profile?->delete();
+
+        // Gaming graph
+        $user->games()->detach();
+        \App\Models\Like::where('liker_id', $userId)->orWhere('liked_id', $userId)->delete();
+        \App\Models\Pass::where('passer_id', $userId)->orWhere('passed_id', $userId)->delete();
+        \App\Models\PlayerMatch::where('user_one_id', $userId)->orWhere('user_two_id', $userId)->delete();
+        \App\Models\PlayerRating::where('rater_id', $userId)->orWhere('rated_id', $userId)->delete();
+
+        // Messaging
+        \App\Models\Message::where('sender_id', $userId)->delete();
+
+        // Content
+        \App\Models\Clip::where('user_id', $userId)->delete();
+        \App\Models\CommunityPost::where('user_id', $userId)->delete();
+        \App\Models\PostComment::where('user_id', $userId)->delete();
+        \App\Models\PostVote::where('user_id', $userId)->delete();
+
+        // LFG
+        \App\Models\LfgPost::where('user_id', $userId)->delete();
+        if (class_exists(\App\Models\LfgResponse::class)) {
+            \App\Models\LfgResponse::where('user_id', $userId)->delete();
         }
+        if (class_exists(\App\Models\LfgRating::class)) {
+            \App\Models\LfgRating::where('rater_id', $userId)
+                ->orWhere('rated_id', $userId)
+                ->delete();
+        }
+
+        // Moderation
+        \App\Models\Block::where('blocker_id', $userId)->orWhere('blocked_id', $userId)->delete();
+        if (class_exists(\App\Models\Report::class)) {
+            \App\Models\Report::where('reporter_id', $userId)
+                ->orWhere('reported_id', $userId)
+                ->delete();
+        }
+
+        // Gamification
+        \DB::table('user_achievements')->where('user_id', $userId)->delete();
+
+        // Push
+        \App\Models\PushSubscription::where('user_id', $userId)->delete();
+
+        // System notifications (database channel)
+        $user->notifications()->delete();
 
         $user->delete();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return Redirect::to('/');
+        return redirect('/');
+    }
+
+    /**
+     * Remove any files on disk that belong to the user.
+     */
+    private function deleteUserFiles($user): void
+    {
+        if ($user->profile?->avatar && str_starts_with($user->profile->avatar, '/storage/avatars/')) {
+            $path = str_replace('/storage/', '', $user->profile->avatar);
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($path);
+        }
     }
 }

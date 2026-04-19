@@ -209,6 +209,11 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    // GDPR Art. 20 — data portability
+    Route::get('/profile/data-export', [\App\Http\Controllers\DataExportController::class, 'index'])
+        ->middleware('throttle:3,10')
+        ->name('profile.dataExport');
+
     // Clips
     Route::post('/clips', [ClipController::class, 'store'])->middleware('throttle:10,1')->name('clips.store');
     Route::delete('/clips/{clip}', [ClipController::class, 'destroy'])->name('clips.destroy');

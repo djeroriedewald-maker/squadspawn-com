@@ -11,7 +11,7 @@ export default function PrivacyPolicy() {
                 <div className="mx-auto max-w-3xl px-6 py-12">
                     <h1 className="mb-8 text-3xl font-bold">Privacy Policy</h1>
                     <div className="space-y-6 text-sm leading-relaxed text-ink-700">
-                        <p className="text-ink-500">Last updated: April 13, 2026</p>
+                        <p className="text-ink-500">Last updated: April 19, 2026</p>
 
                         <p>
                             This Privacy Policy explains how SquadSpawn ("we," "us," or "our") collects, uses, shares,
@@ -87,6 +87,23 @@ export default function PrivacyPolicy() {
                             <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="text-neon-red hover:underline">
                                 Google's Privacy Policy
                             </a>.
+                        </p>
+
+                        <h3 className="text-lg font-medium text-ink-900">2.6 Push Notification Data</h3>
+                        <p>
+                            If you opt in to push notifications, your browser generates a subscription consisting of an
+                            endpoint URL and two encryption keys. We store these only to deliver the messages you asked
+                            for (new matches, squad invites, chat pings). No notification content is saved after delivery,
+                            and you can turn push off at any time from the Alerts tab or your browser settings — which
+                            removes the subscription from our database.
+                        </p>
+
+                        <h3 className="text-lg font-medium text-ink-900">2.7 Public Activity Feed</h3>
+                        <p>
+                            The dashboard shows a short live-activity feed (e.g. "a new gamer joined", "two players
+                            became friends"). These entries are <strong>anonymised</strong>: no usernames, avatars or
+                            identifiers of the individuals involved are ever sent to other users. Only the type of event
+                            and the time of occurrence are visible.
                         </p>
 
                         {/* 3. Legal Basis for Processing */}
