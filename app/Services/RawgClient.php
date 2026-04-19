@@ -20,7 +20,10 @@ class RawgClient
     ) {
         $this->apiKey ??= config('services.rawg.key');
         $this->baseUrl = config('services.rawg.base', $this->baseUrl);
+    }
 
+    private function ensureKey(): void
+    {
         if (!$this->apiKey) {
             throw new RuntimeException(
                 "Missing RAWG_API_KEY. Get a free key at https://rawg.io/apidocs and add it to .env."
@@ -67,6 +70,8 @@ class RawgClient
 
     private function get(string $path, array $query = []): Response
     {
+        $this->ensureKey();
+
         $response = Http::acceptJson()
             ->timeout(20)
             ->get($this->baseUrl . $path, array_merge(['key' => $this->apiKey], $query));

@@ -57,6 +57,9 @@ export interface Game {
     cover_image?: string;
     rank_system?: string[];
     roles?: string[];
+    description?: string | null;
+    rawg_id?: number | null;
+    released_at?: string | null;
     pivot?: {
         rank?: string;
         role?: string;
