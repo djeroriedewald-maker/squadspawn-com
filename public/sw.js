@@ -10,7 +10,7 @@
  * Bump CACHE_VERSION to invalidate caches on deploy.
  */
 
-const CACHE_VERSION = 'v2';
+const CACHE_VERSION = 'v3';
 const STATIC_CACHE = `squadspawn-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `squadspawn-runtime-${CACHE_VERSION}`;
 
@@ -124,21 +124,22 @@ self.addEventListener('push', (event) => {
     };
 
     event.waitUntil((async () => {
-        // Skip if the user is already looking at the target page (the chat
-        // for this match, the LFG post, etc.). We still post to all clients
-        // so they can update any in-app badges.
+        // Skip if any visible client is already on the target page (the chat
+        // for this match, the LFG post, etc.). `visibilityState` is enough —
+        // we don't require focus, because a backgrounded browser can still
+        // show the user looking right at the chat.
         const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
-        const focused = clients.find((c) => c.visibilityState === 'visible' && c.focused);
-
-        if (focused) {
+        const matchingVisible = clients.find((c) => {
+            if (c.visibilityState !== 'visible') return false;
             try {
-                const url = new URL(focused.url);
-                if (url.pathname === targetUrl || url.pathname.startsWith(targetUrl + '/')) {
-                    // Active and looking at this thread — let the page handle it inline.
-                    focused.postMessage({ type: 'push', payload });
-                    return;
-                }
-            } catch { /* ignore malformed */ }
+                const url = new URL(c.url);
+                return url.pathname === targetUrl || url.pathname.startsWith(targetUrl + '/');
+            } catch { return false; }
+        });
+
+        if (matchingVisible) {
+            matchingVisible.postMessage({ type: 'push', payload });
+            return;
         }
 
         await self.registration.showNotification(title, options);
