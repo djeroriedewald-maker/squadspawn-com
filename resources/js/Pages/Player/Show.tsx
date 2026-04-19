@@ -17,7 +17,7 @@ const platformBadge = (platform: string) => {
         case 'twitch':
             return <span className="rounded-full bg-purple-600/20 px-2 py-0.5 text-[10px] font-bold uppercase text-purple-400">Twitch</span>;
         case 'tiktok':
-            return <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-bold uppercase text-gray-200">TikTok</span>;
+            return <span className="rounded-full bg-ink-900/10 px-2 py-0.5 text-[10px] font-bold uppercase text-ink-800">TikTok</span>;
         default:
             return null;
     }
@@ -41,7 +41,7 @@ interface ReputationData {
 const TAG_LABELS: Record<string, { label: string; color: string }> = {
     great_teammate: { label: 'Great Teammate', color: 'text-gaming-green' },
     good_comms: { label: 'Good Comms', color: 'text-gaming-cyan' },
-    skilled: { label: 'Skilled', color: 'text-gaming-purple' },
+    skilled: { label: 'Skilled', color: 'text-neon-red' },
     friendly: { label: 'Friendly', color: 'text-gaming-green' },
     toxic: { label: 'Toxic', color: 'text-red-400' },
     no_show: { label: 'No Show', color: 'text-yellow-400' },
@@ -147,9 +147,9 @@ export default function PlayerShow({ player, clips = [], reputationData, friends
                             className="h-full w-full object-cover"
                         />
                     ) : (
-                        <div className="h-full w-full bg-gradient-to-r from-gaming-purple/30 via-navy-800 to-gaming-cyan/30" />
+                        <div className="h-full w-full bg-gradient-to-r from-neon-red/30 via-white to-gaming-cyan/30" />
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-navy-900 via-navy-900/60 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-bone-50 via-bone-50/60 to-transparent" />
                     <div className="absolute inset-0 bg-grid opacity-20" />
                 </div>
 
@@ -157,7 +157,7 @@ export default function PlayerShow({ player, clips = [], reputationData, friends
                     {/* Avatar + Header */}
                     <div className="relative -mt-16 flex flex-col items-center sm:flex-row sm:items-end sm:gap-6">
                         {/* Avatar with gradient border */}
-                        <div className="gradient-border relative z-10 flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden rounded-full bg-navy-800 text-4xl font-bold text-white">
+                        <div className="gradient-border relative z-10 flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white text-4xl font-bold text-ink-900">
                             {player.profile?.avatar ? (
                                 <img src={player.profile.avatar} alt={username} className="h-full w-full object-cover" />
                             ) : (
@@ -167,7 +167,7 @@ export default function PlayerShow({ player, clips = [], reputationData, friends
 
                         <div className="mt-4 flex flex-1 flex-col items-center gap-3 sm:mt-0 sm:flex-row sm:items-end sm:justify-between">
                             <div className="text-center sm:text-left">
-                                <h1 className={`text-3xl font-bold text-white ${player.profile?.is_creator ? 'text-neon-purple' : ''}`}>
+                                <h1 className={`text-3xl font-bold text-ink-900 ${player.profile?.is_creator ? 'text-neon-red' : ''}`}>
                                     {username}
                                 </h1>
                                 <div className="mt-1.5 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
@@ -175,7 +175,7 @@ export default function PlayerShow({ player, clips = [], reputationData, friends
                                         <span className={`rounded-full px-3 py-0.5 text-xs font-bold ${
                                             player.profile.level >= 6 ? 'bg-yellow-400/20 text-yellow-400' :
                                             player.profile.level >= 5 ? 'bg-gaming-pink/20 text-gaming-pink' :
-                                            player.profile.level >= 4 ? 'bg-gaming-purple/20 text-gaming-purple' :
+                                            player.profile.level >= 4 ? 'bg-neon-red/20 text-neon-red' :
                                             player.profile.level >= 3 ? 'bg-gaming-cyan/20 text-gaming-cyan' :
                                             'bg-gaming-green/20 text-gaming-green'
                                         }`}>
@@ -202,12 +202,12 @@ export default function PlayerShow({ player, clips = [], reputationData, friends
                                         </span>
                                     )}
                                     {player.profile?.looking_for && (
-                                        <span className="rounded-full bg-gaming-purple/20 px-3 py-0.5 text-xs font-medium text-gaming-purple">
+                                        <span className="rounded-full bg-neon-red/20 px-3 py-0.5 text-xs font-medium text-neon-red">
                                             {lookingForLabels[player.profile.looking_for] || player.profile.looking_for}
                                         </span>
                                     )}
                                     {player.profile?.region && (
-                                        <span className="rounded-full bg-white/5 px-3 py-0.5 text-xs font-medium text-gray-400">
+                                        <span className="rounded-full bg-ink-900/5 px-3 py-0.5 text-xs font-medium text-ink-500">
                                             {player.profile.region}
                                         </span>
                                     )}
@@ -231,19 +231,19 @@ export default function PlayerShow({ player, clips = [], reputationData, friends
 
                     {/* Stats Row */}
                     <div className="mt-6 grid grid-cols-4 gap-3">
-                        <div className="glow-border rounded-xl border border-white/5 bg-navy-800 p-4 text-center">
-                            <p className="text-2xl font-bold text-gaming-purple">{player.games?.length || 0}</p>
+                        <div className="glow-border rounded-xl border border-ink-900/5 bg-white p-4 text-center">
+                            <p className="text-2xl font-bold text-neon-red">{player.games?.length || 0}</p>
                             <p className="mt-0.5 text-xs font-medium uppercase tracking-wider text-gray-500">Games</p>
                         </div>
-                        <div className="rounded-xl border border-white/5 bg-navy-800 p-4 text-center">
+                        <div className="rounded-xl border border-ink-900/5 bg-white p-4 text-center">
                             <p className="text-2xl font-bold text-gaming-green">{friendsCount}</p>
                             <p className="mt-0.5 text-xs font-medium uppercase tracking-wider text-gray-500">Friends</p>
                         </div>
-                        <div className="rounded-xl border border-white/5 bg-navy-800 p-4 text-center">
+                        <div className="rounded-xl border border-ink-900/5 bg-white p-4 text-center">
                             <p className="text-2xl font-bold text-gaming-cyan">{clips.length}</p>
                             <p className="mt-0.5 text-xs font-medium uppercase tracking-wider text-gray-500">Clips</p>
                         </div>
-                        <div className="rounded-xl border border-white/5 bg-navy-800 p-4 text-center">
+                        <div className="rounded-xl border border-ink-900/5 bg-white p-4 text-center">
                             {reputationData && reputationData.count > 0 ? (
                                 <>
                                     <p className="text-2xl font-bold text-yellow-400">{reputationData.score}<span className="ml-0.5 text-sm">&#9733;</span></p>
@@ -263,7 +263,7 @@ export default function PlayerShow({ player, clips = [], reputationData, friends
                         <div className="mt-3 flex flex-wrap items-center gap-2">
                             <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-600">Known for:</span>
                             {Object.entries(reputationData.tags).slice(0, 4).map(([tag, count]) => (
-                                <span key={tag} className={`rounded-full bg-navy-800 px-2.5 py-1 text-[11px] font-medium ${TAG_LABELS[tag]?.color || 'text-gray-400'}`}>
+                                <span key={tag} className={`rounded-full bg-white px-2.5 py-1 text-[11px] font-medium ${TAG_LABELS[tag]?.color || 'text-ink-500'}`}>
                                     {TAG_LABELS[tag]?.label || tag} ({count as number})
                                 </span>
                             ))}
@@ -272,9 +272,9 @@ export default function PlayerShow({ player, clips = [], reputationData, friends
 
                     {/* Bio */}
                     {player.profile?.bio && (
-                        <div className="card-gaming mt-6 rounded-2xl border border-white/5 bg-navy-800 p-6">
+                        <div className="card-gaming mt-6 rounded-2xl border border-ink-900/5 bg-white p-6">
                             <h3 className="mb-2 text-sm font-bold uppercase tracking-wider text-gray-500">About</h3>
-                            <p className="text-sm leading-relaxed text-gray-300">{player.profile.bio}</p>
+                            <p className="text-sm leading-relaxed text-ink-700">{player.profile.bio}</p>
                         </div>
                     )}
 
@@ -290,14 +290,14 @@ export default function PlayerShow({ player, clips = [], reputationData, friends
                         <div className="mt-6 flex items-center gap-3">
                             <button
                                 onClick={() => setShowReportModal(true)}
-                                className="rounded-lg border border-white/10 bg-navy-800 px-4 py-2 text-sm font-medium text-gray-300 transition hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-400"
+                                className="rounded-lg border border-ink-900/10 bg-white px-4 py-2 text-sm font-medium text-ink-700 transition hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-400"
                             >
                                 Report
                             </button>
                             <button
                                 onClick={handleBlock}
                                 disabled={blockLoading}
-                                className="rounded-lg border border-white/10 bg-navy-800 px-4 py-2 text-sm font-medium text-gray-300 transition hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-400 disabled:opacity-50"
+                                className="rounded-lg border border-ink-900/10 bg-white px-4 py-2 text-sm font-medium text-ink-700 transition hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-400 disabled:opacity-50"
                             >
                                 {blockLoading ? 'Blocking...' : 'Block'}
                             </button>
@@ -316,10 +316,10 @@ export default function PlayerShow({ player, clips = [], reputationData, friends
                                     {ratingDone ? 'Update Rating' : 'Rate This Player'}
                                 </button>
                             ) : (
-                                <div className="rounded-xl border border-yellow-400/20 bg-navy-800 p-5">
+                                <div className="rounded-xl border border-yellow-400/20 bg-white p-5">
                                     <div className="mb-3 flex items-center justify-between">
-                                        <h3 className="text-sm font-bold text-white">Rate {player.profile?.username || player.name}</h3>
-                                        <button onClick={() => setShowRating(false)} className="text-gray-500 hover:text-white">
+                                        <h3 className="text-sm font-bold text-ink-900">Rate {player.profile?.username || player.name}</h3>
+                                        <button onClick={() => setShowRating(false)} className="text-gray-500 hover:text-ink-900">
                                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                                         </button>
                                     </div>
@@ -337,7 +337,7 @@ export default function PlayerShow({ player, clips = [], reputationData, friends
                                     <p className="mb-2 text-[10px] font-medium uppercase tracking-wider text-gray-500">Select all that apply</p>
                                     <div className="mb-3 flex flex-wrap gap-1.5">
                                         {RATING_TAGS.map((t) => (
-                                            <button key={t.value} type="button" onClick={() => setRatingTags((prev) => prev.includes(t.value) ? prev.filter((x) => x !== t.value) : [...prev, t.value])} className={`rounded-full px-2.5 py-1 text-xs font-medium transition ${ratingTags.includes(t.value) ? (t.value === 'toxic' || t.value === 'no_show' ? 'bg-red-500/20 text-red-400 ring-1 ring-red-500/40' : 'bg-gaming-green/20 text-gaming-green ring-1 ring-gaming-green/40') : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}>
+                                            <button key={t.value} type="button" onClick={() => setRatingTags((prev) => prev.includes(t.value) ? prev.filter((x) => x !== t.value) : [...prev, t.value])} className={`rounded-full px-2.5 py-1 text-xs font-medium transition ${ratingTags.includes(t.value) ? (t.value === 'toxic' || t.value === 'no_show' ? 'bg-red-500/20 text-red-400 ring-1 ring-red-500/40' : 'bg-gaming-green/20 text-gaming-green ring-1 ring-gaming-green/40') : 'bg-ink-900/5 text-ink-500 hover:bg-ink-900/10'}`}>
                                                 {t.label}
                                             </button>
                                         ))}
@@ -353,30 +353,30 @@ export default function PlayerShow({ player, clips = [], reputationData, friends
                     {/* Report Modal */}
                     {showReportModal && (
                         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-                            <div className="glow-border w-full max-w-md rounded-2xl border border-white/10 bg-navy-800 p-6">
+                            <div className="glow-border w-full max-w-md rounded-2xl border border-ink-900/10 bg-white p-6">
                                 {reportSuccess ? (
                                     <div className="text-center">
                                         <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gaming-green/20 text-gaming-green">
                                             <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                                         </div>
-                                        <p className="font-semibold text-white">Report submitted</p>
-                                        <p className="mt-1 text-sm text-gray-400">Thank you. We will review it shortly.</p>
+                                        <p className="font-semibold text-ink-900">Report submitted</p>
+                                        <p className="mt-1 text-sm text-ink-500">Thank you. We will review it shortly.</p>
                                     </div>
                                 ) : (
                                     <>
-                                        <h3 className="text-lg font-bold text-white">
+                                        <h3 className="text-lg font-bold text-ink-900">
                                             Report {username}
                                         </h3>
-                                        <p className="mt-1 text-sm text-gray-400">
+                                        <p className="mt-1 text-sm text-ink-500">
                                             Please select a reason for your report.
                                         </p>
 
                                         <div className="mt-4">
-                                            <label className="mb-1.5 block text-sm font-medium text-gray-300">Reason</label>
+                                            <label className="mb-1.5 block text-sm font-medium text-ink-700">Reason</label>
                                             <select
                                                 value={reportReason}
                                                 onChange={(e) => setReportReason(e.target.value)}
-                                                className="w-full rounded-lg border border-white/10 bg-navy-600 px-3 py-2 text-sm text-white focus:border-gaming-purple focus:outline-none focus:ring-1 focus:ring-gaming-purple"
+                                                className="w-full rounded-lg border border-ink-900/10 bg-bone-200 px-3 py-2 text-sm text-ink-900 focus:border-neon-red focus:outline-none focus:ring-1 focus:ring-neon-red"
                                             >
                                                 <option value="">Select a reason...</option>
                                                 {REPORT_REASONS.map((r) => (
@@ -386,7 +386,7 @@ export default function PlayerShow({ player, clips = [], reputationData, friends
                                         </div>
 
                                         <div className="mt-4">
-                                            <label className="mb-1.5 block text-sm font-medium text-gray-300">
+                                            <label className="mb-1.5 block text-sm font-medium text-ink-700">
                                                 Details <span className="text-gray-500">(optional)</span>
                                             </label>
                                             <textarea
@@ -394,7 +394,7 @@ export default function PlayerShow({ player, clips = [], reputationData, friends
                                                 onChange={(e) => setReportDetails(e.target.value)}
                                                 rows={3}
                                                 placeholder="Provide additional context..."
-                                                className="w-full resize-none rounded-lg border border-white/10 bg-navy-600 px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-gaming-purple focus:outline-none focus:ring-1 focus:ring-gaming-purple"
+                                                className="w-full resize-none rounded-lg border border-ink-900/10 bg-bone-200 px-3 py-2 text-sm text-ink-900 placeholder-gray-500 focus:border-neon-red focus:outline-none focus:ring-1 focus:ring-neon-red"
                                             />
                                         </div>
 
@@ -405,7 +405,7 @@ export default function PlayerShow({ player, clips = [], reputationData, friends
                                                     setReportReason('');
                                                     setReportDetails('');
                                                 }}
-                                                className="rounded-lg px-4 py-2 text-sm font-medium text-gray-400 transition hover:text-white"
+                                                className="rounded-lg px-4 py-2 text-sm font-medium text-ink-500 transition hover:text-ink-900"
                                             >
                                                 Cancel
                                             </button>
@@ -426,26 +426,26 @@ export default function PlayerShow({ player, clips = [], reputationData, friends
                     {/* Games */}
                     {player.games && player.games.length > 0 && (
                         <div className="mt-8">
-                            <h3 className="mb-4 text-lg font-bold text-white">
+                            <h3 className="mb-4 text-lg font-bold text-ink-900">
                                 Games ({player.games.length})
                             </h3>
                             <div className="grid gap-4 sm:grid-cols-2">
                                 {player.games.map((game) => (
-                                    <div key={game.id} className="card-gaming group overflow-hidden rounded-xl border border-white/5 bg-navy-800 transition">
+                                    <div key={game.id} className="card-gaming group overflow-hidden rounded-xl border border-ink-900/5 bg-white transition">
                                         <div className="relative h-32 overflow-hidden">
                                             <img
                                                 src={game.cover_image || `/images/games/${game.slug}.svg`}
                                                 alt={game.name}
                                                 className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
                                             />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-navy-800 via-navy-800/40 to-transparent" />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-white via-bone-100/40 to-transparent" />
                                             <div className="absolute bottom-3 left-4 right-4">
-                                                <p className="text-lg font-bold text-white">{game.name}</p>
-                                                <p className="text-xs text-gray-400">{game.genre}</p>
+                                                <p className="text-lg font-bold text-ink-900">{game.name}</p>
+                                                <p className="text-xs text-ink-500">{game.genre}</p>
                                             </div>
                                             {game.pivot?.rank && (
                                                 <div className="absolute right-3 top-3">
-                                                    <span className="glow-border-green rounded-lg bg-navy-900/80 px-3 py-1 text-xs font-bold text-gaming-green backdrop-blur-sm">
+                                                    <span className="glow-border-green rounded-lg bg-bone-50/80 px-3 py-1 text-xs font-bold text-gaming-green backdrop-blur-sm">
                                                         {game.pivot.rank}
                                                     </span>
                                                 </div>
@@ -458,7 +458,7 @@ export default function PlayerShow({ player, clips = [], reputationData, friends
                                                 </span>
                                             )}
                                             {game.pivot?.platform && (
-                                                <span className="rounded-md bg-white/5 px-2.5 py-0.5 text-xs capitalize text-gray-400">
+                                                <span className="rounded-md bg-ink-900/5 px-2.5 py-0.5 text-xs capitalize text-ink-500">
                                                     {game.pivot.platform}
                                                 </span>
                                             )}
@@ -472,7 +472,7 @@ export default function PlayerShow({ player, clips = [], reputationData, friends
                     {/* Clips */}
                     {clips && clips.length > 0 && (
                         <div className="mt-8">
-                            <h3 className="mb-4 text-lg font-bold text-white">
+                            <h3 className="mb-4 text-lg font-bold text-ink-900">
                                 Clips & Highlights ({clips.length})
                             </h3>
                             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -484,19 +484,19 @@ export default function PlayerShow({ player, clips = [], reputationData, friends
                                             href={clip.url}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="card-gaming group overflow-hidden rounded-xl border border-white/5 bg-navy-800 transition"
+                                            className="card-gaming group overflow-hidden rounded-xl border border-ink-900/5 bg-white transition"
                                         >
                                             <div className="relative aspect-video overflow-hidden">
                                                 {thumbnail ? (
                                                     <img src={thumbnail} alt={clip.title} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
                                                 ) : (
-                                                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gaming-purple/20 to-gaming-cyan/20">
+                                                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-neon-red/20 to-gaming-cyan/20">
                                                         <svg className="h-8 w-8 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" /></svg>
                                                     </div>
                                                 )}
                                                 <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 transition group-hover:opacity-100">
-                                                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gaming-purple/30 shadow-glow-purple backdrop-blur">
-                                                        <svg className="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                                                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-neon-red/30 shadow-glow-red backdrop-blur">
+                                                        <svg className="h-6 w-6 text-ink-900" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
                                                     </div>
                                                 </div>
                                                 <div className="absolute right-2 top-2">
@@ -504,7 +504,7 @@ export default function PlayerShow({ player, clips = [], reputationData, friends
                                                 </div>
                                             </div>
                                             <div className="p-3">
-                                                <p className="truncate text-sm font-semibold text-white">{clip.title}</p>
+                                                <p className="truncate text-sm font-semibold text-ink-900">{clip.title}</p>
                                                 {clip.game && (
                                                     <p className="mt-0.5 text-xs text-gray-500">{clip.game.name}</p>
                                                 )}
@@ -518,12 +518,12 @@ export default function PlayerShow({ player, clips = [], reputationData, friends
 
                     {/* CTA for guests */}
                     {!isLoggedIn && (
-                        <div className="mt-8 glow-border rounded-xl border border-gaming-purple/20 bg-gaming-purple/5 p-8 text-center">
-                            <p className="text-lg font-bold text-white">Want to team up with {username}?</p>
-                            <p className="mt-1 text-sm text-gray-400">Create a free account to match and chat.</p>
+                        <div className="mt-8 glow-border rounded-xl border border-neon-red/20 bg-neon-red/5 p-8 text-center">
+                            <p className="text-lg font-bold text-ink-900">Want to team up with {username}?</p>
+                            <p className="mt-1 text-sm text-ink-500">Create a free account to match and chat.</p>
                             <Link
                                 href={route('register')}
-                                className="mt-4 inline-block rounded-lg bg-gaming-purple px-6 py-3 text-sm font-bold text-white shadow-glow-purple transition hover:bg-gaming-purple/80"
+                                className="mt-4 inline-block rounded-lg bg-neon-red px-6 py-3 text-sm font-bold text-white shadow-glow-red transition hover:bg-neon-red/80"
                             >
                                 Sign Up Free
                             </Link>
@@ -539,12 +539,12 @@ export default function PlayerShow({ player, clips = [], reputationData, friends
     }
 
     return (
-        <div className="min-h-screen bg-navy-900 text-white">
-            <nav className="flex items-center justify-between border-b border-white/5 bg-navy-900/80 px-6 py-4 backdrop-blur-xl lg:px-12">
-                <Link href="/" className="text-2xl font-bold text-gaming-purple text-neon-purple">SquadSpawn</Link>
+        <div className="min-h-screen bg-bone-50 text-ink-900">
+            <nav className="flex items-center justify-between border-b border-ink-900/5 bg-bone-50/80 px-6 py-4 backdrop-blur-xl lg:px-12">
+                <Link href="/" className="text-2xl font-bold text-neon-red">SquadSpawn</Link>
                 <div className="flex items-center gap-4">
-                    <Link href={route('login')} className="text-sm text-gray-300 hover:text-white">Log in</Link>
-                    <Link href={route('register')} className="rounded-lg bg-gaming-purple px-4 py-2 text-sm font-semibold text-white shadow-glow-purple">Sign up</Link>
+                    <Link href={route('login')} className="text-sm text-ink-700 hover:text-ink-900">Log in</Link>
+                    <Link href={route('register')} className="rounded-lg bg-neon-red px-4 py-2 text-sm font-semibold text-white shadow-glow-red">Sign up</Link>
                 </div>
             </nav>
             {pageContent}

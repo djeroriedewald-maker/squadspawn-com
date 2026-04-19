@@ -131,16 +131,16 @@ export default function LfgIndex({
             {/* Hero banner */}
             <div className="relative h-36 overflow-hidden sm:h-44">
                 <img src="/images/gamer5.jpg" alt="" className="h-full w-full object-cover opacity-30" />
-                <div className="absolute inset-0 bg-gradient-to-b from-navy-900/30 via-navy-900/60 to-navy-900" />
+                <div className="absolute inset-0 bg-gradient-to-b from-bone-50/30 via-bone-50/60 to-bone-50" />
                 <div className="absolute inset-0 flex items-end px-4 pb-6 sm:px-6 lg:px-8">
                     <div className="mx-auto flex w-full max-w-6xl items-end justify-between">
                         <div>
-                            <h1 className="text-2xl font-bold text-white sm:text-3xl">Looking for Group</h1>
-                            <p className="mt-1 text-sm text-gray-400">Find or create a squad for your next session</p>
+                            <h1 className="text-2xl font-bold text-ink-900 sm:text-3xl">Looking for Group</h1>
+                            <p className="mt-1 text-sm text-ink-500">Find or create a squad for your next session</p>
                         </div>
                         <Link
                             href={route('lfg.create')}
-                            className="hidden items-center gap-2 rounded-xl bg-gaming-purple px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-gaming-purple/80 sm:inline-flex"
+                            className="hidden items-center gap-2 rounded-xl bg-neon-red px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-neon-red/80 sm:inline-flex"
                         >
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -157,7 +157,7 @@ export default function LfgIndex({
                     <div className="mb-4 sm:hidden">
                         <Link
                             href={route('lfg.create')}
-                            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gaming-purple px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-gaming-purple/80"
+                            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-neon-red px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-neon-red/80"
                         >
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -171,7 +171,7 @@ export default function LfgIndex({
                         <select
                             value={filters.game_id ?? ''}
                             onChange={(e) => handleFilter('game_id', e.target.value)}
-                            className="rounded-lg border border-white/10 bg-navy-800 px-3 py-2 text-sm text-white focus:border-gaming-purple focus:outline-none focus:ring-1 focus:ring-gaming-purple"
+                            className="rounded-lg border border-ink-900/10 bg-white px-3 py-2 text-sm text-ink-900 focus:border-neon-red focus:outline-none focus:ring-1 focus:ring-neon-red"
                         >
                             <option value="">All Games</option>
                             {games.map((game) => (
@@ -183,7 +183,7 @@ export default function LfgIndex({
                         <select
                             value={filters.platform ?? ''}
                             onChange={(e) => handleFilter('platform', e.target.value)}
-                            className="rounded-lg border border-white/10 bg-navy-800 px-3 py-2 text-sm text-white focus:border-gaming-purple focus:outline-none focus:ring-1 focus:ring-gaming-purple"
+                            className="rounded-lg border border-ink-900/10 bg-white px-3 py-2 text-sm text-ink-900 focus:border-neon-red focus:outline-none focus:ring-1 focus:ring-neon-red"
                         >
                             <option value="">All Platforms</option>
                             {allPlatforms.map((p) => (
@@ -197,13 +197,13 @@ export default function LfgIndex({
                     {/* My Groups */}
                     {myPosts && myPosts.length > 0 && (
                         <div className="mb-8">
-                            <h2 className="mb-3 text-lg font-bold text-white">My Groups</h2>
+                            <h2 className="mb-3 text-lg font-bold text-ink-900">My Groups</h2>
                             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                                 {myPosts.map((mp) => (
                                     <Link
                                         key={mp.id}
                                         href={route('lfg.show', { lfgPost: mp.slug })}
-                                        className="overflow-hidden rounded-xl border border-gaming-purple/30 bg-navy-800 transition hover:border-gaming-purple/50"
+                                        className="overflow-hidden rounded-xl border border-neon-red/30 bg-white transition hover:border-neon-red/50"
                                     >
                                         {mp.game && (
                                             <div className="relative h-[50px] overflow-hidden">
@@ -212,22 +212,22 @@ export default function LfgIndex({
                                                     alt={mp.game.name}
                                                     className="h-full w-full object-cover"
                                                 />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-navy-800 to-transparent" />
-                                                <span className="absolute bottom-1 left-3 text-xs font-semibold text-white drop-shadow">
+                                                <div className="absolute inset-0 bg-gradient-to-t from-white to-transparent" />
+                                                <span className="absolute bottom-1 left-3 text-xs font-semibold text-ink-900 drop-shadow">
                                                     {mp.game.name}
                                                 </span>
                                             </div>
                                         )}
                                         <div className="p-3">
-                                            <h3 className="mb-1.5 text-sm font-bold text-white line-clamp-1">{mp.title}</h3>
+                                            <h3 className="mb-1.5 text-sm font-bold text-ink-900 line-clamp-1">{mp.title}</h3>
                                             <div className="mb-2 flex items-center justify-between text-xs">
-                                                <span className="text-gray-400">{mp.spots_filled}/{mp.spots_needed} spots</span>
+                                                <span className="text-ink-500">{mp.spots_filled}/{mp.spots_needed} spots</span>
                                                 <span className={`font-medium ${mp.status === 'full' ? 'text-red-400' : 'text-gaming-green'}`}>
                                                     {mp.status === 'full' ? 'Full' : 'Open'}
                                                 </span>
                                             </div>
                                             <div className="flex flex-wrap gap-1">
-                                                <span className="rounded-full bg-gaming-purple/20 px-2 py-0.5 text-[10px] font-medium text-gaming-purple">{mp.platform}</span>
+                                                <span className="rounded-full bg-neon-red/20 px-2 py-0.5 text-[10px] font-medium text-neon-red">{mp.platform}</span>
                                                 {mp.mic_required && (
                                                     <span className="rounded-full bg-gaming-green/20 px-2 py-0.5 text-[10px] font-medium text-gaming-green">Mic</span>
                                                 )}
@@ -247,16 +247,16 @@ export default function LfgIndex({
 
                     {/* Tab: Active / History */}
                     {myHistory && myHistory.length > 0 && (
-                        <div className="mb-6 flex items-center gap-1 rounded-lg bg-navy-800 p-1">
+                        <div className="mb-6 flex items-center gap-1 rounded-lg bg-white p-1">
                             <button
                                 onClick={() => setShowHistory(false)}
-                                className={`flex-1 rounded-md px-4 py-2 text-sm font-semibold transition ${!showHistory ? 'bg-gaming-purple text-white' : 'text-gray-400 hover:text-white'}`}
+                                className={`flex-1 rounded-md px-4 py-2 text-sm font-semibold transition ${!showHistory ? 'bg-neon-red text-white' : 'text-ink-500 hover:text-ink-900'}`}
                             >
                                 Active Groups
                             </button>
                             <button
                                 onClick={() => setShowHistory(true)}
-                                className={`flex-1 rounded-md px-4 py-2 text-sm font-semibold transition ${showHistory ? 'bg-gaming-purple text-white' : 'text-gray-400 hover:text-white'}`}
+                                className={`flex-1 rounded-md px-4 py-2 text-sm font-semibold transition ${showHistory ? 'bg-neon-red text-white' : 'text-ink-500 hover:text-ink-900'}`}
                             >
                                 My History ({myHistory.length})
                             </button>
@@ -270,23 +270,23 @@ export default function LfgIndex({
                                 <Link
                                     key={item.id}
                                     href={route('lfg.show', { lfgPost: item.slug })}
-                                    className="flex items-center gap-4 rounded-xl border border-white/10 bg-navy-800 p-4 transition hover:border-white/20"
+                                    className="flex items-center gap-4 rounded-xl border border-ink-900/10 bg-white p-4 transition hover:border-ink-900/20"
                                 >
                                     {/* Game cover */}
-                                    <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-navy-700">
+                                    <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-bone-100">
                                         {item.game?.cover_image ? (
                                             <img src={item.game.cover_image} alt="" className="h-full w-full object-cover" />
                                         ) : (
-                                            <span className="text-xs font-bold text-gaming-purple">{(item.game?.name || 'LFG')[0]}</span>
+                                            <span className="text-xs font-bold text-neon-red">{(item.game?.name || 'LFG')[0]}</span>
                                         )}
                                     </div>
 
                                     {/* Info */}
                                     <div className="min-w-0 flex-1">
                                         <div className="flex items-center gap-2">
-                                            <h3 className="truncate text-sm font-bold text-white">{item.title}</h3>
-                                            <span className="rounded-full bg-gray-500/20 px-2 py-0.5 text-[10px] font-medium text-gray-400">Completed</span>
-                                            {item.is_host && <span className="rounded-full bg-gaming-purple/20 px-2 py-0.5 text-[10px] font-medium text-gaming-purple">Host</span>}
+                                            <h3 className="truncate text-sm font-bold text-ink-900">{item.title}</h3>
+                                            <span className="rounded-full bg-gray-500/20 px-2 py-0.5 text-[10px] font-medium text-ink-500">Completed</span>
+                                            {item.is_host && <span className="rounded-full bg-neon-red/20 px-2 py-0.5 text-[10px] font-medium text-neon-red">Host</span>}
                                         </div>
                                         <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-gray-500">
                                             <span>{item.game?.name}</span>
@@ -334,7 +334,7 @@ export default function LfgIndex({
                                 return (
                                     <div
                                         key={post.id}
-                                        className="overflow-hidden rounded-xl border border-white/10 bg-navy-800 transition hover:border-white/20 cursor-pointer"
+                                        className="overflow-hidden rounded-xl border border-ink-900/10 bg-white transition hover:border-ink-900/20 cursor-pointer"
                                         onClick={() => router.visit(route('lfg.show', { lfgPost: post.slug }))}
                                     >
                                         {/* Game banner */}
@@ -348,8 +348,8 @@ export default function LfgIndex({
                                                     alt={post.game.name}
                                                     className="h-full w-full object-cover"
                                                 />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-navy-800 to-transparent" />
-                                                <span className="absolute bottom-1.5 left-3 text-xs font-semibold text-white drop-shadow">
+                                                <div className="absolute inset-0 bg-gradient-to-t from-white to-transparent" />
+                                                <span className="absolute bottom-1.5 left-3 text-xs font-semibold text-ink-900 drop-shadow">
                                                     {post.game.name}
                                                 </span>
                                             </div>
@@ -357,13 +357,13 @@ export default function LfgIndex({
 
                                         <div className="p-4">
                                             {/* Title */}
-                                            <h3 className="mb-2 text-base font-bold text-white line-clamp-1">
+                                            <h3 className="mb-2 text-base font-bold text-ink-900 line-clamp-1">
                                                 {post.title}
                                             </h3>
 
                                             {/* Poster */}
                                             <div className="mb-3 flex items-center gap-2">
-                                                <div className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gaming-purple/20 text-xs font-bold text-gaming-purple">
+                                                <div className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-neon-red/20 text-xs font-bold text-neon-red">
                                                     {post.user?.profile?.avatar ? (
                                                         <img
                                                             src={post.user.profile.avatar}
@@ -380,14 +380,14 @@ export default function LfgIndex({
                                                             .toUpperCase()
                                                     )}
                                                 </div>
-                                                <span className="text-sm text-gray-400">
+                                                <span className="text-sm text-ink-500">
                                                     {post.user?.profile?.username ?? post.user?.name}
                                                 </span>
                                             </div>
 
                                             {/* Description */}
                                             {post.description && (
-                                                <p className="mb-3 text-xs leading-relaxed text-gray-400 line-clamp-2">
+                                                <p className="mb-3 text-xs leading-relaxed text-ink-500 line-clamp-2">
                                                     {post.description}
                                                 </p>
                                             )}
@@ -395,7 +395,7 @@ export default function LfgIndex({
                                             {/* Spots progress */}
                                             <div className="mb-3">
                                                 <div className="mb-1 flex items-center justify-between text-xs">
-                                                    <span className="text-gray-400">
+                                                    <span className="text-ink-500">
                                                         {post.spots_filled}/{post.spots_needed} spots
                                                     </span>
                                                     <span
@@ -408,7 +408,7 @@ export default function LfgIndex({
                                                         {isFull ? 'Full' : 'Open'}
                                                     </span>
                                                 </div>
-                                                <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
+                                                <div className="h-1.5 overflow-hidden rounded-full bg-ink-900/10">
                                                     <div
                                                         className={`h-full rounded-full transition-all ${
                                                             isFull
@@ -422,7 +422,7 @@ export default function LfgIndex({
 
                                             {/* Badges */}
                                             <div className="mb-3 flex flex-wrap gap-1.5">
-                                                <span className="rounded-full bg-gaming-purple/20 px-2 py-0.5 text-[10px] font-medium text-gaming-purple">
+                                                <span className="rounded-full bg-neon-red/20 px-2 py-0.5 text-[10px] font-medium text-neon-red">
                                                     {post.platform}
                                                 </span>
                                                 {post.rank_min && (
@@ -454,7 +454,7 @@ export default function LfgIndex({
                                                         {post.responses.slice(0, 5).map((resp) => (
                                                             <div
                                                                 key={resp.id}
-                                                                className="flex h-6 w-6 items-center justify-center overflow-hidden rounded-full border-2 border-navy-800 bg-gaming-purple/20 text-[9px] font-bold text-gaming-purple"
+                                                                className="flex h-6 w-6 items-center justify-center overflow-hidden rounded-full border-2 border-ink-800 bg-neon-red/20 text-[9px] font-bold text-neon-red"
                                                             >
                                                                 {resp.user?.profile?.avatar ? (
                                                                     <img
@@ -490,9 +490,9 @@ export default function LfgIndex({
                                                     joined
                                                         ? 'bg-gaming-green/20 text-gaming-green cursor-default'
                                                         : isFull
-                                                          ? 'bg-white/5 text-gray-500 cursor-not-allowed'
+                                                          ? 'bg-ink-900/5 text-gray-500 cursor-not-allowed'
                                                           : isOwn
-                                                            ? 'bg-white/5 text-gray-500 cursor-not-allowed'
+                                                            ? 'bg-ink-900/5 text-gray-500 cursor-not-allowed'
                                                             : 'bg-gaming-green/10 text-gaming-green hover:bg-gaming-green/20 border border-gaming-green/30 hover:border-gaming-green/50'
                                                 }`}
                                             >
@@ -512,10 +512,10 @@ export default function LfgIndex({
                             })}
                         </div>
                     ) : (
-                        <div className="rounded-2xl border border-white/10 bg-navy-800 p-12 text-center">
-                            <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gaming-purple/10">
+                        <div className="rounded-2xl border border-ink-900/10 bg-white p-12 text-center">
+                            <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-neon-red/10">
                                 <svg
-                                    className="h-10 w-10 text-gaming-purple"
+                                    className="h-10 w-10 text-neon-red"
                                     fill="none"
                                     viewBox="0 0 24 24"
                                     stroke="currentColor"
@@ -528,13 +528,13 @@ export default function LfgIndex({
                                     />
                                 </svg>
                             </div>
-                            <h3 className="mb-2 text-xl font-bold text-white">No LFG posts yet</h3>
-                            <p className="mb-6 text-gray-400">
+                            <h3 className="mb-2 text-xl font-bold text-ink-900">No LFG posts yet</h3>
+                            <p className="mb-6 text-ink-500">
                                 Be the first to create a Looking for Group post!
                             </p>
                             <Link
                                 href={route('lfg.create')}
-                                className="inline-flex rounded-xl bg-gaming-purple px-6 py-3 font-semibold text-white hover:bg-gaming-purple/80"
+                                className="inline-flex rounded-xl bg-neon-red px-6 py-3 font-semibold text-white hover:bg-neon-red/80"
                             >
                                 Create Post
                             </Link>
@@ -550,10 +550,10 @@ export default function LfgIndex({
                                     href={link.url || '#'}
                                     className={`rounded-lg px-3 py-2 text-sm ${
                                         link.active
-                                            ? 'bg-gaming-purple text-white'
+                                            ? 'bg-neon-red text-white'
                                             : link.url
-                                              ? 'bg-navy-800 text-gray-400 hover:text-white'
-                                              : 'bg-navy-800/50 text-gray-600 cursor-not-allowed'
+                                              ? 'bg-white text-ink-500 hover:text-ink-900'
+                                              : 'bg-bone-100/50 text-gray-600 cursor-not-allowed'
                                     }`}
                                     dangerouslySetInnerHTML={{ __html: link.label }}
                                 />

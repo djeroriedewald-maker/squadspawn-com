@@ -43,8 +43,8 @@ export default function LfgEdit({ post, games }: { post: LfgPost; games: Game[] 
         router.put(route('lfg.update', { lfgPost: post.slug }), data);
     };
 
-    const inputClass = 'w-full rounded-lg border border-white/10 bg-navy-900 px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:border-gaming-purple focus:outline-none focus:ring-1 focus:ring-gaming-purple';
-    const labelClass = 'mb-1.5 block text-sm font-medium text-gray-300';
+    const inputClass = 'w-full rounded-lg border border-ink-900/10 bg-bone-50 px-4 py-2.5 text-sm text-ink-900 placeholder-gray-500 focus:border-neon-red focus:outline-none focus:ring-1 focus:ring-neon-red';
+    const labelClass = 'mb-1.5 block text-sm font-medium text-ink-700';
     const allPlatforms = ['PC', 'PlayStation', 'Xbox', 'Nintendo Switch', 'Mobile'];
 
     return (
@@ -53,11 +53,11 @@ export default function LfgEdit({ post, games }: { post: LfgPost; games: Game[] 
             <div className="py-6">
                 <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8">
                     <div className="mb-6">
-                        <Link href={route('lfg.show', { lfgPost: post.slug })} className="mb-2 inline-flex items-center gap-1 text-sm text-gray-400 hover:text-white">
+                        <Link href={route('lfg.show', { lfgPost: post.slug })} className="mb-2 inline-flex items-center gap-1 text-sm text-ink-500 hover:text-ink-900">
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
                             Back to Group
                         </Link>
-                        <h1 className="text-2xl font-bold text-white">Edit LFG Post</h1>
+                        <h1 className="text-2xl font-bold text-ink-900">Edit LFG Post</h1>
                     </div>
 
                     {selectedGame?.cover_image && (
@@ -65,9 +65,9 @@ export default function LfgEdit({ post, games }: { post: LfgPost; games: Game[] 
                             <img src={selectedGame.cover_image} alt={selectedGame.name} className="h-full w-full object-cover" />
                         </div>
                     )}
-                    <p className="mb-4 text-sm text-gray-400">Game: <strong className="text-white">{selectedGame?.name || 'Unknown'}</strong> (cannot be changed)</p>
+                    <p className="mb-4 text-sm text-ink-500">Game: <strong className="text-ink-900">{selectedGame?.name || 'Unknown'}</strong> (cannot be changed)</p>
 
-                    <form onSubmit={submit} className="space-y-5 rounded-xl border border-white/10 bg-navy-800 p-6">
+                    <form onSubmit={submit} className="space-y-5 rounded-xl border border-ink-900/10 bg-white p-6">
                         <div>
                             <label className={labelClass}>Title</label>
                             <input type="text" value={data.title} onChange={(e) => setData('title', e.target.value)} className={inputClass} maxLength={255} />
@@ -79,8 +79,8 @@ export default function LfgEdit({ post, games }: { post: LfgPost; games: Game[] 
                         <div>
                             <label className={labelClass}>Spots Needed</label>
                             <div className="flex items-center gap-3">
-                                <input type="range" min={1} max={9} value={data.spots_needed} onChange={(e) => setData('spots_needed', Number(e.target.value))} className="h-2 flex-1 cursor-pointer appearance-none rounded-lg bg-white/10 accent-gaming-purple" />
-                                <span className="w-8 text-center text-lg font-bold text-gaming-purple">{data.spots_needed}</span>
+                                <input type="range" min={1} max={9} value={data.spots_needed} onChange={(e) => setData('spots_needed', Number(e.target.value))} className="h-2 flex-1 cursor-pointer appearance-none rounded-lg bg-ink-900/10 accent-neon-red" />
+                                <span className="w-8 text-center text-lg font-bold text-neon-red">{data.spots_needed}</span>
                             </div>
                         </div>
                         <div>
@@ -102,8 +102,8 @@ export default function LfgEdit({ post, games }: { post: LfgPost; games: Game[] 
                             </div>
                         )}
                         <div className="flex items-center gap-3">
-                            <input type="checkbox" id="mic" checked={data.mic_required} onChange={(e) => setData('mic_required', e.target.checked)} className="h-4 w-4 rounded border-white/10 bg-navy-900 text-gaming-purple focus:ring-gaming-purple" />
-                            <label htmlFor="mic" className="text-sm font-medium text-gray-300">Mic Required</label>
+                            <input type="checkbox" id="mic" checked={data.mic_required} onChange={(e) => setData('mic_required', e.target.checked)} className="h-4 w-4 rounded border-ink-900/10 bg-bone-50 text-neon-red focus:ring-neon-red" />
+                            <label htmlFor="mic" className="text-sm font-medium text-ink-700">Mic Required</label>
                         </div>
                         <div>
                             <label className={labelClass}>Language</label>
@@ -130,7 +130,7 @@ export default function LfgEdit({ post, games }: { post: LfgPost; games: Game[] 
                             <label className={labelClass}>Scheduled Time</label>
                             <input type="datetime-local" value={data.scheduled_at} onChange={(e) => setData('scheduled_at', e.target.value)} className={inputClass} />
                         </div>
-                        <button type="submit" disabled={processing} className="w-full rounded-xl bg-gaming-purple px-6 py-3 text-sm font-semibold text-white transition hover:bg-gaming-purple/80 disabled:opacity-50">
+                        <button type="submit" disabled={processing} className="w-full rounded-xl bg-neon-red px-6 py-3 text-sm font-semibold text-white transition hover:bg-neon-red/80 disabled:opacity-50">
                             {processing ? 'Saving...' : 'Update LFG Post'}
                         </button>
                     </form>

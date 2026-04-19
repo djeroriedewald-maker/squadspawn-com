@@ -40,7 +40,7 @@ export default function Login({
 
             <a
                 href={route('auth.google')}
-                className="flex w-full items-center justify-center gap-3 rounded-lg border border-white/10 bg-navy-700 px-4 py-3 text-sm font-medium text-white transition hover:bg-navy-700/80"
+                className="flex w-full items-center justify-center gap-3 rounded-lg border border-ink-900/10 bg-bone-100 px-4 py-3 text-sm font-medium text-ink-900 transition hover:bg-bone-100/80"
             >
                 <svg className="h-5 w-5" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" />
@@ -53,10 +53,10 @@ export default function Login({
 
             <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-white/10"></div>
+                    <div className="w-full border-t border-ink-900/10"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                    <span className="bg-navy-800 px-4 text-gray-500">or</span>
+                    <span className="bg-white px-4 text-gray-500">or</span>
                 </div>
             </div>
 

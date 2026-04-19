@@ -45,29 +45,29 @@ export default function Passed({ players: initialPlayers }: PageProps<{ players:
                     <div className="mb-6 flex items-center justify-between">
                         <div>
                             <div className="flex items-center gap-3">
-                                <Link href={route('discovery.index')} className="text-gray-400 transition hover:text-white">
+                                <Link href={route('discovery.index')} className="text-ink-500 transition hover:text-ink-900">
                                     <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
                                     </svg>
                                 </Link>
                                 <div>
-                                    <h1 className="text-2xl font-bold text-white">Passed Players</h1>
-                                    <p className="text-sm text-gray-400">{players.length} {players.length === 1 ? 'player' : 'players'} — give them a second chance</p>
+                                    <h1 className="text-2xl font-bold text-ink-900">Passed Players</h1>
+                                    <p className="text-sm text-ink-500">{players.length} {players.length === 1 ? 'player' : 'players'} — give them a second chance</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     {players.length === 0 ? (
-                        <div className="rounded-2xl border border-white/10 bg-navy-800 p-12 text-center">
-                            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gaming-purple/10">
-                                <svg className="h-8 w-8 text-gaming-purple" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                        <div className="rounded-2xl border border-ink-900/10 bg-white p-12 text-center">
+                            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-neon-red/10">
+                                <svg className="h-8 w-8 text-neon-red" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
                                 </svg>
                             </div>
-                            <p className="text-lg font-medium text-gray-400">No passed players</p>
+                            <p className="text-lg font-medium text-ink-500">No passed players</p>
                             <p className="mt-2 text-sm text-gray-500">You haven't passed on anyone yet.</p>
-                            <Link href={route('discovery.index')} className="mt-4 inline-block rounded-xl bg-gaming-purple px-6 py-3 font-semibold text-white hover:bg-gaming-purple/80">
+                            <Link href={route('discovery.index')} className="mt-4 inline-block rounded-xl bg-neon-red px-6 py-3 font-semibold text-white hover:bg-neon-red/80">
                                 Discover Players
                             </Link>
                         </div>
@@ -77,7 +77,7 @@ export default function Passed({ players: initialPlayers }: PageProps<{ players:
                                 const commonGames = player.games?.filter((g) => myGameIds.includes(g.id)) || [];
 
                                 return (
-                                    <div key={player.id} className="overflow-hidden rounded-xl border border-white/10 bg-navy-800 transition hover:border-white/20">
+                                    <div key={player.id} className="overflow-hidden rounded-xl border border-ink-900/10 bg-white transition hover:border-ink-900/20">
                                         {/* Game banner */}
                                         {player.games && player.games.length > 0 && (
                                             <div className="relative h-24 overflow-hidden">
@@ -86,7 +86,7 @@ export default function Passed({ players: initialPlayers }: PageProps<{ players:
                                                     alt=""
                                                     className="h-full w-full object-cover"
                                                 />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-navy-800 to-transparent" />
+                                                <div className="absolute inset-0 bg-gradient-to-t from-white to-transparent" />
                                                 {commonGames.length > 0 && (
                                                     <div className="absolute left-2 top-2 rounded-md bg-gaming-green/90 px-2 py-0.5 text-[10px] font-bold text-white">
                                                         {commonGames.length} in common
@@ -99,7 +99,7 @@ export default function Passed({ players: initialPlayers }: PageProps<{ players:
                                             {/* Avatar + Info */}
                                             <div className="mb-3 flex items-center gap-3">
                                                 <Link href={route('player.show', { username: player.profile?.username || player.id })}>
-                                                    <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-gaming-purple/30 to-gaming-green/30 text-lg font-bold text-white">
+                                                    <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-neon-red to-neon-red-deep text-lg font-bold text-white">
                                                         {player.profile?.avatar ? (
                                                             <img src={player.profile.avatar} alt="" className="h-full w-full object-cover" />
                                                         ) : (
@@ -110,7 +110,7 @@ export default function Passed({ players: initialPlayers }: PageProps<{ players:
                                                 <div className="min-w-0 flex-1">
                                                     <Link
                                                         href={route('player.show', { username: player.profile?.username || player.id })}
-                                                        className="block truncate font-bold text-white hover:text-gaming-purple"
+                                                        className="block truncate font-bold text-ink-900 hover:text-neon-red"
                                                     >
                                                         {player.profile?.username || player.name}
                                                     </Link>
@@ -119,7 +119,7 @@ export default function Passed({ players: initialPlayers }: PageProps<{ players:
                                                             <span className="text-xs text-gray-500">{player.profile.region}</span>
                                                         )}
                                                         {player.profile?.looking_for && (
-                                                            <span className="rounded-full bg-gaming-purple/10 px-1.5 py-0.5 text-[10px] text-gaming-purple">
+                                                            <span className="rounded-full bg-neon-red/10 px-1.5 py-0.5 text-[10px] text-neon-red">
                                                                 {player.profile.looking_for}
                                                             </span>
                                                         )}
@@ -131,9 +131,9 @@ export default function Passed({ players: initialPlayers }: PageProps<{ players:
                                             {player.games && player.games.length > 0 && (
                                                 <div className="mb-3 flex flex-wrap gap-1">
                                                     {player.games.slice(0, 3).map((game) => (
-                                                        <div key={game.id} className="flex items-center gap-1 rounded bg-navy-900 px-1.5 py-0.5">
+                                                        <div key={game.id} className="flex items-center gap-1 rounded bg-bone-50 px-1.5 py-0.5">
                                                             <img src={game.cover_image || `/images/games/${game.slug}.svg`} alt="" className="h-3.5 w-5 rounded-sm object-cover" />
-                                                            <span className="text-[10px] text-gray-400">{game.name.split(':')[0].split(' ').slice(0, 2).join(' ')}</span>
+                                                            <span className="text-[10px] text-ink-500">{game.name.split(':')[0].split(' ').slice(0, 2).join(' ')}</span>
                                                         </div>
                                                     ))}
                                                 </div>
@@ -153,7 +153,7 @@ export default function Passed({ players: initialPlayers }: PageProps<{ players:
                                                 </button>
                                                 <button
                                                     onClick={() => handleRemovePass(player.id)}
-                                                    className="rounded-lg bg-navy-700 px-3 py-2 text-xs text-gray-400 transition hover:bg-navy-600 hover:text-white"
+                                                    className="rounded-lg bg-bone-100 px-3 py-2 text-xs text-ink-500 transition hover:bg-bone-200 hover:text-ink-900"
                                                     title="Remove from passed list (they'll appear in discover again)"
                                                 >
                                                     Dismiss

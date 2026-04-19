@@ -134,17 +134,17 @@ export default function Show({
 
             <div className="flex h-[calc(100vh-64px)] flex-col">
                 {/* Chat header */}
-                <div className="border-b border-white/10 bg-navy-800 px-6 py-4">
+                <div className="border-b border-ink-900/10 bg-white px-6 py-4">
                     <div className="mx-auto flex max-w-3xl items-center gap-3">
                         <a
                             href={route('friends.index')}
-                            className="mr-2 text-gray-400 transition hover:text-white"
+                            className="mr-2 text-ink-500 transition hover:text-ink-900"
                         >
                             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
                             </svg>
                         </a>
-                        <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-gaming-purple/30 to-gaming-green/30 font-bold text-white">
+                        <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-neon-red to-neon-red-deep font-bold text-white">
                             {partner.profile?.avatar ? (
                                 <img src={partner.profile.avatar} alt="" className="h-full w-full object-cover" />
                             ) : (
@@ -153,13 +153,13 @@ export default function Show({
                         </div>
                         <div>
                             <div className="flex items-center gap-2">
-                                <h3 className="font-bold text-white">{partner.profile?.username || partner.name}</h3>
+                                <h3 className="font-bold text-ink-900">{partner.profile?.username || partner.name}</h3>
                                 <span
                                     className={`inline-block h-2.5 w-2.5 rounded-full ${isPartnerOnline ? 'bg-gaming-green animate-pulse' : 'bg-gray-500'}`}
                                     title={isPartnerOnline ? 'Online' : 'Offline'}
                                 />
                             </div>
-                            <p className="text-xs text-gray-400">
+                            <p className="text-xs text-ink-500">
                                 {isPartnerOnline ? 'Online' : partner.profile?.region || 'Offline'}
                             </p>
                         </div>
@@ -194,7 +194,7 @@ export default function Show({
                                             {!isMe && (
                                                 <div className="mr-2 flex w-8 flex-shrink-0 items-end">
                                                     {isLastInGroup ? (
-                                                        <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-gaming-purple/30 to-gaming-green/30 text-xs font-bold text-white">
+                                                        <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-neon-red to-neon-red-deep text-xs font-bold text-white">
                                                             {partner.profile?.avatar ? (
                                                                 <img src={partner.profile.avatar} alt="" className="h-full w-full object-cover" />
                                                             ) : (
@@ -207,8 +207,8 @@ export default function Show({
                                             <div
                                                 className={`max-w-[75%] px-4 py-2 ${
                                                     isMe
-                                                        ? 'bg-gaming-purple text-white'
-                                                        : 'bg-navy-700 text-gray-200'
+                                                        ? 'bg-neon-red text-white'
+                                                        : 'bg-bone-100 text-ink-800'
                                                 } ${
                                                     isFirstInGroup && isLastInGroup
                                                         ? 'rounded-2xl'
@@ -226,7 +226,7 @@ export default function Show({
                                                 }`}
                                             >
                                                 <p className="text-sm leading-relaxed">{msg.body}</p>
-                                                <p className={`mt-0.5 text-right text-[10px] ${isMe ? 'text-white/50' : 'text-gray-500'}`}>
+                                                <p className={`mt-0.5 text-right text-[10px] ${isMe ? 'text-ink-900/50' : 'text-gray-500'}`}>
                                                     {formatTime(msg.created_at)}
                                                 </p>
                                             </div>
@@ -252,7 +252,7 @@ export default function Show({
                 </div>
 
                 {/* Input */}
-                <div className="border-t border-white/10 bg-navy-800 px-4 py-4">
+                <div className="border-t border-ink-900/10 bg-white px-4 py-4">
                     <form onSubmit={handleSend} className="mx-auto flex max-w-3xl items-end gap-3">
                         <textarea
                             key={inputKey}
@@ -260,12 +260,12 @@ export default function Show({
                             onKeyDown={handleKeyDown}
                             placeholder="Type a message..."
                             rows={1}
-                            className="max-h-[150px] min-h-[44px] flex-1 resize-none rounded-xl border border-white/10 bg-navy-900 px-4 py-3 text-white placeholder-gray-500 focus:border-gaming-purple focus:ring-gaming-purple"
+                            className="max-h-[150px] min-h-[44px] flex-1 resize-none rounded-xl border border-ink-900/10 bg-bone-50 px-4 py-3 text-ink-900 placeholder-gray-500 focus:border-neon-red focus:ring-neon-red"
                         />
                         <button
                             type="submit"
                             disabled={sending}
-                            className="rounded-xl bg-gaming-purple px-6 py-3 font-semibold text-white transition hover:bg-gaming-purple/90 disabled:opacity-50"
+                            className="rounded-xl bg-neon-red px-6 py-3 font-semibold text-white transition hover:bg-neon-red/90 disabled:opacity-50"
                         >
                             Send
                         </button>

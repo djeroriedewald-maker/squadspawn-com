@@ -20,16 +20,16 @@ export default function Index({ matches }: PageProps<{ matches: FriendItem[] }>)
             {/* Hero banner */}
             <div className="relative h-32 overflow-hidden sm:h-40">
                 <img src="/images/gamer7.jpg" alt="" className="h-full w-full object-cover opacity-25" />
-                <div className="absolute inset-0 bg-gradient-to-b from-navy-900/30 via-navy-900/60 to-navy-900" />
+                <div className="absolute inset-0 bg-gradient-to-b from-bone-50/30 via-bone-50/60 to-bone-50" />
                 <div className="absolute inset-0 flex items-end px-4 pb-5 sm:px-6 lg:px-8">
                     <div className="mx-auto flex w-full max-w-4xl items-end justify-between">
                         <div>
-                            <h1 className="text-2xl font-bold text-white sm:text-3xl">Friends</h1>
-                            <p className="mt-0.5 text-sm text-gray-400">{matches.length} {matches.length === 1 ? 'friend' : 'friends'}</p>
+                            <h1 className="text-2xl font-bold text-ink-900 sm:text-3xl">Friends</h1>
+                            <p className="mt-0.5 text-sm text-ink-500">{matches.length} {matches.length === 1 ? 'friend' : 'friends'}</p>
                         </div>
                         <Link
                             href={route('discovery.index')}
-                            className="rounded-xl bg-gaming-purple px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-gaming-purple/80"
+                            className="rounded-xl bg-neon-red px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-neon-red/80"
                         >
                             Find More
                         </Link>
@@ -41,17 +41,17 @@ export default function Index({ matches }: PageProps<{ matches: FriendItem[] }>)
                 <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
 
                     {matches.length === 0 ? (
-                        <div className="rounded-2xl border border-white/10 bg-navy-800 p-16 text-center">
-                            <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gaming-purple/10">
-                                <svg className="h-12 w-12 text-gaming-purple" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+                        <div className="rounded-2xl border border-ink-900/10 bg-white p-16 text-center">
+                            <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-neon-red/10">
+                                <svg className="h-12 w-12 text-neon-red" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
                                 </svg>
                             </div>
-                            <h3 className="mb-2 text-xl font-bold text-white">No friends yet</h3>
-                            <p className="mb-6 text-gray-400">Discover players and start building your squad!</p>
+                            <h3 className="mb-2 text-xl font-bold text-ink-900">No friends yet</h3>
+                            <p className="mb-6 text-ink-500">Discover players and start building your squad!</p>
                             <Link
                                 href={route('discovery.index')}
-                                className="inline-block rounded-xl bg-gaming-purple px-8 py-3 font-bold text-white shadow-lg shadow-gaming-purple/25 transition hover:bg-gaming-purple/80"
+                                className="inline-block rounded-xl bg-neon-red px-8 py-3 font-bold text-white shadow-lg shadow-neon-red/25 transition hover:bg-neon-red/80"
                             >
                                 Discover Players
                             </Link>
@@ -61,7 +61,7 @@ export default function Index({ matches }: PageProps<{ matches: FriendItem[] }>)
                             {matches.map((match) => (
                                 <div
                                     key={match.id}
-                                    className="group overflow-hidden rounded-2xl border border-white/10 bg-navy-800 transition hover:border-gaming-purple/30"
+                                    className="group overflow-hidden rounded-2xl border border-ink-900/10 bg-white transition hover:border-neon-red/30"
                                 >
                                     {/* Game cover banner */}
                                     {match.common_games.length > 0 && (
@@ -77,15 +77,15 @@ export default function Index({ matches }: PageProps<{ matches: FriendItem[] }>)
                                                     </div>
                                                 ))}
                                             </div>
-                                            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-navy-800" />
+                                            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white" />
                                             <div className="absolute bottom-1.5 left-3 flex items-center gap-1">
                                                 {match.common_games.slice(0, 3).map((game) => (
-                                                    <span key={game.id} className="rounded bg-black/50 px-1.5 py-0.5 text-[9px] font-medium text-white backdrop-blur-sm">
+                                                    <span key={game.id} className="rounded bg-black/50 px-1.5 py-0.5 text-[9px] font-medium text-ink-900 backdrop-blur-sm">
                                                         {game.name.split(':')[0].split(' ').slice(0, 2).join(' ')}
                                                     </span>
                                                 ))}
                                                 {match.common_games.length > 3 && (
-                                                    <span className="rounded bg-black/50 px-1.5 py-0.5 text-[9px] text-gray-300 backdrop-blur-sm">
+                                                    <span className="rounded bg-black/50 px-1.5 py-0.5 text-[9px] text-ink-700 backdrop-blur-sm">
                                                         +{match.common_games.length - 3}
                                                     </span>
                                                 )}
@@ -101,7 +101,7 @@ export default function Index({ matches }: PageProps<{ matches: FriendItem[] }>)
                                             {/* Avatar */}
                                             <div className="shrink-0">
                                                 <div className="relative">
-                                                    <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-gaming-purple/30 to-gaming-green/30 text-xl font-bold text-white ring-2 ring-white/10">
+                                                    <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-neon-red to-neon-red-deep text-xl font-bold text-white ring-2 ring-bone-200">
                                                         {match.partner.profile?.avatar ? (
                                                             <img src={match.partner.profile.avatar} alt="" className="h-full w-full object-cover" />
                                                         ) : (
@@ -119,11 +119,11 @@ export default function Index({ matches }: PageProps<{ matches: FriendItem[] }>)
                                             {/* Info */}
                                             <div className="min-w-0 flex-1">
                                                 <div className="flex items-center gap-2">
-                                                    <span className="truncate font-bold text-white">
+                                                    <span className="truncate font-bold text-ink-900">
                                                         {match.partner.profile?.username || match.partner.name}
                                                     </span>
                                                 {match.partner.profile?.looking_for && (
-                                                    <span className="shrink-0 rounded-full bg-gaming-purple/10 px-2 py-0.5 text-[10px] font-medium text-gaming-purple">
+                                                    <span className="shrink-0 rounded-full bg-neon-red/10 px-2 py-0.5 text-[10px] font-medium text-neon-red">
                                                         {match.partner.profile.looking_for}
                                                     </span>
                                                 )}
@@ -131,7 +131,7 @@ export default function Index({ matches }: PageProps<{ matches: FriendItem[] }>)
 
                                             {/* Last message or region */}
                                             {match.last_message ? (
-                                                <p className={`mt-0.5 truncate text-sm ${match.unread_count > 0 ? 'font-medium text-white' : 'text-gray-400'}`}>
+                                                <p className={`mt-0.5 truncate text-sm ${match.unread_count > 0 ? 'font-medium text-ink-900' : 'text-ink-500'}`}>
                                                     {match.last_message.body}
                                                 </p>
                                             ) : (
@@ -148,7 +148,7 @@ export default function Index({ matches }: PageProps<{ matches: FriendItem[] }>)
                                                                 src={game.cover_image || `/images/games/${game.slug}.svg`}
                                                                 alt={game.name}
                                                                 title={game.name}
-                                                                className="h-5 w-7 rounded-sm border border-navy-800 object-cover"
+                                                                className="h-5 w-7 rounded-sm border border-ink-800 object-cover"
                                                             />
                                                         ))}
                                                     </div>

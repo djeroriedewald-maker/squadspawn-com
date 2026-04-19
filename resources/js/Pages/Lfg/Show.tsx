@@ -235,7 +235,7 @@ export default function LfgShow({
     };
 
     const statusBadge = () => {
-        if (isClosed) return <span className="rounded-full bg-gray-500/20 px-3 py-1 text-xs font-medium text-gray-400">Closed</span>;
+        if (isClosed) return <span className="rounded-full bg-gray-500/20 px-3 py-1 text-xs font-medium text-ink-500">Closed</span>;
         if (isFull) return <span className="rounded-full bg-red-500/20 px-3 py-1 text-xs font-medium text-red-400">Full</span>;
         return <span className="rounded-full bg-gaming-green/20 px-3 py-1 text-xs font-medium text-gaming-green">Open</span>;
     };
@@ -243,7 +243,7 @@ export default function LfgShow({
     const UserAvatar = ({ user, size = 'md' }: { user?: User; size?: 'sm' | 'md' | 'lg' }) => {
         const sizeClass = size === 'sm' ? 'h-7 w-7 text-xs' : size === 'lg' ? 'h-14 w-14 text-xl' : 'h-10 w-10 text-sm';
         return (
-            <div className={`flex ${sizeClass} shrink-0 items-center justify-center overflow-hidden rounded-full bg-gaming-purple/20 font-bold text-gaming-purple`}>
+            <div className={`flex ${sizeClass} shrink-0 items-center justify-center overflow-hidden rounded-full bg-neon-red/20 font-bold text-neon-red`}>
                 {user?.profile?.avatar ? (
                     <img src={user.profile.avatar} alt="" className="h-full w-full object-cover" />
                 ) : (
@@ -262,7 +262,7 @@ export default function LfgShow({
                     {/* Back link */}
                     <Link
                         href={route('lfg.index')}
-                        className="mb-4 inline-flex items-center gap-1 text-sm text-gray-400 transition hover:text-white"
+                        className="mb-4 inline-flex items-center gap-1 text-sm text-ink-500 transition hover:text-ink-900"
                     >
                         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
@@ -271,7 +271,7 @@ export default function LfgShow({
                     </Link>
 
                     {/* Header / Banner */}
-                    <div className="relative mb-6 overflow-hidden rounded-2xl border border-white/10 bg-navy-800">
+                    <div className="relative mb-6 overflow-hidden rounded-2xl border border-ink-900/10 bg-white">
                         {post.game && (
                             <div className="relative h-36 overflow-hidden">
                                 <img
@@ -279,7 +279,7 @@ export default function LfgShow({
                                     alt={post.game.name}
                                     className="h-full w-full object-cover"
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-navy-800 via-navy-800/60 to-transparent" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-white via-bone-100/60 to-transparent" />
                             </div>
                         )}
                         <div className={`${post.game ? '-mt-12 relative' : ''} p-6`}>
@@ -287,15 +287,15 @@ export default function LfgShow({
                                 <div>
                                     <div className="mb-2 flex items-center gap-2">
                                         {statusBadge()}
-                                        {post.game && <span className="text-xs text-gray-400">{post.game.name}</span>}
+                                        {post.game && <span className="text-xs text-ink-500">{post.game.name}</span>}
                                     </div>
-                                    <h1 className="text-2xl font-bold text-white">{post.title}</h1>
-                                    {post.description && <p className="mt-2 text-sm text-gray-400">{post.description}</p>}
+                                    <h1 className="text-2xl font-bold text-ink-900">{post.title}</h1>
+                                    {post.description && <p className="mt-2 text-sm text-ink-500">{post.description}</p>}
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <UserAvatar user={post.user} />
                                     <div>
-                                        <p className="text-sm font-semibold text-white">
+                                        <p className="text-sm font-semibold text-ink-900">
                                             {post.user?.profile?.username ?? post.user?.name}
                                         </p>
                                         <p className="text-xs text-gray-500">Host</p>
@@ -318,8 +318,8 @@ export default function LfgShow({
                                 >
                                     <svg className="h-6 w-6 text-[#5865F2]" fill="currentColor" viewBox="0 0 24 24"><path d="M20.317 4.3698a19.791 19.791 0 00-4.885-1.5152.0729.0729 0 00-.0785.0378c-.2107.3748-.4443.8632-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1641-.3933-.4058-.8747-.6177-1.2495a.077.077 0 00-.0785-.0378 19.736 19.736 0 00-4.8852 1.5152.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.299 12.299 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286z" /></svg>
                                     <div className="flex-1">
-                                        <p className="font-semibold text-white">Join Discord Server</p>
-                                        <p className="text-xs text-gray-400">Join voice chat with your squad</p>
+                                        <p className="font-semibold text-ink-900">Join Discord Server</p>
+                                        <p className="text-xs text-ink-500">Join voice chat with your squad</p>
                                     </div>
                                     <svg className="h-5 w-5 text-[#5865F2]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
@@ -328,16 +328,16 @@ export default function LfgShow({
                             )}
 
                             {/* Requirements */}
-                            <div className="rounded-xl border border-white/10 bg-navy-800 p-6">
-                                <h2 className="mb-4 text-lg font-bold text-white">Requirements</h2>
+                            <div className="rounded-xl border border-ink-900/10 bg-white p-6">
+                                <h2 className="mb-4 text-lg font-bold text-ink-900">Requirements</h2>
 
                                 {/* Spots */}
                                 <div className="mb-4">
                                     <div className="mb-1 flex items-center justify-between text-sm">
-                                        <span className="text-gray-400">Spots</span>
-                                        <span className="font-semibold text-white">{post.spots_filled}/{post.spots_needed}</span>
+                                        <span className="text-ink-500">Spots</span>
+                                        <span className="font-semibold text-ink-900">{post.spots_filled}/{post.spots_needed}</span>
                                     </div>
-                                    <div className="h-2 overflow-hidden rounded-full bg-white/10">
+                                    <div className="h-2 overflow-hidden rounded-full bg-ink-900/10">
                                         <div
                                             className={`h-full rounded-full transition-all ${isFull || isClosed ? 'bg-red-500' : 'bg-gaming-green'}`}
                                             style={{ width: `${progress}%` }}
@@ -346,25 +346,25 @@ export default function LfgShow({
                                 </div>
 
                                 <div className="grid gap-3 sm:grid-cols-2">
-                                    <div className="flex items-center gap-3 rounded-lg bg-navy-900 p-3">
-                                        <svg className="h-5 w-5 text-gaming-purple" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25" /></svg>
+                                    <div className="flex items-center gap-3 rounded-lg bg-bone-50 p-3">
+                                        <svg className="h-5 w-5 text-neon-red" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25" /></svg>
                                         <div>
                                             <p className="text-xs text-gray-500">Platform</p>
-                                            <p className="text-sm font-medium text-white">{post.platform}</p>
+                                            <p className="text-sm font-medium text-ink-900">{post.platform}</p>
                                         </div>
                                     </div>
 
                                     {post.rank_min && (
-                                        <div className="flex items-center gap-3 rounded-lg bg-navy-900 p-3">
+                                        <div className="flex items-center gap-3 rounded-lg bg-bone-50 p-3">
                                             <svg className="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M18.75 4.236c.982.143 1.954.317 2.916.52A6.003 6.003 0 0016.27 9.728M18.75 4.236V4.5c0 2.108-.966 3.99-2.48 5.228m0 0a6.023 6.023 0 01-2.77.853m0 0H11.25m0 0a6.023 6.023 0 01-2.77-.853" /></svg>
                                             <div>
                                                 <p className="text-xs text-gray-500">Min Rank</p>
-                                                <p className="text-sm font-medium text-white">{post.rank_min}</p>
+                                                <p className="text-sm font-medium text-ink-900">{post.rank_min}</p>
                                             </div>
                                         </div>
                                     )}
 
-                                    <div className="flex items-center gap-3 rounded-lg bg-navy-900 p-3">
+                                    <div className="flex items-center gap-3 rounded-lg bg-bone-50 p-3">
                                         {post.mic_required ? (
                                             <svg className="h-5 w-5 text-gaming-green" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" /></svg>
                                         ) : (
@@ -372,35 +372,35 @@ export default function LfgShow({
                                         )}
                                         <div>
                                             <p className="text-xs text-gray-500">Mic</p>
-                                            <p className="text-sm font-medium text-white">{post.mic_required ? 'Required' : 'Not required'}</p>
+                                            <p className="text-sm font-medium text-ink-900">{post.mic_required ? 'Required' : 'Not required'}</p>
                                         </div>
                                     </div>
 
                                     {post.language && (
-                                        <div className="flex items-center gap-3 rounded-lg bg-navy-900 p-3">
+                                        <div className="flex items-center gap-3 rounded-lg bg-bone-50 p-3">
                                             <svg className="h-5 w-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 21l5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 016-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.785.147 2.666.257m-4.589 8.495a18.023 18.023 0 01-3.827-5.802" /></svg>
                                             <div>
                                                 <p className="text-xs text-gray-500">Language</p>
-                                                <p className="text-sm font-medium text-white">{post.language}</p>
+                                                <p className="text-sm font-medium text-ink-900">{post.language}</p>
                                             </div>
                                         </div>
                                     )}
 
                                     {post.age_requirement && post.age_requirement !== 'None' && (
-                                        <div className="flex items-center gap-3 rounded-lg bg-navy-900 p-3">
+                                        <div className="flex items-center gap-3 rounded-lg bg-bone-50 p-3">
                                             <svg className="h-5 w-5 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg>
                                             <div>
                                                 <p className="text-xs text-gray-500">Age</p>
-                                                <p className="text-sm font-medium text-white">{post.age_requirement}</p>
+                                                <p className="text-sm font-medium text-ink-900">{post.age_requirement}</p>
                                             </div>
                                         </div>
                                     )}
                                 </div>
 
                                 {post.requirements_note && (
-                                    <div className="mt-4 rounded-lg border border-white/5 bg-navy-900 p-3">
+                                    <div className="mt-4 rounded-lg border border-ink-900/5 bg-bone-50 p-3">
                                         <p className="mb-1 text-xs font-medium text-gray-500">Additional Requirements</p>
-                                        <p className="text-sm text-gray-300">{post.requirements_note}</p>
+                                        <p className="text-sm text-ink-700">{post.requirements_note}</p>
                                     </div>
                                 )}
 
@@ -410,7 +410,7 @@ export default function LfgShow({
                                         <svg className="h-5 w-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg>
                                         <div>
                                             <p className="text-xs text-blue-400">Scheduled</p>
-                                            <p className="text-sm font-medium text-white">{formatScheduled(post.scheduled_at)}</p>
+                                            <p className="text-sm font-medium text-ink-900">{formatScheduled(post.scheduled_at)}</p>
                                         </div>
                                     </div>
                                 )}
@@ -424,8 +424,8 @@ export default function LfgShow({
                                             <svg className="h-6 w-6 text-gaming-green" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                         </div>
                                         <div>
-                                            <h2 className="text-lg font-bold text-white">Session Complete!</h2>
-                                            <p className="mt-1 text-sm text-gray-400">Rate your teammates below so other players know what to expect. Your ratings help build trust in the community.</p>
+                                            <h2 className="text-lg font-bold text-ink-900">Session Complete!</h2>
+                                            <p className="mt-1 text-sm text-ink-500">Rate your teammates below so other players know what to expect. Your ratings help build trust in the community.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -433,16 +433,16 @@ export default function LfgShow({
 
                             {/* End Session Banner (for host, when group is active) */}
                             {isCreator && (isOpen || isFull) && acceptedResponses.length > 0 && (
-                                <div className="overflow-hidden rounded-xl border border-gaming-purple/30 bg-navy-800 p-5">
+                                <div className="overflow-hidden rounded-xl border border-neon-red/30 bg-white p-5">
                                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                         <div>
-                                            <h3 className="font-bold text-white">Done playing?</h3>
-                                            <p className="mt-0.5 text-sm text-gray-400">End the session so everyone can rate each other.</p>
+                                            <h3 className="font-bold text-ink-900">Done playing?</h3>
+                                            <p className="mt-0.5 text-sm text-ink-500">End the session so everyone can rate each other.</p>
                                         </div>
                                         <button
                                             onClick={handleClose}
                                             disabled={closing}
-                                            className="shrink-0 rounded-xl bg-gaming-green px-6 py-2.5 text-sm font-bold text-navy-900 transition hover:bg-gaming-green/90 disabled:opacity-50"
+                                            className="shrink-0 rounded-xl bg-gaming-green px-6 py-2.5 text-sm font-bold text-ink-900 transition hover:bg-gaming-green/90 disabled:opacity-50"
                                         >
                                             {closing ? 'Ending...' : 'End Session & Rate'}
                                         </button>
@@ -452,21 +452,21 @@ export default function LfgShow({
 
                             {/* Creator: Manage Requests */}
                             {isCreator && pendingResponses.length > 0 && (
-                                <div className="rounded-xl border border-white/10 bg-navy-800 p-6">
-                                    <h2 className="mb-4 text-lg font-bold text-white">
+                                <div className="rounded-xl border border-ink-900/10 bg-white p-6">
+                                    <h2 className="mb-4 text-lg font-bold text-ink-900">
                                         Manage Requests
-                                        <span className="ml-2 rounded-full bg-gaming-purple/20 px-2 py-0.5 text-xs text-gaming-purple">{pendingResponses.length}</span>
+                                        <span className="ml-2 rounded-full bg-neon-red/20 px-2 py-0.5 text-xs text-neon-red">{pendingResponses.length}</span>
                                     </h2>
                                     <div className="space-y-3">
                                         {pendingResponses.map((resp) => (
-                                            <div key={resp.id} className="flex items-center gap-3 rounded-lg bg-navy-900 p-3">
+                                            <div key={resp.id} className="flex items-center gap-3 rounded-lg bg-bone-50 p-3">
                                                 <UserAvatar user={resp.user} size="sm" />
                                                 <div className="min-w-0 flex-1">
-                                                    <p className="text-sm font-medium text-white">
+                                                    <p className="text-sm font-medium text-ink-900">
                                                         {resp.user?.profile?.username ?? resp.user?.name}
                                                     </p>
                                                     {resp.message && (
-                                                        <p className="mt-0.5 text-xs text-gray-400 line-clamp-2">{resp.message}</p>
+                                                        <p className="mt-0.5 text-xs text-ink-500 line-clamp-2">{resp.message}</p>
                                                     )}
                                                 </div>
                                                 <div className="flex gap-2">
@@ -491,9 +491,9 @@ export default function LfgShow({
 
                             {/* Group Chat */}
                             {isMember && (
-                                <div className="rounded-xl border border-white/10 bg-navy-800">
-                                    <div className="border-b border-white/10 px-6 py-4">
-                                        <h2 className="text-lg font-bold text-white">Group Chat</h2>
+                                <div className="rounded-xl border border-ink-900/10 bg-white">
+                                    <div className="border-b border-ink-900/10 px-6 py-4">
+                                        <h2 className="text-lg font-bold text-ink-900">Group Chat</h2>
                                     </div>
                                     <div className="h-80 overflow-y-auto px-4 py-4">
                                         {messages.length === 0 ? (
@@ -508,14 +508,14 @@ export default function LfgShow({
                                                                 <UserAvatar user={msg.user} size="sm" />
                                                             </div>
                                                         )}
-                                                        <div className={`max-w-[75%] ${isMe ? 'rounded-2xl rounded-br-md bg-gaming-purple' : 'rounded-2xl rounded-bl-md bg-navy-700'} px-4 py-2`}>
+                                                        <div className={`max-w-[75%] ${isMe ? 'rounded-2xl rounded-br-md bg-neon-red' : 'rounded-2xl rounded-bl-md bg-bone-100'} px-4 py-2`}>
                                                             {!isMe && (
-                                                                <p className="mb-0.5 text-xs font-medium text-gaming-purple">
+                                                                <p className="mb-0.5 text-xs font-medium text-neon-red">
                                                                     {msg.user?.profile?.username ?? msg.user?.name}
                                                                 </p>
                                                             )}
-                                                            <p className="text-sm text-white">{msg.body}</p>
-                                                            <p className={`mt-0.5 text-right text-[10px] ${isMe ? 'text-white/50' : 'text-gray-500'}`}>
+                                                            <p className="text-sm text-ink-900">{msg.body}</p>
+                                                            <p className={`mt-0.5 text-right text-[10px] ${isMe ? 'text-ink-900/50' : 'text-gray-500'}`}>
                                                                 {formatTime(msg.created_at)}
                                                             </p>
                                                         </div>
@@ -525,7 +525,7 @@ export default function LfgShow({
                                         )}
                                         <div ref={messagesEndRef} />
                                     </div>
-                                    <div className="border-t border-white/10 px-4 py-3">
+                                    <div className="border-t border-ink-900/10 px-4 py-3">
                                         <form onSubmit={handleSend} className="flex items-end gap-3">
                                             <textarea
                                                 ref={textareaRef}
@@ -534,12 +534,12 @@ export default function LfgShow({
                                                 onKeyDown={handleKeyDown}
                                                 placeholder="Type a message..."
                                                 rows={1}
-                                                className="max-h-[150px] min-h-[40px] flex-1 resize-none rounded-xl border border-white/10 bg-navy-900 px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:border-gaming-purple focus:ring-gaming-purple"
+                                                className="max-h-[150px] min-h-[40px] flex-1 resize-none rounded-xl border border-ink-900/10 bg-bone-50 px-4 py-2.5 text-sm text-ink-900 placeholder-gray-500 focus:border-neon-red focus:ring-neon-red"
                                             />
                                             <button
                                                 type="submit"
                                                 disabled={sending || !body.trim()}
-                                                className="rounded-xl bg-gaming-purple px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-gaming-purple/90 disabled:opacity-50"
+                                                className="rounded-xl bg-neon-red px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-neon-red/90 disabled:opacity-50"
                                             >
                                                 Send
                                             </button>
@@ -551,8 +551,8 @@ export default function LfgShow({
 
                             {/* Rating Section */}
                             {canRate && (
-                                <div className="rounded-xl border border-white/10 bg-navy-800 p-6">
-                                    <h2 className="mb-4 text-lg font-bold text-white">Rate Your Teammates</h2>
+                                <div className="rounded-xl border border-ink-900/10 bg-white p-6">
+                                    <h2 className="mb-4 text-lg font-bold text-ink-900">Rate Your Teammates</h2>
                                     <div className="space-y-4">
                                         {/* Members to rate: host + accepted members, excluding self */}
                                         {[
@@ -576,13 +576,13 @@ export default function LfgShow({
                         <div className="space-y-6">
                             {/* Join Section (not member, not creator) */}
                             {!isMember && !isCreator && isOpen && !hasResponded && (
-                                <div className="rounded-xl border border-white/10 bg-navy-800 p-6">
-                                    <h3 className="mb-3 text-base font-bold text-white">Join This Group</h3>
+                                <div className="rounded-xl border border-ink-900/10 bg-white p-6">
+                                    <h3 className="mb-3 text-base font-bold text-ink-900">Join This Group</h3>
                                     <textarea
                                         value={joinMessage}
                                         onChange={(e) => setJoinMessage(e.target.value)}
                                         placeholder="Send a message to the host (optional)"
-                                        className="mb-3 w-full resize-none rounded-lg border border-white/10 bg-navy-900 px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-gaming-purple focus:outline-none focus:ring-1 focus:ring-gaming-purple"
+                                        className="mb-3 w-full resize-none rounded-lg border border-ink-900/10 bg-bone-50 px-3 py-2 text-sm text-ink-900 placeholder-gray-500 focus:border-neon-red focus:outline-none focus:ring-1 focus:ring-neon-red"
                                         rows={3}
                                         maxLength={500}
                                     />
@@ -601,18 +601,18 @@ export default function LfgShow({
                                 <div className="rounded-xl border border-yellow-500/20 bg-yellow-500/5 p-6 text-center">
                                     <svg className="mx-auto mb-2 h-8 w-8 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                     <p className="text-sm font-medium text-yellow-400">Request Pending</p>
-                                    <p className="mt-1 text-xs text-gray-400">Waiting for the host to accept you.</p>
+                                    <p className="mt-1 text-xs text-ink-500">Waiting for the host to accept you.</p>
                                 </div>
                             )}
 
                             {/* Creator actions */}
                             {isCreator && (
-                                <div className="space-y-3 rounded-xl border border-white/10 bg-navy-800 p-6">
-                                    <h3 className="text-base font-bold text-white">Group Actions</h3>
+                                <div className="space-y-3 rounded-xl border border-ink-900/10 bg-white p-6">
+                                    <h3 className="text-base font-bold text-ink-900">Group Actions</h3>
                                     {(isOpen || isFull) && (
                                         <Link
                                             href={route('lfg.edit', { lfgPost: post.slug })}
-                                            className="block w-full rounded-lg bg-navy-700 px-4 py-2 text-center text-sm font-semibold text-white transition hover:bg-navy-600"
+                                            className="block w-full rounded-lg bg-bone-100 px-4 py-2 text-center text-sm font-semibold text-ink-900 transition hover:bg-bone-200"
                                         >
                                             Edit Post
                                         </Link>
@@ -622,7 +622,7 @@ export default function LfgShow({
                                             href={route('lfg.repost', { lfgPost: post.slug })}
                                             method="post"
                                             as="button"
-                                            className="w-full rounded-lg bg-gaming-purple px-4 py-2 text-sm font-bold text-white transition hover:bg-gaming-purple/80"
+                                            className="w-full rounded-lg bg-neon-red px-4 py-2 text-sm font-bold text-white transition hover:bg-neon-red/80"
                                         >
                                             Play Again
                                         </Link>
@@ -632,27 +632,27 @@ export default function LfgShow({
 
                             {/* Members list */}
                             {(isMember || isCreator) && (
-                                <div className="rounded-xl border border-white/10 bg-navy-800 p-6">
-                                    <h3 className="mb-3 text-base font-bold text-white">
+                                <div className="rounded-xl border border-ink-900/10 bg-white p-6">
+                                    <h3 className="mb-3 text-base font-bold text-ink-900">
                                         Members
-                                        <span className="ml-2 text-sm font-normal text-gray-400">({acceptedResponses.length + 1})</span>
+                                        <span className="ml-2 text-sm font-normal text-ink-500">({acceptedResponses.length + 1})</span>
                                     </h3>
                                     <div className="space-y-2">
                                         {/* Host */}
-                                        <div className="flex items-center gap-3 rounded-lg bg-navy-900 p-2.5">
+                                        <div className="flex items-center gap-3 rounded-lg bg-bone-50 p-2.5">
                                             <UserAvatar user={post.user} size="sm" />
                                             <div className="min-w-0 flex-1">
-                                                <p className="text-sm font-medium text-white">
+                                                <p className="text-sm font-medium text-ink-900">
                                                     {post.user?.profile?.username ?? post.user?.name}
                                                 </p>
                                             </div>
-                                            <span className="rounded-full bg-gaming-purple/20 px-2 py-0.5 text-[10px] font-medium text-gaming-purple">Host</span>
+                                            <span className="rounded-full bg-neon-red/20 px-2 py-0.5 text-[10px] font-medium text-neon-red">Host</span>
                                         </div>
                                         {/* Accepted members */}
                                         {acceptedResponses.map((resp) => (
-                                            <div key={resp.id} className="flex items-center gap-3 rounded-lg bg-navy-900 p-2.5">
+                                            <div key={resp.id} className="flex items-center gap-3 rounded-lg bg-bone-50 p-2.5">
                                                 <UserAvatar user={resp.user} size="sm" />
-                                                <p className="min-w-0 flex-1 text-sm font-medium text-white">
+                                                <p className="min-w-0 flex-1 text-sm font-medium text-ink-900">
                                                     {resp.user?.profile?.username ?? resp.user?.name}
                                                 </p>
                                             </div>
@@ -721,16 +721,16 @@ function RatingCard({
     };
 
     return (
-        <div className={`rounded-lg border p-4 ${done ? 'border-gaming-green/20 bg-navy-900/50' : 'border-white/10 bg-navy-900'}`}>
+        <div className={`rounded-lg border p-4 ${done ? 'border-gaming-green/20 bg-bone-50/50' : 'border-ink-900/10 bg-bone-50'}`}>
             <div className="mb-3 flex items-center gap-3">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gaming-purple/20 text-xs font-bold text-gaming-purple">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-neon-red/20 text-xs font-bold text-neon-red">
                     {member.profile?.avatar ? (
                         <img src={member.profile.avatar} alt="" className="h-full w-full object-cover" />
                     ) : (
                         (member.profile?.username ?? member.name ?? '?').charAt(0).toUpperCase()
                     )}
                 </div>
-                <p className="text-sm font-medium text-white">{member.profile?.username ?? member.name}</p>
+                <p className="text-sm font-medium text-ink-900">{member.profile?.username ?? member.name}</p>
                 {done && (
                     <span className="ml-auto flex items-center gap-1 text-xs text-gaming-green">
                         <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
@@ -781,7 +781,7 @@ function RatingCard({
                                         ? t.value === 'toxic' || t.value === 'no_show'
                                             ? 'bg-red-500/20 text-red-400 ring-1 ring-red-500/40'
                                             : 'bg-gaming-green/20 text-gaming-green ring-1 ring-gaming-green/40'
-                                        : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                                        : 'bg-ink-900/5 text-ink-500 hover:bg-ink-900/10'
                                 }`}
                             >
                                 {t.label}
@@ -795,7 +795,7 @@ function RatingCard({
                         className={`w-full rounded-lg px-4 py-2 text-sm font-semibold transition ${
                             score === 0
                                 ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                                : 'bg-gaming-purple text-white hover:bg-gaming-purple/80 disabled:opacity-50'
+                                : 'bg-neon-red text-white hover:bg-neon-red/80 disabled:opacity-50'
                         }`}
                     >
                         {submitting ? 'Submitting...' : score === 0 ? 'Select stars to rate' : 'Submit Rating'}

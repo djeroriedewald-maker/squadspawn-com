@@ -29,7 +29,7 @@ const typeBadge = (type: string) => {
         news: 'bg-orange-500/20 text-orange-400',
     };
     return (
-        <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${styles[type] || 'bg-white/10 text-gray-400'}`}>
+        <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${styles[type] || 'bg-ink-900/10 text-ink-500'}`}>
             {type}
         </span>
     );
@@ -115,13 +115,13 @@ export default function CommunityIndex({
                     {/* Header */}
                     <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                            <h1 className="text-2xl font-bold text-white">Community</h1>
-                            <p className="mt-1 text-sm text-gray-400">Discuss, share tips, and connect with gamers</p>
+                            <h1 className="text-2xl font-bold text-ink-900">Community</h1>
+                            <p className="mt-1 text-sm text-ink-500">Discuss, share tips, and connect with gamers</p>
                         </div>
                         {isLoggedIn ? (
                             <Link
                                 href={route('community.create')}
-                                className="inline-flex items-center gap-2 rounded-xl bg-gaming-purple px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-gaming-purple/80"
+                                className="inline-flex items-center gap-2 rounded-xl bg-neon-red px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-neon-red/80"
                             >
                                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -131,7 +131,7 @@ export default function CommunityIndex({
                         ) : (
                             <Link
                                 href={route('register')}
-                                className="inline-flex items-center gap-2 rounded-xl bg-gaming-purple px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-gaming-purple/80"
+                                className="inline-flex items-center gap-2 rounded-xl bg-neon-red px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-neon-red/80"
                             >
                                 Sign Up to Post
                             </Link>
@@ -139,13 +139,13 @@ export default function CommunityIndex({
                     </div>
 
                     {/* Sort Tabs */}
-                    <div className="mb-4 flex items-center gap-1 rounded-lg border border-white/10 bg-navy-800 p-1 w-fit">
+                    <div className="mb-4 flex items-center gap-1 rounded-lg border border-ink-900/10 bg-white p-1 w-fit">
                         <button
                             onClick={() => handleFilter('sort', 'hot')}
                             className={`flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-medium transition ${
                                 activeSort === 'hot'
-                                    ? 'bg-gaming-purple text-white'
-                                    : 'text-gray-400 hover:text-white'
+                                    ? 'bg-neon-red text-white'
+                                    : 'text-ink-500 hover:text-ink-900'
                             }`}
                         >
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -157,8 +157,8 @@ export default function CommunityIndex({
                             onClick={() => handleFilter('sort', 'new')}
                             className={`flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-medium transition ${
                                 activeSort === 'new'
-                                    ? 'bg-gaming-purple text-white'
-                                    : 'text-gray-400 hover:text-white'
+                                    ? 'bg-neon-red text-white'
+                                    : 'text-ink-500 hover:text-ink-900'
                             }`}
                         >
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -173,7 +173,7 @@ export default function CommunityIndex({
                         <select
                             value={filters.game_id || ''}
                             onChange={(e) => handleFilter('game_id', e.target.value)}
-                            className="rounded-lg border border-white/10 bg-navy-800 px-3 py-2 text-sm text-white focus:border-gaming-purple focus:outline-none focus:ring-1 focus:ring-gaming-purple"
+                            className="rounded-lg border border-ink-900/10 bg-white px-3 py-2 text-sm text-ink-900 focus:border-neon-red focus:outline-none focus:ring-1 focus:ring-neon-red"
                         >
                             <option value="">All Games</option>
                             {games.map((game) => (
@@ -184,7 +184,7 @@ export default function CommunityIndex({
                         <select
                             value={filters.type || ''}
                             onChange={(e) => handleFilter('type', e.target.value)}
-                            className="rounded-lg border border-white/10 bg-navy-800 px-3 py-2 text-sm text-white focus:border-gaming-purple focus:outline-none focus:ring-1 focus:ring-gaming-purple"
+                            className="rounded-lg border border-ink-900/10 bg-white px-3 py-2 text-sm text-ink-900 focus:border-neon-red focus:outline-none focus:ring-1 focus:ring-neon-red"
                         >
                             <option value="">All Types</option>
                             {postTypes.map((t) => (
@@ -195,12 +195,12 @@ export default function CommunityIndex({
 
                     {/* Guest CTA */}
                     {!isLoggedIn && (
-                        <div className="mb-6 rounded-xl border border-gaming-purple/20 bg-gaming-purple/5 p-6 text-center">
-                            <p className="font-semibold text-white">Join the conversation</p>
-                            <p className="mt-1 text-sm text-gray-400">Create a free account to post, vote, and comment.</p>
+                        <div className="mb-6 rounded-xl border border-neon-red/20 bg-neon-red/5 p-6 text-center">
+                            <p className="font-semibold text-ink-900">Join the conversation</p>
+                            <p className="mt-1 text-sm text-ink-500">Create a free account to post, vote, and comment.</p>
                             <Link
                                 href={route('register')}
-                                className="mt-3 inline-block rounded-lg bg-gaming-purple px-5 py-2.5 text-sm font-bold text-white transition hover:bg-gaming-purple/80"
+                                className="mt-3 inline-block rounded-lg bg-neon-red px-5 py-2.5 text-sm font-bold text-white transition hover:bg-neon-red/80"
                             >
                                 Sign Up Free
                             </Link>
@@ -217,7 +217,7 @@ export default function CommunityIndex({
                                 return (
                                     <div
                                         key={post.id}
-                                        className="flex gap-3 rounded-xl border border-white/10 bg-navy-800 p-4 transition hover:border-white/20"
+                                        className="flex gap-3 rounded-xl border border-ink-900/10 bg-white p-4 transition hover:border-ink-900/20"
                                     >
                                         {/* Vote column */}
                                         <div className="flex flex-col items-center gap-0.5 pt-0.5">
@@ -236,7 +236,7 @@ export default function CommunityIndex({
                                                 </svg>
                                             </button>
                                             <span className={`text-xs font-bold ${
-                                                userVote === 1 ? 'text-gaming-green' : userVote === -1 ? 'text-red-400' : 'text-gray-400'
+                                                userVote === 1 ? 'text-gaming-green' : userVote === -1 ? 'text-red-400' : 'text-ink-500'
                                             }`}>
                                                 {score}
                                             </span>
@@ -261,7 +261,7 @@ export default function CommunityIndex({
                                             <div className="mb-1.5 flex flex-wrap items-center gap-2">
                                                 {typeBadge(post.type)}
                                                 {post.game && (
-                                                    <span className="flex items-center gap-1.5 rounded-full bg-white/5 px-2.5 py-0.5 text-[10px] font-medium text-gray-300">
+                                                    <span className="flex items-center gap-1.5 rounded-full bg-ink-900/5 px-2.5 py-0.5 text-[10px] font-medium text-ink-700">
                                                         {post.game.cover_image && (
                                                             <img src={post.game.cover_image} alt="" className="h-3.5 w-3.5 rounded object-cover" />
                                                         )}
@@ -272,12 +272,12 @@ export default function CommunityIndex({
 
                                             <Link
                                                 href={route('community.show', { communityPost: post.slug })}
-                                                className="block text-base font-bold text-white transition hover:text-gaming-purple"
+                                                className="block text-base font-bold text-ink-900 transition hover:text-neon-red"
                                             >
                                                 {post.title}
                                             </Link>
 
-                                            <p className="mt-1 text-sm leading-relaxed text-gray-400 line-clamp-2">
+                                            <p className="mt-1 text-sm leading-relaxed text-ink-500 line-clamp-2">
                                                 {post.body.length > 150 ? post.body.substring(0, 150) + '...' : post.body}
                                             </p>
 
@@ -285,13 +285,13 @@ export default function CommunityIndex({
                                                 {/* Author */}
                                                 <Link
                                                     href={route('player.show', { username: post.user?.profile?.username || post.user?.id })}
-                                                    className="flex items-center gap-1.5 transition hover:text-white"
+                                                    className="flex items-center gap-1.5 transition hover:text-ink-900"
                                                 >
-                                                    <div className="flex h-5 w-5 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gaming-purple/20">
+                                                    <div className="flex h-5 w-5 shrink-0 items-center justify-center overflow-hidden rounded-full bg-neon-red/20">
                                                         {post.user?.profile?.avatar ? (
                                                             <img src={post.user.profile.avatar} alt="" className="h-full w-full object-cover" />
                                                         ) : (
-                                                            <span className="text-[8px] font-bold text-gaming-purple">
+                                                            <span className="text-[8px] font-bold text-neon-red">
                                                                 {(post.user?.profile?.username?.[0] || post.user?.name?.[0] || '?').toUpperCase()}
                                                             </span>
                                                         )}
@@ -304,7 +304,7 @@ export default function CommunityIndex({
                                                 {/* Comments count */}
                                                 <Link
                                                     href={route('community.show', { communityPost: post.slug })}
-                                                    className="flex items-center gap-1 transition hover:text-white"
+                                                    className="flex items-center gap-1 transition hover:text-ink-900"
                                                 >
                                                     <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                                         <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
@@ -318,18 +318,18 @@ export default function CommunityIndex({
                             })}
                         </div>
                     ) : (
-                        <div className="rounded-2xl border border-white/10 bg-navy-800 p-12 text-center">
-                            <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gaming-purple/10">
-                                <svg className="h-10 w-10 text-gaming-purple" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+                        <div className="rounded-2xl border border-ink-900/10 bg-white p-12 text-center">
+                            <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-neon-red/10">
+                                <svg className="h-10 w-10 text-neon-red" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
                                 </svg>
                             </div>
-                            <h3 className="mb-2 text-xl font-bold text-white">No posts yet</h3>
-                            <p className="mb-6 text-gray-400">Be the first to start a discussion!</p>
+                            <h3 className="mb-2 text-xl font-bold text-ink-900">No posts yet</h3>
+                            <p className="mb-6 text-ink-500">Be the first to start a discussion!</p>
                             {isLoggedIn && (
                                 <Link
                                     href={route('community.create')}
-                                    className="inline-flex rounded-xl bg-gaming-purple px-6 py-3 font-semibold text-white hover:bg-gaming-purple/80"
+                                    className="inline-flex rounded-xl bg-neon-red px-6 py-3 font-semibold text-white hover:bg-neon-red/80"
                                 >
                                     Create Post
                                 </Link>
@@ -347,9 +347,9 @@ export default function CommunityIndex({
                                     onClick={() => link.url && router.get(link.url, {}, { preserveState: true, preserveScroll: true })}
                                     className={`rounded-lg px-3 py-1.5 text-sm transition ${
                                         link.active
-                                            ? 'bg-gaming-purple font-semibold text-white'
+                                            ? 'bg-neon-red font-semibold text-white'
                                             : link.url
-                                              ? 'text-gray-400 hover:bg-navy-800 hover:text-white'
+                                              ? 'text-ink-500 hover:bg-white hover:text-ink-900'
                                               : 'cursor-not-allowed text-gray-600'
                                     }`}
                                     dangerouslySetInnerHTML={{ __html: link.label }}
@@ -365,7 +365,7 @@ export default function CommunityIndex({
     if (isLoggedIn) {
         return (
             <AuthenticatedLayout
-                header={<h2 className="text-xl font-semibold leading-tight text-white">Community</h2>}
+                header={<h2 className="text-xl font-semibold leading-tight text-ink-900">Community</h2>}
             >
                 {pageContent}
             </AuthenticatedLayout>
@@ -373,12 +373,12 @@ export default function CommunityIndex({
     }
 
     return (
-        <div className="min-h-screen bg-navy-900 text-white">
+        <div className="min-h-screen bg-bone-50 text-ink-900">
             <nav className="flex items-center justify-between px-6 py-4 lg:px-12">
-                <Link href="/" className="text-2xl font-bold text-gaming-purple">SquadSpawn</Link>
+                <Link href="/" className="text-2xl font-bold text-neon-red">SquadSpawn</Link>
                 <div className="flex items-center gap-4">
-                    <Link href={route('login')} className="text-sm text-gray-300 hover:text-white">Log in</Link>
-                    <Link href={route('register')} className="rounded-lg bg-gaming-purple px-4 py-2 text-sm font-semibold text-white">Sign up</Link>
+                    <Link href={route('login')} className="text-sm text-ink-700 hover:text-ink-900">Log in</Link>
+                    <Link href={route('register')} className="rounded-lg bg-neon-red px-4 py-2 text-sm font-semibold text-white">Sign up</Link>
                 </div>
             </nav>
             {pageContent}

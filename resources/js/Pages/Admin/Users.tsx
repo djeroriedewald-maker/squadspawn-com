@@ -56,8 +56,8 @@ export default function Users({ users, filters }: Props) {
             <Head title="Admin - Users" />
 
             <div className="mb-8">
-                <h1 className="text-2xl font-bold text-white">Users</h1>
-                <p className="mt-1 text-sm text-gray-400">Manage platform users</p>
+                <h1 className="text-2xl font-bold text-ink-900">Users</h1>
+                <p className="mt-1 text-sm text-ink-500">Manage platform users</p>
             </div>
 
             {/* Search */}
@@ -71,23 +71,23 @@ export default function Users({ users, filters }: Props) {
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         placeholder="Search by name, email, or username..."
-                        className="w-full rounded-lg border border-white/10 bg-navy-800 py-2.5 pl-10 pr-4 text-sm text-white placeholder-gray-500 focus:border-gaming-purple/50 focus:outline-none focus:ring-1 focus:ring-gaming-purple/50"
+                        className="w-full rounded-lg border border-ink-900/10 bg-white py-2.5 pl-10 pr-4 text-sm text-ink-900 placeholder-gray-500 focus:border-neon-red/50 focus:outline-none focus:ring-1 focus:ring-neon-red/50"
                     />
                 </div>
                 <button
                     type="submit"
-                    className="rounded-lg bg-gaming-purple px-5 py-2.5 text-sm font-medium text-white transition hover:bg-gaming-purple/80"
+                    className="rounded-lg bg-neon-red px-5 py-2.5 text-sm font-medium text-white transition hover:bg-neon-red/80"
                 >
                     Search
                 </button>
             </form>
 
             {/* Users Table */}
-            <div className="overflow-hidden rounded-xl border border-white/10 bg-navy-800">
+            <div className="overflow-hidden rounded-xl border border-ink-900/10 bg-white">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left text-sm">
                         <thead>
-                            <tr className="border-b border-white/5 text-xs text-gray-500">
+                            <tr className="border-b border-ink-900/5 text-xs text-gray-500">
                                 <th className="px-5 py-3 font-medium">ID</th>
                                 <th className="px-5 py-3 font-medium">Name</th>
                                 <th className="px-5 py-3 font-medium">Email</th>
@@ -98,24 +98,24 @@ export default function Users({ users, filters }: Props) {
                                 <th className="px-5 py-3 font-medium">Actions</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-white/5">
+                        <tbody className="divide-y divide-ink-900/5">
                             {users.data.map((user) => (
-                                <tr key={user.id} className="text-gray-300 transition hover:bg-white/[0.02]">
+                                <tr key={user.id} className="text-ink-700 transition hover:bg-white/[0.02]">
                                     <td className="px-5 py-3 text-gray-500">#{user.id}</td>
                                     <td className="px-5 py-3">
                                         <div className="flex items-center gap-3">
-                                            <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gaming-purple/20 text-xs font-bold text-gaming-purple">
+                                            <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-neon-red/20 text-xs font-bold text-neon-red">
                                                 {user.profile?.avatar ? (
                                                     <img src={user.profile.avatar} alt="" className="h-full w-full object-cover" />
                                                 ) : (
                                                     user.name.charAt(0).toUpperCase()
                                                 )}
                                             </div>
-                                            <span className="font-medium text-white">{user.name}</span>
+                                            <span className="font-medium text-ink-900">{user.name}</span>
                                         </div>
                                     </td>
-                                    <td className="px-5 py-3 text-gray-400">{user.email}</td>
-                                    <td className="px-5 py-3 text-gaming-purple">{user.profile?.username || '--'}</td>
+                                    <td className="px-5 py-3 text-ink-500">{user.email}</td>
+                                    <td className="px-5 py-3 text-neon-red">{user.profile?.username || '--'}</td>
                                     <td className="px-5 py-3">{user.games_count}</td>
                                     <td className="px-5 py-3">{user.clips_count}</td>
                                     <td className="px-5 py-3 text-gray-500">{new Date(user.created_at).toLocaleDateString()}</td>
@@ -135,16 +135,16 @@ export default function Users({ users, filters }: Props) {
 
                 {/* Pagination */}
                 {users.last_page > 1 && (
-                    <div className="flex items-center justify-center gap-1 border-t border-white/5 px-5 py-4">
+                    <div className="flex items-center justify-center gap-1 border-t border-ink-900/5 px-5 py-4">
                         {users.links.map((link, i) => (
                             <Link
                                 key={i}
                                 href={link.url || '#'}
                                 className={`rounded-lg px-3 py-1.5 text-sm transition ${
                                     link.active
-                                        ? 'bg-gaming-purple text-white'
+                                        ? 'bg-neon-red text-white'
                                         : link.url
-                                          ? 'text-gray-400 hover:bg-white/5 hover:text-white'
+                                          ? 'text-ink-500 hover:bg-ink-900/5 hover:text-ink-900'
                                           : 'cursor-default text-gray-600'
                                 }`}
                                 dangerouslySetInnerHTML={{ __html: link.label }}

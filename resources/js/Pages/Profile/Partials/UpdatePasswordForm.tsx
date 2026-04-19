@@ -51,11 +51,11 @@ export default function UpdatePasswordForm({
     return (
         <section className={className}>
             <header>
-                <h2 className="text-lg font-medium text-white">
+                <h2 className="text-lg font-medium text-ink-900">
                     Update Password
                 </h2>
 
-                <p className="mt-1 text-sm text-gray-400">
+                <p className="mt-1 text-sm text-ink-500">
                     Ensure your account is using a long, random password to stay
                     secure.
                 </p>

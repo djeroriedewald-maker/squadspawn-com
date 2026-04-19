@@ -30,8 +30,8 @@ export default function PlayersIndex({
             <div className="py-8">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="mb-8 text-center">
-                        <h1 className="text-3xl font-bold text-white">Browse Players</h1>
-                        <p className="mt-2 text-gray-400">Find gamers to team up with</p>
+                        <h1 className="text-3xl font-bold text-ink-900">Browse Players</h1>
+                        <p className="mt-2 text-ink-500">Find gamers to team up with</p>
                     </div>
 
                     {/* Filters */}
@@ -39,7 +39,7 @@ export default function PlayersIndex({
                         <select
                             value={filters.game_id || ''}
                             onChange={(e) => handleFilter('game_id', e.target.value)}
-                            className="rounded-lg border border-white/10 bg-navy-800 px-4 py-2 text-sm text-white focus:border-gaming-purple focus:outline-none focus:ring-1 focus:ring-gaming-purple"
+                            className="rounded-lg border border-ink-900/10 bg-white px-4 py-2 text-sm text-ink-900 focus:border-neon-red focus:outline-none focus:ring-1 focus:ring-neon-red"
                         >
                             <option value="">All Games</option>
                             {games.map((g) => (
@@ -49,7 +49,7 @@ export default function PlayersIndex({
                         <select
                             value={filters.region || ''}
                             onChange={(e) => handleFilter('region', e.target.value)}
-                            className="rounded-lg border border-white/10 bg-navy-800 px-4 py-2 text-sm text-white focus:border-gaming-purple focus:outline-none focus:ring-1 focus:ring-gaming-purple"
+                            className="rounded-lg border border-ink-900/10 bg-white px-4 py-2 text-sm text-ink-900 focus:border-neon-red focus:outline-none focus:ring-1 focus:ring-neon-red"
                         >
                             <option value="">All Regions</option>
                             {regions.map((r) => (
@@ -60,8 +60,8 @@ export default function PlayersIndex({
 
                     {/* Players grid */}
                     {players.data.length === 0 ? (
-                        <div className="rounded-xl border border-white/10 bg-navy-800 p-12 text-center">
-                            <p className="text-lg font-medium text-gray-400">No players found</p>
+                        <div className="rounded-xl border border-ink-900/10 bg-white p-12 text-center">
+                            <p className="text-lg font-medium text-ink-500">No players found</p>
                             <p className="mt-2 text-sm text-gray-500">Try adjusting your filters</p>
                         </div>
                     ) : (
@@ -70,10 +70,10 @@ export default function PlayersIndex({
                                 <Link
                                     key={player.id}
                                     href={route('player.show', { username: player.profile?.username || player.id })}
-                                    className="group rounded-xl border border-white/10 bg-navy-800 p-5 transition hover:border-gaming-purple/40"
+                                    className="group rounded-xl border border-ink-900/10 bg-white p-5 transition hover:border-neon-red/40"
                                 >
                                     <div className="flex items-center gap-3">
-                                        <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-gaming-purple/30 to-gaming-green/30 font-bold text-white">
+                                        <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-neon-red to-neon-red-deep font-bold text-white">
                                             {player.profile?.avatar ? (
                                                 <img src={player.profile.avatar} alt="" className="h-full w-full object-cover" />
                                             ) : (
@@ -81,7 +81,7 @@ export default function PlayersIndex({
                                             )}
                                         </div>
                                         <div className="min-w-0">
-                                            <p className="truncate font-semibold text-white group-hover:text-gaming-purple">
+                                            <p className="truncate font-semibold text-ink-900 group-hover:text-neon-red">
                                                 {player.profile?.username || player.name}
                                             </p>
                                             <div className="flex items-center gap-1.5">
@@ -89,7 +89,7 @@ export default function PlayersIndex({
                                                     <span className="text-xs text-gray-500">{player.profile.region}</span>
                                                 )}
                                                 {player.profile?.looking_for && (
-                                                    <span className="rounded-full bg-gaming-purple/10 px-1.5 py-0.5 text-[10px] text-gaming-purple">
+                                                    <span className="rounded-full bg-neon-red/10 px-1.5 py-0.5 text-[10px] text-neon-red">
                                                         {player.profile.looking_for}
                                                     </span>
                                                 )}
@@ -101,17 +101,17 @@ export default function PlayersIndex({
                                     {player.games && player.games.length > 0 && (
                                         <div className="mt-3 flex flex-wrap gap-1">
                                             {player.games.slice(0, 3).map((game) => (
-                                                <div key={game.id} className="flex items-center gap-1 rounded-md bg-navy-900 px-2 py-1">
+                                                <div key={game.id} className="flex items-center gap-1 rounded-md bg-bone-50 px-2 py-1">
                                                     <img
                                                         src={game.cover_image || `/images/games/${game.slug}.svg`}
                                                         alt=""
                                                         className="h-4 w-6 rounded-sm object-cover"
                                                     />
-                                                    <span className="text-[10px] text-gray-400">{game.name.split(':')[0].split(' ').slice(0, 2).join(' ')}</span>
+                                                    <span className="text-[10px] text-ink-500">{game.name.split(':')[0].split(' ').slice(0, 2).join(' ')}</span>
                                                 </div>
                                             ))}
                                             {player.games.length > 3 && (
-                                                <span className="rounded-md bg-navy-900 px-2 py-1 text-[10px] text-gray-500">
+                                                <span className="rounded-md bg-bone-50 px-2 py-1 text-[10px] text-gray-500">
                                                     +{player.games.length - 3}
                                                 </span>
                                             )}
@@ -131,8 +131,8 @@ export default function PlayersIndex({
                                     href={route('players.public', { ...filters, page })}
                                     className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
                                         page === players.current_page
-                                            ? 'bg-gaming-purple text-white'
-                                            : 'bg-navy-800 text-gray-400 hover:text-white'
+                                            ? 'bg-neon-red text-white'
+                                            : 'bg-white text-ink-500 hover:text-ink-900'
                                     }`}
                                 >
                                     {page}
@@ -143,12 +143,12 @@ export default function PlayersIndex({
 
                     {/* CTA for guests */}
                     {!auth?.user && (
-                        <div className="mt-12 rounded-xl border border-gaming-purple/20 bg-gaming-purple/5 p-8 text-center">
-                            <h3 className="text-xl font-bold text-white">Want to connect with these players?</h3>
-                            <p className="mt-2 text-gray-400">Create a free account to like, match, and chat with gamers.</p>
+                        <div className="mt-12 rounded-xl border border-neon-red/20 bg-neon-red/5 p-8 text-center">
+                            <h3 className="text-xl font-bold text-ink-900">Want to connect with these players?</h3>
+                            <p className="mt-2 text-ink-500">Create a free account to like, match, and chat with gamers.</p>
                             <Link
                                 href={route('register')}
-                                className="mt-4 inline-block rounded-xl bg-gaming-purple px-6 py-3 font-bold text-white transition hover:bg-gaming-purple/80"
+                                className="mt-4 inline-block rounded-xl bg-neon-red px-6 py-3 font-bold text-white transition hover:bg-neon-red/80"
                             >
                                 Sign Up Free
                             </Link>
@@ -164,12 +164,12 @@ export default function PlayersIndex({
     }
 
     return (
-        <div className="min-h-screen bg-navy-900 text-white">
+        <div className="min-h-screen bg-bone-50 text-ink-900">
             <nav className="flex items-center justify-between px-6 py-4 lg:px-12">
-                <Link href="/" className="text-2xl font-bold text-gaming-purple">SquadSpawn</Link>
+                <Link href="/" className="text-2xl font-bold text-neon-red">SquadSpawn</Link>
                 <div className="flex items-center gap-4">
-                    <Link href={route('login')} className="text-sm text-gray-300 hover:text-white">Log in</Link>
-                    <Link href={route('register')} className="rounded-lg bg-gaming-purple px-4 py-2 text-sm font-semibold text-white">Sign up</Link>
+                    <Link href={route('login')} className="text-sm text-ink-700 hover:text-ink-900">Log in</Link>
+                    <Link href={route('register')} className="rounded-lg bg-neon-red px-4 py-2 text-sm font-semibold text-white">Sign up</Link>
                 </div>
             </nav>
             {content}

@@ -41,7 +41,7 @@ const statCards: { key: keyof Stats; label: string; color: string; icon: JSX.Ele
     {
         key: 'totalUsers',
         label: 'Total Users',
-        color: 'text-gaming-purple',
+        color: 'text-neon-red',
         icon: <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" /></svg>,
     },
     {
@@ -71,7 +71,7 @@ const statCards: { key: keyof Stats; label: string; color: string; icon: JSX.Ele
     {
         key: 'totalGames',
         label: 'Games',
-        color: 'text-gaming-purple',
+        color: 'text-neon-red',
         icon: <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0" /></svg>,
     },
     {
@@ -106,8 +106,8 @@ export default function Dashboard({ stats, recentReports, recentUsers }: Props) 
             <Head title="Admin Dashboard" />
 
             <div className="mb-8">
-                <h1 className="text-2xl font-bold text-white">Dashboard</h1>
-                <p className="mt-1 text-sm text-gray-400">Platform overview and statistics</p>
+                <h1 className="text-2xl font-bold text-ink-900">Dashboard</h1>
+                <p className="mt-1 text-sm text-ink-500">Platform overview and statistics</p>
             </div>
 
             {/* Stat Cards Grid - 2x5 */}
@@ -120,19 +120,19 @@ export default function Dashboard({ stats, recentReports, recentUsers }: Props) 
                             className={`card-gaming rounded-xl border p-4 ${
                                 isPending
                                     ? 'border-red-500/40 bg-red-500/5 shadow-lg shadow-red-500/10'
-                                    : 'border-white/10 bg-navy-800'
+                                    : 'border-ink-900/10 bg-white'
                             }`}
                         >
                             <div className="flex items-center gap-3">
                                 <div
                                     className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${
-                                        isPending ? 'bg-red-500/10' : 'bg-white/5'
+                                        isPending ? 'bg-red-500/10' : 'bg-ink-900/5'
                                     } ${card.color}`}
                                 >
                                     {card.icon}
                                 </div>
                                 <div>
-                                    <p className={`text-2xl font-bold ${isPending ? 'text-red-400' : 'text-white'}`}>
+                                    <p className={`text-2xl font-bold ${isPending ? 'text-red-400' : 'text-ink-900'}`}>
                                         {stats[card.key]}
                                     </p>
                                     <p className="text-xs text-gray-500">{card.label}</p>
@@ -146,15 +146,15 @@ export default function Dashboard({ stats, recentReports, recentUsers }: Props) 
             {/* Tables Row */}
             <div className="grid gap-6 lg:grid-cols-2">
                 {/* Recent Reports */}
-                <div className="rounded-xl border border-white/10 bg-navy-800 p-5">
-                    <h2 className="mb-4 text-lg font-bold text-white">Recent Reports</h2>
+                <div className="rounded-xl border border-ink-900/10 bg-white p-5">
+                    <h2 className="mb-4 text-lg font-bold text-ink-900">Recent Reports</h2>
                     {recentReports.length === 0 ? (
                         <p className="py-8 text-center text-sm text-gray-500">No pending reports</p>
                     ) : (
                         <div className="overflow-x-auto">
                             <table className="w-full text-left text-sm">
                                 <thead>
-                                    <tr className="border-b border-white/5 text-xs text-gray-500">
+                                    <tr className="border-b border-ink-900/5 text-xs text-gray-500">
                                         <th className="pb-3 font-medium">Reporter</th>
                                         <th className="pb-3 font-medium">Reported</th>
                                         <th className="pb-3 font-medium">Reason</th>
@@ -162,12 +162,12 @@ export default function Dashboard({ stats, recentReports, recentUsers }: Props) 
                                         <th className="pb-3 font-medium">Status</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-white/5">
+                                <tbody className="divide-y divide-ink-900/5">
                                     {recentReports.map((report) => (
-                                        <tr key={report.id} className="text-gray-300">
+                                        <tr key={report.id} className="text-ink-700">
                                             <td className="py-2.5">{report.reporter?.profile?.username || report.reporter?.name}</td>
                                             <td className="py-2.5">{report.reported?.profile?.username || report.reported?.name}</td>
-                                            <td className="py-2.5 text-gray-400">{report.reason}</td>
+                                            <td className="py-2.5 text-ink-500">{report.reason}</td>
                                             <td className="py-2.5 text-gray-500">{new Date(report.created_at).toLocaleDateString()}</td>
                                             <td className="py-2.5">
                                                 <span className="rounded-full bg-yellow-500/10 px-2 py-0.5 text-xs font-medium text-yellow-400">
@@ -183,24 +183,24 @@ export default function Dashboard({ stats, recentReports, recentUsers }: Props) 
                 </div>
 
                 {/* Recent Users */}
-                <div className="rounded-xl border border-white/10 bg-navy-800 p-5">
-                    <h2 className="mb-4 text-lg font-bold text-white">Recent Users</h2>
+                <div className="rounded-xl border border-ink-900/10 bg-white p-5">
+                    <h2 className="mb-4 text-lg font-bold text-ink-900">Recent Users</h2>
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-sm">
                             <thead>
-                                <tr className="border-b border-white/5 text-xs text-gray-500">
+                                <tr className="border-b border-ink-900/5 text-xs text-gray-500">
                                     <th className="pb-3 font-medium">Name</th>
                                     <th className="pb-3 font-medium">Email</th>
                                     <th className="pb-3 font-medium">Username</th>
                                     <th className="pb-3 font-medium">Joined</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-white/5">
+                            <tbody className="divide-y divide-ink-900/5">
                                 {recentUsers.map((user) => (
-                                    <tr key={user.id} className="text-gray-300">
-                                        <td className="py-2.5 font-medium text-white">{user.name}</td>
-                                        <td className="py-2.5 text-gray-400">{user.email}</td>
-                                        <td className="py-2.5 text-gaming-purple">{user.profile?.username || '--'}</td>
+                                    <tr key={user.id} className="text-ink-700">
+                                        <td className="py-2.5 font-medium text-ink-900">{user.name}</td>
+                                        <td className="py-2.5 text-ink-500">{user.email}</td>
+                                        <td className="py-2.5 text-neon-red">{user.profile?.username || '--'}</td>
                                         <td className="py-2.5 text-gray-500">{new Date(user.created_at).toLocaleDateString()}</td>
                                     </tr>
                                 ))}

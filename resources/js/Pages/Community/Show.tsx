@@ -39,7 +39,7 @@ const typeBadge = (type: string) => {
         news: 'bg-orange-500/20 text-orange-400',
     };
     return (
-        <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${styles[type] || 'bg-white/10 text-gray-400'}`}>
+        <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${styles[type] || 'bg-ink-900/10 text-ink-500'}`}>
             {type}
         </span>
     );
@@ -133,7 +133,7 @@ export default function CommunityShow({
                     {/* Back link */}
                     <Link
                         href={route('community.index')}
-                        className="mb-4 inline-flex items-center gap-1 text-sm text-gray-400 transition hover:text-white"
+                        className="mb-4 inline-flex items-center gap-1 text-sm text-ink-500 transition hover:text-ink-900"
                     >
                         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
@@ -142,7 +142,7 @@ export default function CommunityShow({
                     </Link>
 
                     {/* Post */}
-                    <div className="rounded-xl border border-white/10 bg-navy-800 p-6">
+                    <div className="rounded-xl border border-ink-900/10 bg-white p-6">
                         <div className="flex gap-4">
                             {/* Vote column */}
                             <div className="flex flex-col items-center gap-0.5">
@@ -160,7 +160,7 @@ export default function CommunityShow({
                                     </svg>
                                 </button>
                                 <span className={`text-sm font-bold ${
-                                    userVote === 1 ? 'text-gaming-green' : userVote === -1 ? 'text-red-400' : 'text-gray-400'
+                                    userVote === 1 ? 'text-gaming-green' : userVote === -1 ? 'text-red-400' : 'text-ink-500'
                                 }`}>
                                     {score}
                                 </span>
@@ -184,7 +184,7 @@ export default function CommunityShow({
                                 <div className="mb-3 flex flex-wrap items-center gap-2">
                                     {typeBadge(post.type)}
                                     {post.game && (
-                                        <span className="flex items-center gap-1.5 rounded-full bg-white/5 px-2.5 py-0.5 text-[10px] font-medium text-gray-300">
+                                        <span className="flex items-center gap-1.5 rounded-full bg-ink-900/5 px-2.5 py-0.5 text-[10px] font-medium text-ink-700">
                                             {post.game.cover_image && (
                                                 <img src={post.game.cover_image} alt="" className="h-4 w-4 rounded object-cover" />
                                             )}
@@ -193,18 +193,18 @@ export default function CommunityShow({
                                     )}
                                 </div>
 
-                                <h1 className="mb-3 text-xl font-bold text-white sm:text-2xl">{post.title}</h1>
+                                <h1 className="mb-3 text-xl font-bold text-ink-900 sm:text-2xl">{post.title}</h1>
 
                                 <div className="mb-4 flex items-center gap-3 text-xs text-gray-500">
                                     <Link
                                         href={route('player.show', { username: post.user?.profile?.username || post.user?.id })}
-                                        className="flex items-center gap-2 transition hover:text-white"
+                                        className="flex items-center gap-2 transition hover:text-ink-900"
                                     >
-                                        <div className="flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gaming-purple/20">
+                                        <div className="flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded-full bg-neon-red/20">
                                             {post.user?.profile?.avatar ? (
                                                 <img src={post.user.profile.avatar} alt="" className="h-full w-full object-cover" />
                                             ) : (
-                                                <span className="text-[9px] font-bold text-gaming-purple">
+                                                <span className="text-[9px] font-bold text-neon-red">
                                                     {(post.user?.profile?.username?.[0] || post.user?.name?.[0] || '?').toUpperCase()}
                                                 </span>
                                             )}
@@ -214,7 +214,7 @@ export default function CommunityShow({
                                     <span>{timeAgo(post.created_at)}</span>
                                 </div>
 
-                                <div className="prose prose-invert max-w-none text-sm leading-relaxed text-gray-300 whitespace-pre-wrap">
+                                <div className="prose prose-invert max-w-none text-sm leading-relaxed text-ink-700 whitespace-pre-wrap">
                                     {post.body}
                                 </div>
                             </div>
@@ -223,7 +223,7 @@ export default function CommunityShow({
 
                     {/* Comments section */}
                     <div className="mt-6">
-                        <h2 className="mb-4 text-lg font-bold text-white">
+                        <h2 className="mb-4 text-lg font-bold text-ink-900">
                             {post.comments_count} Comment{post.comments_count !== 1 ? 's' : ''}
                         </h2>
 
@@ -231,23 +231,23 @@ export default function CommunityShow({
                         {comments.length > 0 ? (
                             <div className="space-y-3">
                                 {comments.map((comment) => (
-                                    <div key={comment.id} className="rounded-xl border border-white/5 bg-navy-800/50 p-4">
+                                    <div key={comment.id} className="rounded-xl border border-ink-900/5 bg-bone-100/50 p-4">
                                         <div className="mb-2 flex items-center justify-between">
                                             <div className="flex items-center gap-2">
                                                 <Link
                                                     href={route('player.show', { username: comment.user?.profile?.username || comment.user?.id })}
-                                                    className="flex items-center gap-2 transition hover:text-white"
+                                                    className="flex items-center gap-2 transition hover:text-ink-900"
                                                 >
-                                                    <div className="flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gaming-purple/20">
+                                                    <div className="flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded-full bg-neon-red/20">
                                                         {comment.user?.profile?.avatar ? (
                                                             <img src={comment.user.profile.avatar} alt="" className="h-full w-full object-cover" />
                                                         ) : (
-                                                            <span className="text-[9px] font-bold text-gaming-purple">
+                                                            <span className="text-[9px] font-bold text-neon-red">
                                                                 {(comment.user?.profile?.username?.[0] || comment.user?.name?.[0] || '?').toUpperCase()}
                                                             </span>
                                                         )}
                                                     </div>
-                                                    <span className="text-xs font-medium text-white">
+                                                    <span className="text-xs font-medium text-ink-900">
                                                         {comment.user?.profile?.username || comment.user?.name}
                                                     </span>
                                                 </Link>
@@ -263,12 +263,12 @@ export default function CommunityShow({
                                                 </button>
                                             )}
                                         </div>
-                                        <p className="text-sm leading-relaxed text-gray-300 whitespace-pre-wrap">{comment.body}</p>
+                                        <p className="text-sm leading-relaxed text-ink-700 whitespace-pre-wrap">{comment.body}</p>
                                     </div>
                                 ))}
                             </div>
                         ) : (
-                            <div className="rounded-xl border border-white/5 bg-navy-800/50 p-8 text-center">
+                            <div className="rounded-xl border border-ink-900/5 bg-bone-100/50 p-8 text-center">
                                 <p className="text-sm text-gray-500">No comments yet. Be the first to share your thoughts!</p>
                             </div>
                         )}
@@ -282,24 +282,24 @@ export default function CommunityShow({
                                     placeholder="Write a comment..."
                                     maxLength={2000}
                                     rows={3}
-                                    className="w-full rounded-xl border border-white/10 bg-navy-900 px-4 py-3 text-sm text-white placeholder-gray-500 focus:border-gaming-purple focus:outline-none focus:ring-1 focus:ring-gaming-purple resize-y"
+                                    className="w-full rounded-xl border border-ink-900/10 bg-bone-50 px-4 py-3 text-sm text-ink-900 placeholder-gray-500 focus:border-neon-red focus:outline-none focus:ring-1 focus:ring-neon-red resize-y"
                                 />
                                 <div className="mt-2 flex justify-end">
                                     <button
                                         type="submit"
                                         disabled={submitting || !commentBody.trim()}
-                                        className="rounded-lg bg-gaming-purple px-5 py-2 text-sm font-semibold text-white transition hover:bg-gaming-purple/80 disabled:opacity-50"
+                                        className="rounded-lg bg-neon-red px-5 py-2 text-sm font-semibold text-white transition hover:bg-neon-red/80 disabled:opacity-50"
                                     >
                                         {submitting ? 'Posting...' : 'Post Comment'}
                                     </button>
                                 </div>
                             </form>
                         ) : (
-                            <div className="mt-4 rounded-xl border border-gaming-purple/20 bg-gaming-purple/5 p-4 text-center">
-                                <p className="text-sm text-gray-400">
-                                    <Link href={route('login')} className="font-semibold text-gaming-purple hover:text-gaming-purple/80">Log in</Link>
+                            <div className="mt-4 rounded-xl border border-neon-red/20 bg-neon-red/5 p-4 text-center">
+                                <p className="text-sm text-ink-500">
+                                    <Link href={route('login')} className="font-semibold text-neon-red hover:text-neon-red/80">Log in</Link>
                                     {' '}or{' '}
-                                    <Link href={route('register')} className="font-semibold text-gaming-purple hover:text-gaming-purple/80">sign up</Link>
+                                    <Link href={route('register')} className="font-semibold text-neon-red hover:text-neon-red/80">sign up</Link>
                                     {' '}to join the discussion.
                                 </p>
                             </div>
@@ -319,12 +319,12 @@ export default function CommunityShow({
     }
 
     return (
-        <div className="min-h-screen bg-navy-900 text-white">
+        <div className="min-h-screen bg-bone-50 text-ink-900">
             <nav className="flex items-center justify-between px-6 py-4 lg:px-12">
-                <Link href="/" className="text-2xl font-bold text-gaming-purple">SquadSpawn</Link>
+                <Link href="/" className="text-2xl font-bold text-neon-red">SquadSpawn</Link>
                 <div className="flex items-center gap-4">
-                    <Link href={route('login')} className="text-sm text-gray-300 hover:text-white">Log in</Link>
-                    <Link href={route('register')} className="rounded-lg bg-gaming-purple px-4 py-2 text-sm font-semibold text-white">Sign up</Link>
+                    <Link href={route('login')} className="text-sm text-ink-700 hover:text-ink-900">Log in</Link>
+                    <Link href={route('register')} className="rounded-lg bg-neon-red px-4 py-2 text-sm font-semibold text-white">Sign up</Link>
                 </div>
             </nav>
             {pageContent}

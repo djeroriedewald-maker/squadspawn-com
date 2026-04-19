@@ -11,8 +11,8 @@ export default function ResponsiveNavLink({
             {...props}
             className={`flex w-full items-start border-l-4 py-2 pe-4 ps-3 ${
                 active
-                    ? 'border-gaming-purple bg-gaming-purple/10 text-white focus:border-gaming-purple focus:bg-gaming-purple/20'
-                    : 'border-transparent text-gray-400 hover:border-gaming-purple/50 hover:bg-navy-700 hover:text-white focus:border-gaming-purple/50 focus:bg-navy-700 focus:text-white'
+                    ? 'border-neon-red bg-neon-red/10 text-neon-red focus:border-neon-red focus:bg-neon-red/20'
+                    : 'border-transparent text-ink-500 hover:border-neon-red/50 hover:bg-bone-100 hover:text-ink-900 focus:border-neon-red/50 focus:bg-bone-100 focus:text-ink-900'
             } text-base font-medium transition duration-150 ease-in-out focus:outline-none ${className}`}
         >
             {children}

@@ -20,7 +20,7 @@ const achievementIconMap: Record<string, string> = {
 };
 
 const achievementColorMap: Record<string, string> = {
-    purple: 'bg-gaming-purple/20 border-gaming-purple/40',
+    purple: 'bg-neon-red/20 border-neon-red/40',
     green: 'bg-gaming-green/20 border-gaming-green/40',
     cyan: 'bg-gaming-cyan/20 border-gaming-cyan/40',
     pink: 'bg-gaming-pink/20 border-gaming-pink/40',
@@ -78,7 +78,7 @@ const platformBadge = (platform: string) => {
         case 'twitch':
             return <span className="rounded-full bg-purple-600/20 px-2 py-0.5 text-[10px] font-bold uppercase text-purple-400">Twitch</span>;
         case 'tiktok':
-            return <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-bold uppercase text-gray-200">TikTok</span>;
+            return <span className="rounded-full bg-ink-900/10 px-2 py-0.5 text-[10px] font-bold uppercase text-ink-800">TikTok</span>;
         default:
             return null;
     }
@@ -119,7 +119,7 @@ export default function Show({
 
             {/* Success toast */}
             {showToast && flash?.message && (
-                <div className="fixed right-4 top-20 z-50 animate-pulse rounded-xl bg-gaming-green px-6 py-3 text-sm font-semibold text-navy-900 shadow-lg shadow-glow-green">
+                <div className="fixed right-4 top-20 z-50 animate-pulse rounded-xl bg-gaming-green px-6 py-3 text-sm font-semibold text-ink-900 shadow-lg shadow-glow-green">
                     {flash.message}
                 </div>
             )}
@@ -127,11 +127,11 @@ export default function Show({
             {!profile ? (
                 <div className="py-8">
                     <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-                        <div className="card-gaming rounded-2xl border border-white/10 bg-navy-800 p-12 text-center">
-                            <p className="text-lg font-medium text-gray-400">You haven't set up your profile yet</p>
+                        <div className="card-gaming rounded-2xl border border-ink-900/10 bg-white p-12 text-center">
+                            <p className="text-lg font-medium text-ink-500">You haven't set up your profile yet</p>
                             <Link
                                 href={route('game-profile.edit')}
-                                className="mt-6 inline-block rounded-xl bg-gaming-purple px-6 py-3 font-semibold text-white shadow-glow-purple transition hover:bg-gaming-purple/90"
+                                className="mt-6 inline-block rounded-xl bg-neon-red px-6 py-3 font-semibold text-white shadow-glow-red transition hover:bg-neon-red/90"
                             >
                                 Set Up Profile
                             </Link>
@@ -149,9 +149,9 @@ export default function Show({
                                 className="h-full w-full object-cover"
                             />
                         ) : (
-                            <div className="h-full w-full bg-gradient-to-r from-gaming-purple/30 via-navy-800 to-gaming-cyan/30" />
+                            <div className="h-full w-full bg-gradient-to-r from-neon-red/30 via-white to-gaming-cyan/30" />
                         )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-navy-900 via-navy-900/60 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-bone-50 via-bone-50/60 to-transparent" />
                         <div className="absolute inset-0 bg-grid opacity-20" />
                     </div>
 
@@ -159,7 +159,7 @@ export default function Show({
                         {/* Avatar + Header */}
                         <div className="relative -mt-16 flex flex-col items-center sm:flex-row sm:items-end sm:gap-6">
                             {/* Avatar with gradient border */}
-                            <div className="gradient-border relative z-10 flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden rounded-full bg-navy-800 text-4xl font-bold text-white">
+                            <div className="gradient-border relative z-10 flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white text-4xl font-bold text-ink-900">
                                 {profile.avatar ? (
                                     <img src={profile.avatar} alt={profile.username} className="h-full w-full object-cover" />
                                 ) : (
@@ -169,7 +169,7 @@ export default function Show({
 
                             <div className="mt-4 flex flex-1 flex-col items-center gap-3 sm:mt-0 sm:flex-row sm:items-end sm:justify-between">
                                 <div className="text-center sm:text-left">
-                                    <h1 className={`text-3xl font-bold text-white ${profile.is_creator ? 'text-neon-purple' : ''}`}>
+                                    <h1 className={`text-3xl font-bold text-ink-900 ${profile.is_creator ? 'text-neon-red' : ''}`}>
                                         {profile.username}
                                     </h1>
                                     <div className="mt-1.5 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
@@ -188,12 +188,12 @@ export default function Show({
                                             </span>
                                         )}
                                         {profile.looking_for && (
-                                            <span className="rounded-full bg-gaming-purple/20 px-3 py-0.5 text-xs font-medium text-gaming-purple">
+                                            <span className="rounded-full bg-neon-red/20 px-3 py-0.5 text-xs font-medium text-neon-red">
                                                 {lookingForLabels[profile.looking_for] || profile.looking_for}
                                             </span>
                                         )}
                                         {profile.region && (
-                                            <span className="rounded-full bg-white/5 px-3 py-0.5 text-xs font-medium text-gray-400">
+                                            <span className="rounded-full bg-ink-900/5 px-3 py-0.5 text-xs font-medium text-ink-500">
                                                 {profile.region}
                                             </span>
                                         )}
@@ -208,13 +208,13 @@ export default function Show({
                                             setCopied(true);
                                             setTimeout(() => setCopied(false), 2000);
                                         }}
-                                        className="rounded-lg border border-white/10 bg-navy-800 px-4 py-2 text-sm font-medium text-gray-300 transition hover:border-gaming-purple/30 hover:bg-navy-700 hover:text-white"
+                                        className="rounded-lg border border-ink-900/10 bg-white px-4 py-2 text-sm font-medium text-ink-700 transition hover:border-neon-red/30 hover:bg-bone-100 hover:text-ink-900"
                                     >
                                         {copied ? 'Copied!' : 'Share'}
                                     </button>
                                     <Link
                                         href={route('game-profile.edit')}
-                                        className="rounded-lg bg-gaming-purple px-4 py-2 text-sm font-bold text-white shadow-glow-purple transition hover:bg-gaming-purple/90"
+                                        className="rounded-lg bg-neon-red px-4 py-2 text-sm font-bold text-white shadow-glow-red transition hover:bg-neon-red/90"
                                     >
                                         Edit Profile
                                     </Link>
@@ -224,19 +224,19 @@ export default function Show({
 
                         {/* Stats Row */}
                         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                            <div className="glow-border rounded-xl border border-white/5 bg-navy-800 p-4 text-center">
-                                <p className="text-2xl font-bold text-neon-purple text-gaming-purple">{userGames.length}</p>
+                            <div className="glow-border rounded-xl border border-ink-900/5 bg-white p-4 text-center">
+                                <p className="text-2xl font-bold text-neon-red">{userGames.length}</p>
                                 <p className="mt-0.5 text-xs font-medium uppercase tracking-wider text-gray-500">Games</p>
                             </div>
-                            <div className="glow-border-green rounded-xl border border-white/5 bg-navy-800 p-4 text-center">
+                            <div className="glow-border-green rounded-xl border border-ink-900/5 bg-white p-4 text-center">
                                 <p className="text-2xl font-bold text-neon-green text-gaming-green">{clips.length}</p>
                                 <p className="mt-0.5 text-xs font-medium uppercase tracking-wider text-gray-500">Clips</p>
                             </div>
-                            <div className="glow-border-cyan rounded-xl border border-white/5 bg-navy-800 p-4 text-center">
-                                <p className="text-2xl font-bold text-neon-cyan text-gaming-cyan">{friendsCount}</p>
+                            <div className="glow-border-cyan rounded-xl border border-ink-900/5 bg-white p-4 text-center">
+                                <p className="text-2xl font-bold text-gaming-cyan text-neon-cyan">{friendsCount}</p>
                                 <p className="mt-0.5 text-xs font-medium uppercase tracking-wider text-gray-500">Friends</p>
                             </div>
-                            <div className="rounded-xl border border-gaming-orange/20 bg-navy-800 p-4 text-center">
+                            <div className="rounded-xl border border-gaming-orange/20 bg-white p-4 text-center">
                                 <div className="flex items-center justify-center gap-1.5">
                                     <StarRating score={profile.reputation_score || 0} />
                                     <span className="text-sm font-bold text-gaming-orange">{profile.reputation_score || '0.0'}</span>
@@ -247,9 +247,9 @@ export default function Show({
 
                         {/* Bio */}
                         {profile.bio && (
-                            <div className="card-gaming mt-6 rounded-2xl border border-white/5 bg-navy-800 p-6">
+                            <div className="card-gaming mt-6 rounded-2xl border border-ink-900/5 bg-white p-6">
                                 <h3 className="mb-2 text-sm font-bold uppercase tracking-wider text-gray-500">About</h3>
-                                <p className="text-sm leading-relaxed text-gray-300">{profile.bio}</p>
+                                <p className="text-sm leading-relaxed text-ink-700">{profile.bio}</p>
                             </div>
                         )}
 
@@ -265,7 +265,7 @@ export default function Show({
                             <div className="mt-6">
                                 <div className="mb-3 flex items-center justify-between">
                                     <h3 className="text-sm font-bold uppercase tracking-wider text-gray-500">Achievements</h3>
-                                    <Link href={route('achievements.index')} className="text-xs text-gaming-purple hover:underline">
+                                    <Link href={route('achievements.index')} className="text-xs text-neon-red hover:underline">
                                         View All
                                     </Link>
                                 </div>
@@ -279,9 +279,9 @@ export default function Show({
                                                 title={`${achievement.name}: ${achievement.description}`}
                                             >
                                                 <span className="text-base">{achievementIconMap[achievement.icon] || '\uD83C\uDFC6'}</span>
-                                                <span className="text-xs font-semibold text-gray-300">{achievement.name}</span>
+                                                <span className="text-xs font-semibold text-ink-700">{achievement.name}</span>
                                                 {/* Tooltip */}
-                                                <div className="pointer-events-none absolute -top-10 left-1/2 z-50 -translate-x-1/2 whitespace-nowrap rounded-lg bg-navy-700 px-3 py-1.5 text-xs text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
+                                                <div className="pointer-events-none absolute -top-10 left-1/2 z-50 -translate-x-1/2 whitespace-nowrap rounded-lg bg-bone-100 px-3 py-1.5 text-xs text-ink-700 opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
                                                     {achievement.description}
                                                 </div>
                                             </div>
@@ -294,32 +294,32 @@ export default function Show({
                         {/* Games */}
                         <div className="mt-8">
                             <div className="mb-4 flex items-center justify-between">
-                                <h3 className="text-lg font-bold text-white">My Games</h3>
+                                <h3 className="text-lg font-bold text-ink-900">My Games</h3>
                                 <span className="text-sm text-gray-500">{userGames.length} game{userGames.length !== 1 ? 's' : ''}</span>
                             </div>
                             {userGames.length === 0 ? (
-                                <div className="card-gaming rounded-2xl border border-white/5 bg-navy-800 py-8 text-center">
+                                <div className="card-gaming rounded-2xl border border-ink-900/5 bg-white py-8 text-center">
                                     <p className="text-gray-500">No games added yet.</p>
-                                    <Link href={route('game-profile.edit')} className="mt-3 inline-block text-sm text-gaming-purple hover:underline">Add Games</Link>
+                                    <Link href={route('game-profile.edit')} className="mt-3 inline-block text-sm text-neon-red hover:underline">Add Games</Link>
                                 </div>
                             ) : (
                                 <div className="grid gap-4 sm:grid-cols-2">
                                     {userGames.map((game) => (
-                                        <div key={game.id} className="card-gaming group overflow-hidden rounded-xl border border-white/5 bg-navy-800 transition">
+                                        <div key={game.id} className="card-gaming group overflow-hidden rounded-xl border border-ink-900/5 bg-white transition">
                                             <div className="relative h-32 overflow-hidden">
                                                 <img
                                                     src={game.cover_image || `/images/games/${game.slug}.svg`}
                                                     alt={game.name}
                                                     className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
                                                 />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-navy-800 via-navy-800/40 to-transparent" />
+                                                <div className="absolute inset-0 bg-gradient-to-t from-white via-bone-100/40 to-transparent" />
                                                 <div className="absolute bottom-3 left-4 right-4">
-                                                    <p className="text-lg font-bold text-white">{game.name}</p>
-                                                    <p className="text-xs text-gray-400">{game.genre}</p>
+                                                    <p className="text-lg font-bold text-ink-900">{game.name}</p>
+                                                    <p className="text-xs text-ink-500">{game.genre}</p>
                                                 </div>
                                                 {game.pivot?.rank && (
                                                     <div className="absolute right-3 top-3">
-                                                        <span className="glow-border-green rounded-lg bg-navy-900/80 px-3 py-1 text-xs font-bold text-gaming-green backdrop-blur-sm">
+                                                        <span className="glow-border-green rounded-lg bg-bone-50/80 px-3 py-1 text-xs font-bold text-gaming-green backdrop-blur-sm">
                                                             {game.pivot.rank}
                                                         </span>
                                                     </div>
@@ -332,7 +332,7 @@ export default function Show({
                                                     </span>
                                                 )}
                                                 {game.pivot?.platform && (
-                                                    <span className="rounded-md bg-white/5 px-2.5 py-0.5 text-xs capitalize text-gray-400">
+                                                    <span className="rounded-md bg-ink-900/5 px-2.5 py-0.5 text-xs capitalize text-ink-500">
                                                         {game.pivot.platform}
                                                     </span>
                                                 )}
@@ -347,8 +347,8 @@ export default function Show({
                         {clips && clips.length > 0 && (
                             <div className="mt-8">
                                 <div className="mb-4 flex items-center justify-between">
-                                    <h3 className="text-lg font-bold text-white">My Clips</h3>
-                                    <Link href={route('clips.index')} className="text-sm text-gaming-purple hover:underline">View All</Link>
+                                    <h3 className="text-lg font-bold text-ink-900">My Clips</h3>
+                                    <Link href={route('clips.index')} className="text-sm text-neon-red hover:underline">View All</Link>
                                 </div>
                                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                                     {clips.map((clip) => {
@@ -359,19 +359,19 @@ export default function Show({
                                                 href={clip.url}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="card-gaming group overflow-hidden rounded-xl border border-white/5 bg-navy-800 transition"
+                                                className="card-gaming group overflow-hidden rounded-xl border border-ink-900/5 bg-white transition"
                                             >
                                                 <div className="relative aspect-video overflow-hidden">
                                                     {thumbnail ? (
                                                         <img src={thumbnail} alt={clip.title} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
                                                     ) : (
-                                                        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gaming-purple/20 to-gaming-cyan/20">
+                                                        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-neon-red/20 to-gaming-cyan/20">
                                                             <svg className="h-8 w-8 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" /></svg>
                                                         </div>
                                                     )}
                                                     <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 transition group-hover:opacity-100">
-                                                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gaming-purple/30 shadow-glow-purple backdrop-blur">
-                                                            <svg className="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                                                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-neon-red/30 shadow-glow-red backdrop-blur">
+                                                            <svg className="h-6 w-6 text-ink-900" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
                                                         </div>
                                                     </div>
                                                     <div className="absolute right-2 top-2">
@@ -379,7 +379,7 @@ export default function Show({
                                                     </div>
                                                 </div>
                                                 <div className="p-3">
-                                                    <p className="truncate text-sm font-semibold text-white">{clip.title}</p>
+                                                    <p className="truncate text-sm font-semibold text-ink-900">{clip.title}</p>
                                                     {clip.game && (
                                                         <p className="mt-0.5 text-xs text-gray-500">{clip.game.name}</p>
                                                     )}

@@ -17,13 +17,13 @@ export default function Authenticated({
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
 
     return (
-        <div className="min-h-screen bg-navy-900">
-            <nav className="relative z-50 border-b border-white/5 bg-navy-900/80 backdrop-blur-xl">
+        <div className="min-h-screen bg-bone-50">
+            <nav className="relative z-50 border-b border-ink-900/5 bg-bone-50/80 backdrop-blur-xl">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="flex h-16 justify-between">
                         <div className="flex">
                             <div className="flex shrink-0 items-center">
-                                <Link href="/" className="text-xl font-bold text-gaming-purple text-neon-purple">
+                                <Link href="/" className="text-xl font-bold text-neon-red">
                                     SquadSpawn
                                 </Link>
                             </div>
@@ -62,7 +62,7 @@ export default function Authenticated({
                                         <span className="inline-flex rounded-md">
                                             <button
                                                 type="button"
-                                                className="inline-flex items-center rounded-md border border-white/10 bg-navy-700 px-3 py-2 text-sm font-medium leading-4 text-gray-300 transition duration-150 ease-in-out hover:text-white focus:outline-none"
+                                                className="inline-flex items-center rounded-md border border-ink-900/10 bg-bone-100 px-3 py-2 text-sm font-medium leading-4 text-ink-700 transition duration-150 ease-in-out hover:text-ink-900 focus:outline-none"
                                             >
                                                 {user.name}
                                                 <svg
@@ -85,11 +85,11 @@ export default function Authenticated({
                                         {user.is_admin && (
                                             <Dropdown.Link href={route('admin.dashboard')}>
                                                 <span className="flex items-center gap-2">
-                                                    <svg className="h-4 w-4 text-gaming-purple" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                                                    <svg className="h-4 w-4 text-neon-red" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                                                         <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
                                                         <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                     </svg>
-                                                    <span className="text-gaming-purple">Admin</span>
+                                                    <span className="text-neon-red">Admin</span>
                                                 </span>
                                             </Dropdown.Link>
                                         )}
@@ -100,7 +100,7 @@ export default function Authenticated({
                                             <span className="flex items-center gap-2">
                                                 <span>Achievements</span>
                                                 {achievementCount > 0 && (
-                                                    <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-gaming-purple/20 px-1.5 text-[10px] font-bold text-gaming-purple">
+                                                    <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-neon-red/20 px-1.5 text-[10px] font-bold text-neon-red">
                                                         {achievementCount}
                                                     </span>
                                                 )}
@@ -120,7 +120,7 @@ export default function Authenticated({
                         <div className="-me-2 flex items-center sm:hidden">
                             <button
                                 onClick={() => setShowingNavigationDropdown((prev) => !prev)}
-                                className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 transition duration-150 ease-in-out hover:bg-navy-700 hover:text-white focus:bg-navy-700 focus:text-white focus:outline-none"
+                                className="inline-flex items-center justify-center rounded-md p-2 text-ink-500 transition duration-150 ease-in-out hover:bg-bone-100 hover:text-ink-900 focus:bg-bone-100 focus:text-ink-900 focus:outline-none"
                             >
                                 <svg className="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                                     <path
@@ -164,15 +164,15 @@ export default function Authenticated({
                         </ResponsiveNavLink>
                     </div>
 
-                    <div className="border-t border-white/10 pb-1 pt-4">
+                    <div className="border-t border-ink-900/10 pb-1 pt-4">
                         <div className="px-4">
                             <div className="flex items-center gap-2">
-                                <span className="text-base font-medium text-white">{user.name}</span>
+                                <span className="text-base font-medium text-ink-900">{user.name}</span>
                                 {user.profile?.level && user.profile.level > 1 && (
                                     <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
                                         user.profile.level >= 6 ? 'bg-yellow-400/20 text-yellow-400' :
                                         user.profile.level >= 5 ? 'bg-gaming-pink/20 text-gaming-pink' :
-                                        user.profile.level >= 4 ? 'bg-gaming-purple/20 text-gaming-purple' :
+                                        user.profile.level >= 4 ? 'bg-neon-red/20 text-neon-red' :
                                         user.profile.level >= 3 ? 'bg-gaming-cyan/20 text-gaming-cyan' :
                                         'bg-gaming-green/20 text-gaming-green'
                                     }`}>
@@ -180,7 +180,7 @@ export default function Authenticated({
                                     </span>
                                 )}
                             </div>
-                            <div className="mt-0.5 text-sm font-medium text-gray-400">{user.email}</div>
+                            <div className="mt-0.5 text-sm font-medium text-ink-500">{user.email}</div>
                             {user.profile?.xp !== undefined && (
                                 <div className="mt-2">
                                     <div className="mb-1 flex items-center justify-between text-[10px]">
@@ -193,8 +193,8 @@ export default function Authenticated({
                                              user.profile.level >= 2 ? 'Player' : 'Rookie'}
                                         </span>
                                     </div>
-                                    <div className="h-1.5 overflow-hidden rounded-full bg-navy-700">
-                                        <div className="h-full rounded-full bg-gradient-to-r from-gaming-purple to-gaming-green transition-all" style={{ width: `${Math.min(((user.profile.xp || 0) / 5000) * 100, 100)}%` }} />
+                                    <div className="h-1.5 overflow-hidden rounded-full bg-bone-100">
+                                        <div className="h-full rounded-full bg-gradient-to-r from-neon-red to-gaming-green transition-all" style={{ width: `${Math.min(((user.profile.xp || 0) / 5000) * 100, 100)}%` }} />
                                     </div>
                                 </div>
                             )}
@@ -203,7 +203,7 @@ export default function Authenticated({
                         <div className="mt-3 space-y-1">
                             {user.is_admin && (
                                 <ResponsiveNavLink href={route('admin.dashboard')}>
-                                    <span className="text-gaming-purple">Admin Panel</span>
+                                    <span className="text-neon-red">Admin Panel</span>
                                 </ResponsiveNavLink>
                             )}
                             <ResponsiveNavLink href={route('friends.index')}>
@@ -213,7 +213,7 @@ export default function Authenticated({
                                 <span className="flex items-center gap-2">
                                     Achievements & XP
                                     {achievementCount > 0 && (
-                                        <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-gaming-purple/20 px-1.5 text-[10px] font-bold text-gaming-purple">
+                                        <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-neon-red/20 px-1.5 text-[10px] font-bold text-neon-red">
                                             {achievementCount}
                                         </span>
                                     )}
@@ -231,7 +231,7 @@ export default function Authenticated({
             </nav>
 
             {header && (
-                <header className="border-b border-white/5 bg-navy-800/50">
+                <header className="border-b border-ink-900/5 bg-bone-100/50">
                     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
                         {header}
                     </div>
@@ -240,16 +240,16 @@ export default function Authenticated({
 
             <main>{children}</main>
 
-            <footer className="mt-auto border-t border-white/5 bg-navy-900 px-6 py-6 lg:px-12">
+            <footer className="mt-auto border-t border-ink-900/5 bg-bone-50 px-6 py-6 lg:px-12">
                 <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 sm:flex-row">
                     <div className="flex gap-4 text-xs text-gray-500">
-                        <a href="/privacy-policy" className="transition hover:text-gray-300">Privacy Policy</a>
-                        <a href="/terms-of-service" className="transition hover:text-gray-300">Terms of Service</a>
-                        <a href="/cookie-policy" className="transition hover:text-gray-300">Cookie Policy</a>
+                        <a href="/privacy-policy" className="transition hover:text-ink-700">Privacy Policy</a>
+                        <a href="/terms-of-service" className="transition hover:text-ink-700">Terms of Service</a>
+                        <a href="/cookie-policy" className="transition hover:text-ink-700">Cookie Policy</a>
                     </div>
                     <p className="text-xs text-gray-500">
                         &copy; {new Date().getFullYear()} SquadSpawn &middot; Built by{' '}
-                        <a href="https://budgetpixels.nl" target="_blank" rel="noopener noreferrer" className="text-gaming-purple hover:text-gaming-purple/80">
+                        <a href="https://budgetpixels.nl" target="_blank" rel="noopener noreferrer" className="text-neon-red hover:text-neon-red/80">
                             BudgetPixels.nl
                         </a>
                     </p>

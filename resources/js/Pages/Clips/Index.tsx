@@ -23,7 +23,7 @@ const platformBadge = (platform: string) => {
         case 'twitch':
             return <span className="rounded-full bg-purple-600/20 px-2.5 py-0.5 text-[10px] font-bold uppercase text-purple-400">Twitch</span>;
         case 'tiktok':
-            return <span className="rounded-full bg-white/10 px-2.5 py-0.5 text-[10px] font-bold uppercase text-gray-200">TikTok</span>;
+            return <span className="rounded-full bg-ink-900/10 px-2.5 py-0.5 text-[10px] font-bold uppercase text-ink-800">TikTok</span>;
         default:
             return null;
     }
@@ -33,20 +33,20 @@ function ClipCard({ clip, onDelete }: { clip: Clip; onDelete?: (id: number) => v
     const thumbnail = clip.thumbnail || (clip.platform === 'youtube' ? getYouTubeThumbnail(clip.url) : null);
 
     return (
-        <div className="group overflow-hidden rounded-xl border border-white/10 bg-navy-800 transition hover:border-gaming-purple/30">
+        <div className="group overflow-hidden rounded-xl border border-ink-900/10 bg-white transition hover:border-neon-red/30">
             {/* Thumbnail / Preview */}
-            <a href={clip.url} target="_blank" rel="noopener noreferrer" className="relative block aspect-video overflow-hidden bg-navy-900">
+            <a href={clip.url} target="_blank" rel="noopener noreferrer" className="relative block aspect-video overflow-hidden bg-bone-50">
                 {thumbnail ? (
                     <img src={thumbnail} alt={clip.title} className="h-full w-full object-cover transition group-hover:scale-105" />
                 ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gaming-purple/20 to-gaming-green/20">
+                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-neon-red/20 to-gaming-green/20">
                         <svg className="h-10 w-10 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" /></svg>
                     </div>
                 )}
                 {/* Play overlay */}
                 <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 transition group-hover:opacity-100">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20 backdrop-blur">
-                        <svg className="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-ink-900/20 backdrop-blur">
+                        <svg className="h-6 w-6 text-ink-900" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
                     </div>
                 </div>
                 {/* Platform badge */}
@@ -57,13 +57,13 @@ function ClipCard({ clip, onDelete }: { clip: Clip; onDelete?: (id: number) => v
 
             {/* Info */}
             <div className="p-3">
-                <h4 className="truncate text-sm font-semibold text-white">{clip.title}</h4>
+                <h4 className="truncate text-sm font-semibold text-ink-900">{clip.title}</h4>
                 <div className="mt-2 flex items-center gap-2.5">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-gaming-purple/30 to-gaming-green/30">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-neon-red to-neon-red-deep">
                         {clip.user?.profile?.avatar ? (
                             <img src={clip.user.profile.avatar} alt="" className="h-full w-full object-cover" />
                         ) : (
-                            <span className="text-xs font-bold text-gaming-purple">
+                            <span className="text-xs font-bold text-neon-red">
                                 {(clip.user?.profile?.username?.[0] || clip.user?.name?.[0] || '?').toUpperCase()}
                             </span>
                         )}
@@ -71,7 +71,7 @@ function ClipCard({ clip, onDelete }: { clip: Clip; onDelete?: (id: number) => v
                     <div className="min-w-0 flex-1">
                         <Link
                             href={route('player.show', { username: clip.user?.profile?.username || clip.user?.id })}
-                            className="block truncate text-xs font-medium text-white hover:text-gaming-purple"
+                            className="block truncate text-xs font-medium text-ink-900 hover:text-neon-red"
                         >
                             {clip.user?.profile?.username || clip.user?.name}
                         </Link>
@@ -174,15 +174,15 @@ export default function ClipsIndex({
                     {/* Header */}
                     <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                            <h1 className="text-2xl font-bold text-white">Clips & Highlights</h1>
-                            <p className="mt-1 text-sm text-gray-400">Share your best gaming moments</p>
+                            <h1 className="text-2xl font-bold text-ink-900">Clips & Highlights</h1>
+                            <p className="mt-1 text-sm text-ink-500">Share your best gaming moments</p>
                         </div>
                         <div className="flex items-center gap-3">
                             {/* Game filter */}
                             <select
                                 value={filters.game_id || ''}
                                 onChange={(e) => handleGameFilter(e.target.value)}
-                                className="rounded-lg border border-white/10 bg-navy-800 px-3 py-2 text-sm text-white focus:border-gaming-purple focus:outline-none focus:ring-1 focus:ring-gaming-purple"
+                                className="rounded-lg border border-ink-900/10 bg-white px-3 py-2 text-sm text-ink-900 focus:border-neon-red focus:outline-none focus:ring-1 focus:ring-neon-red"
                             >
                                 <option value="">All Games</option>
                                 {games.map((game) => (
@@ -193,7 +193,7 @@ export default function ClipsIndex({
                             {isLoggedIn ? (
                                 <button
                                     onClick={() => setShowForm(!showForm)}
-                                    className="flex items-center gap-2 rounded-lg bg-gaming-purple px-4 py-2 text-sm font-semibold text-white transition hover:bg-gaming-purple/80"
+                                    className="flex items-center gap-2 rounded-lg bg-neon-red px-4 py-2 text-sm font-semibold text-white transition hover:bg-neon-red/80"
                                 >
                                     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
                                     Share a Clip
@@ -201,7 +201,7 @@ export default function ClipsIndex({
                             ) : (
                                 <Link
                                     href={route('register')}
-                                    className="flex items-center gap-2 rounded-lg bg-gaming-purple px-4 py-2 text-sm font-semibold text-white transition hover:bg-gaming-purple/80"
+                                    className="flex items-center gap-2 rounded-lg bg-neon-red px-4 py-2 text-sm font-semibold text-white transition hover:bg-neon-red/80"
                                 >
                                     Sign Up to Share
                                 </Link>
@@ -211,39 +211,39 @@ export default function ClipsIndex({
 
                     {/* Share Form */}
                     {showForm && isLoggedIn && (
-                        <div className="mb-8 rounded-xl border border-gaming-purple/20 bg-navy-800 p-6">
-                            <h3 className="mb-4 text-lg font-semibold text-white">Share a Clip</h3>
+                        <div className="mb-8 rounded-xl border border-neon-red/20 bg-white p-6">
+                            <h3 className="mb-4 text-lg font-semibold text-ink-900">Share a Clip</h3>
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <div className="grid gap-4 sm:grid-cols-2">
                                     <div>
-                                        <label className="mb-1 block text-sm font-medium text-gray-300">URL *</label>
+                                        <label className="mb-1 block text-sm font-medium text-ink-700">URL *</label>
                                         <input
                                             type="url"
                                             value={formUrl}
                                             onChange={(e) => handleUrlChange(e.target.value)}
                                             placeholder="https://youtube.com/watch?v=..."
-                                            className="w-full rounded-lg border border-white/10 bg-navy-700 px-4 py-2 text-white placeholder-gray-500 focus:border-gaming-purple focus:outline-none focus:ring-1 focus:ring-gaming-purple"
+                                            className="w-full rounded-lg border border-ink-900/10 bg-bone-100 px-4 py-2 text-ink-900 placeholder-gray-500 focus:border-neon-red focus:outline-none focus:ring-1 focus:ring-neon-red"
                                             required
                                         />
                                     </div>
                                     <div>
-                                        <label className="mb-1 block text-sm font-medium text-gray-300">Title *</label>
+                                        <label className="mb-1 block text-sm font-medium text-ink-700">Title *</label>
                                         <input
                                             type="text"
                                             value={formTitle}
                                             onChange={(e) => setFormTitle(e.target.value)}
                                             placeholder="Insane 1v5 clutch"
                                             maxLength={100}
-                                            className="w-full rounded-lg border border-white/10 bg-navy-700 px-4 py-2 text-white placeholder-gray-500 focus:border-gaming-purple focus:outline-none focus:ring-1 focus:ring-gaming-purple"
+                                            className="w-full rounded-lg border border-ink-900/10 bg-bone-100 px-4 py-2 text-ink-900 placeholder-gray-500 focus:border-neon-red focus:outline-none focus:ring-1 focus:ring-neon-red"
                                             required
                                         />
                                     </div>
                                     <div>
-                                        <label className="mb-1 block text-sm font-medium text-gray-300">Game</label>
+                                        <label className="mb-1 block text-sm font-medium text-ink-700">Game</label>
                                         <select
                                             value={formGameId}
                                             onChange={(e) => setFormGameId(e.target.value)}
-                                            className="w-full rounded-lg border border-white/10 bg-navy-700 px-4 py-2 text-white focus:border-gaming-purple focus:outline-none focus:ring-1 focus:ring-gaming-purple"
+                                            className="w-full rounded-lg border border-ink-900/10 bg-bone-100 px-4 py-2 text-ink-900 focus:border-neon-red focus:outline-none focus:ring-1 focus:ring-neon-red"
                                         >
                                             <option value="">Select game (optional)</option>
                                             {games.map((game) => (
@@ -252,11 +252,11 @@ export default function ClipsIndex({
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="mb-1 block text-sm font-medium text-gray-300">Platform *</label>
+                                        <label className="mb-1 block text-sm font-medium text-ink-700">Platform *</label>
                                         <select
                                             value={formPlatform}
                                             onChange={(e) => setFormPlatform(e.target.value)}
-                                            className="w-full rounded-lg border border-white/10 bg-navy-700 px-4 py-2 text-white focus:border-gaming-purple focus:outline-none focus:ring-1 focus:ring-gaming-purple"
+                                            className="w-full rounded-lg border border-ink-900/10 bg-bone-100 px-4 py-2 text-ink-900 focus:border-neon-red focus:outline-none focus:ring-1 focus:ring-neon-red"
                                             required
                                         >
                                             <option value="">Select platform</option>
@@ -269,9 +269,9 @@ export default function ClipsIndex({
 
                                 {/* YouTube preview */}
                                 {formPlatform === 'youtube' && getYouTubeThumbnail(formUrl) && (
-                                    <div className="flex items-center gap-3 rounded-lg border border-white/5 bg-navy-900 p-3">
+                                    <div className="flex items-center gap-3 rounded-lg border border-ink-900/5 bg-bone-50 p-3">
                                         <img src={getYouTubeThumbnail(formUrl)!} alt="Preview" className="h-16 w-28 rounded object-cover" />
-                                        <span className="text-xs text-gray-400">Preview</span>
+                                        <span className="text-xs text-ink-500">Preview</span>
                                     </div>
                                 )}
 
@@ -283,14 +283,14 @@ export default function ClipsIndex({
                                     <button
                                         type="submit"
                                         disabled={submitting}
-                                        className="rounded-lg bg-gaming-purple px-5 py-2 text-sm font-semibold text-white transition hover:bg-gaming-purple/80 disabled:opacity-50"
+                                        className="rounded-lg bg-neon-red px-5 py-2 text-sm font-semibold text-white transition hover:bg-neon-red/80 disabled:opacity-50"
                                     >
                                         {submitting ? 'Sharing...' : 'Share Clip'}
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setShowForm(false)}
-                                        className="rounded-lg px-4 py-2 text-sm text-gray-400 transition hover:text-white"
+                                        className="rounded-lg px-4 py-2 text-sm text-ink-500 transition hover:text-ink-900"
                                     >
                                         Cancel
                                     </button>
@@ -301,12 +301,12 @@ export default function ClipsIndex({
 
                     {/* Guest CTA */}
                     {!isLoggedIn && (
-                        <div className="mb-8 rounded-xl border border-gaming-purple/20 bg-gaming-purple/5 p-6 text-center">
-                            <p className="font-semibold text-white">Want to share your clips?</p>
-                            <p className="mt-1 text-sm text-gray-400">Create a free account to start sharing your best gaming moments.</p>
+                        <div className="mb-8 rounded-xl border border-neon-red/20 bg-neon-red/5 p-6 text-center">
+                            <p className="font-semibold text-ink-900">Want to share your clips?</p>
+                            <p className="mt-1 text-sm text-ink-500">Create a free account to start sharing your best gaming moments.</p>
                             <Link
                                 href={route('register')}
-                                className="mt-3 inline-block rounded-lg bg-gaming-purple px-5 py-2.5 text-sm font-bold text-white transition hover:bg-gaming-purple/80"
+                                className="mt-3 inline-block rounded-lg bg-neon-red px-5 py-2.5 text-sm font-bold text-white transition hover:bg-neon-red/80"
                             >
                                 Sign Up Free
                             </Link>
@@ -315,9 +315,9 @@ export default function ClipsIndex({
 
                     {/* Clips Grid */}
                     {clips.data.length === 0 ? (
-                        <div className="rounded-2xl border border-white/10 bg-navy-800 p-12 text-center">
+                        <div className="rounded-2xl border border-ink-900/10 bg-white p-12 text-center">
                             <svg className="mx-auto h-12 w-12 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" /></svg>
-                            <p className="mt-4 text-lg font-medium text-gray-400">No clips yet</p>
+                            <p className="mt-4 text-lg font-medium text-ink-500">No clips yet</p>
                             <p className="mt-1 text-sm text-gray-500">Be the first to share a gaming highlight!</p>
                         </div>
                     ) : (
@@ -342,9 +342,9 @@ export default function ClipsIndex({
                                     onClick={() => link.url && router.get(link.url, {}, { preserveState: true, preserveScroll: true })}
                                     className={`rounded-lg px-3 py-1.5 text-sm transition ${
                                         link.active
-                                            ? 'bg-gaming-purple font-semibold text-white'
+                                            ? 'bg-neon-red font-semibold text-white'
                                             : link.url
-                                              ? 'text-gray-400 hover:bg-navy-800 hover:text-white'
+                                              ? 'text-ink-500 hover:bg-white hover:text-ink-900'
                                               : 'cursor-not-allowed text-gray-600'
                                     }`}
                                     dangerouslySetInnerHTML={{ __html: link.label }}
@@ -360,7 +360,7 @@ export default function ClipsIndex({
     if (isLoggedIn) {
         return (
             <AuthenticatedLayout
-                header={<h2 className="text-xl font-semibold leading-tight text-white">Clips & Highlights</h2>}
+                header={<h2 className="text-xl font-semibold leading-tight text-ink-900">Clips & Highlights</h2>}
             >
                 {pageContent}
             </AuthenticatedLayout>
@@ -368,12 +368,12 @@ export default function ClipsIndex({
     }
 
     return (
-        <div className="min-h-screen bg-navy-900 text-white">
+        <div className="min-h-screen bg-bone-50 text-ink-900">
             <nav className="flex items-center justify-between px-6 py-4 lg:px-12">
-                <Link href="/" className="text-2xl font-bold text-gaming-purple">SquadSpawn</Link>
+                <Link href="/" className="text-2xl font-bold text-neon-red">SquadSpawn</Link>
                 <div className="flex items-center gap-4">
-                    <Link href={route('login')} className="text-sm text-gray-300 hover:text-white">Log in</Link>
-                    <Link href={route('register')} className="rounded-lg bg-gaming-purple px-4 py-2 text-sm font-semibold text-white">Sign up</Link>
+                    <Link href={route('login')} className="text-sm text-ink-700 hover:text-ink-900">Log in</Link>
+                    <Link href={route('register')} className="rounded-lg bg-neon-red px-4 py-2 text-sm font-semibold text-white">Sign up</Link>
                 </div>
             </nav>
             {pageContent}

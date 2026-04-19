@@ -17,8 +17,8 @@ export default function CommunityCreate({ games }: { games: Game[] }) {
     };
 
     const inputClass =
-        'w-full rounded-lg border border-white/10 bg-navy-900 px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:border-gaming-purple focus:outline-none focus:ring-1 focus:ring-gaming-purple';
-    const labelClass = 'mb-1.5 block text-sm font-medium text-gray-300';
+        'w-full rounded-lg border border-ink-900/10 bg-bone-50 px-4 py-2.5 text-sm text-ink-900 placeholder-gray-500 focus:border-neon-red focus:outline-none focus:ring-1 focus:ring-neon-red';
+    const labelClass = 'mb-1.5 block text-sm font-medium text-ink-700';
     const errorClass = 'mt-1 text-xs text-red-400';
 
     const postTypes = [
@@ -38,18 +38,18 @@ export default function CommunityCreate({ games }: { games: Game[] }) {
                     <div className="mb-6">
                         <Link
                             href={route('community.index')}
-                            className="mb-2 inline-flex items-center gap-1 text-sm text-gray-400 transition hover:text-white"
+                            className="mb-2 inline-flex items-center gap-1 text-sm text-ink-500 transition hover:text-ink-900"
                         >
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
                             </svg>
                             Back to Community
                         </Link>
-                        <h1 className="text-2xl font-bold text-white">Create Post</h1>
-                        <p className="mt-1 text-sm text-gray-400">Share something with the community.</p>
+                        <h1 className="text-2xl font-bold text-ink-900">Create Post</h1>
+                        <p className="mt-1 text-sm text-ink-500">Share something with the community.</p>
                     </div>
 
-                    <form onSubmit={submit} className="space-y-5 rounded-xl border border-white/10 bg-navy-800 p-6">
+                    <form onSubmit={submit} className="space-y-5 rounded-xl border border-ink-900/10 bg-white p-6">
                         {/* Title */}
                         <div>
                             <label className={labelClass}>Title</label>
@@ -113,7 +113,7 @@ export default function CommunityCreate({ games }: { games: Game[] }) {
                         <button
                             type="submit"
                             disabled={processing}
-                            className="w-full rounded-xl bg-gaming-purple px-6 py-3 text-sm font-semibold text-white transition hover:bg-gaming-purple/80 disabled:opacity-50"
+                            className="w-full rounded-xl bg-neon-red px-6 py-3 text-sm font-semibold text-white transition hover:bg-neon-red/80 disabled:opacity-50"
                         >
                             {processing ? 'Posting...' : 'Post to Community'}
                         </button>

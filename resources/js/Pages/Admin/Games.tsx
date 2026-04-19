@@ -57,54 +57,54 @@ export default function Games({ games }: Props) {
             <Head title="Admin - Games" />
 
             <div className="mb-8">
-                <h1 className="text-2xl font-bold text-white">Games</h1>
-                <p className="mt-1 text-sm text-gray-400">Manage the game library</p>
+                <h1 className="text-2xl font-bold text-ink-900">Games</h1>
+                <p className="mt-1 text-sm text-ink-500">Manage the game library</p>
             </div>
 
             {/* Add Game Form */}
-            <div className="mb-8 rounded-xl border border-white/10 bg-navy-800 p-6">
-                <h2 className="mb-4 text-lg font-bold text-white">Add Game</h2>
+            <div className="mb-8 rounded-xl border border-ink-900/10 bg-white p-6">
+                <h2 className="mb-4 text-lg font-bold text-ink-900">Add Game</h2>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                         <div>
-                            <label className="mb-1.5 block text-xs font-medium text-gray-400">Name</label>
+                            <label className="mb-1.5 block text-xs font-medium text-ink-500">Name</label>
                             <input
                                 type="text"
                                 value={data.name}
                                 onChange={(e) => setData('name', e.target.value)}
                                 placeholder="Game name"
-                                className="w-full rounded-lg border border-white/10 bg-navy-900 px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:border-gaming-purple/50 focus:outline-none focus:ring-1 focus:ring-gaming-purple/50"
+                                className="w-full rounded-lg border border-ink-900/10 bg-bone-50 px-3 py-2.5 text-sm text-ink-900 placeholder-gray-500 focus:border-neon-red/50 focus:outline-none focus:ring-1 focus:ring-neon-red/50"
                                 required
                             />
                             {errors.name && <p className="mt-1 text-xs text-red-400">{errors.name}</p>}
                         </div>
                         <div>
-                            <label className="mb-1.5 block text-xs font-medium text-gray-400">Genre</label>
+                            <label className="mb-1.5 block text-xs font-medium text-ink-500">Genre</label>
                             <input
                                 type="text"
                                 value={data.genre}
                                 onChange={(e) => setData('genre', e.target.value)}
                                 placeholder="e.g. FPS, MOBA, RPG"
-                                className="w-full rounded-lg border border-white/10 bg-navy-900 px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:border-gaming-purple/50 focus:outline-none focus:ring-1 focus:ring-gaming-purple/50"
+                                className="w-full rounded-lg border border-ink-900/10 bg-bone-50 px-3 py-2.5 text-sm text-ink-900 placeholder-gray-500 focus:border-neon-red/50 focus:outline-none focus:ring-1 focus:ring-neon-red/50"
                                 required
                             />
                             {errors.genre && <p className="mt-1 text-xs text-red-400">{errors.genre}</p>}
                         </div>
                         <div className="lg:col-span-2">
-                            <label className="mb-1.5 block text-xs font-medium text-gray-400">Cover Image URL</label>
+                            <label className="mb-1.5 block text-xs font-medium text-ink-500">Cover Image URL</label>
                             <input
                                 type="text"
                                 value={data.cover_image}
                                 onChange={(e) => setData('cover_image', e.target.value)}
                                 placeholder="https://example.com/image.jpg"
-                                className="w-full rounded-lg border border-white/10 bg-navy-900 px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:border-gaming-purple/50 focus:outline-none focus:ring-1 focus:ring-gaming-purple/50"
+                                className="w-full rounded-lg border border-ink-900/10 bg-bone-50 px-3 py-2.5 text-sm text-ink-900 placeholder-gray-500 focus:border-neon-red/50 focus:outline-none focus:ring-1 focus:ring-neon-red/50"
                             />
                             {errors.cover_image && <p className="mt-1 text-xs text-red-400">{errors.cover_image}</p>}
                         </div>
                     </div>
 
                     <div>
-                        <label className="mb-2 block text-xs font-medium text-gray-400">Platforms</label>
+                        <label className="mb-2 block text-xs font-medium text-ink-500">Platforms</label>
                         <div className="flex flex-wrap gap-2">
                             {platformOptions.map((platform) => (
                                 <button
@@ -113,8 +113,8 @@ export default function Games({ games }: Props) {
                                     onClick={() => togglePlatform(platform)}
                                     className={`rounded-lg border px-3 py-1.5 text-sm font-medium transition ${
                                         data.platforms.includes(platform)
-                                            ? 'border-gaming-purple/50 bg-gaming-purple/10 text-gaming-purple'
-                                            : 'border-white/10 text-gray-400 hover:border-white/20 hover:text-white'
+                                            ? 'border-neon-red/50 bg-neon-red/10 text-neon-red'
+                                            : 'border-ink-900/10 text-ink-500 hover:border-ink-900/20 hover:text-ink-900'
                                     }`}
                                 >
                                     {platform}
@@ -127,7 +127,7 @@ export default function Games({ games }: Props) {
                     <button
                         type="submit"
                         disabled={processing}
-                        className="rounded-lg bg-gaming-purple px-6 py-2.5 text-sm font-medium text-white transition hover:bg-gaming-purple/80 disabled:opacity-50"
+                        className="rounded-lg bg-neon-red px-6 py-2.5 text-sm font-medium text-white transition hover:bg-neon-red/80 disabled:opacity-50"
                     >
                         {processing ? 'Adding...' : 'Add Game'}
                     </button>
@@ -139,9 +139,9 @@ export default function Games({ games }: Props) {
                 {games.map((game) => (
                     <div
                         key={game.id}
-                        className="group overflow-hidden rounded-xl border border-white/10 bg-navy-800 transition hover:border-gaming-purple/30"
+                        className="group overflow-hidden rounded-xl border border-ink-900/10 bg-white transition hover:border-neon-red/30"
                     >
-                        <div className="relative h-36 overflow-hidden bg-navy-900">
+                        <div className="relative h-36 overflow-hidden bg-bone-50">
                             {game.cover_image ? (
                                 <img
                                     src={game.cover_image}
@@ -155,15 +155,15 @@ export default function Games({ games }: Props) {
                                     className="h-full w-full object-cover transition group-hover:scale-105"
                                 />
                             )}
-                            <div className="absolute inset-0 bg-gradient-to-t from-navy-900/90 to-transparent" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-bone-50/90 to-transparent" />
                             <div className="absolute bottom-0 left-0 right-0 p-3">
-                                <h3 className="text-sm font-bold text-white">{game.name}</h3>
+                                <h3 className="text-sm font-bold text-ink-900">{game.name}</h3>
                             </div>
                         </div>
 
                         <div className="p-4 space-y-3">
                             <div className="flex items-center justify-between">
-                                <span className="rounded-full bg-gaming-purple/10 px-2 py-0.5 text-xs font-medium text-gaming-purple">
+                                <span className="rounded-full bg-neon-red/10 px-2 py-0.5 text-xs font-medium text-neon-red">
                                     {game.genre}
                                 </span>
                                 <span className="text-xs text-gray-500">{game.users_count} players</span>
@@ -173,7 +173,7 @@ export default function Games({ games }: Props) {
                                 {game.platforms.map((platform) => (
                                     <span
                                         key={platform}
-                                        className="rounded bg-white/5 px-1.5 py-0.5 text-[10px] text-gray-400"
+                                        className="rounded bg-ink-900/5 px-1.5 py-0.5 text-[10px] text-ink-500"
                                     >
                                         {platform}
                                     </span>
@@ -192,7 +192,7 @@ export default function Games({ games }: Props) {
             </div>
 
             {games.length === 0 && (
-                <div className="rounded-xl border border-dashed border-white/10 bg-navy-800/50 py-16 text-center">
+                <div className="rounded-xl border border-dashed border-ink-900/10 bg-bone-100/50 py-16 text-center">
                     <p className="text-gray-500">No games yet. Add one above.</p>
                 </div>
             )}

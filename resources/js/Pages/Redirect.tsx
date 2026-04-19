@@ -4,22 +4,22 @@ export default function Redirect({ url, host, isTrusted }: { url: string; host: 
     return (
         <>
             <Head title="Leaving SquadSpawn" />
-            <div className="flex min-h-screen items-center justify-center bg-navy-900 px-4">
-                <div className="w-full max-w-md rounded-2xl border border-white/10 bg-navy-800 p-8 text-center">
+            <div className="flex min-h-screen items-center justify-center bg-bone-50 px-4">
+                <div className="w-full max-w-md rounded-2xl border border-ink-900/10 bg-white p-8 text-center">
                     <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-yellow-500/10">
                         <svg className="h-8 w-8 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
                         </svg>
                     </div>
 
-                    <h1 className="mb-2 text-xl font-bold text-white">You're leaving SquadSpawn</h1>
+                    <h1 className="mb-2 text-xl font-bold text-ink-900">You're leaving SquadSpawn</h1>
 
-                    <p className="mb-4 text-sm text-gray-400">
+                    <p className="mb-4 text-sm text-ink-500">
                         You're about to visit an external website. SquadSpawn is not responsible for the content of external sites.
                     </p>
 
-                    <div className="mb-6 rounded-lg border border-white/10 bg-navy-900 px-4 py-3">
-                        <p className="break-all text-sm text-gray-300">{url}</p>
+                    <div className="mb-6 rounded-lg border border-ink-900/10 bg-bone-50 px-4 py-3">
+                        <p className="break-all text-sm text-ink-700">{url}</p>
                         <div className="mt-2 flex items-center justify-center gap-1.5">
                             {isTrusted ? (
                                 <>
@@ -42,7 +42,7 @@ export default function Redirect({ url, host, isTrusted }: { url: string; host: 
                     <div className="flex gap-3">
                         <Link
                             href={route('dashboard')}
-                            className="flex-1 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-navy-700"
+                            className="flex-1 rounded-xl border border-ink-900/10 px-4 py-3 text-sm font-semibold text-ink-900 transition hover:bg-bone-100"
                         >
                             Go Back
                         </Link>
@@ -50,7 +50,7 @@ export default function Redirect({ url, host, isTrusted }: { url: string; host: 
                             href={url}
                             target="_blank"
                             rel="noopener noreferrer nofollow"
-                            className="flex-1 rounded-xl bg-gaming-purple px-4 py-3 text-sm font-semibold text-white transition hover:bg-gaming-purple/80"
+                            className="flex-1 rounded-xl bg-neon-red px-4 py-3 text-sm font-semibold text-white transition hover:bg-neon-red/80"
                         >
                             Continue
                         </a>

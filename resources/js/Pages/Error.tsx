@@ -30,7 +30,7 @@ export default function Error({ status }: { status: number }) {
                     </p>
 
                     {/* Title */}
-                    <h1 className="mt-2 text-3xl sm:text-4xl font-bold text-white">
+                    <h1 className="mt-2 text-3xl sm:text-4xl font-bold text-ink-900">
                         {title}
                     </h1>
 
@@ -45,7 +45,7 @@ export default function Error({ status }: { status: number }) {
                     {/* Back to home */}
                     <Link
                         href="/"
-                        className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-semibold transition-colors duration-200"
+                        className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-[#7C3AED] hover:bg-[#6D28D9] text-ink-900 font-semibold transition-colors duration-200"
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"

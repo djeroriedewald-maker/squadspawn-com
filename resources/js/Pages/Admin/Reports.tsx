@@ -56,20 +56,20 @@ export default function Reports({ reports, filters }: Props) {
             <Head title="Admin - Reports" />
 
             <div className="mb-8">
-                <h1 className="text-2xl font-bold text-white">Reports</h1>
-                <p className="mt-1 text-sm text-gray-400">Review and manage user reports</p>
+                <h1 className="text-2xl font-bold text-ink-900">Reports</h1>
+                <p className="mt-1 text-sm text-ink-500">Review and manage user reports</p>
             </div>
 
             {/* Filter Tabs */}
-            <div className="mb-6 flex gap-1 rounded-lg bg-navy-800 p-1 w-fit border border-white/10">
+            <div className="mb-6 flex gap-1 rounded-lg bg-white p-1 w-fit border border-ink-900/10">
                 {statusTabs.map((tab) => (
                     <Link
                         key={tab.value}
                         href={route('admin.reports', { status: tab.value })}
                         className={`rounded-md px-4 py-2 text-sm font-medium transition ${
                             currentStatus === tab.value
-                                ? 'bg-gaming-purple text-white shadow-sm'
-                                : 'text-gray-400 hover:text-white'
+                                ? 'bg-neon-red text-white shadow-sm'
+                                : 'text-ink-500 hover:text-ink-900'
                         }`}
                         preserveState
                     >
@@ -79,7 +79,7 @@ export default function Reports({ reports, filters }: Props) {
             </div>
 
             {/* Reports Table */}
-            <div className="overflow-hidden rounded-xl border border-white/10 bg-navy-800">
+            <div className="overflow-hidden rounded-xl border border-ink-900/10 bg-white">
                 {reports.data.length === 0 ? (
                     <div className="py-16 text-center text-sm text-gray-500">
                         No {currentStatus} reports
@@ -88,7 +88,7 @@ export default function Reports({ reports, filters }: Props) {
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-sm">
                             <thead>
-                                <tr className="border-b border-white/5 text-xs text-gray-500">
+                                <tr className="border-b border-ink-900/5 text-xs text-gray-500">
                                     <th className="px-5 py-3 font-medium">Reporter</th>
                                     <th className="px-5 py-3 font-medium">Reported</th>
                                     <th className="px-5 py-3 font-medium">Reason</th>
@@ -97,19 +97,19 @@ export default function Reports({ reports, filters }: Props) {
                                     <th className="px-5 py-3 font-medium">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-white/5">
+                            <tbody className="divide-y divide-ink-900/5">
                                 {reports.data.map((report) => (
-                                    <tr key={report.id} className="text-gray-300 transition hover:bg-white/[0.02]">
+                                    <tr key={report.id} className="text-ink-700 transition hover:bg-white/[0.02]">
                                         <td className="px-5 py-3">
                                             <div className="flex items-center gap-2">
-                                                <div className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gaming-purple/20 text-[10px] font-bold text-gaming-purple">
+                                                <div className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-neon-red/20 text-[10px] font-bold text-neon-red">
                                                     {report.reporter?.profile?.avatar ? (
                                                         <img src={report.reporter.profile.avatar} alt="" className="h-full w-full object-cover" />
                                                     ) : (
                                                         (report.reporter?.profile?.username || report.reporter?.name || '?').charAt(0).toUpperCase()
                                                     )}
                                                 </div>
-                                                <span className="text-white">{report.reporter?.profile?.username || report.reporter?.name}</span>
+                                                <span className="text-ink-900">{report.reporter?.profile?.username || report.reporter?.name}</span>
                                             </div>
                                         </td>
                                         <td className="px-5 py-3">
@@ -121,7 +121,7 @@ export default function Reports({ reports, filters }: Props) {
                                                         (report.reported?.profile?.username || report.reported?.name || '?').charAt(0).toUpperCase()
                                                     )}
                                                 </div>
-                                                <span className="text-white">{report.reported?.profile?.username || report.reported?.name}</span>
+                                                <span className="text-ink-900">{report.reported?.profile?.username || report.reported?.name}</span>
                                             </div>
                                         </td>
                                         <td className="px-5 py-3">
@@ -129,7 +129,7 @@ export default function Reports({ reports, filters }: Props) {
                                                 {report.reason}
                                             </span>
                                         </td>
-                                        <td className="max-w-[200px] px-5 py-3 truncate text-gray-400">
+                                        <td className="max-w-[200px] px-5 py-3 truncate text-ink-500">
                                             {report.details || '--'}
                                         </td>
                                         <td className="px-5 py-3 text-gray-500">
@@ -164,16 +164,16 @@ export default function Reports({ reports, filters }: Props) {
 
                 {/* Pagination */}
                 {reports.last_page > 1 && (
-                    <div className="flex items-center justify-center gap-1 border-t border-white/5 px-5 py-4">
+                    <div className="flex items-center justify-center gap-1 border-t border-ink-900/5 px-5 py-4">
                         {reports.links.map((link, i) => (
                             <Link
                                 key={i}
                                 href={link.url || '#'}
                                 className={`rounded-lg px-3 py-1.5 text-sm transition ${
                                     link.active
-                                        ? 'bg-gaming-purple text-white'
+                                        ? 'bg-neon-red text-white'
                                         : link.url
-                                          ? 'text-gray-400 hover:bg-white/5 hover:text-white'
+                                          ? 'text-ink-500 hover:bg-ink-900/5 hover:text-ink-900'
                                           : 'cursor-default text-gray-600'
                                 }`}
                                 dangerouslySetInnerHTML={{ __html: link.label }}

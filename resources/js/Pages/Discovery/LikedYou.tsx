@@ -42,11 +42,11 @@ export default function LikedYou({ players: initialPlayers }: PageProps<{ player
             {/* Success toast */}
             {toast && (
                 <div className="fixed left-1/2 top-20 z-50 -translate-x-1/2 animate-slide-in">
-                    <div className="flex items-center gap-3 rounded-xl border border-gaming-green/30 bg-navy-800 px-5 py-3 shadow-lg shadow-gaming-green/10">
+                    <div className="flex items-center gap-3 rounded-xl border border-gaming-green/30 bg-white px-5 py-3 shadow-lg shadow-gaming-green/10">
                         <svg className="h-5 w-5 text-gaming-green" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
                         </svg>
-                        <p className="text-sm text-white">You and <strong>{toast.name}</strong> are now friends!</p>
+                        <p className="text-sm text-ink-900">You and <strong>{toast.name}</strong> are now friends!</p>
                         {toast.matchId && (
                             <Link
                                 href={route('chat.show', { playerMatch: toast.matchId })}
@@ -55,7 +55,7 @@ export default function LikedYou({ players: initialPlayers }: PageProps<{ player
                                 Chat
                             </Link>
                         )}
-                        <button onClick={() => setToast(null)} className="text-gray-500 hover:text-white">
+                        <button onClick={() => setToast(null)} className="text-gray-500 hover:text-ink-900">
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                             </svg>
@@ -67,31 +67,31 @@ export default function LikedYou({ players: initialPlayers }: PageProps<{ player
             <div className="py-6">
                 <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
                     <div className="mb-6 flex items-center gap-3">
-                        <Link href={route('discovery.index')} className="text-gray-400 transition hover:text-white">
+                        <Link href={route('discovery.index')} className="text-ink-500 transition hover:text-ink-900">
                             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
                             </svg>
                         </Link>
                         <div>
-                            <h1 className="text-2xl font-bold text-white">
+                            <h1 className="text-2xl font-bold text-ink-900">
                                 <span className="text-gaming-pink">Liked You</span>
                             </h1>
-                            <p className="text-sm text-gray-400">
+                            <p className="text-sm text-ink-500">
                                 {players.length} {players.length === 1 ? 'gamer wants' : 'gamers want'} to play with you
                             </p>
                         </div>
                     </div>
 
                     {players.length === 0 ? (
-                        <div className="rounded-2xl border border-white/10 bg-navy-800 p-12 text-center">
+                        <div className="rounded-2xl border border-ink-900/10 bg-white p-12 text-center">
                             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gaming-pink/10">
                                 <svg className="h-8 w-8 text-gaming-pink" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
                                 </svg>
                             </div>
-                            <p className="text-lg font-medium text-gray-400">No pending requests yet</p>
+                            <p className="text-lg font-medium text-ink-500">No pending requests yet</p>
                             <p className="mt-2 text-sm text-gray-500">When someone likes your profile, they'll appear here.</p>
-                            <Link href={route('discovery.index')} className="mt-4 inline-block rounded-xl bg-gaming-purple px-6 py-3 font-semibold text-white hover:bg-gaming-purple/80">
+                            <Link href={route('discovery.index')} className="mt-4 inline-block rounded-xl bg-neon-red px-6 py-3 font-semibold text-white hover:bg-neon-red/80">
                                 Discover Players
                             </Link>
                         </div>
@@ -102,7 +102,7 @@ export default function LikedYou({ players: initialPlayers }: PageProps<{ player
                                 const isProcessing = processing === player.id;
 
                                 return (
-                                    <div key={player.id} className="overflow-hidden rounded-2xl border border-gaming-pink/20 bg-navy-800 transition hover:border-gaming-pink/40">
+                                    <div key={player.id} className="overflow-hidden rounded-2xl border border-gaming-pink/20 bg-white transition hover:border-gaming-pink/40">
                                         {/* Game cover collage */}
                                         {player.games && player.games.length > 0 && (
                                             <div className="relative h-20 overflow-hidden">
@@ -113,7 +113,7 @@ export default function LikedYou({ players: initialPlayers }: PageProps<{ player
                                                         </div>
                                                     ))}
                                                 </div>
-                                                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-navy-800" />
+                                                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white" />
                                                 {commonGames.length > 0 && (
                                                     <div className="absolute left-3 top-2 rounded-md bg-gaming-green/90 px-2 py-0.5 text-[10px] font-bold text-white">
                                                         {commonGames.length} game{commonGames.length > 1 ? 's' : ''} in common
@@ -125,7 +125,7 @@ export default function LikedYou({ players: initialPlayers }: PageProps<{ player
                                         <div className="flex items-center gap-4 p-4">
                                             {/* Avatar */}
                                             <Link href={route('player.show', { username: player.profile?.username || player.id })} className="shrink-0">
-                                                <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-gaming-pink/30 to-gaming-purple/30 text-xl font-bold text-white ring-2 ring-gaming-pink/30">
+                                                <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-gaming-pink/30 to-neon-red/30 text-xl font-bold text-white ring-2 ring-gaming-pink/30">
                                                     {player.profile?.avatar ? (
                                                         <img src={player.profile.avatar} alt="" className="h-full w-full object-cover" />
                                                     ) : (
@@ -136,26 +136,26 @@ export default function LikedYou({ players: initialPlayers }: PageProps<{ player
 
                                             {/* Info */}
                                             <div className="min-w-0 flex-1">
-                                                <Link href={route('player.show', { username: player.profile?.username || player.id })} className="font-bold text-white hover:text-gaming-purple">
+                                                <Link href={route('player.show', { username: player.profile?.username || player.id })} className="font-bold text-ink-900 hover:text-neon-red">
                                                     {player.profile?.username || player.name}
                                                 </Link>
                                                 <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
                                                     {player.profile?.region && <span className="text-xs text-gray-500">{player.profile.region}</span>}
                                                     {player.profile?.looking_for && (
-                                                        <span className="rounded-full bg-gaming-purple/10 px-1.5 py-0.5 text-[10px] text-gaming-purple">{player.profile.looking_for}</span>
+                                                        <span className="rounded-full bg-neon-red/10 px-1.5 py-0.5 text-[10px] text-neon-red">{player.profile.looking_for}</span>
                                                     )}
                                                     {player.profile?.is_creator && (
                                                         <span className="rounded-full bg-gaming-pink/10 px-1.5 py-0.5 text-[10px] text-gaming-pink">Creator</span>
                                                     )}
                                                 </div>
                                                 {player.profile?.bio && (
-                                                    <p className="mt-1 line-clamp-1 text-xs text-gray-400">{player.profile.bio}</p>
+                                                    <p className="mt-1 line-clamp-1 text-xs text-ink-500">{player.profile.bio}</p>
                                                 )}
                                                 {/* Game thumbnails */}
                                                 {player.games && player.games.length > 0 && (
                                                     <div className="mt-1.5 flex -space-x-1">
                                                         {player.games.slice(0, 5).map((game) => (
-                                                            <img key={game.id} src={game.cover_image || `/images/games/${game.slug}.svg`} alt={game.name} title={game.name} className="h-5 w-7 rounded-sm border border-navy-800 object-cover" />
+                                                            <img key={game.id} src={game.cover_image || `/images/games/${game.slug}.svg`} alt={game.name} title={game.name} className="h-5 w-7 rounded-sm border border-ink-800 object-cover" />
                                                         ))}
                                                     </div>
                                                 )}

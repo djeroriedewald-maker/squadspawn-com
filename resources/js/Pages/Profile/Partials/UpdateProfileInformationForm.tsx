@@ -32,11 +32,11 @@ export default function UpdateProfileInformation({
     return (
         <section className={className}>
             <header>
-                <h2 className="text-lg font-medium text-white">
+                <h2 className="text-lg font-medium text-ink-900">
                     Profile Information
                 </h2>
 
-                <p className="mt-1 text-sm text-gray-400">
+                <p className="mt-1 text-sm text-ink-500">
                     Update your account's profile information and email address.
                 </p>
             </header>
@@ -76,13 +76,13 @@ export default function UpdateProfileInformation({
 
                 {mustVerifyEmail && user.email_verified_at === null && (
                     <div>
-                        <p className="mt-2 text-sm text-gray-300">
+                        <p className="mt-2 text-sm text-ink-700">
                             Your email address is unverified.
                             <Link
                                 href={route('verification.send')}
                                 method="post"
                                 as="button"
-                                className="rounded-md text-sm text-gray-400 underline hover:text-white focus:outline-none focus:ring-2 focus:ring-gaming-purple focus:ring-offset-2 focus:ring-offset-navy-800"
+                                className="rounded-md text-sm text-ink-500 underline hover:text-ink-900 focus:outline-none focus:ring-2 focus:ring-neon-red focus:ring-offset-2 focus:ring-offset-bone-50"
                             >
                                 Click here to re-send the verification email.
                             </Link>

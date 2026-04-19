@@ -42,19 +42,19 @@ const navItems = [
 
 export default function AdminLayout({ children }: PropsWithChildren) {
     return (
-        <div className="flex min-h-screen bg-navy-950">
+        <div className="flex min-h-screen bg-ink-900">
             {/* Sidebar */}
-            <aside className="fixed left-0 top-0 z-40 flex h-screen w-60 flex-col border-r border-white/5 bg-navy-900">
+            <aside className="fixed left-0 top-0 z-40 flex h-screen w-60 flex-col border-r border-ink-900/5 bg-bone-50">
                 {/* Logo */}
-                <div className="flex h-16 items-center gap-2 border-b border-white/5 px-5">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gaming-purple/20">
-                        <svg className="h-4 w-4 text-gaming-purple" fill="currentColor" viewBox="0 0 24 24">
+                <div className="flex h-16 items-center gap-2 border-b border-ink-900/5 px-5">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-neon-red/20">
+                        <svg className="h-4 w-4 text-neon-red" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
                         </svg>
                     </div>
                     <div>
-                        <span className="text-sm font-bold text-neon-purple">SquadSpawn</span>
-                        <span className="ml-1 rounded bg-gaming-purple/20 px-1.5 py-0.5 text-[10px] font-bold text-gaming-purple">ADMIN</span>
+                        <span className="text-sm font-bold text-neon-red">SquadSpawn</span>
+                        <span className="ml-1 rounded bg-neon-red/20 px-1.5 py-0.5 text-[10px] font-bold text-neon-red">ADMIN</span>
                     </div>
                 </div>
 
@@ -68,11 +68,11 @@ export default function AdminLayout({ children }: PropsWithChildren) {
                                 href={route(item.route)}
                                 className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
                                     isActive
-                                        ? 'bg-gaming-purple/10 text-gaming-purple shadow-sm shadow-gaming-purple/10'
-                                        : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                                        ? 'bg-neon-red/10 text-neon-red shadow-sm shadow-neon-red/10'
+                                        : 'text-ink-500 hover:bg-ink-900/5 hover:text-ink-900'
                                 }`}
                             >
-                                <span className={isActive ? 'text-gaming-purple' : 'text-gray-500'}>{item.icon}</span>
+                                <span className={isActive ? 'text-neon-red' : 'text-gray-500'}>{item.icon}</span>
                                 {item.label}
                             </Link>
                         );
@@ -80,10 +80,10 @@ export default function AdminLayout({ children }: PropsWithChildren) {
                 </nav>
 
                 {/* Back to Platform */}
-                <div className="border-t border-white/5 p-3">
+                <div className="border-t border-ink-900/5 p-3">
                     <Link
                         href={route('dashboard')}
-                        className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-400 transition hover:bg-white/5 hover:text-white"
+                        className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-ink-500 transition hover:bg-ink-900/5 hover:text-ink-900"
                     >
                         <svg className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
