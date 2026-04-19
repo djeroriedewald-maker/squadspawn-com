@@ -307,12 +307,20 @@ class ImportGames extends Command
                 })
                 ->first();
 
+            // Strip null/empty values so we never try to overwrite existing
+            // data with nothing, or blow up NOT NULL columns on create.
+            $filtered = array_filter($attrs, fn ($v) => filled($v));
+
             if ($existing) {
                 if ($this->option('force')) {
-                    $existing->fill($attrs);
+                    // Overwrite populated fields only
+                    foreach ($filtered as $key => $value) {
+                        $existing->{$key} = $value;
+                    }
                 } else {
-                    foreach ($attrs as $key => $value) {
-                        if (blank($existing->{$key}) && filled($value)) {
+                    // Fill blanks only
+                    foreach ($filtered as $key => $value) {
+                        if (blank($existing->{$key})) {
                             $existing->{$key} = $value;
                         }
                     }
@@ -326,7 +334,10 @@ class ImportGames extends Command
                     $this->line("  kept     {$attrs['name']}");
                 }
             } else {
-                Game::create($attrs);
+                // New record: use filtered attrs + sensible defaults for
+                // NOT NULL columns we might be missing.
+                $filtered['genre'] ??= 'Other';
+                Game::create($filtered);
                 $imported++;
                 $this->info("  added    {$attrs['name']}");
             }
