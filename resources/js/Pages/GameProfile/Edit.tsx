@@ -1,8 +1,9 @@
+import GamePicker from '@/Components/GamePicker';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Game, Profile } from '@/types';
 import { Head, router, useForm } from '@inertiajs/react';
 import axios from 'axios';
-import { ChangeEvent, FormEventHandler, useRef, useState } from 'react';
+import { ChangeEvent, FormEventHandler, useMemo, useRef, useState } from 'react';
 
 const PRESET_AVATARS = [
     'warrior', 'mage', 'healer', 'tank', 'assassin', 'ranger',
@@ -72,7 +73,6 @@ export default function GameProfileEdit({
     games: Game[];
     userGames: Game[];
 }) {
-    const userGameIds = userGames.map((g) => g.id);
     const [avatarUrl, setAvatarUrl] = useState(profile?.avatar || '');
     const [avatarUploading, setAvatarUploading] = useState(false);
     const [showPresets, setShowPresets] = useState(false);
@@ -120,7 +120,10 @@ export default function GameProfileEdit({
         is_creator: boolean;
         stream_url: string;
         socials: Record<string, string>;
-        games: Record<number, { selected: boolean; rank: string; role: string; platform: string }>;
+        // Only keyed by game id for games the user plays. Not keeping an
+        // entry for all 1000+ games in the catalogue — wastes memory and
+        // makes reconciling a pain.
+        games: Record<number, { rank: string; role: string; platform: string }>;
     }>({
         username: profile?.username ?? '',
         bio: profile?.bio ?? '',
@@ -138,32 +141,38 @@ export default function GameProfileEdit({
             twitch: profile?.socials?.twitch ?? '',
             facebook: profile?.socials?.facebook ?? '',
         },
-        games: games.reduce(
-            (acc, game) => {
-                const userGame = userGames.find((ug) => ug.id === game.id);
-                acc[game.id] = {
-                    selected: userGameIds.includes(game.id),
-                    rank: userGame?.pivot?.rank ?? '',
-                    role: userGame?.pivot?.role ?? '',
-                    platform: userGame?.pivot?.platform ?? (game.platforms[0] ?? ''),
+        games: userGames.reduce(
+            (acc, ug) => {
+                acc[ug.id] = {
+                    rank: ug.pivot?.rank ?? '',
+                    role: ug.pivot?.role ?? '',
+                    platform: ug.pivot?.platform ?? (ug.platforms?.[0] ?? 'any'),
                 };
                 return acc;
             },
-            {} as Record<number, { selected: boolean; rank: string; role: string; platform: string }>,
+            {} as Record<number, { rank: string; role: string; platform: string }>,
         ),
     });
 
+    // Lookup map so we can render selected games without depending on the
+    // full catalogue being present.
+    const gameById = useMemo(() => {
+        const map = new Map<number, Game>();
+        games.forEach((g) => map.set(g.id, g));
+        userGames.forEach((ug) => map.set(ug.id, ug));
+        return map;
+    }, [games, userGames]);
+
+    const selectedGameIds = Object.keys(data.games).map(Number);
+
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        // Transform games record into array format the backend expects
-        const gamesArray = Object.entries(data.games)
-            .filter(([_, g]) => g.selected)
-            .map(([id, g]) => ({
-                game_id: parseInt(id),
-                rank: g.rank,
-                role: g.role,
-                platform: g.platform,
-            }));
+        const gamesArray = Object.entries(data.games).map(([id, g]) => ({
+            game_id: parseInt(id),
+            rank: g.rank,
+            role: g.role,
+            platform: g.platform,
+        }));
 
         router.put(route('game-profile.update'), {
             ...data,
@@ -173,14 +182,23 @@ export default function GameProfileEdit({
         });
     };
 
-    const toggleGame = (gameId: number) => {
+    const addGame = (gameId: number | null) => {
+        if (!gameId || data.games[gameId]) return;
+        const game = gameById.get(gameId);
         setData('games', {
             ...data.games,
             [gameId]: {
-                ...data.games[gameId],
-                selected: !data.games[gameId].selected,
+                rank: '',
+                role: '',
+                platform: game?.platforms?.[0] ?? 'any',
             },
         });
+    };
+
+    const removeGame = (gameId: number) => {
+        const next = { ...data.games };
+        delete next[gameId];
+        setData('games', next);
     };
 
     const updateGameField = (
@@ -449,72 +467,67 @@ export default function GameProfileEdit({
                             <div className="mb-2 flex items-center justify-between">
                                 <h3 className="text-lg font-semibold text-ink-900">Your Games</h3>
                                 <span className="text-sm text-gray-500">
-                                    {Object.values(data.games).filter((g) => g.selected).length} selected
+                                    {selectedGameIds.length} {selectedGameIds.length === 1 ? 'game' : 'games'}
                                 </span>
                             </div>
-                            <p className="mb-6 text-sm text-ink-500">Click a game to add it to your profile. Set your rank and platform for each.</p>
+                            <p className="mb-4 text-sm text-ink-500">
+                                Search for a game to add it to your profile. You can then set your rank, role and platform.
+                            </p>
 
-                            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                                {games.map((game) => {
-                                    const gameData = data.games[game.id];
-                                    if (!gameData) return null;
-                                    const isSelected = gameData.selected;
+                            {/* Add-a-game picker — excludes games already on the profile */}
+                            <div className="mb-6">
+                                <GamePicker
+                                    games={games.filter((g) => !data.games[g.id])}
+                                    value={null}
+                                    onChange={(id) => addGame(id)}
+                                    placeholder="+ Add a game…"
+                                />
+                            </div>
 
-                                    return (
-                                        <div
-                                            key={game.id}
-                                            className={`overflow-hidden rounded-xl border transition ${
-                                                isSelected
-                                                    ? 'border-neon-red ring-1 ring-neon-red/50'
-                                                    : 'border-ink-900/10 hover:border-ink-900/20'
-                                            }`}
-                                        >
-                                            {/* Cover + Toggle */}
-                                            <button
-                                                type="button"
-                                                onClick={() => toggleGame(game.id)}
-                                                className="relative w-full"
-                                            >
+                            {selectedGameIds.length === 0 ? (
+                                <div className="rounded-xl border border-dashed border-ink-900/15 p-8 text-center text-sm text-ink-500">
+                                    No games yet. Use the picker above to add the games you play.
+                                </div>
+                            ) : (
+                                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                                    {selectedGameIds.map((id) => {
+                                        const game = gameById.get(id);
+                                        if (!game) return null;
+                                        const gameData = data.games[id];
+                                        return (
+                                            <div key={id} className="overflow-hidden rounded-xl border border-neon-red/30 ring-1 ring-neon-red/20">
                                                 <div className="relative h-24 overflow-hidden">
                                                     <img
                                                         src={game.cover_image || `/images/games/${game.slug}.svg`}
                                                         alt={game.name}
-                                                        className={`h-full w-full object-cover transition ${isSelected ? '' : 'grayscale opacity-50'}`}
+                                                        loading="lazy"
+                                                        className="h-full w-full object-cover"
                                                     />
                                                     <div className="absolute inset-0 bg-gradient-to-t from-bone-50/90 to-transparent" />
-
-                                                    {/* Selected badge */}
-                                                    {isSelected && (
-                                                        <div className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-neon-red">
-                                                            <svg className="h-4 w-4 text-ink-900" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                                            </svg>
-                                                        </div>
-                                                    )}
-
-                                                    {/* Not selected overlay */}
-                                                    {!isSelected && (
-                                                        <div className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full border border-ink-900/30 bg-black/30">
-                                                            <svg className="h-3 w-3 text-ink-900/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                                                            </svg>
-                                                        </div>
-                                                    )}
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeGame(id)}
+                                                        className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-ink-900/70 text-white backdrop-blur-sm transition hover:bg-neon-red"
+                                                        aria-label={`Remove ${game.name}`}
+                                                    >
+                                                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                                        </svg>
+                                                    </button>
                                                 </div>
-                                                <div className="px-3 py-2 text-left">
+                                                <div className="px-3 py-2">
                                                     <p className="text-sm font-semibold text-ink-900">{game.name}</p>
-                                                    <p className="text-[10px] text-gray-500">{game.genre} &middot; {game.platforms.join(', ')}</p>
+                                                    <p className="text-[10px] text-gray-500">
+                                                        {game.genre}
+                                                        {game.platforms && game.platforms.length > 0 && ` · ${game.platforms.join(', ')}`}
+                                                    </p>
                                                 </div>
-                                            </button>
-
-                                            {/* Rank & Platform (when selected) */}
-                                            {isSelected && (
                                                 <div className="border-t border-ink-900/5 bg-bone-50/50 px-3 py-2.5">
                                                     <div className="grid gap-2 sm:grid-cols-2">
                                                         {game.rank_system && game.rank_system.length > 0 && (
                                                             <select
                                                                 value={gameData.rank}
-                                                                onChange={(e) => updateGameField(game.id, 'rank', e.target.value)}
+                                                                onChange={(e) => updateGameField(id, 'rank', e.target.value)}
                                                                 className="w-full rounded-md border border-ink-900/10 bg-white px-2 py-1.5 text-xs text-ink-900 focus:border-neon-red focus:outline-none focus:ring-1 focus:ring-neon-red"
                                                             >
                                                                 <option value="">Select rank</option>
@@ -526,7 +539,7 @@ export default function GameProfileEdit({
                                                         {game.roles && game.roles.length > 0 && (
                                                             <select
                                                                 value={gameData.role}
-                                                                onChange={(e) => updateGameField(game.id, 'role', e.target.value)}
+                                                                onChange={(e) => updateGameField(id, 'role', e.target.value)}
                                                                 className="w-full rounded-md border border-ink-900/10 bg-white px-2 py-1.5 text-xs text-ink-900 focus:border-neon-red focus:outline-none focus:ring-1 focus:ring-neon-red"
                                                             >
                                                                 <option value="">Select role</option>
@@ -535,10 +548,10 @@ export default function GameProfileEdit({
                                                                 ))}
                                                             </select>
                                                         )}
-                                                        {game.platforms.length > 1 && (
+                                                        {game.platforms && game.platforms.length > 1 && (
                                                             <select
                                                                 value={gameData.platform}
-                                                                onChange={(e) => updateGameField(game.id, 'platform', e.target.value)}
+                                                                onChange={(e) => updateGameField(id, 'platform', e.target.value)}
                                                                 className="w-full rounded-md border border-ink-900/10 bg-white px-2 py-1.5 text-xs text-ink-900 focus:border-neon-red focus:outline-none focus:ring-1 focus:ring-neon-red"
                                                             >
                                                                 {game.platforms.map((p) => (
@@ -548,11 +561,11 @@ export default function GameProfileEdit({
                                                         )}
                                                     </div>
                                                 </div>
-                                            )}
-                                        </div>
-                                    );
-                                })}
-                            </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
                         </div>
 
                         <button
