@@ -41,10 +41,21 @@ function removeScripts(): void {
 }
 
 function bootPlausible(): void {
-    const domain = import.meta.env.VITE_PLAUSIBLE_DOMAIN;
+    // Hostname-driven fallback so we don't depend on a build-time env var
+    // being set. data-domain is public (visible in any page's HTML) so there's
+    // no secret leak in defaulting it here.
+    const envDomain = import.meta.env.VITE_PLAUSIBLE_DOMAIN;
+    const host = typeof window !== 'undefined' ? window.location.hostname : '';
+    // Don't track local dev or preview environments by default.
+    const looksLikeProd = host === 'squadspawn.com' || host.endsWith('.squadspawn.com');
+
+    const domain = envDomain
+        ? String(envDomain)
+        : (looksLikeProd ? 'squadspawn.com' : '');
+
     if (!domain) return;
     const src = import.meta.env.VITE_PLAUSIBLE_SRC || 'https://plausible.io/js/script.js';
-    injectScript(`${SCRIPT_ID}-plausible`, src, { 'data-domain': String(domain) });
+    injectScript(`${SCRIPT_ID}-plausible`, src, { 'data-domain': domain });
 }
 
 function bootGA(): void {
