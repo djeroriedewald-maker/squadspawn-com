@@ -20,6 +20,7 @@ class ImportGames extends Command
         {--top= : Import top N games from the chosen source}
         {--preset : Import everything from resources/seeds/games.json}
         {--preset-file= : Override the preset file path}
+        {--only= : Restrict preset import to one source (steam or rawg)}
         {--no-images : Store remote cover URLs instead of downloading locally}
         {--force : Overwrite existing fields (default fills only blanks)}';
 
@@ -135,6 +136,16 @@ class ImportGames extends Command
         if (!is_array($rows)) {
             $this->error("Preset file is not valid JSON: {$path}");
             return self::FAILURE;
+        }
+
+        $only = $this->option('only') ? strtolower($this->option('only')) : null;
+        if ($only) {
+            $before = count($rows);
+            $rows = array_values(array_filter(
+                $rows,
+                fn ($row) => strtolower($row['source'] ?? 'rawg') === $only,
+            ));
+            $this->info("Filtering to source={$only}: " . count($rows) . "/{$before} rows");
         }
 
         $this->info("Importing " . count($rows) . " games from preset…");
