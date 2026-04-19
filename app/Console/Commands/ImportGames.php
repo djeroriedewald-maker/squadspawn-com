@@ -296,8 +296,9 @@ class ImportGames extends Command
         $skipped = 0;
 
         foreach ($items as $raw) {
-            $attrs = is_array($raw) && isset($raw['name']) ? $raw : $normalize($raw);
-            if (!$attrs) { $skipped++; continue; }
+            if (!$raw) { $skipped++; continue; }
+            $attrs = $normalize($raw);
+            if (!$attrs || empty($attrs['slug'])) { $skipped++; continue; }
 
             $existing = Game::where('slug', $attrs['slug'])
                 ->orWhere(function ($q) use ($attrs) {
@@ -307,22 +308,26 @@ class ImportGames extends Command
                 })
                 ->first();
 
-            // Strip null/empty values so we never try to overwrite existing
-            // data with nothing, or blow up NOT NULL columns on create.
+            // Strip null/empty values so we never overwrite existing data
+            // with nothing, and so NOT NULL columns don't blow up on create.
             $filtered = array_filter($attrs, fn ($v) => filled($v));
 
             if ($existing) {
+                // fill() respects $fillable so any stray keys (e.g. from a
+                // raw API payload that slipped past the normalizer) are
+                // silently dropped instead of tripping an unknown-column
+                // error at save time.
                 if ($this->option('force')) {
-                    // Overwrite populated fields only
-                    foreach ($filtered as $key => $value) {
-                        $existing->{$key} = $value;
-                    }
+                    $existing->fill($filtered);
                 } else {
-                    // Fill blanks only
+                    $blanks = [];
                     foreach ($filtered as $key => $value) {
                         if (blank($existing->{$key})) {
-                            $existing->{$key} = $value;
+                            $blanks[$key] = $value;
                         }
+                    }
+                    if ($blanks) {
+                        $existing->fill($blanks);
                     }
                 }
                 if ($existing->isDirty()) {
@@ -334,8 +339,6 @@ class ImportGames extends Command
                     $this->line("  kept     {$attrs['name']}");
                 }
             } else {
-                // New record: use filtered attrs + sensible defaults for
-                // NOT NULL columns we might be missing.
                 $filtered['genre'] ??= 'Other';
                 Game::create($filtered);
                 $imported++;
