@@ -31,6 +31,11 @@ class NewMatchNotification extends Notification
         ];
     }
 
+    public function pushType(): string
+    {
+        return 'new_match';
+    }
+
     public function toWebPush(object $notifiable): array
     {
         $name = $this->matchedUser->profile?->username ?? $this->matchedUser->name;

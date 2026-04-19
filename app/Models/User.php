@@ -11,19 +11,36 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'date_of_birth', 'parental_consent', 'parental_consent_at', 'is_admin', 'is_banned', 'banned_at', 'ban_reason'])]
+#[Fillable(['name', 'email', 'password', 'date_of_birth', 'parental_consent', 'parental_consent_at', 'is_admin', 'is_banned', 'banned_at', 'ban_reason', 'notification_preferences'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
+    /**
+     * Push notification types users can opt out of individually.
+     */
+    public const PUSH_TYPES = ['new_message', 'new_match', 'lfg_request', 'lfg_accepted'];
+
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'notification_preferences' => 'array',
         ];
+    }
+
+    /**
+     * Whether this user wants to receive push notifications of the given
+     * type. Defaults to true — users opt out, not in.
+     */
+    public function wantsPush(string $type): bool
+    {
+        $prefs = $this->notification_preferences ?? [];
+        $push = $prefs['push'] ?? [];
+        return !array_key_exists($type, $push) ? true : (bool) $push[$type];
     }
 
     public function profile(): HasOne

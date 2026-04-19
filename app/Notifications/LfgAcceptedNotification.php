@@ -30,6 +30,11 @@ class LfgAcceptedNotification extends Notification
         ];
     }
 
+    public function pushType(): string
+    {
+        return 'lfg_accepted';
+    }
+
     public function toWebPush(object $notifiable): array
     {
         return [

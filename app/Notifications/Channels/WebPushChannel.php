@@ -20,6 +20,17 @@ class WebPushChannel
         $payload = $notification->toWebPush($notifiable);
         if (!$payload) return;
 
+        // Per-type opt-out: each notification class exposes its type via a
+        // `pushType()` method or a `type` field in its data payload. If the
+        // user has disabled that type, skip delivery entirely.
+        $type = method_exists($notification, 'pushType')
+            ? $notification->pushType()
+            : ($payload['type'] ?? null);
+
+        if ($type && method_exists($notifiable, 'wantsPush') && !$notifiable->wantsPush($type)) {
+            return;
+        }
+
         $config = config('services.webpush.vapid');
         if (empty($config['public_key']) || empty($config['private_key'])) {
             // Skip silently if VAPID isn't configured — this lets development

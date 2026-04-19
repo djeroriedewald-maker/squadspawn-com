@@ -34,6 +34,11 @@ class NewMessageNotification extends Notification
         ];
     }
 
+    public function pushType(): string
+    {
+        return 'new_message';
+    }
+
     public function toWebPush(object $notifiable): array
     {
         $name = $this->sender->profile?->username ?? $this->sender->name;

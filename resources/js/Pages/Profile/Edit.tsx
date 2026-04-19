@@ -1,3 +1,4 @@
+import NotificationPreferences from '@/Components/NotificationPreferences';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { PageProps } from '@/types';
 import { Head } from '@inertiajs/react';
@@ -31,6 +32,10 @@ export default function Edit({
 
                     <div className="rounded-xl border border-ink-900/10 bg-white p-4 sm:p-8">
                         <UpdatePasswordForm className="max-w-xl" />
+                    </div>
+
+                    <div className="rounded-xl border border-ink-900/10 bg-white p-4 sm:p-8">
+                        <NotificationPreferences />
                     </div>
 
                     <div className="rounded-xl border border-ink-900/10 bg-white p-4 sm:p-8">

@@ -32,6 +32,11 @@ class LfgNewRequestNotification extends Notification
         ];
     }
 
+    public function pushType(): string
+    {
+        return 'lfg_request';
+    }
+
     public function toWebPush(object $notifiable): array
     {
         $name = $this->applicant->profile?->username ?? $this->applicant->name;

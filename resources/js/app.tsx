@@ -5,6 +5,9 @@ import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import CookieBanner from './Components/CookieBanner';
+import { bootAnalytics } from './utils/analytics';
+
+bootAnalytics();
 
 const APP_NAME = 'SquadSpawn';
 

@@ -227,6 +227,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/push/subscribe', [\App\Http\Controllers\PushSubscriptionController::class, 'store'])->name('push.subscribe');
     Route::delete('/push/subscribe', [\App\Http\Controllers\PushSubscriptionController::class, 'destroy'])->name('push.unsubscribe');
 
+    // Per-type push preferences
+    Route::get('/notification-preferences', [\App\Http\Controllers\NotificationPreferencesController::class, 'show'])->name('notifPrefs.show');
+    Route::put('/notification-preferences', [\App\Http\Controllers\NotificationPreferencesController::class, 'update'])->name('notifPrefs.update');
+
     // Avatar
     Route::post('/avatar/upload', [AvatarController::class, 'upload'])->middleware('throttle:10,1')->name('avatar.upload');
     Route::post('/avatar/preset', [AvatarController::class, 'setPreset'])->name('avatar.preset');
