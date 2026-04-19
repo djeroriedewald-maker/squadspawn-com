@@ -20,9 +20,23 @@ const PLATFORM_LABELS: Record<string, string> = {
     mobile: 'Mobile', web: 'Web',
 };
 
-function prettyPlatform(p: string): string {
-    const key = p.toLowerCase();
-    return PLATFORM_LABELS[key] ?? p.charAt(0).toUpperCase() + p.slice(1);
+function prettyPlatform(p: unknown): string {
+    if (typeof p === 'string') {
+        const key = p.toLowerCase();
+        return PLATFORM_LABELS[key] ?? p.charAt(0).toUpperCase() + p.slice(1);
+    }
+    if (p && typeof p === 'object') {
+        const slug = (p as any).slug ?? (p as any).platform?.slug ?? (p as any).name ?? '';
+        if (typeof slug === 'string' && slug) return prettyPlatform(slug);
+    }
+    return '';
+}
+
+function normalizedPlatforms(list: unknown): string[] {
+    if (!Array.isArray(list)) return [];
+    return list
+        .map((p) => prettyPlatform(p))
+        .filter((p): p is string => typeof p === 'string' && p.length > 0);
 }
 
 export default function GameDetailModal({ game, open, onClose, inMyProfile, isAuthed }: Props) {
@@ -118,18 +132,22 @@ export default function GameDetailModal({ game, open, onClose, inMyProfile, isAu
                     )}
 
                     <div className="grid gap-5 sm:grid-cols-2">
-                        {game.platforms && game.platforms.length > 0 && (
-                            <div>
-                                <div className="mb-2 text-[10px] font-bold uppercase tracking-widest text-ink-500">Platforms</div>
-                                <div className="flex flex-wrap gap-1.5">
-                                    {game.platforms.map((p) => (
-                                        <span key={p} className="rounded-md border border-ink-900/10 bg-bone-50 px-2.5 py-1 text-xs font-semibold text-ink-700">
-                                            {prettyPlatform(p)}
-                                        </span>
-                                    ))}
+                        {(() => {
+                            const pretty = normalizedPlatforms(game.platforms);
+                            if (pretty.length === 0) return null;
+                            return (
+                                <div>
+                                    <div className="mb-2 text-[10px] font-bold uppercase tracking-widest text-ink-500">Platforms</div>
+                                    <div className="flex flex-wrap gap-1.5">
+                                        {pretty.map((p) => (
+                                            <span key={p} className="rounded-md border border-ink-900/10 bg-bone-50 px-2.5 py-1 text-xs font-semibold text-ink-700">
+                                                {p}
+                                            </span>
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            );
+                        })()}
 
                         {game.rank_system && game.rank_system.length > 0 && (
                             <div>

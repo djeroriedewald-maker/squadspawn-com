@@ -45,8 +45,24 @@ const PLATFORM_LABELS: Record<string, string> = {
     mobile: 'Mobile', web: 'Web',
 };
 
-const prettyPlatform = (p: string) =>
-    PLATFORM_LABELS[p.toLowerCase()] ?? p.charAt(0).toUpperCase() + p.slice(1);
+function prettyPlatform(p: unknown): string {
+    if (typeof p === 'string') {
+        const key = p.toLowerCase();
+        return PLATFORM_LABELS[key] ?? p.charAt(0).toUpperCase() + p.slice(1);
+    }
+    if (p && typeof p === 'object') {
+        const slug = (p as any).slug ?? (p as any).platform?.slug ?? (p as any).name ?? '';
+        if (typeof slug === 'string' && slug) return prettyPlatform(slug);
+    }
+    return '';
+}
+
+function normalizedPlatforms(list: unknown): string[] {
+    if (!Array.isArray(list)) return [];
+    return list
+        .map((p) => prettyPlatform(p))
+        .filter((p): p is string => typeof p === 'string' && p.length > 0);
+}
 
 const SORT_OPTIONS = [
     { value: 'popular', label: 'Most players' },
@@ -307,20 +323,24 @@ function GameCard({ game, inMyProfile, onOpen }: { game: GameWithCount; inMyProf
                     </p>
                 )}
 
-                {game.platforms && game.platforms.length > 0 && (
-                    <div className="mt-3 flex flex-wrap gap-1">
-                        {game.platforms.slice(0, 4).map((p) => (
-                            <span key={p} className="rounded-md border border-ink-900/10 bg-bone-50 px-1.5 py-0.5 text-[10px] font-semibold text-ink-700">
-                                {prettyPlatform(p)}
-                            </span>
-                        ))}
-                        {game.platforms.length > 4 && (
-                            <span className="rounded-md bg-ink-900/5 px-1.5 py-0.5 text-[10px] font-medium text-ink-500">
-                                +{game.platforms.length - 4}
-                            </span>
-                        )}
-                    </div>
-                )}
+                {(() => {
+                    const pretty = normalizedPlatforms(game.platforms);
+                    if (pretty.length === 0) return null;
+                    return (
+                        <div className="mt-3 flex flex-wrap gap-1">
+                            {pretty.slice(0, 4).map((p) => (
+                                <span key={p} className="rounded-md border border-ink-900/10 bg-bone-50 px-1.5 py-0.5 text-[10px] font-semibold text-ink-700">
+                                    {p}
+                                </span>
+                            ))}
+                            {pretty.length > 4 && (
+                                <span className="rounded-md bg-ink-900/5 px-1.5 py-0.5 text-[10px] font-medium text-ink-500">
+                                    +{pretty.length - 4}
+                                </span>
+                            )}
+                        </div>
+                    );
+                })()}
 
                 <div className="mt-auto pt-3 text-xs font-semibold text-neon-red">
                     View details →

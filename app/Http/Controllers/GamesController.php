@@ -49,10 +49,12 @@ class GamesController extends Controller
             ->orderBy('genre')
             ->pluck('genre');
 
+        // Flatten + defend: some imported rows may have stored platforms as
+        // objects instead of strings (legacy bug). Keep only strings.
         $platforms = Game::pluck('platforms')
             ->map(fn ($p) => is_array($p) ? $p : [])
             ->flatten()
-            ->filter()
+            ->filter(fn ($p) => is_string($p) && $p !== '')
             ->unique()
             ->sort()
             ->values();
