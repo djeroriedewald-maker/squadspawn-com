@@ -638,6 +638,15 @@ export default function Welcome({
                                     <li><a href="/privacy-policy" className="transition hover:text-ink-900">Privacy Policy</a></li>
                                     <li><a href="/terms-of-service" className="transition hover:text-ink-900">Terms of Service</a></li>
                                     <li><a href="/cookie-policy" className="transition hover:text-ink-900">Cookie Policy</a></li>
+                                    <li>
+                                        <button
+                                            type="button"
+                                            onClick={() => window.dispatchEvent(new Event('open-cookie-settings'))}
+                                            className="transition hover:text-ink-900"
+                                        >
+                                            Cookie Settings
+                                        </button>
+                                    </li>
                                 </ul>
                             </div>
 

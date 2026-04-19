@@ -271,11 +271,12 @@ export default function PrivacyPolicy() {
                         {/* 9. Children's Privacy */}
                         <h2 className="text-xl font-semibold text-ink-900">9. Children's Privacy</h2>
                         <p>
-                            SquadSpawn is not intended for children under the age of 13. We do not knowingly collect
-                            personal data from children under 13. If you are between 13 and 16 years old, you may only
-                            use SquadSpawn with verifiable parental or guardian consent, in accordance with GDPR Article
-                            8. If we become aware that we have collected personal data from a child under 13 without
-                            appropriate consent, we will take steps to delete that data promptly.
+                            SquadSpawn is intended for users aged 16 and older. Under GDPR Article 8 and the Dutch
+                            implementation of the GDPR (UAVG), 16 is the age at which a person may validly consent to
+                            the processing of their own personal data by an online service provider. We do not knowingly
+                            collect personal data from anyone under 16 without verifiable consent from a parent or legal
+                            guardian. If we become aware that we have collected personal data from a user under 16
+                            without appropriate consent, we will take prompt steps to delete that data.
                         </p>
                         <p>
                             If you are a parent or guardian and believe your child has provided us with personal data
