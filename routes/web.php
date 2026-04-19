@@ -30,7 +30,7 @@ Route::get('/', function () {
     $totalPlayers = Cache::remember('home:players', 300, fn () => \App\Models\User::whereHas('profile')->count());
     $totalGames = Cache::remember('home:games', 300, fn () => \App\Models\Game::count());
     $activeLfg = Cache::remember('home:lfg', 300, fn () => \App\Models\LfgPost::where('status', 'open')->count());
-    $topGames = Cache::remember('home:topgames', 300, fn () => \App\Models\Game::withCount('users')->orderByDesc('users_count')->take(8)->get()->toArray());
+    $topGames = Cache::remember('home:topgames', 300, fn () => \App\Models\Game::withCount('users')->orderByDesc('users_count')->take(24)->get()->toArray());
     $recentPlayers = Cache::remember('home:recent', 300, fn () => \App\Models\Profile::with('user')->latest()->take(8)->get()->toArray());
     $onlineNow = Cache::remember('home:online', 120, fn () => \App\Models\User::where('updated_at', '>=', now()->subMinutes(15))->count());
 

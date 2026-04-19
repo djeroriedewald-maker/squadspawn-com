@@ -23,7 +23,8 @@ class ImportGames extends Command
         {--preset : Import everything from resources/seeds/games.json}
         {--preset-file= : Override the preset file path}
         {--only= : Restrict preset import to one source (steam or rawg)}
-        {--no-images : Store remote cover URLs instead of downloading locally}
+        {--local-images : Download covers to public/images/games/ instead of keeping CDN URLs (default is CDN)}
+        {--no-images : Deprecated alias — CDN URLs are now the default. Kept for backwards compat.}
         {--force : Overwrite existing fields (default fills only blanks)}';
 
     protected $description = 'Import games from RAWG or Steam (covers, descriptions, release dates)';
@@ -357,7 +358,9 @@ class ImportGames extends Command
     private function resolveCover(?string $remote, string $slug): ?string
     {
         if (!$remote) return null;
-        if ($this->option('no-images')) return $remote;
+        // Default: keep the CDN URL. Local download is opt-in to avoid
+        // issues where deploys wipe untracked files from public/.
+        if (!$this->option('local-images')) return $remote;
 
         try {
             $response = Http::timeout(30)->get($remote);

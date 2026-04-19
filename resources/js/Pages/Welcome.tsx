@@ -16,27 +16,14 @@ interface WelcomeProps {
     onlineNow: number;
 }
 
-const gameCovers = [
-    { name: 'Mobile Legends', image: '/images/games/mlbb.jpg' },
-    { name: 'Valorant', image: '/images/games/valorant.jpg' },
-    { name: 'Fortnite', image: '/images/games/fortnite.jpg' },
-    { name: 'League of Legends', image: '/images/games/lol.jpg' },
-    { name: 'PUBG Mobile', image: '/images/games/pubgm.jpg' },
-    { name: 'Apex Legends', image: '/images/games/apex.jpg' },
-    { name: 'Counter-Strike 2', image: '/images/games/cs2.jpg' },
-    { name: 'Genshin Impact', image: '/images/games/genshin.jpg' },
-    { name: 'Overwatch 2', image: '/images/games/overwatch2.jpg' },
-    { name: 'Dota 2', image: '/images/games/dota2.jpg' },
-    { name: 'Free Fire', image: '/images/games/freefire.jpg' },
-    { name: 'Honor of Kings', image: '/images/games/hok.jpg' },
-    { name: 'Call of Duty: Mobile', image: '/images/games/codm.jpg' },
-    { name: 'Rocket League', image: '/images/games/rocketleague.jpg' },
-    { name: 'Minecraft', image: '/images/games/minecraft.png' },
-    { name: 'Brawl Stars', image: '/images/games/brawlstars.jpg' },
-    { name: 'Clash Royale', image: '/images/games/clashroyale.jpg' },
-    { name: 'Arena of Valor', image: '/images/games/aov.jpg' },
-    { name: 'Stumble Guys', image: '/images/games/stumbleguys.jpg' },
-];
+const onCoverError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = e.currentTarget;
+    if (!img.dataset.fallback) {
+        img.dataset.fallback = '1';
+        img.src = '/icons/icon-512.png';
+        img.classList.add('opacity-30');
+    }
+};
 
 export default function Welcome({
     canLogin,
@@ -101,11 +88,13 @@ export default function Welcome({
                 {/* Scrolling Game Banner */}
                 <div className="relative overflow-hidden border-y border-ink-900/5 bg-bone-100/50 py-3">
                     <div className="animate-scroll flex gap-4">
-                        {[...gameCovers, ...gameCovers, ...gameCovers].map((game, i) => (
+                        {[...topGames, ...topGames, ...topGames].map((game, i) => (
                             <div key={i} className="flex-shrink-0">
                                 <img
-                                    src={game.image}
+                                    src={game.cover_image || `/images/games/${game.slug}.svg`}
                                     alt={game.name}
+                                    loading="lazy"
+                                    onError={onCoverError}
                                     className="h-16 w-28 rounded-lg object-cover opacity-60 transition hover:opacity-100 sm:h-20 sm:w-36"
                                 />
                             </div>
@@ -119,8 +108,15 @@ export default function Welcome({
                 <section className="relative overflow-hidden px-6 pb-24 pt-16 lg:px-12 lg:pt-24">
                     {/* Game collage background */}
                     <div className="pointer-events-none absolute inset-0 grid grid-cols-4 gap-1 opacity-[0.07]">
-                        {[...gameCovers, ...gameCovers, ...gameCovers, ...gameCovers].slice(0, 16).map((game, i) => (
-                            <img key={i} src={game.image} alt="" className="h-full w-full object-cover" />
+                        {[...topGames, ...topGames, ...topGames, ...topGames].slice(0, 16).map((game, i) => (
+                            <img
+                                key={i}
+                                src={game.cover_image || `/images/games/${game.slug}.svg`}
+                                alt=""
+                                loading="lazy"
+                                onError={onCoverError}
+                                className="h-full w-full object-cover"
+                            />
                         ))}
                     </div>
                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-bone-50/60 via-bone-50/90 to-bone-50" />
