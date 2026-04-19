@@ -6,10 +6,10 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import CookieBanner from './Components/CookieBanner';
 
-const appName = import.meta.env.VITE_APP_NAME || 'SquadSpawn';
+const APP_NAME = 'SquadSpawn';
 
 createInertiaApp({
-    title: (title) => `${title} - ${appName}`,
+    title: (title) => (title ? `${title} · ${APP_NAME}` : APP_NAME),
     resolve: (name) =>
         resolvePageComponent(
             `./Pages/${name}.tsx`,
@@ -26,6 +26,6 @@ createInertiaApp({
         );
     },
     progress: {
-        color: '#7C3AED',
+        color: '#E6002E',
     },
 });

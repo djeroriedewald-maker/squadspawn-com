@@ -1,2 +1,10 @@
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /chat
+Disallow: /matches
+Disallow: /admin
+Disallow: /api
+
+Sitemap: https://squadspawn.com/sitemap.xml

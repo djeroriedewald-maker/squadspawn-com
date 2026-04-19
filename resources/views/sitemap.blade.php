@@ -3,7 +3,7 @@
     {{-- Static pages --}}
     <url>
         <loc>{{ url('/') }}</loc>
-        <changefreq>weekly</changefreq>
+        <changefreq>daily</changefreq>
         <priority>1.0</priority>
     </url>
     <url>
@@ -12,9 +12,14 @@
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>{{ url('/players') }}</loc>
+        <loc>{{ url('/community') }}</loc>
         <changefreq>daily</changefreq>
         <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>{{ url('/clips') }}</loc>
+        <changefreq>daily</changefreq>
+        <priority>0.7</priority>
     </url>
     <url>
         <loc>{{ url('/privacy-policy') }}</loc>
@@ -39,16 +44,6 @@
         <lastmod>{{ $profile->updated_at->toAtomString() }}</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
-    </url>
-    @endforeach
-
-    {{-- Games --}}
-    @foreach ($games as $game)
-    <url>
-        <loc>{{ url('/games') }}</loc>
-        <lastmod>{{ $game->updated_at->toAtomString() }}</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.7</priority>
     </url>
     @endforeach
 </urlset>
