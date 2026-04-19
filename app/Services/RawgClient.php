@@ -45,16 +45,56 @@ class RawgClient
     }
 
     /**
-     * Top games ordered by RAWG rating count (popularity proxy).
+     * Top games ordered by RAWG popularity. Paginates internally — RAWG
+     * caps page_size at 40, so we iterate until we have `$count` rows
+     * (or the API runs out).
      *
      * @return array<int, array<string, mixed>>
      */
-    public function top(int $pageSize = 40): array
+    public function top(int $count = 40, string $ordering = '-added'): array
     {
-        return $this->get('/games', [
-            'ordering' => '-added',
-            'page_size' => $pageSize,
-        ])->json('results') ?? [];
+        $results = [];
+        $page = 1;
+        while (count($results) < $count) {
+            $pageSize = min(40, $count - count($results));
+            $data = $this->get('/games', [
+                'ordering' => $ordering,
+                'page_size' => $pageSize,
+                'page' => $page,
+            ])->json();
+            $batch = $data['results'] ?? [];
+            if (!$batch) break;
+            $results = array_merge($results, $batch);
+            if (empty($data['next'])) break;
+            $page++;
+        }
+        return array_slice($results, 0, $count);
+    }
+
+    /**
+     * Games filtered by genre slug (action, shooter, strategy, rpg, etc).
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function byGenre(string $genre, int $count = 40, string $ordering = '-added'): array
+    {
+        $results = [];
+        $page = 1;
+        while (count($results) < $count) {
+            $pageSize = min(40, $count - count($results));
+            $data = $this->get('/games', [
+                'genres' => $genre,
+                'ordering' => $ordering,
+                'page_size' => $pageSize,
+                'page' => $page,
+            ])->json();
+            $batch = $data['results'] ?? [];
+            if (!$batch) break;
+            $results = array_merge($results, $batch);
+            if (empty($data['next'])) break;
+            $page++;
+        }
+        return array_slice($results, 0, $count);
     }
 
     /**

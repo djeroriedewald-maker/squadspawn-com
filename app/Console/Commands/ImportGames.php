@@ -18,6 +18,8 @@ class ImportGames extends Command
         {--slug= : RAWG slug or id}
         {--appid= : Steam AppID}
         {--top= : Import top N games from the chosen source}
+        {--genre= : RAWG genre slug to filter top by (action, shooter, rpg, strategy, etc)}
+        {--ordering=-added : RAWG ordering: -added (popularity), -rating, -released, -metacritic}
         {--preset : Import everything from resources/seeds/games.json}
         {--preset-file= : Override the preset file path}
         {--only= : Restrict preset import to one source (steam or rawg)}
@@ -77,14 +79,25 @@ class ImportGames extends Command
             }
             $candidates = [$rawg->detail($hits[0]['slug'])];
         } elseif ($top) {
-            $this->info("Fetching top {$top} games from RAWG…");
-            foreach ($rawg->top((int) $top) as $hit) {
+            $genre = $this->option('genre');
+            $ordering = $this->option('ordering') ?: '-added';
+            $label = $genre ? "top {$top} {$genre} games" : "top {$top} games";
+            $this->info("Fetching {$label} from RAWG (ordering={$ordering})…");
+            $hits = $genre
+                ? $rawg->byGenre($genre, (int) $top, $ordering)
+                : $rawg->top((int) $top, $ordering);
+            $bar = $this->output->createProgressBar(count($hits));
+            $bar->start();
+            foreach ($hits as $hit) {
                 try {
                     $candidates[] = $rawg->detail($hit['slug']);
                 } catch (Throwable $e) {
-                    $this->warn("  detail failed for {$hit['slug']}: {$e->getMessage()}");
+                    $this->warn("\n  detail failed for {$hit['slug']}: {$e->getMessage()}");
                 }
+                $bar->advance();
             }
+            $bar->finish();
+            $this->newLine(2);
         }
 
         $this->upsertMany($candidates, fn ($d) => $this->normalizeRawg($d));
