@@ -295,60 +295,121 @@ class ImportGames extends Command
         $imported = 0;
         $updated = 0;
         $skipped = 0;
+        $failed = 0;
 
         foreach ($items as $raw) {
-            if (!$raw) { $skipped++; continue; }
-            $attrs = $normalize($raw);
-            if (!$attrs || empty($attrs['slug'])) { $skipped++; continue; }
+            try {
+                if (!$raw) { $skipped++; continue; }
+                $attrs = $normalize($raw);
+                if (!$attrs || empty($attrs['slug'])) { $skipped++; continue; }
 
-            $existing = Game::where('slug', $attrs['slug'])
-                ->orWhere(function ($q) use ($attrs) {
-                    if (!empty($attrs['rawg_id'])) {
-                        $q->where('rawg_id', $attrs['rawg_id']);
-                    }
-                })
-                ->first();
+                // Last-chance defensive normalization. The main normalizers
+                // already produce clean data, but upstream API shapes change
+                // — keep the DB consistent even if that happens.
+                $attrs = $this->sanitize($attrs);
 
-            // Strip null/empty values so we never overwrite existing data
-            // with nothing, and so NOT NULL columns don't blow up on create.
-            $filtered = array_filter($attrs, fn ($v) => filled($v));
+                $existing = Game::where('slug', $attrs['slug'])
+                    ->orWhere(function ($q) use ($attrs) {
+                        if (!empty($attrs['rawg_id'])) {
+                            $q->where('rawg_id', $attrs['rawg_id']);
+                        }
+                    })
+                    ->first();
 
-            if ($existing) {
-                // fill() respects $fillable so any stray keys (e.g. from a
-                // raw API payload that slipped past the normalizer) are
-                // silently dropped instead of tripping an unknown-column
-                // error at save time.
-                if ($this->option('force')) {
-                    $existing->fill($filtered);
-                } else {
-                    $blanks = [];
-                    foreach ($filtered as $key => $value) {
-                        if (blank($existing->{$key})) {
-                            $blanks[$key] = $value;
+                // Strip null/empty values so we never overwrite existing
+                // data with nothing or blow up NOT NULL columns on create.
+                $filtered = array_filter($attrs, fn ($v) => filled($v));
+
+                if ($existing) {
+                    // fill() respects $fillable so any stray keys (e.g. from
+                    // a raw API payload that slipped past the normalizer) are
+                    // silently dropped instead of tripping unknown-column
+                    // errors at save time.
+                    if ($this->option('force')) {
+                        $existing->fill($filtered);
+                    } else {
+                        $blanks = [];
+                        foreach ($filtered as $key => $value) {
+                            if (blank($existing->{$key})) {
+                                $blanks[$key] = $value;
+                            }
+                        }
+                        if ($blanks) {
+                            $existing->fill($blanks);
                         }
                     }
-                    if ($blanks) {
-                        $existing->fill($blanks);
+                    if ($existing->isDirty()) {
+                        $existing->save();
+                        $updated++;
+                        $this->line("  updated  {$attrs['name']}");
+                    } else {
+                        $skipped++;
+                        $this->line("  kept     {$attrs['name']}");
                     }
-                }
-                if ($existing->isDirty()) {
-                    $existing->save();
-                    $updated++;
-                    $this->line("  updated  {$attrs['name']}");
                 } else {
-                    $skipped++;
-                    $this->line("  kept     {$attrs['name']}");
+                    $filtered['genre'] ??= 'Other';
+                    Game::create($filtered);
+                    $imported++;
+                    $this->info("  added    {$attrs['name']}");
                 }
-            } else {
-                $filtered['genre'] ??= 'Other';
-                Game::create($filtered);
-                $imported++;
-                $this->info("  added    {$attrs['name']}");
+            } catch (Throwable $e) {
+                // One bad record shouldn't kill the batch — log and move on.
+                $failed++;
+                $name = $attrs['name'] ?? ($raw['name'] ?? 'unknown');
+                $this->warn("  failed   {$name}: {$e->getMessage()}");
             }
         }
 
         $this->line('');
-        $this->info("Done — added: {$imported}, updated: {$updated}, skipped: {$skipped}");
+        $this->info("Done — added: {$imported}, updated: {$updated}, kept: {$skipped}, failed: {$failed}");
+    }
+
+    /**
+     * Defensive pass over the normalized attrs: ensure types match the DB
+     * expectations regardless of upstream API weirdness.
+     */
+    private function sanitize(array $attrs): array
+    {
+        // platforms must be a flat array of non-empty strings
+        if (isset($attrs['platforms'])) {
+            $clean = [];
+            foreach ((array) $attrs['platforms'] as $p) {
+                if (is_string($p) && $p !== '') {
+                    $clean[] = strtolower($p);
+                } elseif (is_array($p)) {
+                    $slug = $p['slug'] ?? $p['platform']['slug'] ?? $p['name'] ?? null;
+                    if (is_string($slug) && $slug !== '') $clean[] = strtolower($slug);
+                }
+            }
+            $attrs['platforms'] = array_values(array_unique($clean));
+        }
+
+        // description: text column but keep it reasonable
+        if (isset($attrs['description']) && is_string($attrs['description'])) {
+            $attrs['description'] = \Illuminate\Support\Str::limit(
+                trim(strip_tags($attrs['description'])),
+                600,
+                '…',
+            );
+        }
+
+        // released_at: accept YYYY-MM-DD or anything Carbon can parse
+        if (!empty($attrs['released_at']) && is_string($attrs['released_at'])) {
+            try {
+                $attrs['released_at'] = \Carbon\Carbon::parse($attrs['released_at'])->toDateString();
+            } catch (Throwable) {
+                $attrs['released_at'] = null;
+            }
+        }
+
+        // genre / name / slug: force to string, trim
+        foreach (['genre', 'name', 'slug'] as $field) {
+            if (isset($attrs[$field])) {
+                $attrs[$field] = is_string($attrs[$field]) ? trim($attrs[$field]) : null;
+            }
+        }
+
+        return $attrs;
     }
 
     /**

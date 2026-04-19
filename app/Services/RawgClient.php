@@ -112,16 +112,39 @@ class RawgClient
     {
         $this->ensureKey();
 
-        $response = Http::acceptJson()
-            ->timeout(20)
-            ->get($this->baseUrl . $path, array_merge(['key' => $this->apiKey], $query));
+        $attempts = 0;
+        $maxAttempts = 3;
+        $lastError = null;
 
-        if (!$response->successful()) {
-            throw new RuntimeException(
-                "RAWG API error ({$response->status()}) for {$path}: " . $response->body()
-            );
+        while ($attempts < $maxAttempts) {
+            $attempts++;
+            try {
+                $response = Http::acceptJson()
+                    ->timeout(20)
+                    ->get($this->baseUrl . $path, array_merge(['key' => $this->apiKey], $query));
+
+                // 4xx (except 429): permanent — don't retry
+                if ($response->status() >= 400 && $response->status() < 500 && $response->status() !== 429) {
+                    throw new RuntimeException(
+                        "RAWG API error ({$response->status()}) for {$path}: " . $response->body()
+                    );
+                }
+
+                if ($response->successful()) {
+                    return $response;
+                }
+
+                // 5xx or 429 → retry with short backoff
+                $lastError = "status {$response->status()}";
+            } catch (\Illuminate\Http\Client\ConnectionException $e) {
+                $lastError = $e->getMessage();
+            }
+
+            if ($attempts < $maxAttempts) {
+                usleep(500_000 * $attempts); // 0.5s, 1s backoff
+            }
         }
 
-        return $response;
+        throw new RuntimeException("RAWG API failed after {$maxAttempts} attempts for {$path}: {$lastError}");
     }
 }

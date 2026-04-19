@@ -108,17 +108,22 @@ export default function GamesShow({ game, relatedGames, isInMyProfile }: Props) 
                             </button>
                             <button
                                 onClick={addOrRemove}
-                                className={`block w-full rounded-xl border-2 py-3 text-sm font-bold transition ${
+                                className={`group/remove block w-full rounded-xl border-2 py-3 text-sm font-bold transition ${
                                     isInMyProfile
-                                        ? 'border-gaming-green bg-gaming-green/10 text-gaming-green hover:bg-gaming-green/20'
+                                        ? 'border-gaming-green bg-gaming-green/10 text-gaming-green hover:border-neon-red hover:bg-neon-red/10 hover:text-neon-red'
                                         : 'border-ink-900/15 bg-white text-ink-900 hover:border-neon-red hover:text-neon-red'
                                 }`}
                             >
-                                {!isAuthed
-                                    ? '+ Sign up to add'
-                                    : isInMyProfile
-                                        ? '✓ In your profile'
-                                        : '+ Add to profile'}
+                                {!isAuthed ? (
+                                    '+ Sign up to add'
+                                ) : isInMyProfile ? (
+                                    <>
+                                        <span className="group-hover/remove:hidden">✓ In your profile</span>
+                                        <span className="hidden group-hover/remove:inline">× Remove from profile</span>
+                                    </>
+                                ) : (
+                                    '+ Add to profile'
+                                )}
                             </button>
                         </div>
                     </div>
