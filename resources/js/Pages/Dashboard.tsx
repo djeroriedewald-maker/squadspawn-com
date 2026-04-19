@@ -158,7 +158,7 @@ export default function Dashboard({
                             <div className="px-5 pb-5">
                                 {/* Avatar + Name row */}
                                 <div className="flex items-end gap-4">
-                                    <div className="-mt-8 flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl border-4 border-ink-800 bg-gradient-to-br from-neon-red to-neon-red-deep text-3xl font-bold text-white shadow-lg sm:-mt-10 sm:h-24 sm:w-24">
+                                    <div className="relative z-10 -mt-8 flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl border-4 border-white bg-gradient-to-br from-neon-red to-neon-red-deep text-3xl font-bold text-white shadow-lg sm:-mt-10 sm:h-24 sm:w-24">
                                         {user.profile?.avatar ? (
                                             <img src={user.profile.avatar} alt="" className="h-full w-full object-cover" />
                                         ) : (
