@@ -13,7 +13,13 @@ class NotificationController extends Controller
     {
         $user = auth()->user();
 
-        $notifications = $user->unreadNotifications()
+        // Alerts tab + badge exclude chat-message notifications. A chat
+        // message already surfaces in the Chats tab and is counted there;
+        // mirroring it here caused the badge to double up (1 message = 2).
+        $base = $user->unreadNotifications()
+            ->where('data->type', '!=', 'new_message');
+
+        $notifications = (clone $base)
             ->take(15)
             ->get()
             ->map(fn ($n) => [
@@ -23,7 +29,7 @@ class NotificationController extends Controller
             ]);
 
         return response()->json([
-            'unreadCount' => $user->unreadNotifications()->count(),
+            'unreadCount' => $base->count(),
             'notifications' => $notifications,
         ]);
     }
