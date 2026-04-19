@@ -194,7 +194,17 @@ export default function CommunityShow({
                                     )}
                                 </div>
 
-                                <h1 className="mb-3 text-xl font-bold text-ink-900 sm:text-2xl">{post.title}</h1>
+                                <div className="mb-3 flex items-start justify-between gap-3">
+                                    <h1 className="text-xl font-bold text-ink-900 sm:text-2xl">{post.title}</h1>
+                                    {auth?.user?.id === post.user_id && (
+                                        <Link
+                                            href={route('community.edit', post.slug)}
+                                            className="shrink-0 rounded-lg border border-ink-900/10 px-3 py-1.5 text-xs font-semibold text-ink-700 transition hover:border-neon-red hover:text-neon-red"
+                                        >
+                                            Edit
+                                        </Link>
+                                    )}
+                                </div>
 
                                 <div className="mb-4 flex items-center gap-3 text-xs text-gray-500">
                                     <Link

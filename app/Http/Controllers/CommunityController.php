@@ -111,6 +111,43 @@ class CommunityController extends Controller
         return redirect()->route('community.show', $post);
     }
 
+    public function edit(CommunityPost $communityPost): Response
+    {
+        abort_unless($communityPost->user_id === auth()->id(), 403);
+
+        return Inertia::render('Community/Edit', [
+            'post' => $communityPost,
+            'games' => \App\Models\Game::orderBy('name')->get(['id', 'name', 'slug', 'cover_image', 'genre', 'platforms']),
+        ]);
+    }
+
+    public function update(Request $request, CommunityPost $communityPost)
+    {
+        abort_unless($communityPost->user_id === auth()->id(), 403);
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'body' => 'required|string|max:10000',
+            'game_id' => 'nullable|exists:games,id',
+            'type' => 'required|in:discussion,question,tip,team,news',
+        ]);
+
+        $communityPost->update($validated);
+
+        return redirect()->route('community.show', $communityPost);
+    }
+
+    public function destroy(CommunityPost $communityPost)
+    {
+        abort_unless($communityPost->user_id === auth()->id(), 403);
+
+        $communityPost->comments()->delete();
+        $communityPost->votes()->delete();
+        $communityPost->delete();
+
+        return redirect()->route('community.index');
+    }
+
     public function vote(Request $request, CommunityPost $communityPost): JsonResponse
     {
         $request->validate([

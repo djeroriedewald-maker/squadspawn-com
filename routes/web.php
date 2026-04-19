@@ -192,6 +192,7 @@ Route::get('/search', [SearchController::class, 'search'])->middleware('auth')->
 // Community (public viewing)
 Route::get('/community', [CommunityController::class, 'index'])->name('community.index');
 Route::get('/community/create', [CommunityController::class, 'create'])->middleware('auth')->name('community.create');
+Route::get('/community/{communityPost}/edit', [CommunityController::class, 'edit'])->middleware('auth')->name('community.edit');
 Route::get('/community/{communityPost}', [CommunityController::class, 'show'])->name('community.show');
 
 Route::middleware('auth')->group(function () {
@@ -245,6 +246,8 @@ Route::middleware('auth')->group(function () {
 
     // Community (auth actions)
     Route::post('/community', [CommunityController::class, 'store'])->middleware('throttle:10,1')->name('community.store');
+    Route::put('/community/{communityPost}', [CommunityController::class, 'update'])->middleware('throttle:30,1')->name('community.update');
+    Route::delete('/community/{communityPost}', [CommunityController::class, 'destroy'])->name('community.destroy');
     Route::post('/community/{communityPost}/vote', [CommunityController::class, 'vote'])->name('community.vote');
     Route::post('/community/{communityPost}/comment', [CommunityController::class, 'comment'])->name('community.comment');
     Route::delete('/community/comment/{postComment}', [CommunityController::class, 'destroyComment'])->name('community.comment.destroy');
