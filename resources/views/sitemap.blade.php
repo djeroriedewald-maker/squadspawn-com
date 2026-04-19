@@ -46,4 +46,14 @@
         <priority>0.6</priority>
     </url>
     @endforeach
+
+    {{-- Individual game pages --}}
+    @foreach ($games as $game)
+    <url>
+        <loc>{{ url('/games/' . $game->slug) }}</loc>
+        <lastmod>{{ $game->updated_at->toAtomString() }}</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    @endforeach
 </urlset>

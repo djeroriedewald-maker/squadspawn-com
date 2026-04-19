@@ -180,6 +180,9 @@ Route::get('/dashboard', function () {
 
 // Public
 Route::get('/games', [GamesController::class, 'index'])->name('games.index');
+Route::get('/games/{slug}', [GamesController::class, 'show'])
+    ->where('slug', '[a-z0-9\-]+')
+    ->name('games.show');
 Route::get('/player/{username}', [PlayerController::class, 'show'])->name('player.show');
 Route::get('/clips', [ClipController::class, 'index'])->name('clips.index');
 Route::get('/redirect', [\App\Http\Controllers\RedirectController::class, 'redirect'])->name('external.redirect');
@@ -208,6 +211,10 @@ Route::middleware('auth')->group(function () {
     // Clips
     Route::post('/clips', [ClipController::class, 'store'])->middleware('throttle:10,1')->name('clips.store');
     Route::delete('/clips/{clip}', [ClipController::class, 'destroy'])->name('clips.destroy');
+
+    // Quick add/remove a game to/from my profile
+    Route::post('/games/{game}/add', [GamesController::class, 'quickAdd'])->name('games.quickAdd');
+    Route::delete('/games/{game}/remove', [GamesController::class, 'quickRemove'])->name('games.quickRemove');
 
     // Avatar
     Route::post('/avatar/upload', [AvatarController::class, 'upload'])->middleware('throttle:10,1')->name('avatar.upload');
