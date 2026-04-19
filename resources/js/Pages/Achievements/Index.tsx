@@ -1,21 +1,10 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Achievement, PageProps } from '@/types';
+import {
+    achievementColorClasses as colorClasses,
+    getAchievementIcon,
+} from '@/utils/achievements';
 import { Head } from '@inertiajs/react';
-
-const iconMap: Record<string, string> = {
-    heart: '\u2764\uFE0F', users: '\uD83D\uDC65', flag: '\uD83D\uDEA9',
-    shield: '\uD83D\uDEE1\uFE0F', video: '\uD83C\uDFA5', gamepad: '\uD83C\uDFAE',
-    chat: '\uD83D\uDCAC', star: '\u2B50', trophy: '\uD83C\uDFC6',
-    megaphone: '\uD83D\uDCE3', fire: '\uD83D\uDD25', check: '\u2705',
-};
-
-const colorClasses: Record<string, { bg: string; border: string; text: string; glow: string; bar: string }> = {
-    purple: { bg: 'bg-neon-red/10', border: 'border-neon-red/30', text: 'text-neon-red', glow: 'shadow-[0_0_15px_rgba(139,92,246,0.3)]', bar: 'bg-neon-red' },
-    green: { bg: 'bg-gaming-green/10', border: 'border-gaming-green/30', text: 'text-gaming-green', glow: 'shadow-[0_0_15px_rgba(16,185,129,0.3)]', bar: 'bg-gaming-green' },
-    cyan: { bg: 'bg-gaming-cyan/10', border: 'border-gaming-cyan/30', text: 'text-gaming-cyan', glow: 'shadow-[0_0_15px_rgba(34,211,238,0.3)]', bar: 'bg-gaming-cyan' },
-    pink: { bg: 'bg-gaming-pink/10', border: 'border-gaming-pink/30', text: 'text-gaming-pink', glow: 'shadow-[0_0_15px_rgba(244,114,182,0.3)]', bar: 'bg-gaming-pink' },
-    orange: { bg: 'bg-gaming-orange/10', border: 'border-gaming-orange/30', text: 'text-gaming-orange', glow: 'shadow-[0_0_15px_rgba(245,158,11,0.3)]', bar: 'bg-yellow-500' },
-};
 
 const levelColors = ['text-ink-500', 'text-gaming-green', 'text-gaming-cyan', 'text-neon-red', 'text-gaming-pink', 'text-yellow-400'];
 
@@ -186,7 +175,7 @@ export default function Index({
 
                                     <div className="flex items-start gap-4">
                                         <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-2xl ${isEarned ? colors.bg : 'bg-bone-100'}`}>
-                                            {iconMap[achievement.icon] || '\uD83C\uDFC6'}
+                                            {getAchievementIcon(achievement.icon)}
                                         </div>
                                         <div className="min-w-0 flex-1">
                                             <h3 className={`font-bold ${isEarned ? colors.text : 'text-ink-500'}`}>

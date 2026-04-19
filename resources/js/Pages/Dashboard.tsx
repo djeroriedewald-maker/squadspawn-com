@@ -1,5 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Achievement, Game, PageProps, User } from '@/types';
+import { getAchievementColors, getAchievementIcon } from '@/utils/achievements';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 
@@ -312,29 +313,29 @@ export default function Dashboard({
                                 <Link href={route('achievements.index')} className="text-sm text-neon-red hover:text-neon-red/80">View All</Link>
                             </div>
                             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                                {recentAchievements.map((ach) => (
-                                    <div
-                                        key={ach.id}
-                                        className="group relative overflow-hidden rounded-xl border border-ink-900/10 bg-white p-4 transition hover:border-yellow-400/30 hover:shadow-lg hover:shadow-yellow-400/5"
-                                    >
-                                        <div className="absolute -right-4 -top-4 h-20 w-20 rounded-full opacity-10" style={{ background: ach.color }} />
-                                        <div className="flex items-start gap-3">
-                                            <div
-                                                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-xl"
-                                                style={{ background: `${ach.color}20` }}
-                                            >
-                                                {ach.icon}
-                                            </div>
-                                            <div className="min-w-0 flex-1">
-                                                <h3 className="text-sm font-bold text-ink-900">{ach.name}</h3>
-                                                <p className="mt-0.5 text-[11px] leading-tight text-gray-500">{ach.description}</p>
-                                                <div className="mt-1.5 flex items-center gap-1.5">
-                                                    <span className="rounded bg-yellow-400/10 px-1.5 py-0.5 text-[9px] font-bold text-yellow-400">{ach.points} pts</span>
+                                {recentAchievements.map((ach) => {
+                                    const colors = getAchievementColors(ach.color);
+                                    return (
+                                        <div
+                                            key={ach.id}
+                                            className={`group relative overflow-hidden rounded-xl border border-ink-900/10 bg-white transition duration-200 hover:-translate-y-0.5 ${colors.hoverBorder} ${colors.hoverGlow}`}
+                                        >
+                                            <div className={`absolute inset-y-0 left-0 w-1 ${colors.accent}`} />
+                                            <div className="flex items-start gap-3 p-4 pl-5">
+                                                <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-xl ${colors.bg}`}>
+                                                    {getAchievementIcon(ach.icon)}
+                                                </div>
+                                                <div className="min-w-0 flex-1">
+                                                    <h3 className="truncate text-sm font-bold text-ink-900">{ach.name}</h3>
+                                                    <p className="mt-0.5 line-clamp-2 text-[11px] leading-tight text-ink-500">{ach.description}</p>
+                                                    <div className="mt-2 flex items-center gap-1.5">
+                                                        <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold ${colors.bg} ${colors.text}`}>+{ach.points} pts</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         </div>
                     )}
