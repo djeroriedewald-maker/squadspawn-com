@@ -50,6 +50,13 @@ export default function Welcome({
 }: WelcomeProps) {
     const user = usePage().props.auth?.user;
 
+    // Early-access framing while community is small. Flips to standard
+    // social proof once the platform has real scale.
+    const FOUNDER_CAP = 500;
+    const isFounderPhase = totalPlayers < FOUNDER_CAP;
+    const founderNumber = totalPlayers + 1;
+    const founderSpotsLeft = Math.max(FOUNDER_CAP - totalPlayers, 0);
+
     return (
         <>
             <Head title="Find Your Gaming Squad" />
@@ -120,8 +127,15 @@ export default function Welcome({
 
                     <div className="relative z-10 mx-auto flex max-w-6xl flex-col items-center gap-12 lg:flex-row lg:gap-16">
                         <div className="flex-1 text-center lg:text-left">
-                            <div className="mb-4 inline-block rounded-full border border-neon-red/30 bg-neon-red/10 px-4 py-1.5 text-sm font-medium text-neon-red">
-                                🎮 Join {totalPlayers.toLocaleString()}+ gamers worldwide
+                            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-neon-red/30 bg-neon-red/10 px-4 py-1.5 text-sm font-bold tracking-wide text-neon-red">
+                                {isFounderPhase ? (
+                                    <>
+                                        <span className="h-2 w-2 animate-pulse rounded-full bg-neon-red" />
+                                        EARLY ACCESS · BE FOUNDER #{founderNumber}
+                                    </>
+                                ) : (
+                                    <>🎮 Join {totalPlayers.toLocaleString()}+ gamers worldwide</>
+                                )}
                             </div>
                             <h1 className="mb-6 text-5xl font-extrabold leading-tight sm:text-6xl lg:text-7xl">
                                 <span className="bg-gradient-to-r from-neon-red via-gaming-pink to-gaming-green bg-clip-text text-transparent">
@@ -147,13 +161,25 @@ export default function Welcome({
                                 </Link>
                             </div>
                             <div className="mt-8 flex flex-wrap items-center justify-center gap-4 text-sm text-ink-500 sm:gap-8 lg:justify-start">
-                                <span className="font-semibold text-neon-red">{totalPlayers.toLocaleString()} Gamers</span>
+                                {isFounderPhase ? (
+                                    <span className="font-semibold text-neon-red">{founderSpotsLeft} founder spots left</span>
+                                ) : (
+                                    <span className="font-semibold text-neon-red">{totalPlayers.toLocaleString()} Gamers</span>
+                                )}
                                 <span className="hidden h-1 w-1 rounded-full bg-gray-600 sm:block" />
                                 <span className="font-semibold text-gaming-green">{totalGames} Games</span>
-                                <span className="hidden h-1 w-1 rounded-full bg-gray-600 sm:block" />
-                                <span className="font-semibold text-gaming-pink">{activeLfg} Groups Active</span>
-                                <span className="hidden h-1 w-1 rounded-full bg-gray-600 sm:block" />
-                                <span className="font-semibold text-ink-900">{onlineNow} Online Now</span>
+                                {activeLfg > 0 && (
+                                    <>
+                                        <span className="hidden h-1 w-1 rounded-full bg-gray-600 sm:block" />
+                                        <span className="font-semibold text-gaming-pink">{activeLfg} Groups Active</span>
+                                    </>
+                                )}
+                                {onlineNow >= 10 && (
+                                    <>
+                                        <span className="hidden h-1 w-1 rounded-full bg-gray-600 sm:block" />
+                                        <span className="font-semibold text-ink-900">{onlineNow} Online Now</span>
+                                    </>
+                                )}
                             </div>
                         </div>
 
@@ -168,8 +194,10 @@ export default function Welcome({
                                 </div>
                                 <div className="absolute -bottom-3 -right-3 rounded-xl border border-neon-red/30 bg-bone-100/90 px-4 py-2 shadow-lg backdrop-blur-sm">
                                     <div className="flex items-center gap-2">
-                                        <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-gaming-green" />
-                                        <span className="text-sm font-semibold text-ink-900">{onlineNow} online now</span>
+                                        <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-neon-red" />
+                                        <span className="text-sm font-semibold text-ink-900">
+                                            {isFounderPhase ? 'Early access · live' : `${onlineNow} online now`}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -532,8 +560,17 @@ export default function Welcome({
                                 </p>
                                 <div className="grid gap-4 sm:grid-cols-3">
                                     <div className="rounded-xl border border-ink-900/10 bg-bone-100/80 p-5 backdrop-blur-sm">
-                                        <p className="text-3xl font-bold text-neon-red">{totalPlayers.toLocaleString()}+</p>
-                                        <p className="mt-1 text-sm text-ink-500">Gamers</p>
+                                        {isFounderPhase ? (
+                                            <>
+                                                <p className="text-3xl font-bold text-neon-red">#{founderNumber}</p>
+                                                <p className="mt-1 text-sm text-ink-500">Your founder number</p>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <p className="text-3xl font-bold text-neon-red">{totalPlayers.toLocaleString()}+</p>
+                                                <p className="mt-1 text-sm text-ink-500">Gamers</p>
+                                            </>
+                                        )}
                                     </div>
                                     <div className="rounded-xl border border-ink-900/10 bg-bone-100/80 p-5 backdrop-blur-sm">
                                         <p className="text-3xl font-bold text-gaming-green">{totalGames}</p>
@@ -563,7 +600,9 @@ export default function Welcome({
                             Ready to Build Your Reputation?
                         </h2>
                         <p className="mb-10 text-lg text-ink-500">
-                            Join {totalPlayers.toLocaleString()}+ gamers who play, rate, and build trust together. Your next great teammate is one session away.
+                            {isFounderPhase
+                                ? `Claim one of the first ${FOUNDER_CAP} founding spots. Shape the platform, build the first squads, and earn a permanent Founder badge on your profile.`
+                                : `Join ${totalPlayers.toLocaleString()}+ gamers who play, rate, and build trust together. Your next great teammate is one session away.`}
                         </p>
                         <Link
                             href={route('register')}

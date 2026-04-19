@@ -94,10 +94,22 @@ export default function Dashboard({
                         <div className="mb-6 flex flex-wrap items-center gap-4 rounded-xl border border-ink-900/5 bg-bone-100/60 px-4 py-2.5 backdrop-blur-sm">
                             <div className="flex items-center gap-2">
                                 <span className="h-2 w-2 animate-blink rounded-full bg-gaming-green" />
-                                <span className="text-sm text-ink-700"><strong className="text-gaming-green">{onlineRecent}</strong> online now</span>
+                                <span className="text-sm text-ink-700">
+                                    {onlineRecent >= 10 ? (
+                                        <><strong className="text-gaming-green">{onlineRecent}</strong> online now</>
+                                    ) : (
+                                        <>Community online</>
+                                    )}
+                                </span>
                             </div>
                             <div className="h-4 w-px bg-ink-900/10" />
-                            <span className="text-sm text-ink-500"><strong className="text-ink-900">{totalPlayers}</strong> gamers on SquadSpawn</span>
+                            {totalPlayers < 500 ? (
+                                <span className="rounded-full border border-neon-red/30 bg-neon-red/10 px-2.5 py-0.5 text-xs font-bold tracking-wide text-neon-red">
+                                    EARLY ACCESS
+                                </span>
+                            ) : (
+                                <span className="text-sm text-ink-500"><strong className="text-ink-900">{totalPlayers}</strong> gamers on SquadSpawn</span>
+                            )}
                             {newPlayersToday > 0 && (
                                 <>
                                     <div className="h-4 w-px bg-ink-900/10" />
