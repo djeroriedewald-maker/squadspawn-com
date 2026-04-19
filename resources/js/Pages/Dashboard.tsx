@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 
 interface GameWithCount extends Game { users_count: number; }
 interface FriendItem { id: number; chat_id: string; partner: User; created_at: string; }
-interface ActivityItem { type: string; username?: string; avatar?: string; user1?: string; user2?: string; time: string; }
+interface ActivityItem { type: 'joined' | 'friends'; time: string; }
 
 function AnimatedNumber({ value, className }: { value: number; className?: string }) {
     const [display, setDisplay] = useState(0);
@@ -380,9 +380,9 @@ export default function Dashboard({
                                                 <div className={`h-2 w-2 rounded-full ${item.type === 'joined' ? 'bg-gaming-green' : 'bg-neon-red'}`} />
                                                 <p className="text-sm text-ink-500">
                                                     {item.type === 'joined' ? (
-                                                        <><strong className="text-ink-900">{item.username}</strong> joined SquadSpawn</>
+                                                        <><strong className="text-ink-900">A new gamer</strong> joined SquadSpawn</>
                                                     ) : (
-                                                        <><strong className="text-ink-900">{item.user1}</strong> and <strong className="text-ink-900">{item.user2}</strong> became friends</>
+                                                        <><strong className="text-ink-900">Two players</strong> became friends</>
                                                     )}
                                                 </p>
                                                 <span className="ml-auto shrink-0 text-[10px] text-gray-600">{item.time}</span>

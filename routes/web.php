@@ -113,33 +113,34 @@ Route::get('/dashboard', function () {
         return \App\Models\Game::whereIn('id', $trendingGameIds)->withCount('users')->get();
     });
 
-    // Activity feed (cached 1 min)
+    // Activity feed (cached 1 min) — anonymized by design. We expose the
+    // event type + a human timestamp so the dashboard feels live, but no
+    // usernames or avatars leave the server. This avoids broadcasting
+    // personal data (names, friendships) that individual users didn't
+    // explicitly opt in to publish.
     $activityFeed = Cache::remember('dash:activity', 60, function () {
-        $recentProfiles = \App\Models\Profile::with('user')
-            ->latest()
+        $recentProfiles = \App\Models\Profile::latest()
             ->take(5)
             ->get()
             ->map(fn ($p) => [
                 'type' => 'joined',
-                'username' => $p->username,
-                'avatar' => $p->avatar,
                 'time' => $p->created_at->diffForHumans(),
+                'sort_at' => $p->created_at->timestamp,
             ]);
 
-        $recentFriendships = \App\Models\PlayerMatch::with(['userOne.profile', 'userTwo.profile'])
-            ->latest()
+        $recentFriendships = \App\Models\PlayerMatch::latest()
             ->take(5)
             ->get()
             ->map(fn ($m) => [
                 'type' => 'friends',
-                'user1' => $m->userOne->profile?->username ?? $m->userOne->name,
-                'user2' => $m->userTwo->profile?->username ?? $m->userTwo->name,
                 'time' => $m->created_at->diffForHumans(),
+                'sort_at' => $m->created_at->timestamp,
             ]);
 
         return $recentProfiles->merge($recentFriendships)
-            ->sortByDesc('time')
+            ->sortByDesc('sort_at')
             ->take(8)
+            ->map(fn ($event) => collect($event)->except('sort_at')->toArray())
             ->values()
             ->toArray();
     });
