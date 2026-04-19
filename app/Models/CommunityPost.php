@@ -64,4 +64,22 @@ class CommunityPost extends Model
     {
         return $query->orderBy('created_at', 'desc');
     }
+
+    /**
+     * body_html accessor — renders the markdown body through our safe
+     * renderer on each read. For now we don't cache to the DB; the render
+     * is fast and this keeps editing cheap.
+     */
+    public function getBodyHtmlAttribute(): string
+    {
+        return app(\App\Services\MarkdownRenderer::class)->render($this->body);
+    }
+
+    protected function serializeDate(\DateTimeInterface $date): string
+    {
+        return $date->format(\DateTimeInterface::ATOM);
+    }
+
+    /** Expose body_html on the JSON payload by default. */
+    protected $appends = ['body_html'];
 }

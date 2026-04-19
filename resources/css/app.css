@@ -2,6 +2,79 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Rendered community markdown. Tailwind base strips list/heading styles,
+   so bring back just enough that posts read well. */
+.prose-markdown p { margin: 0.5em 0; line-height: 1.6; }
+.prose-markdown p:first-child { margin-top: 0; }
+.prose-markdown p:last-child { margin-bottom: 0; }
+.prose-markdown h1,
+.prose-markdown h2,
+.prose-markdown h3 {
+    font-weight: 700;
+    margin: 1em 0 0.4em;
+    color: #14121A;
+}
+.prose-markdown h1 { font-size: 1.25rem; }
+.prose-markdown h2 { font-size: 1.1rem; }
+.prose-markdown h3 { font-size: 1rem; }
+.prose-markdown strong { font-weight: 700; color: #14121A; }
+.prose-markdown em { font-style: italic; }
+.prose-markdown ul,
+.prose-markdown ol { margin: 0.5em 0; padding-left: 1.5em; }
+.prose-markdown ul { list-style: disc; }
+.prose-markdown ol { list-style: decimal; }
+.prose-markdown li { margin: 0.2em 0; }
+.prose-markdown a { color: #E6002E; text-decoration: underline; text-underline-offset: 2px; }
+.prose-markdown a:hover { color: #B3001F; }
+.prose-markdown blockquote {
+    border-left: 3px solid #E6002E;
+    padding-left: 0.75em;
+    margin: 0.75em 0;
+    color: #3A3740;
+    font-style: italic;
+}
+.prose-markdown code {
+    background: rgba(20, 18, 26, 0.06);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    font-size: 0.85em;
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+.prose-markdown pre {
+    background: #14121A;
+    color: #EDEAF0;
+    padding: 0.75em 1em;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 0.85em;
+    margin: 0.75em 0;
+}
+.prose-markdown pre code { background: transparent; padding: 0; color: inherit; }
+.prose-markdown img {
+    max-width: 100%;
+    border-radius: 8px;
+    margin: 0.5em 0;
+}
+.prose-markdown hr {
+    border: 0;
+    border-top: 1px solid rgba(20, 18, 26, 0.1);
+    margin: 1em 0;
+}
+.prose-markdown .youtube-embed {
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+    overflow: hidden;
+    border-radius: 8px;
+    margin: 0.75em 0;
+}
+.prose-markdown .youtube-embed iframe {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    border: 0;
+}
+
 body {
     @apply bg-bone-50 text-ink-900 antialiased;
     background-image:

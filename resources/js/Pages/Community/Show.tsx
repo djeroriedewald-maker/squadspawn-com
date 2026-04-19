@@ -20,6 +20,7 @@ interface CommunityPost {
     game_id: number | null;
     title: string;
     body: string;
+    body_html?: string; // server-rendered markdown HTML (sanitized)
     type: 'discussion' | 'question' | 'tip' | 'team' | 'news';
     upvotes: number;
     downvotes: number;
@@ -214,9 +215,16 @@ export default function CommunityShow({
                                     <span>{timeAgo(post.created_at)}</span>
                                 </div>
 
-                                <div className="prose prose-invert max-w-none text-sm leading-relaxed text-ink-700 whitespace-pre-wrap">
-                                    {post.body}
-                                </div>
+                                {post.body_html ? (
+                                    <div
+                                        className="prose-markdown max-w-none text-sm leading-relaxed text-ink-700"
+                                        dangerouslySetInnerHTML={{ __html: post.body_html }}
+                                    />
+                                ) : (
+                                    <div className="max-w-none whitespace-pre-wrap text-sm leading-relaxed text-ink-700">
+                                        {post.body}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

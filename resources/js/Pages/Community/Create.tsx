@@ -1,3 +1,5 @@
+import GamePicker from '@/Components/GamePicker';
+import MarkdownEditor from '@/Components/MarkdownEditor';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Game } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
@@ -82,30 +84,27 @@ export default function CommunityCreate({ games }: { games: Game[] }) {
                         {/* Game (optional) */}
                         <div>
                             <label className={labelClass}>Game (optional)</label>
-                            <select
-                                value={data.game_id}
-                                onChange={(e) => setData('game_id', e.target.value)}
-                                className={inputClass}
-                            >
-                                <option value="">No specific game</option>
-                                {games.map((game) => (
-                                    <option key={game.id} value={game.id}>{game.name}</option>
-                                ))}
-                            </select>
+                            <GamePicker
+                                games={games}
+                                value={data.game_id || null}
+                                onChange={(id) => setData('game_id', id ? String(id) : '')}
+                                placeholder="No specific game"
+                                allowClear
+                                allLabel="No specific game"
+                            />
                             {errors.game_id && <p className={errorClass}>{errors.game_id}</p>}
                         </div>
 
                         {/* Body */}
                         <div>
                             <label className={labelClass}>Body</label>
-                            <textarea
+                            <MarkdownEditor
                                 value={data.body}
-                                onChange={(e) => setData('body', e.target.value)}
-                                placeholder="Share your thoughts, tips, or questions..."
-                                className={inputClass + ' min-h-[160px] resize-y'}
+                                onChange={(v) => setData('body', v)}
+                                placeholder="Share your thoughts, tips, or questions…"
+                                rows={10}
                                 maxLength={10000}
                             />
-                            <p className="mt-1 text-[10px] text-gray-500">{data.body.length}/10000 characters</p>
                             {errors.body && <p className={errorClass}>{errors.body}</p>}
                         </div>
 
