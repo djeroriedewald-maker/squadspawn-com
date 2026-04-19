@@ -1,3 +1,4 @@
+import GamePicker from '@/Components/GamePicker';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Game, PageProps, User } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
@@ -167,19 +168,18 @@ export default function LfgIndex({
                     </div>
 
                     {/* Filters */}
-                    <div className="mb-6 flex flex-wrap gap-2">
-                        <select
-                            value={filters.game_id ?? ''}
-                            onChange={(e) => handleFilter('game_id', e.target.value)}
-                            className="rounded-lg border border-ink-900/10 bg-white px-3 py-2 text-sm text-ink-900 focus:border-neon-red focus:outline-none focus:ring-1 focus:ring-neon-red"
-                        >
-                            <option value="">All Games</option>
-                            {games.map((game) => (
-                                <option key={game.id} value={game.id}>
-                                    {game.name}
-                                </option>
-                            ))}
-                        </select>
+                    <div className="mb-6 flex flex-wrap items-stretch gap-2">
+                        <div className="w-full sm:w-64">
+                            <GamePicker
+                                games={games}
+                                value={filters.game_id ?? null}
+                                onChange={(gameId) => handleFilter('game_id', gameId ? String(gameId) : '')}
+                                placeholder="All Games"
+                                allowClear
+                                allLabel="All Games"
+                                showCover
+                            />
+                        </div>
                         <select
                             value={filters.platform ?? ''}
                             onChange={(e) => handleFilter('platform', e.target.value)}

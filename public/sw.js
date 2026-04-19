@@ -10,7 +10,7 @@
  * Bump CACHE_VERSION to invalidate caches on deploy.
  */
 
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 const STATIC_CACHE = `squadspawn-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `squadspawn-runtime-${CACHE_VERSION}`;
 
@@ -109,6 +109,7 @@ self.addEventListener('push', (event) => {
     }
 
     const title = payload.title || 'SquadSpawn';
+    const targetUrl = payload.url || '/';
     const options = {
         body: payload.body || '',
         icon: payload.icon || '/icons/icon-192.png',
@@ -116,13 +117,32 @@ self.addEventListener('push', (event) => {
         image: payload.image,
         tag: payload.tag,         // coalesces notifications with the same tag
         data: {
-            url: payload.url || '/',
+            url: targetUrl,
             ...(payload.data || {}),
         },
         requireInteraction: !!payload.requireInteraction,
     };
 
-    event.waitUntil(self.registration.showNotification(title, options));
+    event.waitUntil((async () => {
+        // Skip if the user is already looking at the target page (the chat
+        // for this match, the LFG post, etc.). We still post to all clients
+        // so they can update any in-app badges.
+        const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+        const focused = clients.find((c) => c.visibilityState === 'visible' && c.focused);
+
+        if (focused) {
+            try {
+                const url = new URL(focused.url);
+                if (url.pathname === targetUrl || url.pathname.startsWith(targetUrl + '/')) {
+                    // Active and looking at this thread — let the page handle it inline.
+                    focused.postMessage({ type: 'push', payload });
+                    return;
+                }
+            } catch { /* ignore malformed */ }
+        }
+
+        await self.registration.showNotification(title, options);
+    })());
 });
 
 self.addEventListener('notificationclick', (event) => {

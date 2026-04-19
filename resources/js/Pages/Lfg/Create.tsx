@@ -1,3 +1,4 @@
+import GamePicker from '@/Components/GamePicker';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Game } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
@@ -30,9 +31,10 @@ export default function LfgCreate({ games }: { games: Game[] }) {
         }
     }, []);
 
-    const handleGameChange = (gameId: string) => {
-        setData('game_id', gameId);
-        const game = games.find((g) => g.id === Number(gameId)) || null;
+    const handleGameChange = (gameId: number | string | null) => {
+        const idStr = gameId ? String(gameId) : '';
+        setData('game_id', idStr);
+        const game = gameId ? games.find((g) => g.id === Number(gameId)) || null : null;
         setSelectedGame(game);
         setData('rank_min', '');
         if (game && game.platforms && game.platforms.length === 1) {
@@ -85,18 +87,12 @@ export default function LfgCreate({ games }: { games: Game[] }) {
                                     />
                                 </div>
                             )}
-                            <select
-                                value={data.game_id}
-                                onChange={(e) => handleGameChange(e.target.value)}
-                                className={inputClass}
-                            >
-                                <option value="">Select a game</option>
-                                {games.map((game) => (
-                                    <option key={game.id} value={game.id}>
-                                        {game.name}
-                                    </option>
-                                ))}
-                            </select>
+                            <GamePicker
+                                games={games}
+                                value={data.game_id || null}
+                                onChange={handleGameChange}
+                                placeholder="Search and select a game…"
+                            />
                             {errors.game_id && <p className={errorClass}>{errors.game_id}</p>}
                         </div>
 
