@@ -216,6 +216,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/games/{game}/add', [GamesController::class, 'quickAdd'])->name('games.quickAdd');
     Route::delete('/games/{game}/remove', [GamesController::class, 'quickRemove'])->name('games.quickRemove');
 
+    // Web Push subscriptions
+    Route::get('/push/config', [\App\Http\Controllers\PushSubscriptionController::class, 'config'])->name('push.config');
+    Route::post('/push/subscribe', [\App\Http\Controllers\PushSubscriptionController::class, 'store'])->name('push.subscribe');
+    Route::delete('/push/subscribe', [\App\Http\Controllers\PushSubscriptionController::class, 'destroy'])->name('push.unsubscribe');
+
     // Avatar
     Route::post('/avatar/upload', [AvatarController::class, 'upload'])->middleware('throttle:10,1')->name('avatar.upload');
     Route::post('/avatar/preset', [AvatarController::class, 'setPreset'])->name('avatar.preset');

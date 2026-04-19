@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\User;
+use App\Notifications\Channels\WebPushChannel;
 use Illuminate\Notifications\Notification;
 
 class NewMatchNotification extends Notification
@@ -15,7 +16,7 @@ class NewMatchNotification extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['database', WebPushChannel::class];
     }
 
     public function toArray(object $notifiable): array
@@ -27,6 +28,19 @@ class NewMatchNotification extends Notification
             'partner_id' => $this->matchedUser->id,
             'partner_name' => $this->matchedUser->profile?->username ?? $this->matchedUser->name,
             'partner_avatar' => $this->matchedUser->profile?->avatar,
+        ];
+    }
+
+    public function toWebPush(object $notifiable): array
+    {
+        $name = $this->matchedUser->profile?->username ?? $this->matchedUser->name;
+        return [
+            'title' => "It's a match! 🎮",
+            'body' => "{$name} liked you back — say hi before the moment cools.",
+            'tag' => "match-{$this->matchId}",
+            'url' => "/friends/{$this->matchUuid}/chat",
+            'icon' => $this->matchedUser->profile?->avatar ?: '/icons/icon-192.png',
+            'requireInteraction' => true,
         ];
     }
 }

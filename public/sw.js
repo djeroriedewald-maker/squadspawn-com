@@ -97,3 +97,83 @@ self.addEventListener('fetch', (event) => {
         );
     }
 });
+
+// -----------------------------------------------------------------------------
+// Web Push
+// -----------------------------------------------------------------------------
+
+self.addEventListener('push', (event) => {
+    let payload = {};
+    if (event.data) {
+        try { payload = event.data.json(); } catch { payload = { title: event.data.text() }; }
+    }
+
+    const title = payload.title || 'SquadSpawn';
+    const options = {
+        body: payload.body || '',
+        icon: payload.icon || '/icons/icon-192.png',
+        badge: payload.badge || '/icons/icon-192.png',
+        image: payload.image,
+        tag: payload.tag,         // coalesces notifications with the same tag
+        data: {
+            url: payload.url || '/',
+            ...(payload.data || {}),
+        },
+        requireInteraction: !!payload.requireInteraction,
+    };
+
+    event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener('notificationclick', (event) => {
+    event.notification.close();
+    const targetUrl = (event.notification.data && event.notification.data.url) || '/';
+
+    event.waitUntil(
+        self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientsList) => {
+            // If an existing tab is on the target URL, focus it
+            for (const client of clientsList) {
+                try {
+                    const url = new URL(client.url);
+                    if (url.pathname === targetUrl || url.href === targetUrl) {
+                        return client.focus();
+                    }
+                } catch { /* ignore malformed */ }
+            }
+            // Otherwise open a new one
+            if (self.clients.openWindow) {
+                return self.clients.openWindow(targetUrl);
+            }
+        })
+    );
+});
+
+// Browsers sometimes rotate or invalidate subscriptions; the service worker
+// receives a `pushsubscriptionchange` event. Re-subscribe with the new one.
+self.addEventListener('pushsubscriptionchange', (event) => {
+    event.waitUntil((async () => {
+        try {
+            const cfg = await fetch('/push/config', { credentials: 'same-origin' }).then((r) => r.json()).catch(() => null);
+            if (!cfg || !cfg.vapidPublicKey) return;
+
+            const applicationServerKey = urlBase64ToUint8Array(cfg.vapidPublicKey);
+            const sub = await self.registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey });
+
+            await fetch('/push/subscribe', {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify(sub.toJSON()),
+            });
+        } catch { /* best effort */ }
+    })());
+});
+
+function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = atob(base64);
+    const output = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) output[i] = rawData.charCodeAt(i);
+    return output;
+}

@@ -71,4 +71,9 @@ class User extends Authenticatable
         return $this->belongsToMany(Achievement::class, 'user_achievements')
             ->withTimestamps();
     }
+
+    public function pushSubscriptions()
+    {
+        return $this->hasMany(PushSubscription::class);
+    }
 }

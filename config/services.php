@@ -46,4 +46,12 @@ return [
         'base' => env('RAWG_API_BASE', 'https://api.rawg.io/api'),
     ],
 
+    'webpush' => [
+        'vapid' => [
+            'subject' => env('VAPID_SUBJECT', 'mailto:support@squadspawn.com'),
+            'public_key' => env('VAPID_PUBLIC_KEY'),
+            'private_key' => env('VAPID_PRIVATE_KEY'),
+        ],
+    ],
+
 ];

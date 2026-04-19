@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\LfgPost;
+use App\Notifications\Channels\WebPushChannel;
 use Illuminate\Notifications\Notification;
 
 class LfgAcceptedNotification extends Notification
@@ -13,7 +14,7 @@ class LfgAcceptedNotification extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['database', WebPushChannel::class];
     }
 
     public function toArray(object $notifiable): array
@@ -26,6 +27,18 @@ class LfgAcceptedNotification extends Notification
             'game_name' => $this->post->game?->name,
             'host_name' => $this->post->user?->profile?->username ?? $this->post->user?->name,
             'host_avatar' => $this->post->user?->profile?->avatar,
+        ];
+    }
+
+    public function toWebPush(object $notifiable): array
+    {
+        return [
+            'title' => "You're in! 🎯",
+            'body' => "You joined \"{$this->post->title}\" — time to squad up.",
+            'tag' => "lfg-accepted-{$this->post->id}",
+            'url' => "/lfg/{$this->post->slug}",
+            'icon' => $this->post->user?->profile?->avatar ?: '/icons/icon-192.png',
+            'requireInteraction' => true,
         ];
     }
 }

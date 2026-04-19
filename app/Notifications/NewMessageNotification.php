@@ -4,6 +4,7 @@ namespace App\Notifications;
 
 use App\Models\Message;
 use App\Models\User;
+use App\Notifications\Channels\WebPushChannel;
 use Illuminate\Notifications\Notification;
 
 class NewMessageNotification extends Notification
@@ -17,7 +18,7 @@ class NewMessageNotification extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['database', WebPushChannel::class];
     }
 
     public function toArray(object $notifiable): array
@@ -30,6 +31,18 @@ class NewMessageNotification extends Notification
             'sender_name' => $this->sender->profile?->username ?? $this->sender->name,
             'sender_avatar' => $this->sender->profile?->avatar,
             'message_preview' => str()->limit($this->message->body, 50),
+        ];
+    }
+
+    public function toWebPush(object $notifiable): array
+    {
+        $name = $this->sender->profile?->username ?? $this->sender->name;
+        return [
+            'title' => $name,
+            'body' => str()->limit($this->message->body, 120),
+            'tag' => "message-{$this->matchId}",
+            'url' => "/friends/{$this->matchUuid}/chat",
+            'icon' => $this->sender->profile?->avatar ?: '/icons/icon-192.png',
         ];
     }
 }

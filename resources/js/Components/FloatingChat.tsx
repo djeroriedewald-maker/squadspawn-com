@@ -1,3 +1,4 @@
+import PushNotificationPrompt from '@/Components/PushNotificationPrompt';
 import { router, usePage } from '@inertiajs/react';
 import axios from 'axios';
 import { FormEvent, KeyboardEvent, useCallback, useEffect, useRef, useState } from 'react';
@@ -490,9 +491,13 @@ export default function FloatingChat() {
 
                             {/* NOTIFICATIONS TAB */}
                             {tab === 'notifications' && (
-                                notifications.length === 0 ? (
-                                    <EmptyState icon="bell" text="All caught up!" />
-                                ) : (
+                                <>
+                                    <div className="pt-3">
+                                        <PushNotificationPrompt />
+                                    </div>
+                                    {notifications.length === 0 ? (
+                                        <EmptyState icon="bell" text="All caught up!" />
+                                    ) : (
                                     <>
                                         <div className="flex justify-end border-b border-ink-900/5 px-4 py-2">
                                             <button onClick={handleMarkAllRead} className="text-[11px] text-neon-red hover:text-neon-red/80">Mark all read</button>
@@ -513,7 +518,8 @@ export default function FloatingChat() {
                                             </button>
                                         ))}
                                     </>
-                                )
+                                    )}
+                                </>
                             )}
 
                             {/* ONLINE TAB */}
