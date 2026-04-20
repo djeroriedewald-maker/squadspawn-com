@@ -241,7 +241,7 @@ export default function LfgIndex({
                                         <div className="p-3">
                                             <h3 className="mb-1.5 text-sm font-bold text-ink-900 line-clamp-1">{mp.title}</h3>
                                             <div className="mb-2 flex items-center justify-between text-xs">
-                                                <span className="text-ink-500">{mp.spots_filled}/{mp.spots_needed} spots</span>
+                                                <span className="text-ink-500">{Math.max(mp.spots_filled, 1)}/{mp.spots_needed} spots</span>
                                                 <span className={`font-medium ${mp.status === 'full' ? 'text-red-400' : 'text-gaming-green'}`}>
                                                     {mp.status === 'full' ? 'Full' : 'Open'}
                                                 </span>
@@ -346,9 +346,10 @@ export default function LfgIndex({
                                 const isFull = post.status === 'full';
                                 const isOwn = post.user_id === auth.user.id;
                                 const joined = hasJoined(post);
+                                const filledSpots = Math.max(post.spots_filled, 1);
                                 const progress =
                                     post.spots_needed > 0
-                                        ? Math.min((post.spots_filled / post.spots_needed) * 100, 100)
+                                        ? Math.min((filledSpots / post.spots_needed) * 100, 100)
                                         : 0;
 
                                 return (
@@ -413,7 +414,7 @@ export default function LfgIndex({
                                                     )}
                                                     {post.host_stats?.is_online && (
                                                         <span
-                                                            className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-white bg-gaming-green"
+                                                            className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-white bg-gaming-green shadow-[0_0_6px_rgba(16,185,129,0.8)]"
                                                             title="Online now"
                                                         />
                                                     )}
@@ -456,7 +457,7 @@ export default function LfgIndex({
                                             <div className="mb-3">
                                                 <div className="mb-1 flex items-center justify-between text-xs">
                                                     <span className="text-ink-500">
-                                                        {post.spots_filled}/{post.spots_needed} spots
+                                                        {filledSpots}/{post.spots_needed} spots
                                                     </span>
                                                     <span
                                                         className={

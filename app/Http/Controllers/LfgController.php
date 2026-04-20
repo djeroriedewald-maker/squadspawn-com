@@ -155,6 +155,7 @@ class LfgController extends Controller
 
         $validated['user_id'] = auth()->id();
         $validated['expires_at'] = now()->addHours(6);
+        $validated['spots_filled'] = 1; // host counts as filled from the start
         LfgPost::create($validated);
 
         try {
@@ -523,6 +524,7 @@ class LfgController extends Controller
             'age_requirement' => $lfgPost->age_requirement,
             'requirements_note' => $lfgPost->requirements_note,
             'expires_at' => now()->addHours(6),
+            'spots_filled' => 1,
         ]);
 
         return redirect()->route('lfg.show', $new)->with('message', 'LFG reposted!');

@@ -406,7 +406,8 @@ export default function Dashboard({
                             </div>
                             <div className="grid gap-3 sm:grid-cols-3">
                                 {relevantLfg.map((lfg) => {
-                                    const progress = lfg.spots_needed > 0 ? Math.min((lfg.spots_filled / lfg.spots_needed) * 100, 100) : 0;
+                                    const filledSpots = Math.max(lfg.spots_filled, 1);
+                                    const progress = lfg.spots_needed > 0 ? Math.min((filledSpots / lfg.spots_needed) * 100, 100) : 0;
                                     return (
                                         <Link key={lfg.id} href={route('lfg.show', { lfgPost: lfg.slug })} className="overflow-hidden rounded-xl border border-ink-900/10 bg-white transition hover:border-gaming-green/30">
                                             {lfg.game && (
@@ -419,7 +420,7 @@ export default function Dashboard({
                                             <div className="p-3">
                                                 <h3 className="mb-1.5 text-sm font-bold text-ink-900 line-clamp-1">{lfg.title}</h3>
                                                 <div className="mb-2 flex items-center justify-between text-xs">
-                                                    <span className="text-ink-500">{lfg.spots_filled}/{lfg.spots_needed} spots</span>
+                                                    <span className="text-ink-500">{filledSpots}/{lfg.spots_needed} spots</span>
                                                     <span className="rounded-full bg-neon-red/20 px-2 py-0.5 text-[10px] font-medium text-neon-red">{lfg.platform}</span>
                                                 </div>
                                                 <div className="h-1 overflow-hidden rounded-full bg-ink-900/10">
