@@ -309,6 +309,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/lfg/{lfgPost}/rate', [LfgController::class, 'rate'])->name('lfg.rate');
         Route::post('/lfg/{lfgPost}/close', [LfgController::class, 'close'])->name('lfg.close');
         Route::post('/lfg/{lfgPost}/repost', [LfgController::class, 'repost'])->name('lfg.repost');
+        Route::delete('/lfg/{lfgPost}', [LfgController::class, 'destroy'])->name('lfg.destroy');
     });
 });
 

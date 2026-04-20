@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Game, PageProps, User } from '@/types';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import axios from 'axios';
 import { FormEvent, KeyboardEvent, useCallback, useEffect, useRef, useState } from 'react';
 
@@ -617,15 +617,29 @@ export default function LfgShow({
                                             Edit Post
                                         </Link>
                                     )}
+                                    {(isOpen || isFull) && acceptedResponses.length === 0 && (
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                if (!window.confirm('Weet je zeker dat je deze LFG-post wilt verwijderen? Dit kan niet worden teruggedraaid.')) return;
+                                                router.delete(route('lfg.destroy', { lfgPost: post.slug }));
+                                            }}
+                                            className="w-full rounded-lg border border-red-500/30 bg-red-500/5 px-4 py-2 text-sm font-semibold text-red-500 transition hover:bg-red-500/10"
+                                        >
+                                            Delete post
+                                        </button>
+                                    )}
                                     {isClosed && (
-                                        <Link
-                                            href={route('lfg.repost', { lfgPost: post.slug })}
-                                            method="post"
-                                            as="button"
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                if (!window.confirm('Opnieuw spelen met dezelfde instellingen als de vorige sessie?')) return;
+                                                router.post(route('lfg.repost', { lfgPost: post.slug }));
+                                            }}
                                             className="w-full rounded-lg bg-neon-red px-4 py-2 text-sm font-bold text-white transition hover:bg-neon-red/80"
                                         >
                                             Play Again
-                                        </Link>
+                                        </button>
                                     )}
                                 </div>
                             )}

@@ -433,6 +433,29 @@ class LfgController extends Controller
         return response()->json(['success' => true]);
     }
 
+    /**
+     * Hard-delete an LFG post the creator made by mistake. Allowed only as
+     * long as nobody has been accepted into the group yet — once people are
+     * in, use close() so everyone can still rate each other.
+     */
+    public function destroy(LfgPost $lfgPost)
+    {
+        if ($lfgPost->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $acceptedCount = $lfgPost->responses()->where('status', 'accepted')->count();
+        if ($acceptedCount > 0) {
+            return redirect()
+                ->route('lfg.show', $lfgPost)
+                ->with('message', "Je kunt deze post niet meer verwijderen — er zijn al {$acceptedCount} teammates geaccepteerd. Sluit de sessie in plaats daarvan.");
+        }
+
+        $lfgPost->delete(); // FK cascade wipes pending responses + any messages
+
+        return redirect()->route('lfg.index')->with('message', 'LFG-post verwijderd.');
+    }
+
     public function repost(LfgPost $lfgPost)
     {
         if ($lfgPost->user_id !== auth()->id()) {
