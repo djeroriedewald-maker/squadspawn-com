@@ -655,6 +655,13 @@ class LfgController extends Controller
         // Favourite-host listeners hear about every repost either way.
         $this->notifyFavoriters($new);
 
+        // XHR callers (axios/fetch) expect JSON so the client can navigate
+        // explicitly — Inertia redirect-following occasionally leaves the
+        // user on the old page after POST, so we route around it.
+        if ($request->wantsJson()) {
+            return response()->json(['slug' => $new->slug, 'message' => $message]);
+        }
+
         return redirect()->route('lfg.show', $new)->with('message', $message);
     }
 

@@ -638,9 +638,14 @@ export default function LfgShow({
                                             {acceptedResponses.length > 0 && (
                                                 <button
                                                     type="button"
-                                                    onClick={() => {
+                                                    onClick={async () => {
                                                         if (!window.confirm(`Opnieuw spelen en je vorige ${acceptedResponses.length} teammate(s) eerst een invite sturen?`)) return;
-                                                        router.post(route('lfg.repost', { lfgPost: post.slug }), { invite_squad: true });
+                                                        try {
+                                                            const { data } = await axios.post(route('lfg.repost', { lfgPost: post.slug }), { invite_squad: true });
+                                                            if (data?.slug) router.visit(route('lfg.show', { lfgPost: data.slug }));
+                                                        } catch (err: any) {
+                                                            alert(err.response?.data?.error || 'Repost failed.');
+                                                        }
                                                     }}
                                                     className="w-full rounded-lg bg-neon-red px-4 py-2 text-sm font-bold text-white transition hover:bg-neon-red/80"
                                                 >
@@ -649,12 +654,17 @@ export default function LfgShow({
                                             )}
                                             <button
                                                 type="button"
-                                                onClick={() => {
+                                                onClick={async () => {
                                                     const msg = acceptedResponses.length > 0
                                                         ? 'Opnieuw posten met dezelfde instellingen (zonder je vorige squad te pingen)?'
                                                         : 'Opnieuw spelen met dezelfde instellingen als de vorige sessie?';
                                                     if (!window.confirm(msg)) return;
-                                                    router.post(route('lfg.repost', { lfgPost: post.slug }));
+                                                    try {
+                                                        const { data } = await axios.post(route('lfg.repost', { lfgPost: post.slug }));
+                                                        if (data?.slug) router.visit(route('lfg.show', { lfgPost: data.slug }));
+                                                    } catch (err: any) {
+                                                        alert(err.response?.data?.error || 'Repost failed.');
+                                                    }
                                                 }}
                                                 className={`w-full rounded-lg px-4 py-2 text-sm font-bold transition ${
                                                     acceptedResponses.length > 0
