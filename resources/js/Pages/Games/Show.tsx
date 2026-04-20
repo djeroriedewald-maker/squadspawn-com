@@ -55,7 +55,7 @@ export default function GamesShow({ game, relatedGames, isInMyProfile }: Props) 
     const content = (
         <>
             {/* Hero */}
-            <div className="relative h-64 overflow-hidden bg-ink-900 sm:h-80 lg:h-96">
+            <div className="relative h-64 overflow-hidden bg-ink-900 dark:bg-bone-50 sm:h-80 lg:h-96">
                 <img
                     src={game.cover_image || `/images/games/${game.slug}.svg`}
                     alt={game.name}
@@ -82,7 +82,7 @@ export default function GamesShow({ game, relatedGames, isInMyProfile }: Props) 
                 <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
                     {/* Cover card */}
                     <div className="overflow-hidden rounded-2xl border border-ink-900/10 bg-white shadow-xl">
-                        <div className="aspect-[3/4] overflow-hidden bg-ink-900">
+                        <div className="aspect-[3/4] overflow-hidden bg-ink-900 dark:bg-bone-50">
                             <img
                                 src={game.cover_image || `/images/games/${game.slug}.svg`}
                                 alt={game.name}
@@ -203,7 +203,7 @@ export default function GamesShow({ game, relatedGames, isInMyProfile }: Props) 
                                     href={route('games.show', rg.slug)}
                                     className="group flex gap-3 overflow-hidden rounded-xl border border-ink-900/10 bg-white p-3 transition hover:border-neon-red/40 hover:shadow-lg hover:shadow-neon-red/10"
                                 >
-                                    <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-ink-900">
+                                    <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-ink-900 dark:bg-bone-50">
                                         <img
                                             src={rg.cover_image || `/images/games/${rg.slug}.svg`}
                                             alt={rg.name}

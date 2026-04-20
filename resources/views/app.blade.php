@@ -10,11 +10,33 @@
             $seoImage = $seo['image'] ?? url('/images/gamer3.jpg');
             $seoType = $seo['type'] ?? 'website';
             $jsonLd = $page['props']['jsonLd'] ?? null;
+            $serverTheme = $page['props']['theme']['preference'] ?? 'auto';
         @endphp
+
+        {{-- No-FOUC theme switch. Runs before React mounts so the page renders
+             in the correct colour scheme on the very first frame. Server-side
+             preference (for authed users) overrides localStorage; anonymous
+             users fall back to their stored choice, then system preference. --}}
+        <script>
+        (function() {
+            try {
+                var serverPref = @json($serverTheme);
+                var stored = null;
+                try { stored = localStorage.getItem('theme'); } catch (e) {}
+                var pref = (serverPref && serverPref !== 'auto') ? serverPref
+                         : (stored && ['auto','light','dark'].indexOf(stored) !== -1 ? stored : serverPref || 'auto');
+                var isDark = pref === 'dark' || (pref === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                document.documentElement.classList.toggle('dark', isDark);
+                document.documentElement.setAttribute('data-theme', pref);
+            } catch (e) {}
+        })();
+        </script>
+
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="description" content="{{ $seoDescription }}">
-        <meta name="theme-color" content="#F4F1EC">
+        <meta name="theme-color" content="#F4F1EC" media="(prefers-color-scheme: light)">
+        <meta name="theme-color" content="#12101b" media="(prefers-color-scheme: dark)">
         <meta name="keywords" content="gaming, LFG, looking for group, find teammates, gaming squad, esports, multiplayer, reputation, player rating">
         <meta name="robots" content="index, follow">
 

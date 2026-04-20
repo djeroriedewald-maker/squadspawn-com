@@ -2,6 +2,64 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Theme tokens. Tailwind colors resolve to these vars via tailwind.config.js,
+   so `bg-white` becomes a dark card in dark mode, `text-ink-900` becomes
+   near-white, etc. Values are RGB triplets (space-separated) so they compose
+   cleanly with `<alpha-value>` modifiers like `bg-white/80`. */
+:root {
+    --color-white: 255 255 255;
+    --color-bone-50: 244 241 236;
+    --color-bone-100: 234 229 220;
+    --color-bone-200: 214 207 194;
+    --color-ink-500: 107 106 114;
+    --color-ink-700: 58 55 64;
+    --color-ink-800: 30 27 37;
+    --color-ink-900: 20 18 26;
+
+    /* Named gradients used by body — flipped in .dark below */
+    --page-glow-1: rgba(230, 0, 46, 0.06);
+    --page-glow-2: rgba(20, 18, 26, 0.05);
+
+    /* Grid overlay tint */
+    --grid-line: rgba(20, 18, 26, 0.04);
+
+    /* Code block surface */
+    --code-bg: #14121A;
+    --code-fg: #EDEAF0;
+    --code-inline-bg: rgba(20, 18, 26, 0.06);
+}
+
+/* text-white / border-white / ring-white should always be *literal* white —
+   they're used on red buttons, image overlays, and dark panels where the
+   intent is "keep this pure white regardless of theme". Only bg-/from-/
+   via-/to-white flip with the theme (card surfaces + gradient fades). */
+.dark .text-white { color: #fff; }
+.dark .text-white\/80 { color: rgba(255, 255, 255, 0.8); }
+.dark .text-white\/70 { color: rgba(255, 255, 255, 0.7); }
+.dark .hover\:text-white:hover { color: #fff; }
+.dark .border-white { border-color: #fff; }
+.dark .ring-white { --tw-ring-color: #fff; }
+
+.dark {
+    --color-white: 30 27 37;        /* cards / "white" surfaces */
+    --color-bone-50: 18 16 22;      /* page background */
+    --color-bone-100: 26 23 31;     /* secondary surface */
+    --color-bone-200: 58 55 64;     /* strong borders */
+    --color-ink-500: 148 147 156;   /* muted body */
+    --color-ink-700: 202 200 210;   /* body */
+    --color-ink-800: 230 228 236;   /* near-white panels */
+    --color-ink-900: 244 241 236;   /* primary text */
+
+    --page-glow-1: rgba(255, 0, 62, 0.1);
+    --page-glow-2: rgba(230, 0, 46, 0.06);
+
+    --grid-line: rgba(244, 241, 236, 0.04);
+
+    --code-bg: #0B0910;
+    --code-fg: #EDEAF0;
+    --code-inline-bg: rgba(244, 241, 236, 0.08);
+}
+
 /* Rendered community markdown. Tailwind base strips list/heading styles,
    so bring back just enough that posts read well. */
 .prose-markdown p { margin: 0.5em 0; line-height: 1.6; }
@@ -12,12 +70,12 @@
 .prose-markdown h3 {
     font-weight: 700;
     margin: 1em 0 0.4em;
-    color: #14121A;
+    color: rgb(var(--color-ink-900));
 }
 .prose-markdown h1 { font-size: 1.25rem; }
 .prose-markdown h2 { font-size: 1.1rem; }
 .prose-markdown h3 { font-size: 1rem; }
-.prose-markdown strong { font-weight: 700; color: #14121A; }
+.prose-markdown strong { font-weight: 700; color: rgb(var(--color-ink-900)); }
 .prose-markdown em { font-style: italic; }
 .prose-markdown ul,
 .prose-markdown ol { margin: 0.5em 0; padding-left: 1.5em; }
@@ -30,19 +88,19 @@
     border-left: 3px solid #E6002E;
     padding-left: 0.75em;
     margin: 0.75em 0;
-    color: #3A3740;
+    color: rgb(var(--color-ink-700));
     font-style: italic;
 }
 .prose-markdown code {
-    background: rgba(20, 18, 26, 0.06);
+    background: var(--code-inline-bg);
     padding: 0.1em 0.35em;
     border-radius: 4px;
     font-size: 0.85em;
     font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
 }
 .prose-markdown pre {
-    background: #14121A;
-    color: #EDEAF0;
+    background: var(--code-bg);
+    color: var(--code-fg);
     padding: 0.75em 1em;
     border-radius: 8px;
     overflow-x: auto;
@@ -57,7 +115,7 @@
 }
 .prose-markdown hr {
     border: 0;
-    border-top: 1px solid rgba(20, 18, 26, 0.1);
+    border-top: 1px solid rgb(var(--color-ink-900) / 0.1);
     margin: 1em 0;
 }
 .prose-markdown .youtube-embed {
@@ -78,15 +136,15 @@
 body {
     @apply bg-bone-50 text-ink-900 antialiased;
     background-image:
-        radial-gradient(ellipse at 15% 10%, rgba(230, 0, 46, 0.06) 0%, transparent 45%),
-        radial-gradient(ellipse at 85% 85%, rgba(20, 18, 26, 0.05) 0%, transparent 50%);
+        radial-gradient(ellipse at 15% 10%, var(--page-glow-1) 0%, transparent 45%),
+        radial-gradient(ellipse at 85% 85%, var(--page-glow-2) 0%, transparent 50%);
 }
 
 /* Subtle grid texture overlay */
 .bg-grid {
     background-image:
-        linear-gradient(rgba(20, 18, 26, 0.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(20, 18, 26, 0.04) 1px, transparent 1px);
+        linear-gradient(var(--grid-line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
     background-size: 44px 44px;
 }
 
@@ -154,7 +212,7 @@ body {
     transform: translateY(-2px);
 }
 
-/* Dark accent panel — where neon pops hardest */
+/* Dark accent panel — where neon pops hardest (intentionally dark in both themes) */
 .panel-dark {
     background: linear-gradient(180deg, #17141D 0%, #0F0D14 100%);
     color: #EDEAF0;
@@ -182,8 +240,8 @@ body {
 
 .btn-ghost {
     background: transparent;
-    color: #14121A;
-    border: 1px solid rgba(20, 18, 26, 0.1);
+    color: rgb(var(--color-ink-900));
+    border: 1px solid rgb(var(--color-ink-900) / 0.1);
     transition: all .2s ease;
 }
 
@@ -205,6 +263,10 @@ body {
     font-size: 12px;
     font-weight: 600;
     letter-spacing: 0.02em;
+}
+
+.dark .badge {
+    color: #FF2D55;
 }
 
 .badge-dark {
@@ -282,6 +344,11 @@ body {
 .text-neon-red {
     color: #E6002E;
     text-shadow: 0 0 1px rgba(230, 0, 46, 0.6), 0 0 14px rgba(230, 0, 46, 0.45);
+}
+
+.dark .text-neon-red {
+    color: #FF2D55;
+    text-shadow: 0 0 6px rgba(255, 0, 62, 0.65), 0 0 28px rgba(255, 0, 62, 0.35);
 }
 
 .text-neon-red-dark {

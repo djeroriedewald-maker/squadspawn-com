@@ -51,11 +51,20 @@ class HandleInertiaRequests extends Middleware
             ];
         }
 
+        $themePreference = $user?->profile?->theme_preference ?? 'auto';
+        if (!in_array($themePreference, ['auto', 'light', 'dark'], true)) {
+            $themePreference = 'auto';
+        }
+
         return [
             ...parent::share($request),
             'auth' => $authData,
             'flash' => [
                 'message' => fn () => $request->session()->get('message'),
+            ],
+            'theme' => [
+                'preference' => $themePreference,
+                'authed' => $user !== null,
             ],
         ];
     }

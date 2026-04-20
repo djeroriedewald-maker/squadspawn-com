@@ -276,7 +276,7 @@ function GameCard({ game, inMyProfile, onOpen }: { game: GameWithCount; inMyProf
             onClick={onOpen}
             className="group flex flex-col overflow-hidden rounded-xl border border-ink-900/10 bg-white text-left transition hover:-translate-y-0.5 hover:border-neon-red/40 hover:shadow-lg hover:shadow-neon-red/15"
         >
-            <div className="relative aspect-[16/10] overflow-hidden bg-ink-900">
+            <div className="relative aspect-[16/10] overflow-hidden bg-ink-900 dark:bg-bone-50">
                 <img
                     src={game.cover_image || `/images/games/${game.slug}.svg`}
                     alt={game.name}

@@ -12,6 +12,7 @@ class Profile extends Model
         'region', 'timezone', 'available_times', 'socials',
         'is_creator', 'stream_url', 'is_live',
         'reputation_score', 'achievement_points',
+        'theme_preference',
     ];
 
     protected function casts(): array

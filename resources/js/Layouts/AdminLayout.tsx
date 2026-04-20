@@ -1,4 +1,5 @@
-import { Link, usePage } from '@inertiajs/react';
+import ThemeToggle from '@/Components/ThemeToggle';
+import { Link } from '@inertiajs/react';
 import { PropsWithChildren } from 'react';
 
 const navItems = [
@@ -42,7 +43,7 @@ const navItems = [
 
 export default function AdminLayout({ children }: PropsWithChildren) {
     return (
-        <div className="flex min-h-screen bg-ink-900">
+        <div className="flex min-h-screen bg-ink-900 dark:bg-bone-50">
             {/* Sidebar */}
             <aside className="fixed left-0 top-0 z-40 flex h-screen w-60 flex-col border-r border-ink-900/5 bg-bone-50">
                 {/* Logo */}
@@ -80,7 +81,7 @@ export default function AdminLayout({ children }: PropsWithChildren) {
                 </nav>
 
                 {/* Back to Platform */}
-                <div className="border-t border-ink-900/5 p-3">
+                <div className="space-y-2 border-t border-ink-900/5 p-3">
                     <Link
                         href={route('dashboard')}
                         className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-ink-500 transition hover:bg-ink-900/5 hover:text-ink-900"
@@ -90,6 +91,9 @@ export default function AdminLayout({ children }: PropsWithChildren) {
                         </svg>
                         Back to Platform
                     </Link>
+                    <div className="px-2">
+                        <ThemeToggle />
+                    </div>
                 </div>
             </aside>
 

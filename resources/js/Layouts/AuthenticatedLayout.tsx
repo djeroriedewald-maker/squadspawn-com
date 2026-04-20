@@ -3,6 +3,7 @@ import FloatingChat from '@/Components/FloatingChat';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import SearchBar from '@/Components/SearchBar';
+import ThemeToggle from '@/Components/ThemeToggle';
 import { Link, usePage } from '@inertiajs/react';
 import { PropsWithChildren, ReactNode, useState } from 'react';
 
@@ -55,6 +56,8 @@ export default function Authenticated({
 
                         <div className="hidden sm:ms-6 sm:flex sm:items-center sm:gap-3">
                             <SearchBar />
+
+                            <ThemeToggle compact />
 
                             <div className="relative">
                                 <Dropdown>
@@ -233,6 +236,9 @@ export default function Authenticated({
                             <ResponsiveNavLink method="post" href={route('logout')} as="button">
                                 Log Out
                             </ResponsiveNavLink>
+                            <div className="px-4 pt-3">
+                                <ThemeToggle />
+                            </div>
                         </div>
                     </div>
                 </div>

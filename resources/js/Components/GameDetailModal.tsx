@@ -75,7 +75,7 @@ export default function GameDetailModal({ game, open, onClose, inMyProfile, isAu
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Cover */}
-                <div className="relative aspect-[21/9] overflow-hidden rounded-t-2xl bg-ink-900">
+                <div className="relative aspect-[21/9] overflow-hidden rounded-t-2xl bg-ink-900 dark:bg-bone-50">
                     <img
                         src={game.cover_image || `/images/games/${game.slug}.svg`}
                         alt={game.name}
@@ -93,7 +93,7 @@ export default function GameDetailModal({ game, open, onClose, inMyProfile, isAu
                     <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-ink-900/85 to-transparent" />
                     <button
                         onClick={onClose}
-                        className="absolute right-3 top-3 rounded-full bg-ink-900/70 p-2 text-white backdrop-blur-sm transition hover:bg-ink-900"
+                        className="absolute right-3 top-3 rounded-full bg-ink-900/70 p-2 text-white backdrop-blur-sm transition hover:bg-ink-900 dark:hover:bg-bone-50"
                         aria-label="Close"
                     >
                         <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

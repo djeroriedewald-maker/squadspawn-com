@@ -1,13 +1,18 @@
+import ThemeToggle from '@/Components/ThemeToggle';
 import { Link } from '@inertiajs/react';
 import { PropsWithChildren } from 'react';
 
 export default function Guest({ children }: PropsWithChildren) {
     return (
-        <div className="relative flex min-h-screen flex-col items-center bg-ink-900 pt-6 sm:justify-center sm:pt-0">
+        <div className="relative flex min-h-screen flex-col items-center bg-[#14121A] pt-6 sm:justify-center sm:pt-0">
             {/* Background image */}
             <div className="pointer-events-none absolute inset-0">
                 <img src="/images/gamer4.jpg" alt="" className="h-full w-full object-cover opacity-15" />
-                <div className="absolute inset-0 bg-gradient-to-b from-ink-900/50 via-ink-900/90 to-ink-900" />
+                <div className="absolute inset-0 bg-gradient-to-b from-[#14121A]/50 via-[#14121A]/90 to-[#14121A]" />
+            </div>
+
+            <div className="absolute right-4 top-4 z-20">
+                <ThemeToggle compact />
             </div>
 
             <div className="relative z-10">

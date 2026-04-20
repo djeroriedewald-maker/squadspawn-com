@@ -1,3 +1,4 @@
+import ThemeToggle from '@/Components/ThemeToggle';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { Game } from '@/types';
 
@@ -54,7 +55,8 @@ export default function Welcome({
                     <span className="text-2xl font-bold text-neon-red">
                         SquadSpawn
                     </span>
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3">
+                        <ThemeToggle compact />
                         {user ? (
                             <Link
                                 href={route('dashboard')}

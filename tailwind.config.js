@@ -1,8 +1,15 @@
 import defaultTheme from 'tailwindcss/defaultTheme';
 import forms from '@tailwindcss/forms';
 
+// Colors are driven by CSS variables defined in resources/css/app.css.
+// This lets the same utility class (e.g. `bg-white`, `text-ink-900`) flip
+// between light and dark themes without rewriting every component.
+// Alpha modifiers (`bg-white/80`) still work via the <alpha-value> syntax.
+const themed = (v) => `rgb(var(${v}) / <alpha-value>)`;
+
 /** @type {import('tailwindcss').Config} */
 export default {
+    darkMode: 'class',
     content: [
         './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
         './storage/framework/views/*.php',
@@ -16,24 +23,25 @@ export default {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
             colors: {
-                // New light-theme tokens
+                // Themed surface + text tokens — values come from :root / .dark in app.css
+                white: themed('--color-white'),
                 bone: {
-                    50: '#F4F1EC',   // primary page background
-                    100: '#EAE5DC',  // secondary surface / subtle hover
-                    200: '#D6CFC2',  // strong borders
+                    50: themed('--color-bone-50'),
+                    100: themed('--color-bone-100'),
+                    200: themed('--color-bone-200'),
                 },
                 ink: {
-                    500: '#6B6A72',  // muted body text
-                    700: '#3A3740',  // body text
-                    800: '#1E1B25',  // near-black, dark panels
-                    900: '#14121A',  // primary text / darkest panels
+                    500: themed('--color-ink-500'),
+                    700: themed('--color-ink-700'),
+                    800: themed('--color-ink-800'),
+                    900: themed('--color-ink-900'),
                 },
+                // Accents — identical in both themes
                 neon: {
-                    red: '#E6002E',        // primary accent
-                    'red-deep': '#B3001F', // hover / active
-                    'red-glow': '#FF003C', // for glow effects only
+                    red: '#E6002E',
+                    'red-deep': '#B3001F',
+                    'red-glow': '#FF003C',
                 },
-                // Secondary accents — used for status, categories, gradients
                 gaming: {
                     green: '#10B981',
                     pink: '#F472B6',
