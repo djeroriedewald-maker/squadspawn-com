@@ -206,14 +206,15 @@ export default function LfgIndex({
                                         className="overflow-hidden rounded-xl border border-neon-red/30 bg-white transition hover:border-neon-red/50"
                                     >
                                         {mp.game && (
-                                            <div className="relative h-[50px] overflow-hidden">
+                                            <div className="relative aspect-[16/9] overflow-hidden bg-ink-900 dark:bg-bone-50">
                                                 <img
                                                     src={mp.game.cover_image || `/images/games/${mp.game.slug}.svg`}
                                                     alt={mp.game.name}
+                                                    loading="lazy"
                                                     className="h-full w-full object-cover"
                                                 />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-white to-transparent" />
-                                                <span className="absolute bottom-1 left-3 text-xs font-semibold text-ink-900 drop-shadow">
+                                                <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                                                <span className="absolute bottom-2 left-3 text-xs font-bold text-white drop-shadow-md">
                                                     {mp.game.name}
                                                 </span>
                                             </div>
@@ -334,22 +335,23 @@ export default function LfgIndex({
                                 return (
                                     <div
                                         key={post.id}
-                                        className="overflow-hidden rounded-xl border border-ink-900/10 bg-white transition hover:border-ink-900/20 cursor-pointer"
+                                        className="group overflow-hidden rounded-xl border border-ink-900/10 bg-white transition hover:border-ink-900/20 cursor-pointer"
                                         onClick={() => router.visit(route('lfg.show', { lfgPost: post.slug }))}
                                     >
                                         {/* Game banner */}
                                         {post.game && (
-                                            <div className="relative h-[60px] overflow-hidden">
+                                            <div className="relative aspect-[16/9] overflow-hidden bg-ink-900 dark:bg-bone-50">
                                                 <img
                                                     src={
                                                         post.game.cover_image ||
                                                         `/images/games/${post.game.slug}.svg`
                                                     }
                                                     alt={post.game.name}
-                                                    className="h-full w-full object-cover"
+                                                    loading="lazy"
+                                                    className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
                                                 />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-white to-transparent" />
-                                                <span className="absolute bottom-1.5 left-3 text-xs font-semibold text-ink-900 drop-shadow">
+                                                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/85 via-black/40 to-transparent" />
+                                                <span className="absolute bottom-3 left-4 text-sm font-bold text-white drop-shadow-md">
                                                     {post.game.name}
                                                 </span>
                                             </div>

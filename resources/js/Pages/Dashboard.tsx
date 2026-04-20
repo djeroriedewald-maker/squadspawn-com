@@ -410,10 +410,10 @@ export default function Dashboard({
                                     return (
                                         <Link key={lfg.id} href={route('lfg.show', { lfgPost: lfg.slug })} className="overflow-hidden rounded-xl border border-ink-900/10 bg-white transition hover:border-gaming-green/30">
                                             {lfg.game && (
-                                                <div className="relative h-[50px] overflow-hidden">
-                                                    <img src={lfg.game.cover_image || `/images/games/${lfg.game.slug}.svg`} alt={lfg.game.name} className="h-full w-full object-cover" />
-                                                    <div className="absolute inset-0 bg-gradient-to-t from-white to-transparent" />
-                                                    <span className="absolute bottom-1 left-3 text-[10px] font-semibold text-ink-900 drop-shadow">{lfg.game.name}</span>
+                                                <div className="relative aspect-[16/9] overflow-hidden bg-ink-900 dark:bg-bone-50">
+                                                    <img src={lfg.game.cover_image || `/images/games/${lfg.game.slug}.svg`} alt={lfg.game.name} loading="lazy" className="h-full w-full object-cover" />
+                                                    <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                                                    <span className="absolute bottom-2 left-3 text-xs font-bold text-white drop-shadow-md">{lfg.game.name}</span>
                                                 </div>
                                             )}
                                             <div className="p-3">
