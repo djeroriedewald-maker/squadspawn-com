@@ -115,17 +115,17 @@ export default function LfgIndex({
         );
     };
 
-    const handleJoin = async (postId: number) => {
-        setJoiningId(postId);
+    const handleJoin = async (post: LfgPost) => {
+        setJoiningId(post.id);
         try {
-            const { data } = await axios.post(route('lfg.respond', { lfgPost: postId }));
+            await axios.post(route('lfg.respond', { lfgPost: post.slug }));
+            // Join creates a *pending* response — spots_filled / status only
+            // move when the host accepts. Just add the optimistic pending row.
             setLocalPosts((prev) =>
                 prev.map((p) =>
-                    p.id === postId
+                    p.id === post.id
                         ? {
                               ...p,
-                              spots_filled: data.spots_filled,
-                              status: data.status,
                               responses: [
                                   ...(p.responses || []),
                                   {
@@ -578,7 +578,7 @@ export default function LfgIndex({
 
                                             {/* Join button */}
                                             <button
-                                                onClick={(e) => { e.stopPropagation(); handleJoin(post.id); }}
+                                                onClick={(e) => { e.stopPropagation(); handleJoin(post); }}
                                                 disabled={isFull || isOwn || joined || joiningId === post.id}
                                                 className={`w-full rounded-lg px-4 py-2 text-sm font-semibold transition ${
                                                     joined
