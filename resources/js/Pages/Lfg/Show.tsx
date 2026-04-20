@@ -634,16 +634,37 @@ export default function LfgShow({
                                         </button>
                                     )}
                                     {isClosed && (
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                if (!window.confirm('Opnieuw spelen met dezelfde instellingen als de vorige sessie?')) return;
-                                                router.post(route('lfg.repost', { lfgPost: post.slug }));
-                                            }}
-                                            className="w-full rounded-lg bg-neon-red px-4 py-2 text-sm font-bold text-white transition hover:bg-neon-red/80"
-                                        >
-                                            Play Again
-                                        </button>
+                                        <div className="space-y-2">
+                                            {acceptedResponses.length > 0 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        if (!window.confirm(`Opnieuw spelen en je vorige ${acceptedResponses.length} teammate(s) eerst een invite sturen?`)) return;
+                                                        router.post(route('lfg.repost', { lfgPost: post.slug }), { invite_squad: true });
+                                                    }}
+                                                    className="w-full rounded-lg bg-neon-red px-4 py-2 text-sm font-bold text-white transition hover:bg-neon-red/80"
+                                                >
+                                                    Play Again with squad
+                                                </button>
+                                            )}
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    const msg = acceptedResponses.length > 0
+                                                        ? 'Opnieuw posten met dezelfde instellingen (zonder je vorige squad te pingen)?'
+                                                        : 'Opnieuw spelen met dezelfde instellingen als de vorige sessie?';
+                                                    if (!window.confirm(msg)) return;
+                                                    router.post(route('lfg.repost', { lfgPost: post.slug }));
+                                                }}
+                                                className={`w-full rounded-lg px-4 py-2 text-sm font-bold transition ${
+                                                    acceptedResponses.length > 0
+                                                        ? 'border border-ink-900/10 bg-white text-ink-700 hover:border-neon-red/40 hover:text-neon-red'
+                                                        : 'bg-neon-red text-white hover:bg-neon-red/80'
+                                                }`}
+                                            >
+                                                Play Again
+                                            </button>
+                                        </div>
                                     )}
                                 </div>
                             )}

@@ -22,7 +22,9 @@ export default function HostTrustRow({ host, stats, size = 'sm', showRelationshi
     const avatarSize = size === 'md' ? 'h-11 w-11' : 'h-8 w-8';
     const dotSize = size === 'md' ? 'h-4 w-4' : 'h-3.5 w-3.5';
     const username = host.profile?.username ?? host.name ?? '?';
-    const reputation = host.profile?.reputation_score;
+    // DB stores reputation_score as decimal → may arrive as a string. Coerce
+    // defensively so "4.5" and 4.5 both render, and 0 / null / undefined hide.
+    const reputationNumber = Number(host.profile?.reputation_score ?? 0);
     const region = host.profile?.region;
 
     return (
@@ -45,12 +47,15 @@ export default function HostTrustRow({ host, stats, size = 'sm', showRelationshi
                     {username}
                 </div>
                 <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-ink-500">
-                    {stats && stats.rating_count > 0 && reputation ? (
-                        <span className="flex items-center gap-0.5 font-semibold text-gaming-orange">
+                    {stats && stats.rating_count > 0 && reputationNumber > 0 ? (
+                        <span
+                            className="flex items-center gap-0.5 font-semibold text-gaming-orange"
+                            title={`${reputationNumber.toFixed(1)} from ${stats.rating_count} rating${stats.rating_count === 1 ? '' : 's'}`}
+                        >
                             <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                             </svg>
-                            {Number(reputation).toFixed(1)}
+                            {reputationNumber.toFixed(1)}
                         </span>
                     ) : null}
                     {stats && (

@@ -89,7 +89,14 @@ class LfgController extends Controller
                 ->selectRaw('user_id, COUNT(*) as c')
                 ->groupBy('user_id')
                 ->pluck('c', 'user_id');
-            $ratingCounts = \App\Models\PlayerRating::whereIn('rated_id', $hostIds)
+            // Reputation aggregates BOTH LfgRating and PlayerRating — match
+            // that here so the star ⭐️ shows whenever there's actual rating
+            // signal behind the reputation_score, regardless of source.
+            $playerRatingCounts = \App\Models\PlayerRating::whereIn('rated_id', $hostIds)
+                ->selectRaw('rated_id, COUNT(*) as c')
+                ->groupBy('rated_id')
+                ->pluck('c', 'rated_id');
+            $lfgRatingCounts = \App\Models\LfgRating::whereIn('rated_id', $hostIds)
                 ->selectRaw('rated_id, COUNT(*) as c')
                 ->groupBy('rated_id')
                 ->pluck('c', 'rated_id');
@@ -115,7 +122,7 @@ class LfgController extends Controller
             foreach ($posts as $post) {
                 $post->host_stats = [
                     'sessions_hosted' => (int) ($hostedCounts[$post->user_id] ?? 0),
-                    'rating_count' => (int) ($ratingCounts[$post->user_id] ?? 0),
+                    'rating_count' => (int) (($playerRatingCounts[$post->user_id] ?? 0) + ($lfgRatingCounts[$post->user_id] ?? 0)),
                     'is_online' => $post->user && $post->user->updated_at && $post->user->updated_at->greaterThanOrEqualTo($onlineCutoff),
                     'is_favorited' => $favoriteHostIds->has($post->user_id),
                     'is_friend' => $friendHostIds->has($post->user_id),
@@ -272,7 +279,8 @@ class LfgController extends Controller
         $hostId = $lfgPost->user_id;
         $hostStats = [
             'sessions_hosted' => LfgPost::where('user_id', $hostId)->where('status', 'closed')->count(),
-            'rating_count' => \App\Models\PlayerRating::where('rated_id', $hostId)->count(),
+            'rating_count' => \App\Models\PlayerRating::where('rated_id', $hostId)->count()
+                + \App\Models\LfgRating::where('rated_id', $hostId)->count(),
             'is_online' => $lfgPost->user && $lfgPost->user->updated_at && $lfgPost->user->updated_at->greaterThanOrEqualTo(now()->subMinutes(10)),
             'is_favorited' => $user->favoriteHosts()->where('users.id', $hostId)->exists(),
             'is_friend' => \App\Models\PlayerMatch::where(function ($q) use ($user, $hostId) {
@@ -596,11 +604,13 @@ class LfgController extends Controller
         return redirect()->route('lfg.index')->with('message', 'LFG-post verwijderd.');
     }
 
-    public function repost(LfgPost $lfgPost)
+    public function repost(Request $request, LfgPost $lfgPost)
     {
         if ($lfgPost->user_id !== auth()->id()) {
             abort(403);
         }
+
+        $inviteSquad = $request->boolean('invite_squad');
 
         $new = LfgPost::create([
             'user_id' => auth()->id(),
@@ -618,27 +628,34 @@ class LfgController extends Controller
             'spots_filled' => 1,
         ]);
 
-        // Squad-up: ping the people who played the original session first so
-        // they get a head start before the post shows up in the public feed.
-        try {
-            $previousTeammates = $lfgPost->responses()
-                ->where('status', 'accepted')
-                ->with('user')
-                ->get()
-                ->pluck('user')
-                ->filter();
-            foreach ($previousTeammates as $mate) {
-                $mate->notify(new \App\Notifications\SquadInviteNotification($new));
-                Cache::forget("user:{$mate->id}:unread");
+        // Squad-up: ping previous teammates only when the host explicitly
+        // opted in via the "with squad" variant — otherwise the host wanted
+        // fresh faces and we shouldn't drag the old group back in.
+        $message = 'LFG reposted!';
+        if ($inviteSquad) {
+            try {
+                $previousTeammates = $lfgPost->responses()
+                    ->where('status', 'accepted')
+                    ->with('user')
+                    ->get()
+                    ->pluck('user')
+                    ->filter();
+                foreach ($previousTeammates as $mate) {
+                    $mate->notify(new \App\Notifications\SquadInviteNotification($new));
+                    Cache::forget("user:{$mate->id}:unread");
+                }
+                if ($previousTeammates->isNotEmpty()) {
+                    $message = "LFG reposted! Previous squad pinged ({$previousTeammates->count()}).";
+                }
+            } catch (\Throwable $e) {
+                \Log::error('SquadInvite dispatch error: ' . $e->getMessage());
             }
-        } catch (\Throwable $e) {
-            \Log::error('SquadInvite dispatch error: ' . $e->getMessage());
         }
 
-        // Favourite-host listeners should hear about reposts too.
+        // Favourite-host listeners hear about every repost either way.
         $this->notifyFavoriters($new);
 
-        return redirect()->route('lfg.show', $new)->with('message', 'LFG reposted! Previous squad pinged.');
+        return redirect()->route('lfg.show', $new)->with('message', $message);
     }
 
     // ── Widget endpoints ──────────────────────────────────────────
