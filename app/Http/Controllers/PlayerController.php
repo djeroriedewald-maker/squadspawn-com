@@ -71,12 +71,23 @@ class PlayerController extends Controller
             ? url($player->profile->avatar)
             : url('/icons/icon-512.png');
 
+        // Steam stats — cached 1h per user to keep rate limits sane.
+        $steamStats = null;
+        if ($player->profile->steam_id) {
+            $steamStats = \Illuminate\Support\Facades\Cache::remember(
+                "steam:stats:{$player->profile->steam_id}",
+                3600,
+                fn () => $this->buildSteamStats($player->profile->steam_id),
+            );
+        }
+
         return Inertia::render('Player/Show', [
             'player' => $player,
             'clips' => $clips,
             'reputationData' => $reputationData,
             'friendsCount' => $friendsCount,
             'isFriend' => $isFriend,
+            'steamStats' => $steamStats,
             'myRating' => $myRating ? [
                 'score' => $myRating->score,
                 'tag' => $myRating->tag,
@@ -99,6 +110,58 @@ class PlayerController extends Controller
                 ],
             ],
         ]);
+    }
+
+    private function buildSteamStats(string $steamId64): ?array
+    {
+        $steam = app(\App\Services\SteamStatsClient::class);
+        if (!$steam->hasKey()) return null;
+
+        try {
+            $summary = $steam->playerSummary($steamId64);
+            $owned = $steam->ownedGames($steamId64);
+            $recent = $steam->recentlyPlayed($steamId64);
+        } catch (\Throwable) {
+            return null;
+        }
+
+        if (!$summary) return null;
+
+        // Top-5 by total playtime (minutes → hours, >1h cutoff)
+        usort($owned, fn ($a, $b) => ($b['playtime_forever'] ?? 0) <=> ($a['playtime_forever'] ?? 0));
+        $topGames = [];
+        foreach (array_slice($owned, 0, 5) as $g) {
+            if (empty($g['playtime_forever']) || $g['playtime_forever'] < 60) continue;
+            $topGames[] = [
+                'appid' => $g['appid'] ?? null,
+                'name' => $g['name'] ?? 'Unknown',
+                'hours' => round(($g['playtime_forever'] ?? 0) / 60),
+                'icon' => !empty($g['img_icon_url']) && !empty($g['appid'])
+                    ? "https://media.steampowered.com/steamcommunity/public/images/apps/{$g['appid']}/{$g['img_icon_url']}.jpg"
+                    : null,
+            ];
+        }
+
+        $totalHours = array_sum(array_column($owned, 'playtime_forever')) / 60;
+
+        $recentClean = [];
+        foreach (array_slice($recent, 0, 3) as $g) {
+            $recentClean[] = [
+                'name' => $g['name'] ?? 'Unknown',
+                'hoursTwoWeeks' => round(($g['playtime_2weeks'] ?? 0) / 60, 1),
+            ];
+        }
+
+        return [
+            'personaName' => $summary['personaname'] ?? null,
+            'avatar' => $summary['avatarmedium'] ?? null,
+            'profileUrl' => $summary['profileurl'] ?? null,
+            'visibility' => $summary['communityvisibilitystate'] ?? null,
+            'ownedCount' => count($owned),
+            'totalHours' => (int) round($totalHours),
+            'topGames' => $topGames,
+            'recent' => $recentClean,
+        ];
     }
 
     public function rate(Request $request): JsonResponse

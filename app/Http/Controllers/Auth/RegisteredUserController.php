@@ -50,6 +50,18 @@ class RegisteredUserController extends Controller
             ]);
         }
 
+        // Resolve a referral code from session if one was captured from a
+        // ?ref=CODE landing visit. Fall back to request input so the form can
+        // also forward it explicitly.
+        $referredByUserId = null;
+        $refCode = (string) ($request->session()->pull('referral_code', '') ?: $request->input('ref', ''));
+        if ($refCode !== '') {
+            $referrer = User::where('referral_code', strtoupper($refCode))->first();
+            if ($referrer) {
+                $referredByUserId = $referrer->id;
+            }
+        }
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -57,6 +69,7 @@ class RegisteredUserController extends Controller
             'date_of_birth' => $request->date_of_birth,
             'parental_consent' => $age < 16 ? true : false,
             'parental_consent_at' => $age < 16 ? now() : null,
+            'referred_by_user_id' => $referredByUserId,
         ]);
 
         event(new Registered($user));

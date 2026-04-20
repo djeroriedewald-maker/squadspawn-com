@@ -46,6 +46,11 @@ return [
         'base' => env('RAWG_API_BASE', 'https://api.rawg.io/api'),
     ],
 
+    'steam_web' => [
+        // Personal Steam Web API key — https://steamcommunity.com/dev/apikey
+        'key' => env('STEAM_API_KEY'),
+    ],
+
     'webpush' => [
         'vapid' => [
             'subject' => env('VAPID_SUBJECT', 'mailto:support@squadspawn.com'),

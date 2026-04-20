@@ -96,6 +96,14 @@ export default function Authenticated({
                                         <Dropdown.Link href={route('friends.index')}>
                                             Friends
                                         </Dropdown.Link>
+                                        <Dropdown.Link href={route('invite.index')}>
+                                            <span className="flex items-center gap-2">
+                                                <span>Invite friends</span>
+                                                <span className="rounded-full bg-neon-red/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-widest text-neon-red">
+                                                    +xp
+                                                </span>
+                                            </span>
+                                        </Dropdown.Link>
                                         <Dropdown.Link href={route('achievements.index')}>
                                             <span className="flex items-center gap-2">
                                                 <span>Achievements</span>

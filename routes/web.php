@@ -232,6 +232,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/notification-preferences', [\App\Http\Controllers\NotificationPreferencesController::class, 'show'])->name('notifPrefs.show');
     Route::put('/notification-preferences', [\App\Http\Controllers\NotificationPreferencesController::class, 'update'])->name('notifPrefs.update');
 
+    // Invite friends
+    Route::get('/invite', [\App\Http\Controllers\InviteController::class, 'index'])->name('invite.index');
+
+    // Steam account linking
+    Route::get('/steam/link', [\App\Http\Controllers\SteamLinkController::class, 'show'])->name('steam.link.show');
+    Route::post('/steam/link', [\App\Http\Controllers\SteamLinkController::class, 'store'])->middleware('throttle:10,1')->name('steam.link.store');
+    Route::delete('/steam/link', [\App\Http\Controllers\SteamLinkController::class, 'destroy'])->name('steam.link.destroy');
+
     // Avatar
     Route::post('/avatar/upload', [AvatarController::class, 'upload'])->middleware('throttle:10,1')->name('avatar.upload');
     Route::post('/avatar/preset', [AvatarController::class, 'setPreset'])->name('avatar.preset');

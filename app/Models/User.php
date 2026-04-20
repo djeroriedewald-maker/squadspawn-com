@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'date_of_birth', 'parental_consent', 'parental_consent_at', 'is_admin', 'is_banned', 'banned_at', 'ban_reason', 'notification_preferences'])]
+#[Fillable(['name', 'email', 'password', 'date_of_birth', 'parental_consent', 'parental_consent_at', 'is_admin', 'is_banned', 'banned_at', 'ban_reason', 'notification_preferences', 'referral_code', 'referred_by_user_id', 'referral_rewarded_at'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -29,7 +29,38 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'notification_preferences' => 'array',
+            'referral_rewarded_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Auto-assign a unique referral code on creation.
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (User $user) {
+            if (blank($user->referral_code)) {
+                $user->referral_code = static::generateUniqueReferralCode();
+            }
+        });
+    }
+
+    public static function generateUniqueReferralCode(): string
+    {
+        do {
+            $code = strtoupper(\Illuminate\Support\Str::random(8));
+        } while (static::where('referral_code', $code)->exists());
+        return $code;
+    }
+
+    public function referredBy()
+    {
+        return $this->belongsTo(User::class, 'referred_by_user_id');
+    }
+
+    public function referrals()
+    {
+        return $this->hasMany(User::class, 'referred_by_user_id');
     }
 
     /**
