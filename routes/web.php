@@ -297,7 +297,7 @@ Route::middleware('auth')->group(function () {
         // LFG
         Route::get('/lfg', [LfgController::class, 'index'])->name('lfg.index');
         Route::get('/lfg/create', [LfgController::class, 'create'])->name('lfg.create');
-        Route::post('/lfg', [LfgController::class, 'store'])->name('lfg.store');
+        Route::post('/lfg', [LfgController::class, 'store'])->middleware('throttle:3,1')->name('lfg.store');
         Route::get('/lfg/{lfgPost}', [LfgController::class, 'show'])->name('lfg.show');
         Route::get('/lfg/{lfgPost}/edit', [LfgController::class, 'edit'])->name('lfg.edit');
         Route::put('/lfg/{lfgPost}', [LfgController::class, 'update'])->name('lfg.update');
@@ -310,6 +310,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/lfg/{lfgPost}/close', [LfgController::class, 'close'])->name('lfg.close');
         Route::post('/lfg/{lfgPost}/repost', [LfgController::class, 'repost'])->name('lfg.repost');
         Route::delete('/lfg/{lfgPost}', [LfgController::class, 'destroy'])->name('lfg.destroy');
+
+        // Favourite hosts — watch specific hosts and get pinged when they post.
+        Route::post('/favorites/{user}', [\App\Http\Controllers\FavoriteHostController::class, 'store'])->middleware('throttle:30,1')->name('favorites.store');
+        Route::delete('/favorites/{user}', [\App\Http\Controllers\FavoriteHostController::class, 'destroy'])->name('favorites.destroy');
     });
 });
 

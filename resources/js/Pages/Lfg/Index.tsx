@@ -1,4 +1,5 @@
 import GamePicker from '@/Components/GamePicker';
+import HostTrustRow from '@/Components/HostTrustRow';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Game, PageProps, User } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
@@ -17,6 +18,14 @@ interface HostStats {
     sessions_hosted: number;
     rating_count: number;
     is_online: boolean;
+    is_favorited?: boolean;
+    is_friend?: boolean;
+}
+
+interface FilterOptions {
+    languages: string[];
+    ranks: string[];
+    regions: string[];
 }
 
 interface LfgPost {
@@ -76,12 +85,22 @@ export default function LfgIndex({
     myHistory,
     games,
     filters,
+    filterOptions,
 }: {
     posts: { data: LfgPost[]; links: any };
     myPosts?: LfgPost[];
     myHistory?: HistoryItem[];
     games: Game[];
-    filters: { game_id?: number; platform?: string };
+    filters: {
+        game_id?: number;
+        platform?: string;
+        language?: string;
+        rank_min?: string;
+        region?: string;
+        mic_required?: boolean | string;
+        favorites?: boolean | string;
+    };
+    filterOptions?: FilterOptions;
 }) {
     const { auth } = usePage<PageProps>().props;
     const [joiningId, setJoiningId] = useState<number | null>(null);
@@ -187,7 +206,7 @@ export default function LfgIndex({
                     </div>
 
                     {/* Filters */}
-                    <div className="mb-6 flex flex-wrap items-stretch gap-2">
+                    <div className="mb-4 flex flex-wrap items-stretch gap-2">
                         <div className="w-full sm:w-64">
                             <GamePicker
                                 games={games}
@@ -211,6 +230,68 @@ export default function LfgIndex({
                                 </option>
                             ))}
                         </select>
+                        {filterOptions?.languages && filterOptions.languages.length > 0 && (
+                            <select
+                                value={filters.language ?? ''}
+                                onChange={(e) => handleFilter('language', e.target.value)}
+                                className="rounded-lg border border-ink-900/10 bg-white px-3 py-2 text-sm text-ink-900 focus:border-neon-red focus:outline-none focus:ring-1 focus:ring-neon-red"
+                            >
+                                <option value="">Any language</option>
+                                {filterOptions.languages.map((l) => (
+                                    <option key={l} value={l}>{l}</option>
+                                ))}
+                            </select>
+                        )}
+                        {filterOptions?.regions && filterOptions.regions.length > 0 && (
+                            <select
+                                value={filters.region ?? ''}
+                                onChange={(e) => handleFilter('region', e.target.value)}
+                                className="rounded-lg border border-ink-900/10 bg-white px-3 py-2 text-sm text-ink-900 focus:border-neon-red focus:outline-none focus:ring-1 focus:ring-neon-red"
+                            >
+                                <option value="">Any region</option>
+                                {filterOptions.regions.map((r) => (
+                                    <option key={r} value={r}>{r}</option>
+                                ))}
+                            </select>
+                        )}
+                        {filterOptions?.ranks && filterOptions.ranks.length > 0 && (
+                            <select
+                                value={filters.rank_min ?? ''}
+                                onChange={(e) => handleFilter('rank_min', e.target.value)}
+                                className="rounded-lg border border-ink-900/10 bg-white px-3 py-2 text-sm text-ink-900 focus:border-neon-red focus:outline-none focus:ring-1 focus:ring-neon-red"
+                            >
+                                <option value="">Any rank</option>
+                                {filterOptions.ranks.map((r) => (
+                                    <option key={r} value={r}>{r}</option>
+                                ))}
+                            </select>
+                        )}
+                    </div>
+
+                    {/* Quick toggles */}
+                    <div className="mb-6 flex flex-wrap gap-2">
+                        <button
+                            type="button"
+                            onClick={() => handleFilter('mic_required', filters.mic_required ? '' : '1')}
+                            className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                                filters.mic_required
+                                    ? 'border-gaming-green bg-gaming-green/15 text-gaming-green'
+                                    : 'border-ink-900/10 text-ink-700 hover:border-gaming-green/40'
+                            }`}
+                        >
+                            🎤 Mic required
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => handleFilter('favorites', filters.favorites ? '' : '1')}
+                            className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                                filters.favorites
+                                    ? 'border-gaming-orange bg-gaming-orange/15 text-gaming-orange'
+                                    : 'border-ink-900/10 text-ink-700 hover:border-gaming-orange/40'
+                            }`}
+                        >
+                            ★ Favourites only
+                        </button>
                     </div>
 
                     {/* My Groups */}
@@ -394,56 +475,8 @@ export default function LfgIndex({
                                                 {post.title}
                                             </h3>
 
-                                            {/* Poster + trust signals */}
-                                            <div className="mb-3 flex items-start gap-2">
-                                                <div className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-neon-red/20 text-xs font-bold text-neon-red">
-                                                    {post.user?.profile?.avatar ? (
-                                                        <img
-                                                            src={post.user.profile.avatar}
-                                                            alt=""
-                                                            className="h-full w-full object-cover"
-                                                        />
-                                                    ) : (
-                                                        (
-                                                            post.user?.profile?.username ??
-                                                            post.user?.name ??
-                                                            '?'
-                                                        )
-                                                            .charAt(0)
-                                                            .toUpperCase()
-                                                    )}
-                                                    {post.host_stats?.is_online && (
-                                                        <span
-                                                            className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-white bg-gaming-green shadow-[0_0_6px_rgba(16,185,129,0.8)]"
-                                                            title="Online now"
-                                                        />
-                                                    )}
-                                                </div>
-                                                <div className="min-w-0 flex-1">
-                                                    <div className="truncate text-sm font-medium text-ink-900">
-                                                        {post.user?.profile?.username ?? post.user?.name}
-                                                    </div>
-                                                    <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-ink-500">
-                                                        {post.host_stats && post.host_stats.rating_count > 0 && post.user?.profile?.reputation_score ? (
-                                                            <span className="flex items-center gap-0.5 font-semibold text-gaming-orange">
-                                                                <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                                                </svg>
-                                                                {Number(post.user.profile.reputation_score).toFixed(1)}
-                                                            </span>
-                                                        ) : null}
-                                                        {post.host_stats && (
-                                                            <span>
-                                                                {post.host_stats.sessions_hosted === 0
-                                                                    ? 'First-time host'
-                                                                    : `${post.host_stats.sessions_hosted} hosted`}
-                                                            </span>
-                                                        )}
-                                                        {post.user?.profile?.region && (
-                                                            <span>· {post.user.profile.region}</span>
-                                                        )}
-                                                    </div>
-                                                </div>
+                                            <div className="mb-3">
+                                                <HostTrustRow host={post.user} stats={post.host_stats} size="sm" />
                                             </div>
 
                                             {/* Description */}

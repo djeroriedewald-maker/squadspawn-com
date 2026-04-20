@@ -1,3 +1,5 @@
+import FavoriteHostButton from '@/Components/FavoriteHostButton';
+import HostTrustRow, { HostStats } from '@/Components/HostTrustRow';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Game, PageProps, User } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
@@ -56,11 +58,13 @@ const TAGS = [
 
 export default function LfgShow({
     post: initialPost,
+    hostStats,
     isMember,
     myRatings: initialMyRatings,
     messages: initialMessages,
 }: {
     post: LfgPost;
+    hostStats?: HostStats;
     isMember: boolean;
     myRatings: number[];
     messages: LfgMessage[];
@@ -292,14 +296,14 @@ export default function LfgShow({
                                     <h1 className="text-2xl font-bold text-ink-900">{post.title}</h1>
                                     {post.description && <p className="mt-2 text-sm text-ink-500">{post.description}</p>}
                                 </div>
-                                <div className="flex items-center gap-3">
-                                    <UserAvatar user={post.user} />
-                                    <div>
-                                        <p className="text-sm font-semibold text-ink-900">
-                                            {post.user?.profile?.username ?? post.user?.name}
-                                        </p>
-                                        <p className="text-xs text-gray-500">Host</p>
-                                    </div>
+                                <div className="flex flex-col items-start gap-3 sm:items-end">
+                                    <HostTrustRow host={post.user} stats={hostStats} size="md" />
+                                    {!isCreator && post.user && (
+                                        <FavoriteHostButton
+                                            hostId={post.user.id}
+                                            initialFavorited={hostStats?.is_favorited ?? false}
+                                        />
+                                    )}
                                 </div>
                             </div>
                         </div>

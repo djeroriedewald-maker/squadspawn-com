@@ -21,7 +21,7 @@ class User extends Authenticatable
     /**
      * Push notification types users can opt out of individually.
      */
-    public const PUSH_TYPES = ['new_message', 'new_match', 'lfg_request', 'lfg_accepted'];
+    public const PUSH_TYPES = ['new_message', 'new_match', 'lfg_request', 'lfg_accepted', 'favorite_host_lfg', 'squad_invite'];
 
     protected function casts(): array
     {
@@ -102,6 +102,20 @@ class User extends Authenticatable
     {
         return PlayerMatch::where('user_one_id', $this->id)
             ->orWhere('user_two_id', $this->id);
+    }
+
+    /** Hosts this user has explicitly marked as a favourite. */
+    public function favoriteHosts(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'favorite_hosts', 'user_id', 'host_id')
+            ->withTimestamps();
+    }
+
+    /** Users that have added THIS user as a favourite host. */
+    public function favoritedBy(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'favorite_hosts', 'host_id', 'user_id')
+            ->withTimestamps();
     }
 
     public function clips()

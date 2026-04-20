@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-type PushType = 'new_message' | 'new_match' | 'lfg_request' | 'lfg_accepted';
+type PushType = 'new_message' | 'new_match' | 'lfg_request' | 'lfg_accepted' | 'favorite_host_lfg' | 'squad_invite';
 
 const LABELS: Record<PushType, { title: string; description: string }> = {
     new_message: {
@@ -19,6 +19,14 @@ const LABELS: Record<PushType, { title: string; description: string }> = {
         title: 'LFG accepted',
         description: 'Ping me when my request to join a squad is accepted.',
     },
+    favorite_host_lfg: {
+        title: 'Favourite host LFG',
+        description: 'Ping me when a host I favourited starts a new squad.',
+    },
+    squad_invite: {
+        title: 'Previous-squad invite',
+        description: "Ping me when a host I've played with reposts and invites me first.",
+    },
 };
 
 function getXsrf(): string | null {
@@ -35,7 +43,7 @@ export default function NotificationPreferences() {
             .then((r) => r.json())
             .then((data) => setPrefs(data.push))
             .catch(() => setPrefs({
-                new_message: true, new_match: true, lfg_request: true, lfg_accepted: true,
+                new_message: true, new_match: true, lfg_request: true, lfg_accepted: true, favorite_host_lfg: true, squad_invite: true,
             }));
     }, []);
 

@@ -30,6 +30,30 @@ class LfgController extends Controller
         if ($request->filled('platform')) {
             $query->where('platform', $request->input('platform'));
         }
+        if ($request->filled('language')) {
+            $query->where('language', $request->input('language'));
+        }
+        if ($request->boolean('mic_required')) {
+            $query->where('mic_required', true);
+        }
+        if ($request->filled('rank_min')) {
+            $query->where('rank_min', $request->input('rank_min'));
+        }
+        // Host-region filter requires joining profiles. We always leftJoin
+        // below for the relevance sort when a viewer is authed, but for
+        // anonymous viewers we do it inline here.
+        if ($request->filled('region')) {
+            if (!$viewer) {
+                $query->leftJoin('profiles as host_profile', 'host_profile.user_id', '=', 'lfg_posts.user_id')
+                    ->select('lfg_posts.*');
+            }
+            $query->where('host_profile.region', $request->input('region'));
+        }
+        // Favourites-only filter — show posts whose host the viewer has starred.
+        if ($viewer && $request->boolean('favorites')) {
+            $favoriteIds = $viewer->favoriteHosts()->pluck('users.id');
+            $query->whereIn('lfg_posts.user_id', $favoriteIds->isEmpty() ? [0] : $favoriteIds);
+        }
 
         // Personalised "For You" sort — bump posts whose game the viewer
         // plays and whose host shares the viewer's region to the top, then
@@ -71,11 +95,30 @@ class LfgController extends Controller
                 ->pluck('c', 'rated_id');
 
             $onlineCutoff = now()->subMinutes(10);
+
+            // Personalised flags: is this host a favourite? Have we played
+            // with them before (PlayerMatch)?
+            $favoriteHostIds = $viewer
+                ? $viewer->favoriteHosts()->whereIn('users.id', $hostIds)->pluck('users.id')->flip()
+                : collect();
+            $friendHostIds = collect();
+            if ($viewer) {
+                $friendHostIds = \App\Models\PlayerMatch::where(function ($q) use ($viewer, $hostIds) {
+                    $q->where(function ($q2) use ($viewer, $hostIds) {
+                        $q2->where('user_one_id', $viewer->id)->whereIn('user_two_id', $hostIds);
+                    })->orWhere(function ($q2) use ($viewer, $hostIds) {
+                        $q2->where('user_two_id', $viewer->id)->whereIn('user_one_id', $hostIds);
+                    });
+                })->get()->flatMap(fn ($m) => [$m->user_one_id, $m->user_two_id])->unique()->flip();
+            }
+
             foreach ($posts as $post) {
                 $post->host_stats = [
                     'sessions_hosted' => (int) ($hostedCounts[$post->user_id] ?? 0),
                     'rating_count' => (int) ($ratingCounts[$post->user_id] ?? 0),
                     'is_online' => $post->user && $post->user->updated_at && $post->user->updated_at->greaterThanOrEqualTo($onlineCutoff),
+                    'is_favorited' => $favoriteHostIds->has($post->user_id),
+                    'is_friend' => $friendHostIds->has($post->user_id),
                 ];
             }
         }
@@ -120,12 +163,22 @@ class LfgController extends Controller
                 ];
             });
 
+        // Distinct filter options from the live active-posts set, so filter
+        // chips only show values that will actually match something.
+        $filterOptions = [
+            'languages' => LfgPost::active()->whereNotNull('language')->distinct()->pluck('language')->filter()->values(),
+            'ranks' => LfgPost::active()->whereNotNull('rank_min')->distinct()->pluck('rank_min')->filter()->values(),
+            'regions' => \App\Models\Profile::whereIn('user_id', LfgPost::active()->distinct()->pluck('user_id'))
+                ->whereNotNull('region')->distinct()->pluck('region')->filter()->values(),
+        ];
+
         return Inertia::render('Lfg/Index', [
             'posts' => $posts,
             'myPosts' => $myPosts,
             'myHistory' => $myHistory,
             'games' => Game::all(),
-            'filters' => $request->only(['game_id', 'platform']),
+            'filters' => $request->only(['game_id', 'platform', 'language', 'rank_min', 'region', 'mic_required', 'favorites']),
+            'filterOptions' => $filterOptions,
         ]);
     }
 
@@ -156,14 +209,34 @@ class LfgController extends Controller
         $validated['user_id'] = auth()->id();
         $validated['expires_at'] = now()->addHours(6);
         $validated['spots_filled'] = 1; // host counts as filled from the start
-        LfgPost::create($validated);
+        $post = LfgPost::create($validated);
 
         try {
             AchievementService::awardXp(auth()->user(), 'lfg_hosted');
         } catch (\Throwable) {}
         app(AchievementService::class)->check(auth()->user());
 
+        $this->notifyFavoriters($post);
+
         return redirect()->route('lfg.index')->with('message', 'LFG post created!');
+    }
+
+    /**
+     * Fire a push + in-app notification to every user who favourited this
+     * host. Swallowed per-user so one bad subscription doesn't block others.
+     */
+    private function notifyFavoriters(LfgPost $post): void
+    {
+        try {
+            $post->loadMissing(['user.profile', 'game']);
+            $favoriters = $post->user->favoritedBy()->get();
+            foreach ($favoriters as $fan) {
+                $fan->notify(new \App\Notifications\FavoriteHostPostedLfgNotification($post));
+                Cache::forget("user:{$fan->id}:unread");
+            }
+        } catch (\Throwable $e) {
+            \Log::error('notifyFavoriters error: ' . $e->getMessage());
+        }
     }
 
     public function show(LfgPost $lfgPost): Response
@@ -194,8 +267,26 @@ class LfgController extends Controller
         // Mark chat as read for widget unread tracking
         Cache::put("lfg_read:{$user->id}:{$lfgPost->id}", now()->toISOString(), 86400 * 30);
 
+        // Host trust + relationship flags so the detail page shows the same
+        // signals as the feed card.
+        $hostId = $lfgPost->user_id;
+        $hostStats = [
+            'sessions_hosted' => LfgPost::where('user_id', $hostId)->where('status', 'closed')->count(),
+            'rating_count' => \App\Models\PlayerRating::where('rated_id', $hostId)->count(),
+            'is_online' => $lfgPost->user && $lfgPost->user->updated_at && $lfgPost->user->updated_at->greaterThanOrEqualTo(now()->subMinutes(10)),
+            'is_favorited' => $user->favoriteHosts()->where('users.id', $hostId)->exists(),
+            'is_friend' => \App\Models\PlayerMatch::where(function ($q) use ($user, $hostId) {
+                $q->where(function ($q2) use ($user, $hostId) {
+                    $q2->where('user_one_id', $user->id)->where('user_two_id', $hostId);
+                })->orWhere(function ($q2) use ($user, $hostId) {
+                    $q2->where('user_two_id', $user->id)->where('user_one_id', $hostId);
+                });
+            })->exists(),
+        ];
+
         return Inertia::render('Lfg/Show', [
             'post' => $lfgPost,
+            'hostStats' => $hostStats,
             'isMember' => $isMember,
             'myRatings' => $myRatings,
             'messages' => $isMember ? $lfgPost->messages()->with('user.profile')->latest()->take(50)->get()->reverse()->values() : [],
@@ -527,7 +618,27 @@ class LfgController extends Controller
             'spots_filled' => 1,
         ]);
 
-        return redirect()->route('lfg.show', $new)->with('message', 'LFG reposted!');
+        // Squad-up: ping the people who played the original session first so
+        // they get a head start before the post shows up in the public feed.
+        try {
+            $previousTeammates = $lfgPost->responses()
+                ->where('status', 'accepted')
+                ->with('user')
+                ->get()
+                ->pluck('user')
+                ->filter();
+            foreach ($previousTeammates as $mate) {
+                $mate->notify(new \App\Notifications\SquadInviteNotification($new));
+                Cache::forget("user:{$mate->id}:unread");
+            }
+        } catch (\Throwable $e) {
+            \Log::error('SquadInvite dispatch error: ' . $e->getMessage());
+        }
+
+        // Favourite-host listeners should hear about reposts too.
+        $this->notifyFavoriters($new);
+
+        return redirect()->route('lfg.show', $new)->with('message', 'LFG reposted! Previous squad pinged.');
     }
 
     // ── Widget endpoints ──────────────────────────────────────────
