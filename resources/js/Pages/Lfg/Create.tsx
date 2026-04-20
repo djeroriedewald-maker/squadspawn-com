@@ -123,13 +123,15 @@ export default function LfgCreate({ games }: { games: Game[] }) {
                             {errors.description && <p className={errorClass}>{errors.description}</p>}
                         </div>
 
-                        {/* Spots Needed */}
+                        {/* Group size (total, including host) */}
                         <div>
-                            <label className={labelClass}>Spots Needed</label>
+                            <label className={labelClass}>
+                                Group size <span className="font-normal text-ink-500">— incl. yourself</span>
+                            </label>
                             <div className="flex items-center gap-3">
                                 <input
                                     type="range"
-                                    min={1}
+                                    min={2}
                                     max={9}
                                     value={data.spots_needed}
                                     onChange={(e) => setData('spots_needed', Number(e.target.value))}
@@ -139,6 +141,9 @@ export default function LfgCreate({ games }: { games: Game[] }) {
                                     {data.spots_needed}
                                 </span>
                             </div>
+                            <p className="mt-1 text-xs text-ink-500">
+                                You + {data.spots_needed - 1} teammate{data.spots_needed - 1 === 1 ? '' : 's'} to find.
+                            </p>
                             {errors.spots_needed && <p className={errorClass}>{errors.spots_needed}</p>}
                         </div>
 

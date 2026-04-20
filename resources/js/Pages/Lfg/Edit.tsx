@@ -77,11 +77,16 @@ export default function LfgEdit({ post, games }: { post: LfgPost; games: Game[] 
                             <textarea value={data.description} onChange={(e) => setData('description', e.target.value)} className={inputClass + ' min-h-[80px] resize-y'} maxLength={1000} />
                         </div>
                         <div>
-                            <label className={labelClass}>Spots Needed</label>
+                            <label className={labelClass}>
+                                Group size <span className="font-normal text-ink-500">— incl. yourself</span>
+                            </label>
                             <div className="flex items-center gap-3">
-                                <input type="range" min={1} max={9} value={data.spots_needed} onChange={(e) => setData('spots_needed', Number(e.target.value))} className="h-2 flex-1 cursor-pointer appearance-none rounded-lg bg-ink-900/10 accent-neon-red" />
+                                <input type="range" min={2} max={9} value={data.spots_needed} onChange={(e) => setData('spots_needed', Number(e.target.value))} className="h-2 flex-1 cursor-pointer appearance-none rounded-lg bg-ink-900/10 accent-neon-red" />
                                 <span className="w-8 text-center text-lg font-bold text-neon-red">{data.spots_needed}</span>
                             </div>
+                            <p className="mt-1 text-xs text-ink-500">
+                                You + {data.spots_needed - 1} teammate{data.spots_needed - 1 === 1 ? '' : 's'} total.
+                            </p>
                         </div>
                         <div>
                             <label className={labelClass}>Platform</label>

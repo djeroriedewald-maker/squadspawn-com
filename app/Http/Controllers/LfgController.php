@@ -95,7 +95,7 @@ class LfgController extends Controller
             'game_id' => 'required|exists:games,id',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
-            'spots_needed' => 'required|integer|min:1|max:9',
+            'spots_needed' => 'required|integer|min:2|max:9',
             'platform' => 'required|string|max:50',
             'rank_min' => 'nullable|string|max:50',
             'mic_required' => 'nullable|boolean',
@@ -390,7 +390,7 @@ class LfgController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
-            'spots_needed' => 'required|integer|min:1|max:9',
+            'spots_needed' => 'required|integer|min:2|max:9',
             'platform' => 'required|string|max:50',
             'rank_min' => 'nullable|string|max:50',
             'mic_required' => 'nullable|boolean',
