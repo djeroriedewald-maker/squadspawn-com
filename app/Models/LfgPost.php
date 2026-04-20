@@ -14,7 +14,7 @@ class LfgPost extends Model
         'user_id', 'game_id', 'title', 'slug', 'description',
         'spots_needed', 'spots_filled', 'platform', 'rank_min',
         'mic_required', 'language', 'age_requirement', 'requirements_note', 'discord_url',
-        'scheduled_at', 'status',
+        'scheduled_at', 'expires_at', 'status',
     ];
 
     public function getRouteKeyName(): string
@@ -39,6 +39,7 @@ class LfgPost extends Model
     {
         return [
             'scheduled_at' => 'datetime',
+            'expires_at' => 'datetime',
             'mic_required' => 'boolean',
         ];
     }
@@ -76,5 +77,20 @@ class LfgPost extends Model
     public function scopeOpen(Builder $query): Builder
     {
         return $query->where('status', 'open');
+    }
+
+    /**
+     * Open posts that haven't expired yet. Posts with at least one accepted
+     * teammate (spots_filled > 1) never auto-expire — the session is live,
+     * only the host can close it.
+     */
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('status', 'open')
+            ->where(function (Builder $q) {
+                $q->whereNull('expires_at')
+                    ->orWhere('expires_at', '>', now())
+                    ->orWhere('spots_filled', '>', 1);
+            });
     }
 }

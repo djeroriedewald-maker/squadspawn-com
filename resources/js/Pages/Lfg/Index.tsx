@@ -13,6 +13,12 @@ interface LfgResponse {
     user?: User;
 }
 
+interface HostStats {
+    sessions_hosted: number;
+    rating_count: number;
+    is_online: boolean;
+}
+
 interface LfgPost {
     id: number;
     user_id: number;
@@ -29,11 +35,24 @@ interface LfgPost {
     age_requirement?: string;
     requirements_note?: string;
     scheduled_at?: string;
+    expires_at?: string;
     status: string;
     created_at: string;
     user?: User;
     game?: Game;
     responses?: LfgResponse[];
+    host_stats?: HostStats;
+}
+
+/** "2h", "45m", or null if >6h or already expired. */
+function expiresInLabel(expiresAt?: string): string | null {
+    if (!expiresAt) return null;
+    const msLeft = new Date(expiresAt).getTime() - Date.now();
+    if (msLeft <= 0) return null;
+    const mins = Math.round(msLeft / 60000);
+    if (mins > 120) return null; // only surface when it's actually close
+    if (mins >= 60) return `${Math.round(mins / 60)}h`;
+    return `${Math.max(mins, 1)}m`;
 }
 
 interface HistoryItem {
@@ -354,6 +373,17 @@ export default function LfgIndex({
                                                 <span className="absolute bottom-3 left-4 text-sm font-bold text-white drop-shadow-md">
                                                     {post.game.name}
                                                 </span>
+                                                {(() => {
+                                                    const label = expiresInLabel(post.expires_at);
+                                                    return label ? (
+                                                        <span
+                                                            className="absolute right-3 top-3 rounded-full bg-black/70 px-2 py-0.5 text-[10px] font-bold text-white backdrop-blur-sm"
+                                                            title="Expires soon unless someone joins"
+                                                        >
+                                                            ⏱ {label} left
+                                                        </span>
+                                                    ) : null;
+                                                })()}
                                             </div>
                                         )}
 
@@ -363,9 +393,9 @@ export default function LfgIndex({
                                                 {post.title}
                                             </h3>
 
-                                            {/* Poster */}
-                                            <div className="mb-3 flex items-center gap-2">
-                                                <div className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-neon-red/20 text-xs font-bold text-neon-red">
+                                            {/* Poster + trust signals */}
+                                            <div className="mb-3 flex items-start gap-2">
+                                                <div className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-neon-red/20 text-xs font-bold text-neon-red">
                                                     {post.user?.profile?.avatar ? (
                                                         <img
                                                             src={post.user.profile.avatar}
@@ -381,10 +411,38 @@ export default function LfgIndex({
                                                             .charAt(0)
                                                             .toUpperCase()
                                                     )}
+                                                    {post.host_stats?.is_online && (
+                                                        <span
+                                                            className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-white bg-gaming-green"
+                                                            title="Online now"
+                                                        />
+                                                    )}
                                                 </div>
-                                                <span className="text-sm text-ink-500">
-                                                    {post.user?.profile?.username ?? post.user?.name}
-                                                </span>
+                                                <div className="min-w-0 flex-1">
+                                                    <div className="truncate text-sm font-medium text-ink-900">
+                                                        {post.user?.profile?.username ?? post.user?.name}
+                                                    </div>
+                                                    <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-ink-500">
+                                                        {post.host_stats && post.host_stats.rating_count > 0 && post.user?.profile?.reputation_score ? (
+                                                            <span className="flex items-center gap-0.5 font-semibold text-gaming-orange">
+                                                                <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                                                </svg>
+                                                                {Number(post.user.profile.reputation_score).toFixed(1)}
+                                                            </span>
+                                                        ) : null}
+                                                        {post.host_stats && (
+                                                            <span>
+                                                                {post.host_stats.sessions_hosted === 0
+                                                                    ? 'First-time host'
+                                                                    : `${post.host_stats.sessions_hosted} hosted`}
+                                                            </span>
+                                                        )}
+                                                        {post.user?.profile?.region && (
+                                                            <span>· {post.user.profile.region}</span>
+                                                        )}
+                                                    </div>
+                                                </div>
                                             </div>
 
                                             {/* Description */}

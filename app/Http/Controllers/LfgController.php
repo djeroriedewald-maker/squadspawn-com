@@ -20,9 +20,9 @@ class LfgController extends Controller
 {
     public function index(Request $request): Response
     {
-        $query = LfgPost::open()
-            ->with(['user.profile', 'game', 'responses.user.profile'])
-            ->latest();
+        $viewer = auth()->user();
+        $query = LfgPost::active()
+            ->with(['user.profile', 'game', 'responses.user.profile']);
 
         if ($request->filled('game_id')) {
             $query->where('game_id', $request->input('game_id'));
@@ -31,7 +31,54 @@ class LfgController extends Controller
             $query->where('platform', $request->input('platform'));
         }
 
+        // Personalised "For You" sort — bump posts whose game the viewer
+        // plays and whose host shares the viewer's region to the top, then
+        // favour freshness as a tiebreak. Anonymous viewers fall back to
+        // plain chronological order.
+        if ($viewer) {
+            $userGameIds = $viewer->games->pluck('id')->map(fn ($id) => (int) $id);
+            $gameIdsList = $userGameIds->isNotEmpty() ? $userGameIds->implode(',') : '0';
+            $userRegion = $viewer->profile?->region;
+
+            $query->leftJoin('profiles as host_profile', 'host_profile.user_id', '=', 'lfg_posts.user_id')
+                ->select('lfg_posts.*')
+                ->selectRaw(
+                    "(CASE WHEN lfg_posts.game_id IN ({$gameIdsList}) THEN 100 ELSE 0 END
+                    + CASE WHEN host_profile.region IS NOT NULL AND host_profile.region = ? THEN 20 ELSE 0 END
+                    + CASE WHEN lfg_posts.created_at > ? THEN 10 ELSE 0 END) AS relevance",
+                    [$userRegion ?? '', now()->subHours(2)]
+                )
+                ->orderByDesc('relevance')
+                ->orderByDesc('lfg_posts.created_at');
+        } else {
+            $query->latest();
+        }
+
         $posts = $query->paginate(20)->withQueryString();
+
+        // Host trust signals — sessions hosted + rating count + online now.
+        // Batched up front so we don't N+1 per card.
+        $hostIds = $posts->pluck('user_id')->unique();
+        if ($hostIds->isNotEmpty()) {
+            $hostedCounts = LfgPost::whereIn('user_id', $hostIds)
+                ->where('status', 'closed')
+                ->selectRaw('user_id, COUNT(*) as c')
+                ->groupBy('user_id')
+                ->pluck('c', 'user_id');
+            $ratingCounts = \App\Models\PlayerRating::whereIn('rated_id', $hostIds)
+                ->selectRaw('rated_id, COUNT(*) as c')
+                ->groupBy('rated_id')
+                ->pluck('c', 'rated_id');
+
+            $onlineCutoff = now()->subMinutes(10);
+            foreach ($posts as $post) {
+                $post->host_stats = [
+                    'sessions_hosted' => (int) ($hostedCounts[$post->user_id] ?? 0),
+                    'rating_count' => (int) ($ratingCounts[$post->user_id] ?? 0),
+                    'is_online' => $post->user && $post->user->updated_at && $post->user->updated_at->greaterThanOrEqualTo($onlineCutoff),
+                ];
+            }
+        }
 
         $userId = auth()->id();
 
@@ -107,6 +154,7 @@ class LfgController extends Controller
         ]);
 
         $validated['user_id'] = auth()->id();
+        $validated['expires_at'] = now()->addHours(6);
         LfgPost::create($validated);
 
         try {
@@ -474,6 +522,7 @@ class LfgController extends Controller
             'language' => $lfgPost->language,
             'age_requirement' => $lfgPost->age_requirement,
             'requirements_note' => $lfgPost->requirements_note,
+            'expires_at' => now()->addHours(6),
         ]);
 
         return redirect()->route('lfg.show', $new)->with('message', 'LFG reposted!');
