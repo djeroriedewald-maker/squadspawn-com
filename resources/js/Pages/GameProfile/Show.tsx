@@ -1,4 +1,5 @@
 import SocialLinks from '@/Components/SocialLinks';
+import SteamStatsCard, { SteamStats } from '@/Components/SteamStatsCard';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Achievement, Clip, Game, PageProps, Profile } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
@@ -91,7 +92,8 @@ export default function Show({
     earnedAchievements = [],
     reputationData,
     friendsCount = 0,
-}: PageProps<{ profile: Profile | null; userGames: Game[]; clips: Clip[]; earnedAchievements: Achievement[]; reputationData?: { score: number; count: number; tags: Record<string, number> }; friendsCount?: number }>) {
+    steamStats,
+}: PageProps<{ profile: Profile | null; userGames: Game[]; clips: Clip[]; earnedAchievements: Achievement[]; reputationData?: { score: number; count: number; tags: Record<string, number> }; friendsCount?: number; steamStats?: SteamStats | null }>) {
     const { flash } = usePage().props as any;
     const [copied, setCopied] = useState(false);
     const [showToast, setShowToast] = useState(false);
@@ -342,6 +344,13 @@ export default function Show({
                                 </div>
                             )}
                         </div>
+
+                        {/* Steam stats */}
+                        {steamStats && (
+                            <div className="mt-8">
+                                <SteamStatsCard stats={steamStats} isOwnProfile />
+                            </div>
+                        )}
 
                         {/* Clips */}
                         {clips && clips.length > 0 && (

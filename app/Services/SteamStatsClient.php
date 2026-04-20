@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 
@@ -115,6 +116,87 @@ class SteamStatsClient
         ]);
         if (!$response->successful()) return [];
         return $response->json('response.games') ?? [];
+    }
+
+    /**
+     * Build the profile-stats payload shown in the UI (persona, top games,
+     * recent activity). Returns null if the API key isn't configured or the
+     * profile is unreachable. Does not cache — use {@see cachedStats()}.
+     */
+    public function buildStats(string $steamId64): ?array
+    {
+        if (!$this->hasKey()) return null;
+
+        try {
+            $summary = $this->playerSummary($steamId64);
+            $owned = $this->ownedGames($steamId64);
+            $recent = $this->recentlyPlayed($steamId64);
+        } catch (\Throwable) {
+            return null;
+        }
+
+        if (!$summary) return null;
+
+        usort($owned, fn ($a, $b) => ($b['playtime_forever'] ?? 0) <=> ($a['playtime_forever'] ?? 0));
+        $topGames = [];
+        foreach (array_slice($owned, 0, 5) as $g) {
+            if (empty($g['playtime_forever']) || $g['playtime_forever'] < 60) continue;
+            $topGames[] = [
+                'appid' => $g['appid'] ?? null,
+                'name' => $g['name'] ?? 'Unknown',
+                'hours' => round(($g['playtime_forever'] ?? 0) / 60),
+                'icon' => !empty($g['img_icon_url']) && !empty($g['appid'])
+                    ? "https://media.steampowered.com/steamcommunity/public/images/apps/{$g['appid']}/{$g['img_icon_url']}.jpg"
+                    : null,
+            ];
+        }
+
+        $totalHours = array_sum(array_column($owned, 'playtime_forever')) / 60;
+
+        $recentClean = [];
+        foreach (array_slice($recent, 0, 3) as $g) {
+            $recentClean[] = [
+                'name' => $g['name'] ?? 'Unknown',
+                'hoursTwoWeeks' => round(($g['playtime_2weeks'] ?? 0) / 60, 1),
+            ];
+        }
+
+        return [
+            'personaName' => $summary['personaname'] ?? null,
+            'avatar' => $summary['avatarmedium'] ?? null,
+            'profileUrl' => $summary['profileurl'] ?? null,
+            'visibility' => $summary['communityvisibilitystate'] ?? null,
+            'ownedCount' => count($owned),
+            'totalHours' => (int) round($totalHours),
+            'topGames' => $topGames,
+            'recent' => $recentClean,
+        ];
+    }
+
+    /**
+     * Cached variant of {@see buildStats()} — 1h TTL per SteamID to keep
+     * us well under the Steam Web API rate limits.
+     */
+    public function cachedStats(string $steamId64): ?array
+    {
+        return Cache::remember(
+            $this->cacheKey($steamId64),
+            3600,
+            fn () => $this->buildStats($steamId64),
+        );
+    }
+
+    /**
+     * Forget the cached stats for a SteamID — used by the manual refresh.
+     */
+    public function clearStatsCache(string $steamId64): void
+    {
+        Cache::forget($this->cacheKey($steamId64));
+    }
+
+    private function cacheKey(string $steamId64): string
+    {
+        return "steam:stats:{$steamId64}";
     }
 
     private function ensureKey(): void

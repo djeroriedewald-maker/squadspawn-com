@@ -1,4 +1,5 @@
 import SocialLinks from '@/Components/SocialLinks';
+import SteamStatsCard, { SteamStats } from '@/Components/SteamStatsCard';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Clip, PageProps, User } from '@/types';
 import { Head, Link, usePage, router } from '@inertiajs/react';
@@ -55,17 +56,6 @@ const RATING_TAGS = [
     { value: 'toxic', label: 'Toxic' },
     { value: 'no_show', label: 'No Show' },
 ];
-
-interface SteamStats {
-    personaName?: string | null;
-    avatar?: string | null;
-    profileUrl?: string | null;
-    visibility?: number | null;
-    ownedCount: number;
-    totalHours: number;
-    topGames: { appid: number | null; name: string; hours: number; icon: string | null }[];
-    recent: { name: string; hoursTwoWeeks: number }[];
-}
 
 export default function PlayerShow({ player, clips = [], reputationData, friendsCount = 0, isFriend = false, myRating, steamStats }: PageProps<{ player: User; clips: Clip[]; reputationData?: ReputationData; friendsCount?: number; isFriend?: boolean; myRating?: { score: number; tag?: string } | null; steamStats?: SteamStats | null }>) {
     const { auth } = usePage<PageProps>().props;
@@ -480,68 +470,9 @@ export default function PlayerShow({ player, clips = [], reputationData, friends
                         </div>
                     )}
 
-                    {/* Steam stats */}
                     {steamStats && (
-                        <div className="mt-8 rounded-xl border border-ink-900/10 bg-white p-5">
-                            <div className="mb-4 flex items-center gap-3">
-                                <svg className="h-6 w-6 text-ink-700" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm2.9 13.5a2.1 2.1 0 01-2.08-1.56l-2.04-.85a1.8 1.8 0 10.1-1.4l1.9.78a2.1 2.1 0 11.02 3zm-3.6-2.37l-.83-.34a2.6 2.6 0 113.37-2.9l-2.07.87zm5.05 1.2a1.42 1.42 0 11-.01-2.84 1.42 1.42 0 010 2.84z" /></svg>
-                                <h3 className="text-lg font-bold text-ink-900">Steam stats</h3>
-                                {steamStats.profileUrl && (
-                                    <a
-                                        href={steamStats.profileUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="ml-auto text-xs font-semibold text-neon-red hover:underline"
-                                    >
-                                        View on Steam →
-                                    </a>
-                                )}
-                            </div>
-
-                            {steamStats.visibility !== 3 ? (
-                                <p className="rounded-lg border border-yellow-400/30 bg-yellow-400/5 p-3 text-xs text-yellow-700">
-                                    This Steam profile is set to private — only the linked account is visible. Ask the player to make their game details public to show playtime.
-                                </p>
-                            ) : (
-                                <div className="space-y-4">
-                                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                                        <div className="rounded-lg border border-ink-900/10 bg-bone-50 p-3">
-                                            <div className="text-[10px] font-bold uppercase tracking-widest text-ink-500">Games owned</div>
-                                            <div className="mt-1 text-2xl font-black text-ink-900">{steamStats.ownedCount}</div>
-                                        </div>
-                                        <div className="rounded-lg border border-ink-900/10 bg-bone-50 p-3">
-                                            <div className="text-[10px] font-bold uppercase tracking-widest text-ink-500">Total hours</div>
-                                            <div className="mt-1 text-2xl font-black text-ink-900">{steamStats.totalHours.toLocaleString()}</div>
-                                        </div>
-                                        {steamStats.recent.length > 0 && (
-                                            <div className="col-span-2 rounded-lg border border-ink-900/10 bg-bone-50 p-3 sm:col-span-1">
-                                                <div className="text-[10px] font-bold uppercase tracking-widest text-ink-500">Last 2 weeks</div>
-                                                <div className="mt-1 truncate text-sm font-semibold text-ink-900">
-                                                    {steamStats.recent[0].name}
-                                                </div>
-                                                <div className="text-xs text-ink-500">{steamStats.recent[0].hoursTwoWeeks}h this fortnight</div>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {steamStats.topGames.length > 0 && (
-                                        <div>
-                                            <div className="mb-2 text-[10px] font-bold uppercase tracking-widest text-ink-500">Most played</div>
-                                            <div className="space-y-1.5">
-                                                {steamStats.topGames.map((g) => (
-                                                    <div key={g.appid ?? g.name} className="flex items-center gap-3 rounded-lg border border-ink-900/5 bg-white px-3 py-2">
-                                                        {g.icon && (
-                                                            <img src={g.icon} alt="" className="h-8 w-8 rounded" loading="lazy" />
-                                                        )}
-                                                        <div className="min-w-0 flex-1 truncate text-sm font-semibold text-ink-900">{g.name}</div>
-                                                        <div className="shrink-0 text-xs font-bold text-neon-red">{g.hours.toLocaleString()}h</div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
+                        <div className="mt-8">
+                            <SteamStatsCard stats={steamStats} isOwnProfile={isOwnProfile} />
                         </div>
                     )}
 

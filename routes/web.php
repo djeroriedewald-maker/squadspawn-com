@@ -239,6 +239,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/steam/link', [\App\Http\Controllers\SteamLinkController::class, 'show'])->name('steam.link.show');
     Route::post('/steam/link', [\App\Http\Controllers\SteamLinkController::class, 'store'])->middleware('throttle:10,1')->name('steam.link.store');
     Route::delete('/steam/link', [\App\Http\Controllers\SteamLinkController::class, 'destroy'])->name('steam.link.destroy');
+    Route::post('/steam/stats/refresh', [\App\Http\Controllers\SteamLinkController::class, 'refresh'])->middleware('throttle:6,1')->name('steam.stats.refresh');
 
     // Avatar
     Route::post('/avatar/upload', [AvatarController::class, 'upload'])->middleware('throttle:10,1')->name('avatar.upload');

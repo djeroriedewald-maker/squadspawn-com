@@ -78,6 +78,23 @@ class SteamLinkController extends Controller
     }
 
     /**
+     * Force a cache refresh of the logged-in user's Steam stats and return
+     * the fresh payload. Throttled so it can't be used to hammer Steam.
+     */
+    public function refresh(SteamStatsClient $steam): JsonResponse
+    {
+        $profile = auth()->user()->profile;
+        if (!$profile || !$profile->steam_id) {
+            return response()->json(['error' => 'No Steam account linked.'], 422);
+        }
+
+        $steam->clearStatsCache($profile->steam_id);
+        $stats = $steam->cachedStats($profile->steam_id);
+
+        return response()->json(['steamStats' => $stats]);
+    }
+
+    /**
      * Unlink.
      */
     public function destroy(): JsonResponse

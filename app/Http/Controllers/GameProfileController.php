@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Clip;
 use App\Models\Game;
 use App\Services\AchievementService;
+use App\Services\SteamStatsClient;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -26,6 +27,10 @@ class GameProfileController extends Controller
             ->orWhere('user_two_id', $user->id)
             ->count();
 
+        $steamStats = $user->profile?->steam_id
+            ? app(SteamStatsClient::class)->cachedStats($user->profile->steam_id)
+            : null;
+
         return Inertia::render('GameProfile/Show', [
             'profile' => $user->profile,
             'userGames' => $user->games,
@@ -33,6 +38,7 @@ class GameProfileController extends Controller
             'earnedAchievements' => $user->achievements,
             'reputationData' => $reputationData,
             'friendsCount' => $friendsCount,
+            'steamStats' => $steamStats,
         ]);
     }
 
