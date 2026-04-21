@@ -77,7 +77,7 @@ export default function Reports({ reports, filters }: Props) {
             </div>
 
             {/* Filter Tabs */}
-            <div className="mb-6 flex gap-1 rounded-lg bg-white p-1 w-fit border border-ink-900/10">
+            <div className="mb-6 flex gap-1 rounded-lg bg-white dark:bg-bone-100 p-1 w-fit border border-ink-900/10">
                 {statusTabs.map((tab) => (
                     <Link
                         key={tab.value}
@@ -95,7 +95,7 @@ export default function Reports({ reports, filters }: Props) {
             </div>
 
             {/* Reports Table */}
-            <div className="overflow-hidden rounded-xl border border-ink-900/10 bg-white">
+            <div className="overflow-hidden rounded-xl border border-ink-900/10 bg-white dark:bg-bone-100">
                 {reports.data.length === 0 ? (
                     <div className="py-16 text-center text-sm text-gray-500">
                         No {currentStatus} reports

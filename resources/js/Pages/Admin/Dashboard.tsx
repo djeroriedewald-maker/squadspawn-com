@@ -121,7 +121,7 @@ export default function Dashboard({ stats, recentReports, recentUsers }: Props) 
                             className={`card-gaming rounded-xl border p-4 ${
                                 isPending
                                     ? 'border-red-500/40 bg-red-500/5 shadow-lg shadow-red-500/10'
-                                    : 'border-ink-900/10 bg-white'
+                                    : 'border-ink-900/10 bg-white dark:bg-bone-100'
                             }`}
                         >
                             <div className="flex items-center gap-3">
@@ -147,7 +147,7 @@ export default function Dashboard({ stats, recentReports, recentUsers }: Props) 
             {/* Tables Row */}
             <div className="grid gap-6 lg:grid-cols-2">
                 {/* Recent Reports */}
-                <div className="rounded-xl border border-ink-900/10 bg-white p-5">
+                <div className="rounded-xl border border-ink-900/10 bg-white dark:bg-bone-100 p-5">
                     <h2 className="mb-4 text-lg font-bold text-ink-900">Recent Reports</h2>
                     {recentReports.length === 0 ? (
                         <p className="py-8 text-center text-sm text-gray-500">No pending reports</p>
@@ -197,7 +197,7 @@ export default function Dashboard({ stats, recentReports, recentUsers }: Props) 
                 </div>
 
                 {/* Recent Users */}
-                <div className="rounded-xl border border-ink-900/10 bg-white p-5">
+                <div className="rounded-xl border border-ink-900/10 bg-white dark:bg-bone-100 p-5">
                     <h2 className="mb-4 text-lg font-bold text-ink-900">Recent Users</h2>
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-sm">

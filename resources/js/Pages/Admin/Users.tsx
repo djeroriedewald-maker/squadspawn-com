@@ -99,7 +99,7 @@ export default function Users({ users, filters }: Props) {
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         placeholder="Search by name, email, or username..."
-                        className="w-full rounded-lg border border-ink-900/10 bg-white py-2.5 pl-10 pr-4 text-sm text-ink-900 placeholder-gray-500 focus:border-neon-red/50 focus:outline-none focus:ring-1 focus:ring-neon-red/50"
+                        className="w-full rounded-lg border border-ink-900/10 bg-white dark:bg-bone-100 py-2.5 pl-10 pr-4 text-sm text-ink-900 placeholder-gray-500 focus:border-neon-red/50 focus:outline-none focus:ring-1 focus:ring-neon-red/50"
                     />
                 </div>
                 <button
@@ -111,7 +111,7 @@ export default function Users({ users, filters }: Props) {
             </form>
 
             {/* Users Table */}
-            <div className="overflow-hidden rounded-xl border border-ink-900/10 bg-white">
+            <div className="overflow-hidden rounded-xl border border-ink-900/10 bg-white dark:bg-bone-100">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left text-sm">
                         <thead>

@@ -62,7 +62,7 @@ export default function Games({ games }: Props) {
             </div>
 
             {/* Add Game Form */}
-            <div className="mb-8 rounded-xl border border-ink-900/10 bg-white p-6">
+            <div className="mb-8 rounded-xl border border-ink-900/10 bg-white dark:bg-bone-100 p-6">
                 <h2 className="mb-4 text-lg font-bold text-ink-900">Add Game</h2>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -139,7 +139,7 @@ export default function Games({ games }: Props) {
                 {games.map((game) => (
                     <div
                         key={game.id}
-                        className="group overflow-hidden rounded-xl border border-ink-900/10 bg-white transition hover:border-neon-red/30"
+                        className="group overflow-hidden rounded-xl border border-ink-900/10 bg-white dark:bg-bone-100 transition hover:border-neon-red/30"
                     >
                         <div className="relative h-36 overflow-hidden bg-bone-50">
                             {game.cover_image ? (

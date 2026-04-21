@@ -253,6 +253,11 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    // Self-service role management — mods / admins can step down
+    Route::get('/settings/role', [\App\Http\Controllers\RoleSettingsController::class, 'show'])->name('settings.role');
+    Route::post('/settings/role/step-down-mod', [\App\Http\Controllers\RoleSettingsController::class, 'stepDownMod'])->name('settings.role.stepDownMod');
+    Route::post('/settings/role/step-down-admin', [\App\Http\Controllers\RoleSettingsController::class, 'stepDownAdmin'])->name('settings.role.stepDownAdmin');
+
     // GDPR Art. 20 — data portability
     Route::get('/profile/data-export', [\App\Http\Controllers\DataExportController::class, 'index'])
         ->middleware('throttle:3,10')

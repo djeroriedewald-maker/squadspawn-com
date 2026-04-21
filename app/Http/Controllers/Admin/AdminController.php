@@ -80,7 +80,18 @@ class AdminController extends Controller
         if ($user->is_admin) {
             return response()->json(['error' => "Admins already have moderator powers."], 422);
         }
+        $previouslyMod = (bool) $user->is_moderator;
         $user->update(['is_moderator' => $data['is_moderator']]);
+
+        if ($data['is_moderator'] && !$previouslyMod) {
+            try {
+                $user->notify(new \App\Notifications\RoleGrantedNotification('moderator', auth()->user()?->name));
+                \Illuminate\Support\Facades\Cache::forget("user:{$user->id}:unread");
+            } catch (\Throwable $e) {
+                \Log::error('RoleGranted dispatch failed: ' . $e->getMessage());
+            }
+        }
+
         return response()->json(['is_moderator' => $user->is_moderator]);
     }
 
@@ -94,7 +105,18 @@ class AdminController extends Controller
         if (!$data['is_admin'] && $user->id === auth()->id()) {
             return response()->json(['error' => "You can't demote yourself."], 422);
         }
+        $previouslyAdmin = (bool) $user->is_admin;
         $user->update(['is_admin' => $data['is_admin']]);
+
+        if ($data['is_admin'] && !$previouslyAdmin) {
+            try {
+                $user->notify(new \App\Notifications\RoleGrantedNotification('admin', auth()->user()?->name));
+                \Illuminate\Support\Facades\Cache::forget("user:{$user->id}:unread");
+            } catch (\Throwable $e) {
+                \Log::error('RoleGranted dispatch failed: ' . $e->getMessage());
+            }
+        }
+
         return response()->json(['is_admin' => $user->is_admin]);
     }
 
