@@ -10,7 +10,7 @@
  * Bump CACHE_VERSION to invalidate caches on deploy.
  */
 
-const CACHE_VERSION = 'v5';
+const CACHE_VERSION = 'v6';
 const STATIC_CACHE = `squadspawn-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `squadspawn-runtime-${CACHE_VERSION}`;
 
