@@ -44,6 +44,9 @@ interface LfgPost {
     discord_url?: string;
     scheduled_at?: string;
     status: string;
+    hidden_at?: string | null;
+    hidden_reason?: string | null;
+    hidden_by?: { profile?: { username?: string }; name?: string } | null;
     created_at: string;
     user?: User;
     game?: Game;
@@ -76,6 +79,7 @@ export default function LfgShow({
     messages: initialMessages,
     myQueuePosition,
     staleFullHours,
+    canModerate = false,
 }: {
     post: LfgPost;
     hostStats?: HostStats & { hours_since_active?: number | null };
@@ -85,6 +89,7 @@ export default function LfgShow({
     messages: LfgMessage[];
     myQueuePosition?: number | null;
     staleFullHours?: number | null;
+    canModerate?: boolean;
 }) {
     const { auth } = usePage<PageProps>().props;
     const [post, setPost] = useState(initialPost);
@@ -99,6 +104,20 @@ export default function LfgShow({
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     const isCreator = post.user_id === auth.user.id;
+    const canMod = canModerate || !!(auth?.canModerate);
+    const isHidden = !!post.hidden_at;
+
+    const modActionLfg = async (url: string, reasonPrompt?: string) => {
+        const reason = reasonPrompt ? (window.prompt(reasonPrompt, '') ?? null) : null;
+        if (reasonPrompt && reason === null) return;
+        try {
+            await axios.post(url, reason ? { reason } : {});
+            router.reload();
+        } catch (err: any) {
+            const msg = err.response?.data?.message || err.response?.data?.error || err.message || 'Unknown';
+            alert(`Mod action failed: ${msg} (${err.response?.status ?? 'network'})`);
+        }
+    };
     const isOpen = post.status === 'open';
     const isFull = post.status === 'full';
     const isClosed = post.status === 'closed';
@@ -398,6 +417,32 @@ export default function LfgShow({
                     <div className="grid gap-6 lg:grid-cols-3">
                         {/* Left column */}
                         <div className="space-y-6 lg:col-span-2">
+                            {/* Hidden-by-mod banner (mods see the post + reason) */}
+                            {isHidden && canMod && (
+                                <div className="rounded-xl border border-red-500/30 bg-red-500/5 p-4">
+                                    <p className="text-sm font-semibold text-red-500">This LFG is hidden from regular users.</p>
+                                    {post.hidden_reason && <p className="mt-1 text-xs text-ink-500">Reason: {post.hidden_reason}</p>}
+                                    {post.hidden_by && (
+                                        <p className="mt-1 text-xs text-ink-500">Hidden by {post.hidden_by.profile?.username || post.hidden_by.name}</p>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Mod action bar */}
+                            {canMod && (
+                                <div className="flex flex-wrap gap-2 rounded-lg border border-ink-900/10 bg-bone-50 p-2">
+                                    <span className="px-1 py-1 text-[10px] font-bold uppercase tracking-widest text-ink-500">Mod</span>
+                                    {isHidden ? (
+                                        <button type="button" onClick={() => modActionLfg(`/mod/lfg/${post.id}/unhide`)} className="rounded-lg bg-gaming-green/10 px-2.5 py-1 text-xs font-semibold text-gaming-green hover:bg-gaming-green/20">Unhide</button>
+                                    ) : (
+                                        <button type="button" onClick={() => modActionLfg(`/mod/lfg/${post.id}/hide`, 'Reason for hiding (optional):')} className="rounded-lg bg-red-500/10 px-2.5 py-1 text-xs font-semibold text-red-500 hover:bg-red-500/20">Hide</button>
+                                    )}
+                                    {post.status !== 'closed' && (
+                                        <button type="button" onClick={() => modActionLfg(`/mod/lfg/${post.id}/close`, 'Reason for closing (optional):')} className="rounded-lg bg-yellow-400/10 px-2.5 py-1 text-xs font-semibold text-yellow-600 hover:bg-yellow-400/20">Force close</button>
+                                    )}
+                                </div>
+                            )}
+
                             {/* Still-playing nudge — host has a full squad that's been sitting */}
                             {isCreator && staleFullHours != null && (
                                 <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/5 p-4">

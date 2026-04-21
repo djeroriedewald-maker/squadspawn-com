@@ -15,6 +15,7 @@ class LfgPost extends Model
         'spots_needed', 'spots_filled', 'platform', 'rank_min',
         'mic_required', 'auto_accept', 'language', 'age_requirement', 'requirements_note', 'discord_url',
         'scheduled_at', 'expires_at', 'status',
+        'hidden_at', 'hidden_by_user_id', 'hidden_reason',
     ];
 
     public function getRouteKeyName(): string
@@ -40,9 +41,15 @@ class LfgPost extends Model
         return [
             'scheduled_at' => 'datetime',
             'expires_at' => 'datetime',
+            'hidden_at' => 'datetime',
             'mic_required' => 'boolean',
             'auto_accept' => 'boolean',
         ];
+    }
+
+    public function hiddenBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'hidden_by_user_id');
     }
 
     public function user(): BelongsTo
@@ -78,6 +85,13 @@ class LfgPost extends Model
     public function scopeOpen(Builder $query): Builder
     {
         return $query->where('status', 'open');
+    }
+
+    /** Hide mod-hidden posts from regular users. Mods see everything. */
+    public function scopeVisibleTo(Builder $query, ?User $viewer): Builder
+    {
+        if ($viewer && $viewer->canModerate()) return $query;
+        return $query->whereNull('hidden_at');
     }
 
     /**

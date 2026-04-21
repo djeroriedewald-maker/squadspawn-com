@@ -58,6 +58,7 @@ interface LfgPost {
     scheduled_at?: string;
     expires_at?: string;
     status: string;
+    hidden_at?: string | null;
     created_at: string;
     user?: User;
     game?: Game;
@@ -632,6 +633,14 @@ export default function LfgIndex({
                                                         title="Auto-accept — anyone who joins fills a spot instantly"
                                                     >
                                                         ⚡ Auto-join
+                                                    </span>
+                                                )}
+                                                {post.hidden_at && (
+                                                    <span
+                                                        className="absolute left-3 top-10 rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-bold uppercase text-white shadow-[0_0_8px_rgba(239,68,68,0.5)]"
+                                                        title="Hidden by a moderator — only visible to mods"
+                                                    >
+                                                        Hidden
                                                     </span>
                                                 )}
                                                 {(() => {

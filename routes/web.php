@@ -322,6 +322,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/posts/{post:id}/unpin', [\App\Http\Controllers\ModerationController::class, 'unpinPost'])->name('posts.unpin');
         Route::post('/comments/{comment}/hide', [\App\Http\Controllers\ModerationController::class, 'hideComment'])->name('comments.hide');
         Route::post('/comments/{comment}/unhide', [\App\Http\Controllers\ModerationController::class, 'unhideComment'])->name('comments.unhide');
+        Route::post('/lfg/{lfgPost:id}/hide', [\App\Http\Controllers\ModerationController::class, 'hideLfg'])->name('lfg.hide');
+        Route::post('/lfg/{lfgPost:id}/unhide', [\App\Http\Controllers\ModerationController::class, 'unhideLfg'])->name('lfg.unhide');
+        Route::post('/lfg/{lfgPost:id}/close', [\App\Http\Controllers\ModerationController::class, 'closeLfg'])->name('lfg.close');
     });
 
     // Player rating (friends)

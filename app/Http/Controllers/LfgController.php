@@ -22,7 +22,8 @@ class LfgController extends Controller
     {
         $viewer = auth()->user();
         $query = LfgPost::active()
-            ->with(['user.profile', 'game', 'responses.user.profile']);
+            ->visibleTo($viewer)
+            ->with(['user.profile', 'game', 'responses.user.profile', 'hiddenBy.profile']);
 
         if ($request->filled('game_id')) {
             $query->where('game_id', $request->input('game_id'));
@@ -318,6 +319,7 @@ class LfgController extends Controller
     public function show(LfgPost $lfgPost): Response
     {
         $user = auth()->user();
+        $canMod = $user->canModerate();
 
         // Block check — either direction hides the post like it doesn't exist.
         $blocked = \App\Models\Block::where(function ($q) use ($user, $lfgPost) {
@@ -329,7 +331,12 @@ class LfgController extends Controller
             abort(404);
         }
 
-        $lfgPost->load(['user.profile', 'user.games', 'game', 'responses.user.profile', 'responses.user.games', 'messages.user.profile', 'ratings']);
+        // Mod-hidden posts 404 for regular users; mods see them with a warning.
+        if ($lfgPost->hidden_at && !$canMod) {
+            abort(404);
+        }
+
+        $lfgPost->load(['user.profile', 'user.games', 'game', 'responses.user.profile', 'responses.user.games', 'messages.user.profile', 'ratings', 'hiddenBy.profile']);
 
         // Sync spots_filled with actual accepted count + host
         $actualFilled = $lfgPost->responses()->where('status', 'accepted')->count() + 1;
@@ -470,6 +477,7 @@ class LfgController extends Controller
             'myRatings' => $myRatings,
             'myQueuePosition' => $myQueuePosition,
             'staleFullHours' => $staleFullHours,
+            'canModerate' => $canMod,
             'messages' => $isMember ? $lfgPost->messages()->with('user.profile')->latest()->take(50)->get()->reverse()->values() : [],
             'seo' => $seo,
         ]);

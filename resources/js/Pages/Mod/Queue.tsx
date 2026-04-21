@@ -12,6 +12,7 @@ interface ModReport {
     reported: { profile?: { username?: string }; name: string };
     community_post?: { id: number; slug: string; title: string; game?: { name: string } | null } | null;
     post_comment?: { id: number; body: string; post?: { slug: string; title: string } | null; user?: { profile?: { username?: string }; name: string } | null } | null;
+    lfg_post?: { id: number; slug: string; title: string; status: string; game?: { name: string } | null } | null;
 }
 
 interface ModerationActionItem {
@@ -48,6 +49,9 @@ const actionLabel = (a: string) => ({
     unpin_post: '📍 Unpinned post',
     hide_comment: '🔒 Hid comment',
     unhide_comment: '↩️ Unhid comment',
+    hide_lfg: '🔒 Hid LFG',
+    unhide_lfg: '↩️ Unhid LFG',
+    close_lfg: '🛑 Force-closed LFG',
 }[a] ?? a);
 
 export default function ModQueue({ reports, recentActions }: Props) {
@@ -66,6 +70,20 @@ export default function ModQueue({ reports, recentActions }: Props) {
         const reason = window.prompt('Reason (optional):', '');
         if (reason === null) return;
         await axios.post(`/mod/comments/${commentId}/hide`, { reason });
+        router.reload();
+    };
+
+    const quickHideLfg = async (lfgId: number) => {
+        const reason = window.prompt('Reason (optional):', '');
+        if (reason === null) return;
+        await axios.post(`/mod/lfg/${lfgId}/hide`, { reason });
+        router.reload();
+    };
+
+    const quickCloseLfg = async (lfgId: number) => {
+        const reason = window.prompt('Reason for force-close (optional):', '');
+        if (reason === null) return;
+        await axios.post(`/mod/lfg/${lfgId}/close`, { reason });
         router.reload();
     };
 
@@ -126,6 +144,18 @@ export default function ModQueue({ reports, recentActions }: Props) {
                                         </div>
                                     )}
 
+                                    {r.lfg_post && (
+                                        <div className="mb-3 rounded-lg border border-ink-900/5 bg-bone-50 p-3">
+                                            <p className="text-[10px] font-bold uppercase tracking-widest text-ink-500">LFG post</p>
+                                            <Link href={`/lfg/${r.lfg_post.slug}`} target="_blank" className="mt-0.5 block text-sm font-semibold text-neon-red hover:underline">
+                                                🎮 {r.lfg_post.title}
+                                            </Link>
+                                            <p className="text-[11px] text-ink-500">
+                                                {r.lfg_post.game?.name ?? 'LFG'} · {r.lfg_post.status}
+                                            </p>
+                                        </div>
+                                    )}
+
                                     <div className="flex flex-wrap gap-2">
                                         {r.community_post && (
                                             <button onClick={() => quickHide(r.community_post!.id)} className="rounded-lg bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-500 hover:bg-red-500/20">
@@ -136,6 +166,18 @@ export default function ModQueue({ reports, recentActions }: Props) {
                                             <button onClick={() => quickHideComment(r.post_comment!.id)} className="rounded-lg bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-500 hover:bg-red-500/20">
                                                 Hide comment
                                             </button>
+                                        )}
+                                        {r.lfg_post && (
+                                            <>
+                                                <button onClick={() => quickHideLfg(r.lfg_post!.id)} className="rounded-lg bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-500 hover:bg-red-500/20">
+                                                    Hide LFG
+                                                </button>
+                                                {r.lfg_post.status !== 'closed' && (
+                                                    <button onClick={() => quickCloseLfg(r.lfg_post!.id)} className="rounded-lg bg-yellow-400/10 px-3 py-1.5 text-xs font-semibold text-yellow-600 hover:bg-yellow-400/20">
+                                                        Force close
+                                                    </button>
+                                                )}
+                                            </>
                                         )}
                                         <button onClick={() => resolve(r.id, 'reviewed')} className="rounded-lg bg-gaming-cyan/10 px-3 py-1.5 text-xs font-semibold text-gaming-cyan hover:bg-gaming-cyan/20">
                                             Mark reviewed
