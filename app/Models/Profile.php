@@ -10,7 +10,7 @@ class Profile extends Model
     protected $fillable = [
         'user_id', 'username', 'avatar', 'bio', 'looking_for',
         'region', 'timezone', 'available_times', 'socials',
-        'is_creator', 'stream_url', 'is_live',
+        'is_creator', 'stream_url', 'is_live', 'has_mic',
         'reputation_score', 'achievement_points',
         'theme_preference',
     ];
@@ -22,6 +22,7 @@ class Profile extends Model
             'socials' => 'array',
             'is_creator' => 'boolean',
             'is_live' => 'boolean',
+            'has_mic' => 'boolean',
         ];
     }
 

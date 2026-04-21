@@ -369,10 +369,11 @@ class LfgController extends Controller
             })->exists(),
         ];
 
-        // Per-member stats for the Members popover — batched so clicking on
-        // any member in the squad instantly shows trust signals without N+1.
+        // Per-member stats — covers the host, accepted members, AND pending
+        // applicants so the host sees full trust signals while reviewing
+        // requests (not just username + message).
         $memberIds = $lfgPost->responses
-            ->where('status', 'accepted')
+            ->whereIn('status', ['accepted', 'pending'])
             ->pluck('user_id')
             ->push($lfgPost->user_id)
             ->unique()
@@ -402,7 +403,7 @@ class LfgController extends Controller
 
             // Collect user records for each member from the already-loaded graph.
             $memberUsers = collect([$lfgPost->user])
-                ->merge($lfgPost->responses->where('status', 'accepted')->pluck('user'))
+                ->merge($lfgPost->responses->whereIn('status', ['accepted', 'pending'])->pluck('user'))
                 ->filter()
                 ->keyBy('id');
 
@@ -417,12 +418,33 @@ class LfgController extends Controller
                     'hours_since_active' => $m->updated_at?->diffInHours(now()),
                     'is_favorited' => $favoriteMap->has($id),
                     'is_friend' => $friendPairs->has($id),
+                    'has_mic' => (bool) ($m->profile?->has_mic ?? false),
                     'shared_game_ids' => $sharedGames->all(),
                     'shared_game_names' => $m->games->whereIn('id', $viewerGameIds)->pluck('name')->values()->all(),
                     'games' => $m->games->take(5)->map(fn ($g) => ['id' => $g->id, 'name' => $g->name, 'slug' => $g->slug])->values()->all(),
                 ];
             }
         }
+
+        // Host-side nudge: session that's been full for 4h+ should probably
+        // be closed so everyone can rate. Don't auto-close — just surface.
+        $staleFullHours = null;
+        if ($lfgPost->status === 'full' && $lfgPost->updated_at) {
+            $hrs = $lfgPost->updated_at->diffInHours(now());
+            if ($hrs >= 4) $staleFullHours = $hrs;
+        }
+
+        // Per-post OpenGraph so sharing an LFG link in Discord/Twitter shows
+        // a real preview card with the game cover and call-to-action.
+        $hostName = $lfgPost->user->profile?->username ?? $lfgPost->user->name;
+        $gameName = $lfgPost->game?->name ?? 'Gaming';
+        $seo = [
+            'title' => "{$lfgPost->title} · {$gameName} LFG",
+            'description' => ($lfgPost->description ? rtrim(substr($lfgPost->description, 0, 140)) . '… ' : '')
+                . "Join {$hostName}'s squad on SquadSpawn.",
+            'image' => $lfgPost->game?->cover_image ?: url('/images/gamer3.jpg'),
+            'type' => 'article',
+        ];
 
         return Inertia::render('Lfg/Show', [
             'post' => $lfgPost,
@@ -431,7 +453,9 @@ class LfgController extends Controller
             'isMember' => $isMember,
             'myRatings' => $myRatings,
             'myQueuePosition' => $myQueuePosition,
+            'staleFullHours' => $staleFullHours,
             'messages' => $isMember ? $lfgPost->messages()->with('user.profile')->latest()->take(50)->get()->reverse()->values() : [],
+            'seo' => $seo,
         ]);
     }
 

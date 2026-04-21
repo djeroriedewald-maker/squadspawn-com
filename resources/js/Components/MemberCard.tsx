@@ -10,6 +10,7 @@ export interface MemberStats {
     hours_since_active?: number | null;
     is_favorited?: boolean;
     is_friend?: boolean;
+    has_mic?: boolean;
     shared_game_ids?: number[];
     shared_game_names?: string[];
     games?: { id: number; name: string; slug: string }[];

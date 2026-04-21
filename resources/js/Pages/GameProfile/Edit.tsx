@@ -118,6 +118,7 @@ export default function GameProfileEdit({
         region: string;
         timezone: string;
         is_creator: boolean;
+        has_mic: boolean;
         stream_url: string;
         socials: Record<string, string>;
         // Only keyed by game id for games the user plays. Not keeping an
@@ -131,6 +132,7 @@ export default function GameProfileEdit({
         region: profile?.region ?? '',
         timezone: profile?.timezone ?? '',
         is_creator: profile?.is_creator ?? false,
+        has_mic: profile?.has_mic ?? false,
         stream_url: profile?.stream_url ?? '',
         socials: {
             discord: profile?.socials?.discord ?? '',
@@ -425,10 +427,20 @@ export default function GameProfileEdit({
                             </div>
                         </div>
 
-                        {/* Creator Settings */}
+                        {/* Setup — voice / creator */}
                         <div className="rounded-xl border border-ink-900/10 bg-white p-6">
-                            <h3 className="mb-2 text-lg font-semibold text-ink-900">Creator Settings</h3>
-                            <p className="mb-5 text-sm text-ink-500">Enable creator features to showcase your content and streams.</p>
+                            <h3 className="mb-5 text-lg font-semibold text-ink-900">Setup</h3>
+
+                            <label className="mb-4 flex cursor-pointer items-center gap-3">
+                                <input
+                                    type="checkbox"
+                                    checked={data.has_mic}
+                                    onChange={(e) => setData('has_mic', e.target.checked)}
+                                    className="h-5 w-5 rounded border-ink-900/10 bg-bone-100 text-neon-red focus:ring-neon-red focus:ring-offset-0"
+                                />
+                                <span className="text-sm font-medium text-ink-900">🎤 I have a working mic</span>
+                            </label>
+                            <p className="mb-5 text-xs text-ink-500 pl-8">Shows as a green "Mic ready" badge on your join requests so hosts know voice chat is covered.</p>
 
                             <label className="flex cursor-pointer items-center gap-3">
                                 <input

@@ -31,6 +31,28 @@ class GameProfileController extends Controller
             ? app(SteamStatsClient::class)->cachedStats($user->profile->steam_id)
             : null;
 
+        // Host analytics (own profile only) — closed sessions + accept-rate
+        // across responses the viewer has received while hosting.
+        $sessionsHosted = \App\Models\LfgPost::where('user_id', $user->id)
+            ->where('status', 'closed')->count();
+        $responseCounts = \App\Models\LfgResponse::whereIn('lfg_post_id',
+                \App\Models\LfgPost::where('user_id', $user->id)->pluck('id')
+            )
+            ->selectRaw('status, COUNT(*) as c')
+            ->groupBy('status')
+            ->pluck('c', 'status');
+        $accepted = (int) ($responseCounts['accepted'] ?? 0);
+        $rejected = (int) ($responseCounts['rejected'] ?? 0);
+        $pending = (int) ($responseCounts['pending'] ?? 0);
+        $decisionTotal = $accepted + $rejected;
+        $hostAnalytics = [
+            'sessions_hosted' => $sessionsHosted,
+            'accepted' => $accepted,
+            'rejected' => $rejected,
+            'pending' => $pending,
+            'accept_rate' => $decisionTotal > 0 ? (int) round(($accepted / $decisionTotal) * 100) : null,
+        ];
+
         return Inertia::render('GameProfile/Show', [
             'profile' => $user->profile,
             'userGames' => $user->games,
@@ -39,6 +61,7 @@ class GameProfileController extends Controller
             'reputationData' => $reputationData,
             'friendsCount' => $friendsCount,
             'steamStats' => $steamStats,
+            'hostAnalytics' => $hostAnalytics,
         ]);
     }
 
@@ -75,6 +98,7 @@ class GameProfileController extends Controller
             'socials.twitch' => ['nullable', 'string', 'max:100'],
             'socials.facebook' => ['nullable', 'string', 'max:100'],
             'is_creator' => ['nullable', 'boolean'],
+            'has_mic' => ['nullable', 'boolean'],
             'stream_url' => ['nullable', 'url', 'max:255', new \App\Rules\SafeUrl],
             'games' => ['nullable', 'array'],
             'games.*.game_id' => ['required', 'exists:games,id'],
@@ -93,6 +117,7 @@ class GameProfileController extends Controller
             'available_times' => $validated['available_times'] ?? null,
             'socials' => $validated['socials'] ?? null,
             'is_creator' => $validated['is_creator'] ?? false,
+            'has_mic' => $validated['has_mic'] ?? false,
             'stream_url' => $validated['stream_url'] ?? null,
         ];
 

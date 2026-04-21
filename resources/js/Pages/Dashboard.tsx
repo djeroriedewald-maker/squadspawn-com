@@ -58,7 +58,7 @@ function getGreetingSuffix(): string {
 export default function Dashboard({
     matchCount, recentMatches, allGames, likedByCount, suggestedPlayers,
     totalPlayers, newPlayersToday, onlineRecent, trendingGames, activityFeed,
-    relevantLfg, recentAchievements, totalAchievementPoints, lfgHosted, messagesCount,
+    relevantLfg, recentAchievements, totalAchievementPoints, lfgHosted, messagesCount, pendingRatings,
 }: PageProps<{
     matchCount: number; recentMatches: FriendItem[]; allGames: GameWithCount[];
     likedByCount: number; suggestedPlayers: User[]; totalPlayers: number;
@@ -69,6 +69,7 @@ export default function Dashboard({
     totalAchievementPoints?: number;
     lfgHosted?: number;
     messagesCount?: number;
+    pendingRatings?: { slug: string; title: string; game?: { name: string; cover_image?: string } | null; closed_at: string }[];
 }>) {
     const { auth } = usePage<PageProps>().props;
     const user = auth.user;
@@ -83,6 +84,48 @@ export default function Dashboard({
             <Head title="Dashboard" />
 
             <div className="pb-8">
+                {/* Rating funnel — closed sessions with un-rated teammates */}
+                {pendingRatings && pendingRatings.length > 0 && (
+                    <div className="mx-auto max-w-7xl px-4 pt-4 sm:px-6 lg:px-8">
+                        <div className="rounded-xl border border-gaming-orange/40 bg-gradient-to-br from-gaming-orange/15 via-gaming-orange/5 to-transparent p-4">
+                            <div className="flex flex-wrap items-start gap-3">
+                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gaming-orange/20 text-xl">
+                                    ⭐
+                                </div>
+                                <div className="flex-1">
+                                    <p className="font-bold text-ink-900">
+                                        {pendingRatings.length === 1
+                                            ? 'You have 1 session left to rate'
+                                            : `You have ${pendingRatings.length} sessions left to rate`}
+                                    </p>
+                                    <p className="text-xs text-ink-500">
+                                        Rating teammates shapes the reputation system — takes 10 seconds per session.
+                                    </p>
+                                    <div className="mt-3 flex flex-wrap gap-2">
+                                        {pendingRatings.slice(0, 3).map((pr) => (
+                                            <Link
+                                                key={pr.slug}
+                                                href={route('lfg.show', { lfgPost: pr.slug })}
+                                                className="inline-flex items-center gap-2 rounded-lg border border-ink-900/10 bg-white px-3 py-1.5 text-xs font-semibold text-ink-700 transition hover:border-gaming-orange/40 hover:text-gaming-orange"
+                                            >
+                                                {pr.game?.cover_image && (
+                                                    <img src={pr.game.cover_image} alt="" className="h-4 w-4 rounded object-cover" />
+                                                )}
+                                                {pr.title}
+                                            </Link>
+                                        ))}
+                                        {pendingRatings.length > 3 && (
+                                            <span className="inline-flex items-center text-xs text-ink-500">
+                                                +{pendingRatings.length - 3} more
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Hero Banner */}
                 <div className="relative overflow-hidden">
                     <div className="absolute inset-0">

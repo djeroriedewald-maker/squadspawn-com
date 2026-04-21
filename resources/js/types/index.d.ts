@@ -18,6 +18,7 @@ export interface Profile {
     timezone?: string;
     available_times?: Record<string, boolean>;
     is_creator?: boolean;
+    has_mic?: boolean;
     stream_url?: string;
     is_live?: boolean;
     reputation_score?: number;

@@ -85,6 +85,14 @@ const platformBadge = (platform: string) => {
     }
 };
 
+interface HostAnalytics {
+    sessions_hosted: number;
+    accepted: number;
+    rejected: number;
+    pending: number;
+    accept_rate: number | null;
+}
+
 export default function Show({
     profile,
     userGames,
@@ -93,7 +101,8 @@ export default function Show({
     reputationData,
     friendsCount = 0,
     steamStats,
-}: PageProps<{ profile: Profile | null; userGames: Game[]; clips: Clip[]; earnedAchievements: Achievement[]; reputationData?: { score: number; count: number; tags: Record<string, number> }; friendsCount?: number; steamStats?: SteamStats | null }>) {
+    hostAnalytics,
+}: PageProps<{ profile: Profile | null; userGames: Game[]; clips: Clip[]; earnedAchievements: Achievement[]; reputationData?: { score: number; count: number; tags: Record<string, number> }; friendsCount?: number; steamStats?: SteamStats | null; hostAnalytics?: HostAnalytics }>) {
     const { flash } = usePage().props as any;
     const [copied, setCopied] = useState(false);
     const [showToast, setShowToast] = useState(false);
@@ -344,6 +353,38 @@ export default function Show({
                                 </div>
                             )}
                         </div>
+
+                        {/* Host analytics */}
+                        {hostAnalytics && hostAnalytics.sessions_hosted > 0 && (
+                            <div className="mt-8 rounded-xl border border-ink-900/10 bg-white p-5">
+                                <div className="mb-4 flex items-center gap-2">
+                                    <svg className="h-5 w-5 text-neon-red" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                    </svg>
+                                    <h3 className="text-lg font-bold text-ink-900">Hosting stats</h3>
+                                </div>
+                                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                                    <div className="rounded-lg border border-ink-900/10 bg-bone-50 p-3">
+                                        <div className="text-[10px] font-bold uppercase tracking-widest text-ink-500">Sessions hosted</div>
+                                        <div className="mt-1 text-2xl font-black text-ink-900">{hostAnalytics.sessions_hosted}</div>
+                                    </div>
+                                    <div className="rounded-lg border border-ink-900/10 bg-bone-50 p-3">
+                                        <div className="text-[10px] font-bold uppercase tracking-widest text-ink-500">Accepted</div>
+                                        <div className="mt-1 text-2xl font-black text-gaming-green">{hostAnalytics.accepted}</div>
+                                    </div>
+                                    <div className="rounded-lg border border-ink-900/10 bg-bone-50 p-3">
+                                        <div className="text-[10px] font-bold uppercase tracking-widest text-ink-500">Rejected</div>
+                                        <div className="mt-1 text-2xl font-black text-red-400">{hostAnalytics.rejected}</div>
+                                    </div>
+                                    {hostAnalytics.accept_rate !== null && (
+                                        <div className="rounded-lg border border-ink-900/10 bg-bone-50 p-3">
+                                            <div className="text-[10px] font-bold uppercase tracking-widest text-ink-500">Accept rate</div>
+                                            <div className="mt-1 text-2xl font-black text-ink-900">{hostAnalytics.accept_rate}%</div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
 
                         {/* Steam stats */}
                         {steamStats && (

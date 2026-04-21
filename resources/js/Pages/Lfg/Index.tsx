@@ -2,6 +2,7 @@ import GamePicker from '@/Components/GamePicker';
 import HostTrustRow from '@/Components/HostTrustRow';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Game, PageProps, User } from '@/types';
+import { relativeTimeShort } from '@/utils/time';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
@@ -649,6 +650,11 @@ export default function LfgIndex({
                                                     {post.description}
                                                 </p>
                                             )}
+
+                                            {/* Posted-at timestamp */}
+                                            <p className="mb-3 text-[11px] text-ink-500">
+                                                Posted {relativeTimeShort(post.created_at)}
+                                            </p>
 
                                             {/* Spots progress */}
                                             <div className="mb-3">

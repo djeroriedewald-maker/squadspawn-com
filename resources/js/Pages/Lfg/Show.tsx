@@ -1,6 +1,7 @@
 import FavoriteHostButton from '@/Components/FavoriteHostButton';
 import HostTrustRow, { HostStats } from '@/Components/HostTrustRow';
 import MemberCard, { MemberStats } from '@/Components/MemberCard';
+import { relativeTimeShort } from '@/utils/time';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Game, PageProps, User } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
@@ -74,6 +75,7 @@ export default function LfgShow({
     myRatings: initialMyRatings,
     messages: initialMessages,
     myQueuePosition,
+    staleFullHours,
 }: {
     post: LfgPost;
     hostStats?: HostStats & { hours_since_active?: number | null };
@@ -82,6 +84,7 @@ export default function LfgShow({
     myRatings: number[];
     messages: LfgMessage[];
     myQueuePosition?: number | null;
+    staleFullHours?: number | null;
 }) {
     const { auth } = usePage<PageProps>().props;
     const [post, setPost] = useState(initialPost);
@@ -376,6 +379,7 @@ export default function LfgShow({
                                         {post.game && <span className="text-xs text-ink-500">{post.game.name}</span>}
                                     </div>
                                     <h1 className="text-2xl font-bold text-ink-900">{post.title}</h1>
+                                    <p className="mt-1 text-xs text-ink-500">Posted {relativeTimeShort(post.created_at)}</p>
                                     {post.description && <p className="mt-2 text-sm text-ink-500">{post.description}</p>}
                                 </div>
                                 <div className="flex flex-col items-start gap-3 sm:items-end">
@@ -394,6 +398,23 @@ export default function LfgShow({
                     <div className="grid gap-6 lg:grid-cols-3">
                         {/* Left column */}
                         <div className="space-y-6 lg:col-span-2">
+                            {/* Still-playing nudge — host has a full squad that's been sitting */}
+                            {isCreator && staleFullHours != null && (
+                                <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/5 p-4">
+                                    <p className="text-sm font-semibold text-yellow-700">Still playing?</p>
+                                    <p className="mt-1 text-xs text-ink-500">
+                                        Your squad has been full for {staleFullHours}h. If you wrapped up, close the session so everyone can rate each other.
+                                    </p>
+                                    <button
+                                        onClick={handleClose}
+                                        disabled={closing}
+                                        className="mt-3 rounded-lg bg-gaming-green px-4 py-2 text-xs font-bold text-ink-900 transition hover:bg-gaming-green/90 disabled:opacity-50"
+                                    >
+                                        {closing ? 'Ending…' : 'End Session & Rate'}
+                                    </button>
+                                </div>
+                            )}
+
                             {/* Squad-complete go-banner — pops when the group just filled */}
                             {isFull && isMember && (
                                 <div className="animate-pulse-glow overflow-hidden rounded-xl border border-gaming-green/40 bg-gradient-to-br from-gaming-green/20 via-gaming-green/10 to-transparent p-5">
@@ -563,7 +584,7 @@ export default function LfgShow({
                                 </div>
                             )}
 
-                            {/* Creator: Manage Requests */}
+                            {/* Creator: Manage Requests — with full trust signals */}
                             {isCreator && pendingResponses.length > 0 && (
                                 <div className="rounded-xl border border-ink-900/10 bg-white p-6">
                                     <h2 className="mb-4 text-lg font-bold text-ink-900">
@@ -571,33 +592,45 @@ export default function LfgShow({
                                         <span className="ml-2 rounded-full bg-neon-red/20 px-2 py-0.5 text-xs text-neon-red">{pendingResponses.length}</span>
                                     </h2>
                                     <div className="space-y-3">
-                                        {pendingResponses.map((resp) => (
-                                            <div key={resp.id} className="flex items-center gap-3 rounded-lg bg-bone-50 p-3">
-                                                <UserAvatar user={resp.user} size="sm" />
-                                                <div className="min-w-0 flex-1">
-                                                    <p className="text-sm font-medium text-ink-900">
-                                                        {resp.user?.profile?.username ?? resp.user?.name}
-                                                    </p>
-                                                    {resp.message && (
-                                                        <p className="mt-0.5 text-xs text-ink-500 line-clamp-2">{resp.message}</p>
-                                                    )}
+                                        {pendingResponses.map((resp) => {
+                                            const stats = resp.user ? memberStats?.[resp.user.id] : undefined;
+                                            return (
+                                                <div key={resp.id} className="rounded-lg border border-ink-900/5 bg-bone-50 p-3">
+                                                    <div className="flex items-start gap-3">
+                                                        <div className="min-w-0 flex-1">
+                                                            {resp.user && <HostTrustRow host={resp.user} stats={stats} size="sm" />}
+                                                            {resp.message && (
+                                                                <p className="mt-2 rounded-md bg-white/50 p-2 text-xs italic text-ink-700 line-clamp-3">
+                                                                    "{resp.message}"
+                                                                </p>
+                                                            )}
+                                                            {stats?.has_mic && (
+                                                                <p className="mt-1 text-[11px] font-semibold text-gaming-green">🎤 Mic ready</p>
+                                                            )}
+                                                            {stats?.shared_game_names && stats.shared_game_names.length > 0 && (
+                                                                <p className="mt-1 text-[11px] text-gaming-cyan">
+                                                                    ✓ plays {stats.shared_game_names.slice(0, 3).join(', ')} with you
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                    <div className="mt-3 flex gap-2">
+                                                        <button
+                                                            onClick={() => handleAccept(resp.id)}
+                                                            className="flex-1 rounded-lg bg-gaming-green/10 px-3 py-1.5 text-xs font-semibold text-gaming-green transition hover:bg-gaming-green/20"
+                                                        >
+                                                            Accept
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleReject(resp.id)}
+                                                            className="flex-1 rounded-lg bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-400 transition hover:bg-red-500/20"
+                                                        >
+                                                            Reject
+                                                        </button>
+                                                    </div>
                                                 </div>
-                                                <div className="flex gap-2">
-                                                    <button
-                                                        onClick={() => handleAccept(resp.id)}
-                                                        className="rounded-lg bg-gaming-green/10 px-3 py-1.5 text-xs font-semibold text-gaming-green transition hover:bg-gaming-green/20"
-                                                    >
-                                                        Accept
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleReject(resp.id)}
-                                                        className="rounded-lg bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-400 transition hover:bg-red-500/20"
-                                                    >
-                                                        Reject
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        ))}
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             )}

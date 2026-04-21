@@ -172,6 +172,34 @@ Route::get('/dashboard', function () {
     $lfgHosted = \App\Models\LfgPost::where('user_id', $user->id)->count();
     $messagesCount = \App\Models\Message::where('sender_id', $user->id)->count();
 
+    // Rating funnel — closed LFG sessions the user was in that still have
+    // un-rated teammates. Drives the reputation system's data quality.
+    $pendingRatings = \App\Models\LfgPost::where('status', 'closed')
+        ->where(function ($q) use ($user) {
+            $q->where('user_id', $user->id)
+                ->orWhereHas('responses', fn ($r) => $r->where('user_id', $user->id)->where('status', 'accepted'));
+        })
+        ->with(['game', 'responses' => fn ($q) => $q->where('status', 'accepted')->with('user.profile'), 'user.profile', 'ratings'])
+        ->latest()
+        ->take(10)
+        ->get()
+        ->filter(function ($post) use ($user) {
+            $teammates = collect([$post->user])
+                ->merge($post->responses->pluck('user'))
+                ->filter()
+                ->unique('id')
+                ->reject(fn ($u) => $u->id === $user->id);
+            $myRated = $post->ratings->where('rater_id', $user->id)->pluck('rated_id');
+            return $teammates->pluck('id')->diff($myRated)->isNotEmpty();
+        })
+        ->values()
+        ->map(fn ($p) => [
+            'slug' => $p->slug,
+            'title' => $p->title,
+            'game' => $p->game ? ['name' => $p->game->name, 'cover_image' => $p->game->cover_image] : null,
+            'closed_at' => $p->updated_at->diffForHumans(),
+        ]);
+
     return Inertia::render('Dashboard', [
         'matchCount' => $matchCount,
         'recentMatches' => $recentMatches,
@@ -188,6 +216,7 @@ Route::get('/dashboard', function () {
         'totalAchievementPoints' => $totalAchievementPoints,
         'lfgHosted' => $lfgHosted,
         'messagesCount' => $messagesCount,
+        'pendingRatings' => $pendingRatings,
     ]);
 })->middleware(['auth', 'verified', 'age.verified', 'profile.complete'])->name('dashboard');
 
