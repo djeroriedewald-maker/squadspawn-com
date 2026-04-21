@@ -232,6 +232,8 @@ Route::get('/search', [SearchController::class, 'search'])->middleware('auth')->
 
 // Community (public viewing)
 Route::get('/community', [CommunityController::class, 'index'])->name('community.index');
+Route::get('/community/team', [CommunityController::class, 'team'])->name('community.team');
+Route::get('/community/guidelines', [CommunityController::class, 'guidelines'])->name('community.guidelines');
 Route::get('/community/create', [CommunityController::class, 'create'])->middleware('auth')->name('community.create');
 Route::get('/community/{communityPost}/edit', [CommunityController::class, 'edit'])->middleware('auth')->name('community.edit');
 Route::get('/community/{communityPost}', [CommunityController::class, 'show'])->name('community.show');
@@ -324,6 +326,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/block', [BlockController::class, 'store'])->middleware('throttle:10,1')->name('block.store');
     Route::delete('/block/{user}', [BlockController::class, 'destroy'])->middleware('throttle:10,1')->name('block.destroy');
     Route::post('/report', [ReportController::class, 'store'])->middleware('throttle:5,1')->name('report.store');
+    Route::get('/my-reports', [ReportController::class, 'mine'])->name('reports.mine');
 
     // Floating chat widget endpoints
     Route::get('/chat/friends', [ChatController::class, 'friends'])->name('chat.friends');

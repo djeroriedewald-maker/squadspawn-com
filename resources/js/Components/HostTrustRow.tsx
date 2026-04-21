@@ -24,6 +24,8 @@ export default function HostTrustRow({ host, stats, size = 'sm', showRelationshi
     const avatarSize = size === 'md' ? 'h-11 w-11' : 'h-8 w-8';
     const dotSize = size === 'md' ? 'h-4 w-4' : 'h-3.5 w-3.5';
     const username = host.profile?.username ?? host.name ?? '?';
+    const isAdmin = !!host.is_admin;
+    const isMod = !!host.is_moderator;
     // DB stores reputation_score as decimal → may arrive as a string. Coerce
     // defensively so "4.5" and 4.5 both render, and 0 / null / undefined hide.
     const reputationNumber = Number(host.profile?.reputation_score ?? 0);
@@ -45,8 +47,14 @@ export default function HostTrustRow({ host, stats, size = 'sm', showRelationshi
                 )}
             </div>
             <div className="min-w-0 flex-1">
-                <div className={`truncate ${size === 'md' ? 'text-base' : 'text-sm'} font-medium text-ink-900`}>
-                    {username}
+                <div className={`flex flex-wrap items-center gap-1.5 ${size === 'md' ? 'text-base' : 'text-sm'} font-medium text-ink-900`}>
+                    <span className="truncate">{username}</span>
+                    {isAdmin && (
+                        <span className="rounded-full bg-neon-red/20 px-1.5 py-0 text-[9px] font-bold text-neon-red" title="Admin">ADMIN</span>
+                    )}
+                    {!isAdmin && isMod && (
+                        <span className="rounded-full bg-gaming-cyan/20 px-1.5 py-0 text-[9px] font-bold text-gaming-cyan" title="Moderator">MOD</span>
+                    )}
                 </div>
                 <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-ink-500">
                     {stats && stats.rating_count > 0 && reputationNumber > 0 ? (

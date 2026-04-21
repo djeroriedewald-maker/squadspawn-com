@@ -247,4 +247,35 @@ class CommunityController extends Controller
 
         return response()->json(['success' => true]);
     }
+
+    /** Team page — all admins + moderators, so users know who's enforcing. */
+    public function team(): Response
+    {
+        $team = \App\Models\User::where(function ($q) {
+                $q->where('is_admin', true)->orWhere('is_moderator', true);
+            })
+            ->where('is_banned', false)
+            ->with('profile')
+            ->orderByDesc('is_admin')
+            ->orderBy('created_at')
+            ->get()
+            ->map(fn ($u) => [
+                'id' => $u->id,
+                'name' => $u->name,
+                'username' => $u->profile?->username,
+                'avatar' => $u->profile?->avatar,
+                'bio' => $u->profile?->bio,
+                'is_admin' => (bool) $u->is_admin,
+                'is_moderator' => (bool) $u->is_moderator,
+                'region' => $u->profile?->region,
+            ]);
+
+        return Inertia::render('Community/Team', ['team' => $team]);
+    }
+
+    /** Static community rules page. */
+    public function guidelines(): Response
+    {
+        return Inertia::render('Community/Guidelines');
+    }
 }

@@ -190,6 +190,21 @@ export default function CommunityIndex({
                         </button>
                     </div>
 
+                    {/* Community nav links */}
+                    <div className="mb-4 flex flex-wrap gap-2 text-xs">
+                        <Link href={route('community.team')} className="rounded-full border border-ink-900/10 bg-white px-3 py-1.5 font-semibold text-ink-700 transition hover:border-gaming-cyan/40 hover:text-gaming-cyan">
+                            🛡 Meet the team
+                        </Link>
+                        <Link href={route('community.guidelines')} className="rounded-full border border-ink-900/10 bg-white px-3 py-1.5 font-semibold text-ink-700 transition hover:border-neon-red/40 hover:text-neon-red">
+                            📖 Guidelines
+                        </Link>
+                        {isLoggedIn && (
+                            <Link href={route('reports.mine')} className="rounded-full border border-ink-900/10 bg-white px-3 py-1.5 font-semibold text-ink-700 transition hover:border-gaming-orange/40 hover:text-gaming-orange">
+                                📝 My reports
+                            </Link>
+                        )}
+                    </div>
+
                     {/* Filters */}
                     <div className="mb-6 flex flex-wrap gap-2">
                         <select

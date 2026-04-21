@@ -5,9 +5,51 @@ namespace App\Http\Controllers;
 use App\Models\Report;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class ReportController extends Controller
 {
+    /** Reports the viewer has submitted — closes the loop on "what happened?". */
+    public function mine(): Response
+    {
+        $reports = Report::where('reporter_id', auth()->id())
+            ->with([
+                'reported.profile',
+                'communityPost',
+                'postComment.post',
+                'lfgPost',
+            ])
+            ->latest()
+            ->take(50)
+            ->get()
+            ->map(fn ($r) => [
+                'id' => $r->id,
+                'reason' => $r->reason,
+                'details' => $r->details,
+                'status' => $r->status,
+                'created_at' => $r->created_at->diffForHumans(),
+                'reported_name' => $r->reported?->profile?->username ?? $r->reported?->name,
+                'target' => $this->describeTarget($r),
+            ]);
+
+        return Inertia::render('Reports/Mine', ['reports' => $reports]);
+    }
+
+    private function describeTarget(Report $r): ?array
+    {
+        if ($r->communityPost) {
+            return ['type' => 'community_post', 'title' => $r->communityPost->title, 'url' => "/community/{$r->communityPost->slug}"];
+        }
+        if ($r->postComment) {
+            return ['type' => 'post_comment', 'title' => 'Comment on: ' . ($r->postComment->post?->title ?? 'post'), 'url' => $r->postComment->post ? "/community/{$r->postComment->post->slug}" : null];
+        }
+        if ($r->lfgPost) {
+            return ['type' => 'lfg_post', 'title' => $r->lfgPost->title, 'url' => "/lfg/{$r->lfgPost->slug}"];
+        }
+        return null;
+    }
+
     public function store(Request $request): JsonResponse
     {
         $request->validate([
