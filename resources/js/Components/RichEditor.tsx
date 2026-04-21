@@ -1,8 +1,11 @@
+import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
+import Youtube from '@tiptap/extension-youtube';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { useEffect } from 'react';
+import axios from 'axios';
+import { useEffect, useRef, useState } from 'react';
 
 interface Props {
     value: string;
@@ -12,6 +15,9 @@ interface Props {
 }
 
 export default function RichEditor({ value, onChange, placeholder = 'Write something…', error }: Props) {
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
+    const [uploading, setUploading] = useState(false);
+
     const editor = useEditor({
         extensions: [
             StarterKit.configure({
@@ -21,6 +27,15 @@ export default function RichEditor({ value, onChange, placeholder = 'Write somet
                 openOnClick: false,
                 HTMLAttributes: { target: '_blank', rel: 'noopener noreferrer' },
                 validate: (href) => /^https?:\/\//.test(href) || href.startsWith('mailto:'),
+            }),
+            Image.configure({
+                HTMLAttributes: { class: 'max-w-full rounded-lg' },
+            }),
+            Youtube.configure({
+                width: 640,
+                height: 360,
+                nocookie: true,
+                HTMLAttributes: { class: 'max-w-full rounded-lg' },
             }),
             Placeholder.configure({ placeholder }),
         ],
@@ -54,6 +69,45 @@ export default function RichEditor({ value, onChange, placeholder = 'Write somet
             return;
         }
         editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+    };
+
+    const xsrf = (): string | null => {
+        const m = document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]+)/);
+        return m ? decodeURIComponent(m[1]) : null;
+    };
+
+    const handleImageFile = async (file: File) => {
+        if (uploading) return;
+        setUploading(true);
+        try {
+            const form = new FormData();
+            form.append('image', file);
+            const token = xsrf();
+            const { data } = await axios.post('/community/upload-image', form, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    ...(token ? { 'X-XSRF-TOKEN': token } : {}),
+                },
+            });
+            if (data?.url) {
+                editor.chain().focus().setImage({ src: data.url }).run();
+            }
+        } catch (err: any) {
+            alert(err.response?.data?.message || 'Upload failed.');
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const addImage = () => {
+        fileInputRef.current?.click();
+    };
+
+    const addYoutube = () => {
+        const url = window.prompt('YouTube URL');
+        if (!url) return;
+        editor.chain().focus().setYoutubeVideo({ src: url }).run();
     };
 
     return (
@@ -142,6 +196,34 @@ export default function RichEditor({ value, onChange, placeholder = 'Write somet
                 >
                     🔗
                 </ToolbarBtn>
+                <Divider />
+                <ToolbarBtn
+                    onClick={addImage}
+                    active={false}
+                    label={uploading ? 'Uploading…' : 'Insert image'}
+                    aria="Insert image"
+                >
+                    {uploading ? '⏳' : '🖼️'}
+                </ToolbarBtn>
+                <ToolbarBtn
+                    onClick={addYoutube}
+                    active={false}
+                    label="Insert YouTube video"
+                    aria="Insert YouTube video"
+                >
+                    ▶
+                </ToolbarBtn>
+                <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    className="hidden"
+                    onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleImageFile(file);
+                        if (fileInputRef.current) fileInputRef.current.value = '';
+                    }}
+                />
             </div>
 
             <EditorContent editor={editor} />

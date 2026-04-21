@@ -31,15 +31,19 @@ return [
             'AutoFormat.RemoveEmpty'   => true,
         ],
         // Richer preset for community post bodies — allows everything the
-        // Tiptap StarterKit can produce without opening XSS risk.
+        // Tiptap StarterKit can produce without opening XSS risk. Images
+        // and YouTube iframes are locked down via SafeIframe regex so only
+        // same-origin uploads + embeddable video hosts slip through.
         'community_post' => [
             'HTML.Doctype'             => 'HTML 4.01 Transitional',
-            'HTML.Allowed'             => 'p,br,strong,b,em,i,u,s,a[href|target|rel|title],ul,ol,li,h2,h3,blockquote,code,pre',
+            'HTML.Allowed'             => 'p,br,strong,b,em,i,u,s,a[href|target|rel|title],ul,ol,li,h2,h3,blockquote,code,pre,img[src|alt|width|height],iframe[src|width|height|allowfullscreen|frameborder]',
             'HTML.TargetBlank'         => true,
             'HTML.Nofollow'            => true,
+            'HTML.SafeIframe'          => true,
+            'URI.SafeIframeRegexp'     => '%^(https?:)?//(www\.youtube(?:-nocookie)?\.com/embed/|player\.vimeo\.com/video/)%',
             'AutoFormat.AutoParagraph' => true,
             'AutoFormat.RemoveEmpty'   => true,
-            'URI.AllowedSchemes'       => ['http' => true, 'https' => true, 'mailto' => true],
+            'URI.AllowedSchemes'       => ['http' => true, 'https' => true, 'mailto' => true, 'data' => false],
         ],
         'test'    => [
             'Attr.EnableID' => 'true',

@@ -303,6 +303,7 @@ Route::middleware('auth')->group(function () {
 
     // Community (auth actions)
     Route::post('/community', [CommunityController::class, 'store'])->middleware('throttle:10,1')->name('community.store');
+    Route::post('/community/upload-image', [CommunityController::class, 'uploadImage'])->middleware('throttle:20,1')->name('community.uploadImage');
     Route::put('/community/{communityPost}', [CommunityController::class, 'update'])->middleware('throttle:30,1')->name('community.update');
     Route::delete('/community/{communityPost}', [CommunityController::class, 'destroy'])->name('community.destroy');
     Route::post('/community/{communityPost}/vote', [CommunityController::class, 'vote'])->name('community.vote');

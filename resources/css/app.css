@@ -110,6 +110,31 @@
 .prose-markdown pre code { background: transparent; padding: 0; color: inherit; }
 .prose-markdown img {
     max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 0.5em 0;
+}
+.prose-markdown iframe {
+    max-width: 100%;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    height: auto;
+    border: 0;
+    border-radius: 8px;
+    margin: 0.5em 0;
+}
+.tiptap img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 0.5em 0;
+}
+.tiptap iframe {
+    max-width: 100%;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    height: auto;
+    border: 0;
     border-radius: 8px;
     margin: 0.5em 0;
 }
