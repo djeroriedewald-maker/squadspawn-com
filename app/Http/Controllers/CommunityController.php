@@ -170,6 +170,18 @@ class CommunityController extends Controller
     {
         $html = app(\App\Services\HtmlSanitizer::class)->sanitize($rawHtml);
         $plain = trim(strip_tags($html));
+
+        // Temporary diagnostic — log when an image tag disappeared in
+        // sanitisation so we can see what Tiptap is actually sending. Safe
+        // to remove once the editor is stable.
+        if (str_contains($rawHtml, '<img') && !str_contains($html, '<img')) {
+            \Log::warning('Community post body: <img> stripped by sanitiser', [
+                'user_id' => auth()->id(),
+                'raw_snippet' => mb_substr($rawHtml, 0, 1000),
+                'out_snippet' => mb_substr($html, 0, 1000),
+            ]);
+        }
+
         return [$html, $plain];
     }
 
