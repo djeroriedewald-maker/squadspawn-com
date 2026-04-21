@@ -95,6 +95,14 @@ export default function LfgShow({
     const [post, setPost] = useState(initialPost);
     const [messages, setMessages] = useState<LfgMessage[]>(initialMessages);
     const [myRatings, setMyRatings] = useState<number[]>(initialMyRatings);
+
+    // router.reload() after a mod / host action delivers fresh props but
+    // useState(initialPost) is initialised only once. Mirror props into
+    // state on every prop change so Hide / Force close / etc. reflect
+    // instantly without a manual refresh.
+    useEffect(() => {
+        setPost(initialPost);
+    }, [initialPost]);
     const [body, setBody] = useState('');
     const [sending, setSending] = useState(false);
     const [joinMessage, setJoinMessage] = useState('');
