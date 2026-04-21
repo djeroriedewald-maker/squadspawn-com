@@ -22,7 +22,17 @@ class HandleInertiaRequests extends Middleware
         $authData = ['user' => null, 'unreadCount' => 0, 'notifications' => [], 'achievementCount' => 0, 'canModerate' => false, 'isAdmin' => false];
 
         if ($user) {
-            $user->load(['profile', 'games']);
+            $user->load('profile');
+
+            // Games are rendered in the nav + several pages but rarely
+            // change. Cache the list per-user; GamesController::quickAdd/
+            // quickRemove invalidates. Dramatically cheaper than loading
+            // the pivot + games row on every authenticated request.
+            $user->setRelation('games', Cache::remember(
+                "user:{$user->id}:games",
+                300,
+                fn () => $user->games()->get()
+            ));
 
             // Cache notification count for 10 seconds (polling refreshes this)
             $unreadCount = Cache::remember("user:{$user->id}:unread", 10, function () use ($user) {

@@ -7,11 +7,19 @@ use App\Models\Game;
 use App\Services\AchievementService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class ClipController extends Controller
 {
+    /** Hosts we accept per selected platform. */
+    private const PLATFORM_HOSTS = [
+        'youtube' => ['youtube.com', 'www.youtube.com', 'youtu.be', 'm.youtube.com'],
+        'twitch'  => ['twitch.tv', 'www.twitch.tv', 'clips.twitch.tv', 'm.twitch.tv'],
+        'tiktok'  => ['tiktok.com', 'www.tiktok.com', 'vm.tiktok.com', 'm.tiktok.com'],
+    ];
+
     public function index(Request $request): Response
     {
         $query = Clip::with(['user.profile', 'game'])->latest();
@@ -37,6 +45,17 @@ class ClipController extends Controller
             'game_id' => ['nullable', 'exists:games,id'],
             'platform' => ['required', 'in:youtube,twitch,tiktok'],
         ]);
+
+        // Platform and URL host must match — otherwise the frontend embed
+        // renders the wrong player (and it's a trust-cue: a "YouTube" clip
+        // should come from a YouTube URL).
+        $host = strtolower(parse_url($validated['url'], PHP_URL_HOST) ?? '');
+        $allowed = self::PLATFORM_HOSTS[$validated['platform']] ?? [];
+        if (!in_array($host, $allowed, true)) {
+            throw ValidationException::withMessages([
+                'url' => "That URL doesn't match the selected platform.",
+            ]);
+        }
 
         $clip = auth()->user()->clips()->create($validated);
         $clip->load(['user.profile', 'game']);

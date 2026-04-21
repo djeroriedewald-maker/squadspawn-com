@@ -228,7 +228,7 @@ Route::get('/games/{slug}', [GamesController::class, 'show'])
 Route::get('/player/{username}', [PlayerController::class, 'show'])->name('player.show');
 Route::get('/clips', [ClipController::class, 'index'])->name('clips.index');
 Route::get('/redirect', [\App\Http\Controllers\RedirectController::class, 'redirect'])->name('external.redirect');
-Route::get('/search', [SearchController::class, 'search'])->middleware('auth')->name('search');
+Route::get('/search', [SearchController::class, 'search'])->middleware(['auth', 'throttle:30,1'])->name('search');
 
 // Community (public viewing)
 Route::get('/community', [CommunityController::class, 'index'])->name('community.index');
@@ -273,8 +273,8 @@ Route::middleware('auth')->group(function () {
 
     // Web Push subscriptions
     Route::get('/push/config', [\App\Http\Controllers\PushSubscriptionController::class, 'config'])->name('push.config');
-    Route::post('/push/subscribe', [\App\Http\Controllers\PushSubscriptionController::class, 'store'])->name('push.subscribe');
-    Route::delete('/push/subscribe', [\App\Http\Controllers\PushSubscriptionController::class, 'destroy'])->name('push.unsubscribe');
+    Route::post('/push/subscribe', [\App\Http\Controllers\PushSubscriptionController::class, 'store'])->middleware('throttle:10,1')->name('push.subscribe');
+    Route::delete('/push/subscribe', [\App\Http\Controllers\PushSubscriptionController::class, 'destroy'])->middleware('throttle:10,1')->name('push.unsubscribe');
 
     // Per-type push preferences
     Route::get('/notification-preferences', [\App\Http\Controllers\NotificationPreferencesController::class, 'show'])->name('notifPrefs.show');

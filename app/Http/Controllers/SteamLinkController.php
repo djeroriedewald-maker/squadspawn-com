@@ -63,6 +63,16 @@ class SteamLinkController extends Controller
             return response()->json(['error' => 'Set up your game profile first.'], 422);
         }
 
+        // Another profile already owns this SteamID — bail early with a
+        // readable error instead of letting the unique index throw SQL.
+        // Prevents a user from claiming someone else's Steam reputation.
+        $alreadyLinked = \App\Models\Profile::where('steam_id', $steamId)
+            ->where('user_id', '!=', auth()->id())
+            ->exists();
+        if ($alreadyLinked) {
+            return response()->json(['error' => 'This Steam account is already linked to another SquadSpawn profile.'], 422);
+        }
+
         $profile->steam_id = $steamId;
         $profile->steam_synced_at = now();
         $profile->save();

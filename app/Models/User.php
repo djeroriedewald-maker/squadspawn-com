@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'date_of_birth', 'parental_consent', 'parental_consent_at', 'is_admin', 'is_moderator', 'is_owner', 'is_banned', 'banned_at', 'ban_reason', 'notification_preferences', 'referral_code', 'referred_by_user_id', 'referral_rewarded_at'])]
+#[Fillable(['name', 'email', 'google_id', 'password', 'date_of_birth', 'parental_consent', 'parental_consent_at', 'is_admin', 'is_moderator', 'is_owner', 'is_banned', 'banned_at', 'ban_reason', 'notification_preferences', 'referral_code', 'referred_by_user_id', 'referral_rewarded_at'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {

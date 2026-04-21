@@ -136,12 +136,15 @@ class GamesController extends Controller
                 : 'any';
             $user->games()->attach($game->id, ['platform' => $defaultPlatform]);
         }
+        \Illuminate\Support\Facades\Cache::forget("user:{$user->id}:games");
         return back();
     }
 
     public function quickRemove(Game $game): RedirectResponse
     {
-        auth()->user()->games()->detach($game->id);
+        $user = auth()->user();
+        $user->games()->detach($game->id);
+        \Illuminate\Support\Facades\Cache::forget("user:{$user->id}:games");
         return back();
     }
 }

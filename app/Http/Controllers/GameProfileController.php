@@ -140,6 +140,7 @@ class GameProfileController extends Controller
         } else {
             $user->games()->detach();
         }
+        \Illuminate\Support\Facades\Cache::forget("user:{$user->id}:games");
 
         app(AchievementService::class)->check($user);
 

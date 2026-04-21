@@ -363,11 +363,10 @@ class LfgController extends Controller
             ->pluck('rated_id')
             ->toArray();
 
-        // Mark LFG notifications as read
+        // Mark LFG notifications as read — filter in SQL, not PHP.
         $user->unreadNotifications()
-            ->get()
-            ->filter(fn ($n) => ($n->data['lfg_post_id'] ?? null) === $lfgPost->id)
-            ->each->markAsRead();
+            ->where('data->lfg_post_id', $lfgPost->id)
+            ->update(['read_at' => now()]);
         Cache::forget("user:{$user->id}:unread");
 
         // Mark chat as read for widget unread tracking
@@ -825,7 +824,7 @@ class LfgController extends Controller
             'age_requirement' => 'nullable|string|max:20',
             'requirements_note' => 'nullable|string|max:500',
             'discord_url' => 'nullable|string|max:255',
-            'scheduled_at' => 'nullable|date',
+            'scheduled_at' => 'nullable|date|after:now',
         ]);
 
         $lfgPost->update($validated);
@@ -953,67 +952,87 @@ class LfgController extends Controller
     {
         $userId = auth()->id();
 
-        $groups = LfgPost::where(function ($q) use ($userId) {
+        $posts = LfgPost::where(function ($q) use ($userId) {
             $q->where('user_id', $userId)
                 ->orWhereHas('responses', fn ($r) => $r->where('user_id', $userId)->where('status', 'accepted'));
         })
             ->whereIn('status', ['open', 'full', 'closed'])
-            ->with(['user.profile', 'game'])
+            ->with([
+                'user.profile',
+                'game',
+                // Only host-side: pending join requests come along for free
+                // instead of firing a query per post inside the map.
+                'responses' => fn ($q) => $q->where('status', 'pending')->with('user.profile'),
+            ])
             ->withCount(['responses as member_count' => fn ($q) => $q->where('status', 'accepted')])
             ->latest()
             ->take(20)
-            ->get()
-            ->map(function (LfgPost $post) use ($userId) {
-                $lastMessage = $post->messages()->with('user.profile')->latest()->first();
+            ->get();
 
-                // Unread count: messages since user last read this chat
-                $lastRead = Cache::get("lfg_read:{$userId}:{$post->id}", '1970-01-01');
-                $unreadCount = LfgMessage::where('lfg_post_id', $post->id)
-                    ->where('user_id', '!=', $userId)
-                    ->where('created_at', '>', $lastRead)
-                    ->count();
+        $postIds = $posts->pluck('id')->all();
 
-                // Pending requests (only for host)
-                $pendingRequests = [];
-                if ($post->user_id === $userId) {
-                    $pendingRequests = $post->responses()
-                        ->where('status', 'pending')
-                        ->with('user.profile')
-                        ->get()
-                        ->map(fn ($r) => [
-                            'id' => $r->id,
-                            'user_id' => $r->user_id,
-                            'message' => $r->message,
-                            'username' => $r->user?->profile?->username ?? $r->user?->name,
-                            'avatar' => $r->user?->profile?->avatar,
-                        ])
-                        ->toArray();
-                }
+        // Pull last-read timestamps in one go, then batch the unread-count
+        // query across all posts. Replaces an N+1 of count() queries per
+        // post with a single whereIn + groupBy.
+        $lastReads = [];
+        foreach ($postIds as $pid) {
+            $lastReads[$pid] = Cache::get("lfg_read:{$userId}:{$pid}", '1970-01-01');
+        }
+        $minLastRead = collect($lastReads)->min() ?: '1970-01-01';
 
-                return [
-                    'id' => $post->id,
-                    'slug' => $post->slug,
-                    'title' => $post->title,
-                    'status' => $post->status,
-                    'game_name' => $post->game?->name,
-                    'game_cover' => $post->game?->cover_image,
-                    'member_count' => $post->member_count + 1,
-                    'spots_needed' => $post->spots_needed,
-                    'is_host' => $post->user_id === $userId,
-                    'host' => [
-                        'name' => $post->user?->name,
-                        'username' => $post->user?->profile?->username,
-                        'avatar' => $post->user?->profile?->avatar,
-                    ],
-                    'last_message' => $lastMessage ? [
-                        'body' => $lastMessage->body,
-                        'user_name' => $lastMessage->user?->profile?->username ?? $lastMessage->user?->name,
-                        'created_at' => $lastMessage->created_at->diffForHumans(),
-                    ] : null,
-                    'unread_count' => $unreadCount,
-                    'pending_requests' => $pendingRequests,
-                ];
-            });
+        $rawMessages = empty($postIds) ? collect() : LfgMessage::whereIn('lfg_post_id', $postIds)
+            ->where('user_id', '!=', $userId)
+            ->where('created_at', '>', $minLastRead)
+            ->get(['lfg_post_id', 'created_at']);
+
+        $unreadByPost = [];
+        foreach ($postIds as $pid) {
+            $unreadByPost[$pid] = $rawMessages
+                ->where('lfg_post_id', $pid)
+                ->where('created_at', '>', $lastReads[$pid])
+                ->count();
+        }
+
+        $groups = $posts->map(function (LfgPost $post) use ($userId, $unreadByPost) {
+            $lastMessage = $post->messages()->with('user.profile')->latest()->first();
+            $unreadCount = $unreadByPost[$post->id] ?? 0;
+
+            // Pending requests (only for host) — pre-loaded above.
+            $pendingRequests = [];
+            if ($post->user_id === $userId) {
+                $pendingRequests = $post->responses->map(fn ($r) => [
+                    'id' => $r->id,
+                    'user_id' => $r->user_id,
+                    'message' => $r->message,
+                    'username' => $r->user?->profile?->username ?? $r->user?->name,
+                    'avatar' => $r->user?->profile?->avatar,
+                ])->toArray();
+            }
+
+            return [
+                'id' => $post->id,
+                'slug' => $post->slug,
+                'title' => $post->title,
+                'status' => $post->status,
+                'game_name' => $post->game?->name,
+                'game_cover' => $post->game?->cover_image,
+                'member_count' => $post->member_count + 1,
+                'spots_needed' => $post->spots_needed,
+                'is_host' => $post->user_id === $userId,
+                'host' => [
+                    'name' => $post->user?->name,
+                    'username' => $post->user?->profile?->username,
+                    'avatar' => $post->user?->profile?->avatar,
+                ],
+                'last_message' => $lastMessage ? [
+                    'body' => $lastMessage->body,
+                    'user_name' => $lastMessage->user?->profile?->username ?? $lastMessage->user?->name,
+                    'created_at' => $lastMessage->created_at->diffForHumans(),
+                ] : null,
+                'unread_count' => $unreadCount,
+                'pending_requests' => $pendingRequests,
+            ];
+        });
 
         return response()->json(['groups' => $groups]);
     }
@@ -1038,11 +1057,10 @@ class LfgController extends Controller
         // Mark as read
         Cache::put("lfg_read:{$user->id}:{$lfgPost->id}", now()->toISOString(), 86400 * 30);
 
-        // Clear LFG notifications for this post
+        // Clear LFG notifications for this post — filter in SQL, not PHP.
         $user->unreadNotifications()
-            ->get()
-            ->filter(fn ($n) => ($n->data['lfg_post_id'] ?? null) === $lfgPost->id)
-            ->each->markAsRead();
+            ->where('data->lfg_post_id', $lfgPost->id)
+            ->update(['read_at' => now()]);
         Cache::forget("user:{$user->id}:unread");
 
         return response()->json([

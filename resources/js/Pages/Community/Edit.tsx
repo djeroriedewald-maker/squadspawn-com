@@ -1,9 +1,11 @@
 import GamePicker from '@/Components/GamePicker';
-import RichEditor from '@/Components/RichEditor';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Game } from '@/types';
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { FormEventHandler } from 'react';
+import { FormEventHandler, lazy, Suspense } from 'react';
+
+// Tiptap's bundle is ~250 KB gzipped — only pay for it on Create/Edit.
+const RichEditor = lazy(() => import('@/Components/RichEditor'));
 
 interface Post {
     id: number;
@@ -109,11 +111,13 @@ export default function CommunityEdit({ post, games }: { post: Post; games: Game
 
                         <div>
                             <label className={labelClass}>Body</label>
-                            <RichEditor
-                                value={data.body}
-                                onChange={(html) => setData('body', html)}
-                                error={errors.body}
-                            />
+                            <Suspense fallback={<div className="h-48 animate-pulse rounded-lg border border-ink-100 bg-ink-50" />}>
+                                <RichEditor
+                                    value={data.body}
+                                    onChange={(html) => setData('body', html)}
+                                    error={errors.body}
+                                />
+                            </Suspense>
                             {errors.body && <p className={errorClass}>{errors.body}</p>}
                         </div>
 

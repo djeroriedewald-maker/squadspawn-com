@@ -24,13 +24,25 @@ class RedirectController extends Controller
     {
         $url = request()->input('url', '');
 
-        // Only allow https URLs
         if (!str_starts_with($url, 'https://')) {
             abort(400, 'Invalid URL');
         }
 
-        $host = parse_url($url, PHP_URL_HOST);
-        $isTrusted = in_array($host, self::TRUSTED_DOMAINS);
+        $parts = parse_url($url);
+        if (!is_array($parts) || !isset($parts['host'])) {
+            abort(400, 'Invalid URL');
+        }
+
+        // Reject URLs with userinfo (`https://trusted.com@evil.com`) — a
+        // classic interstitial-bypass trick. parse_url does strip the
+        // userinfo from `host` already, but we still refuse the URL so we
+        // never display a misleading redirect target to the user.
+        if (isset($parts['user']) || isset($parts['pass'])) {
+            abort(400, 'Invalid URL');
+        }
+
+        $host = strtolower($parts['host']);
+        $isTrusted = in_array($host, self::TRUSTED_DOMAINS, true);
 
         return Inertia::render('Redirect', [
             'url' => $url,
