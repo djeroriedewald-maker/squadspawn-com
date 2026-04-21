@@ -30,7 +30,7 @@ class AdminController extends Controller
             'onlineNow' => User::where('updated_at', '>=', now()->subMinutes(15))->count(),
         ];
 
-        $recentReports = Report::with(['reporter.profile', 'reported.profile'])
+        $recentReports = Report::with(['reporter.profile', 'reported.profile', 'lfgPost.game'])
             ->where('status', 'pending')
             ->latest()
             ->take(10)
@@ -96,7 +96,7 @@ class AdminController extends Controller
 
     public function reports(Request $request): Response
     {
-        $query = Report::with(['reporter.profile', 'reported.profile']);
+        $query = Report::with(['reporter.profile', 'reported.profile', 'lfgPost.game']);
 
         if ($request->filled('status')) {
             $query->where('status', $request->input('status'));
@@ -117,6 +117,17 @@ class AdminController extends Controller
         $request->validate(['status' => 'required|in:reviewed,resolved']);
         $report->update(['status' => $request->input('status')]);
 
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Mod-only hard delete of an LFG post reached from a report. Separate
+     * from LfgController::destroy because that's gated to the creator
+     * plus a "no accepted members" rule — mods override both.
+     */
+    public function deleteLfgPost(\App\Models\LfgPost $lfgPost)
+    {
+        $lfgPost->delete(); // FK cascade cleans responses / messages / ratings
         return response()->json(['success' => true]);
     }
 

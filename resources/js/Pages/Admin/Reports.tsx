@@ -12,6 +12,15 @@ interface Report {
         name: string;
         profile?: { username: string; avatar?: string };
     };
+    lfg_post_id?: number | null;
+    lfg_post?: {
+        id: number;
+        slug: string;
+        title: string;
+        status: string;
+        description?: string | null;
+        game?: { name: string } | null;
+    } | null;
     reason: string;
     details: string;
     status: string;
@@ -47,6 +56,13 @@ export default function Reports({ reports, filters }: Props) {
 
     function handleStatusChange(reportId: number, newStatus: string) {
         axios.post(route('admin.resolveReport', { report: reportId }), { status: newStatus }).then(() => {
+            router.reload();
+        });
+    }
+
+    function handleDeleteLfgPost(lfgPostId: number, title: string) {
+        if (!window.confirm(`Delete LFG post "${title}"? This cannot be undone and removes all responses + messages.`)) return;
+        axios.delete(route('admin.deleteLfgPost', { lfgPost: lfgPostId })).then(() => {
             router.reload();
         });
     }
@@ -91,6 +107,7 @@ export default function Reports({ reports, filters }: Props) {
                                 <tr className="border-b border-ink-900/5 text-xs text-gray-500">
                                     <th className="px-5 py-3 font-medium">Reporter</th>
                                     <th className="px-5 py-3 font-medium">Reported</th>
+                                    <th className="px-5 py-3 font-medium">Context</th>
                                     <th className="px-5 py-3 font-medium">Reason</th>
                                     <th className="px-5 py-3 font-medium">Details</th>
                                     <th className="px-5 py-3 font-medium">Date</th>
@@ -124,6 +141,25 @@ export default function Reports({ reports, filters }: Props) {
                                                 <span className="text-ink-900">{report.reported?.profile?.username || report.reported?.name}</span>
                                             </div>
                                         </td>
+                                        <td className="max-w-[240px] px-5 py-3">
+                                            {report.lfg_post ? (
+                                                <div className="space-y-0.5">
+                                                    <Link
+                                                        href={`/lfg/${report.lfg_post.slug}`}
+                                                        target="_blank"
+                                                        className="block truncate text-xs font-semibold text-neon-red hover:underline"
+                                                        title={report.lfg_post.title}
+                                                    >
+                                                        🎮 {report.lfg_post.title}
+                                                    </Link>
+                                                    <div className="text-[10px] text-ink-500">
+                                                        {report.lfg_post.game?.name ?? 'LFG'} · {report.lfg_post.status}
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <span className="text-xs text-gray-500">Profile report</span>
+                                            )}
+                                        </td>
                                         <td className="px-5 py-3">
                                             <span className="rounded-full bg-yellow-500/10 px-2 py-0.5 text-xs font-medium text-yellow-400">
                                                 {report.reason}
@@ -136,7 +172,7 @@ export default function Reports({ reports, filters }: Props) {
                                             {new Date(report.created_at).toLocaleDateString()}
                                         </td>
                                         <td className="px-5 py-3">
-                                            <div className="flex gap-2">
+                                            <div className="flex flex-wrap gap-2">
                                                 {report.status !== 'reviewed' && (
                                                     <button
                                                         onClick={() => handleStatusChange(report.id, 'reviewed')}
@@ -151,6 +187,14 @@ export default function Reports({ reports, filters }: Props) {
                                                         className="rounded-lg bg-gaming-green/10 px-3 py-1.5 text-xs font-medium text-gaming-green transition hover:bg-gaming-green/20"
                                                     >
                                                         Mark Resolved
+                                                    </button>
+                                                )}
+                                                {report.lfg_post && (
+                                                    <button
+                                                        onClick={() => handleDeleteLfgPost(report.lfg_post!.id, report.lfg_post!.title)}
+                                                        className="rounded-lg bg-red-500/10 px-3 py-1.5 text-xs font-medium text-red-500 transition hover:bg-red-500/20"
+                                                    >
+                                                        Delete LFG post
                                                     </button>
                                                 )}
                                             </div>

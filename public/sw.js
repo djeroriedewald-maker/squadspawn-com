@@ -10,7 +10,7 @@
  * Bump CACHE_VERSION to invalidate caches on deploy.
  */
 
-const CACHE_VERSION = 'v3';
+const CACHE_VERSION = 'v4';
 const STATIC_CACHE = `squadspawn-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `squadspawn-runtime-${CACHE_VERSION}`;
 
@@ -150,23 +150,31 @@ self.addEventListener('notificationclick', (event) => {
     event.notification.close();
     const targetUrl = (event.notification.data && event.notification.data.url) || '/';
 
-    event.waitUntil(
-        self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientsList) => {
-            // If an existing tab is on the target URL, focus it
-            for (const client of clientsList) {
-                try {
-                    const url = new URL(client.url);
-                    if (url.pathname === targetUrl || url.href === targetUrl) {
-                        return client.focus();
-                    }
-                } catch { /* ignore malformed */ }
-            }
-            // Otherwise open a new one
-            if (self.clients.openWindow) {
-                return self.clients.openWindow(targetUrl);
-            }
-        })
-    );
+    event.waitUntil((async () => {
+        const clientsList = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+
+        // Prefer an existing PWA/tab on the same origin — focus it and
+        // navigate to the target URL *inside* that window instead of
+        // spawning a second PWA instance.
+        for (const client of clientsList) {
+            try {
+                const url = new URL(client.url);
+                if (url.origin !== self.location.origin) continue;
+
+                if ('navigate' in client) {
+                    await client.navigate(targetUrl).catch(() => {});
+                    return client.focus();
+                }
+                // Fallback: postMessage so the app can router.visit() itself.
+                client.postMessage({ type: 'navigate', url: targetUrl });
+                return client.focus();
+            } catch { /* ignore malformed */ }
+        }
+
+        if (self.clients.openWindow) {
+            return self.clients.openWindow(targetUrl);
+        }
+    })());
 });
 
 // Browsers sometimes rotate or invalidate subscriptions; the service worker

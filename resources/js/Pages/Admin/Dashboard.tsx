@@ -18,6 +18,7 @@ interface Report {
     id: number;
     reporter: { name: string; profile?: { username: string } };
     reported: { name: string; profile?: { username: string } };
+    lfg_post?: { id: number; slug: string; title: string; game?: { name: string } | null } | null;
     reason: string;
     status: string;
     created_at: string;
@@ -166,7 +167,20 @@ export default function Dashboard({ stats, recentReports, recentUsers }: Props) 
                                     {recentReports.map((report) => (
                                         <tr key={report.id} className="text-ink-700">
                                             <td className="py-2.5">{report.reporter?.profile?.username || report.reporter?.name}</td>
-                                            <td className="py-2.5">{report.reported?.profile?.username || report.reported?.name}</td>
+                                            <td className="py-2.5">
+                                                <div>{report.reported?.profile?.username || report.reported?.name}</div>
+                                                {report.lfg_post && (
+                                                    <a
+                                                        href={`/lfg/${report.lfg_post.slug}`}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        className="block truncate text-[10px] font-semibold text-neon-red hover:underline"
+                                                        title={report.lfg_post.title}
+                                                    >
+                                                        🎮 {report.lfg_post.title}
+                                                    </a>
+                                                )}
+                                            </td>
                                             <td className="py-2.5 text-ink-500">{report.reason}</td>
                                             <td className="py-2.5 text-gray-500">{new Date(report.created_at).toLocaleDateString()}</td>
                                             <td className="py-2.5">
