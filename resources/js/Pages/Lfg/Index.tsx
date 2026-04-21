@@ -4,7 +4,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Game, PageProps, User } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import axios from 'axios';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface LfgResponse {
     id: number;
@@ -111,6 +111,14 @@ export default function LfgIndex({
     const [joiningId, setJoiningId] = useState<number | null>(null);
     const [localPosts, setLocalPosts] = useState<LfgPost[]>(posts.data);
     const [showHistory, setShowHistory] = useState(false);
+
+    // Filter navigation uses preserveState so React state survives — but
+    // that also leaves `localPosts` frozen on the pre-filter list. Sync
+    // back to the freshly-returned `posts.data` whenever the server sends
+    // a new page so chip clicks actually change what's visible.
+    useEffect(() => {
+        setLocalPosts(posts.data);
+    }, [posts.data]);
     const [searchInput, setSearchInput] = useState<string>(filters.q ?? '');
     const [filtersOpen, setFiltersOpen] = useState(false);
 
