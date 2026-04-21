@@ -1,5 +1,5 @@
 import GamePicker from '@/Components/GamePicker';
-import MarkdownEditor from '@/Components/MarkdownEditor';
+import RichEditor from '@/Components/RichEditor';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Game } from '@/types';
 import { Head, Link, router, useForm } from '@inertiajs/react';
@@ -10,6 +10,7 @@ interface Post {
     slug: string;
     title: string;
     body: string;
+    body_html?: string;
     game_id: number | null;
     type: 'discussion' | 'question' | 'tip' | 'team' | 'news';
 }
@@ -17,7 +18,9 @@ interface Post {
 export default function CommunityEdit({ post, games }: { post: Post; games: Game[] }) {
     const { data, setData, put, processing, errors } = useForm({
         title: post.title,
-        body: post.body,
+        // Prefer the rendered HTML (either stored WYSIWYG or legacy-markdown
+        // rendered) so the editor opens with the actual formatted body.
+        body: post.body_html || post.body,
         game_id: post.game_id ? String(post.game_id) : '',
         type: post.type,
     });
@@ -106,11 +109,10 @@ export default function CommunityEdit({ post, games }: { post: Post; games: Game
 
                         <div>
                             <label className={labelClass}>Body</label>
-                            <MarkdownEditor
+                            <RichEditor
                                 value={data.body}
-                                onChange={(v) => setData('body', v)}
-                                rows={10}
-                                maxLength={10000}
+                                onChange={(html) => setData('body', html)}
+                                error={errors.body}
                             />
                             {errors.body && <p className={errorClass}>{errors.body}</p>}
                         </div>

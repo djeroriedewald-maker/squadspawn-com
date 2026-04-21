@@ -148,6 +148,15 @@ body {
         radial-gradient(ellipse at 85% 85%, var(--page-glow-2) 0%, transparent 50%);
 }
 
+/* Tiptap placeholder — shows up when the editor is empty. */
+.tiptap .is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    float: left;
+    color: rgb(var(--color-ink-500));
+    pointer-events: none;
+    height: 0;
+}
+
 /* Long URLs and unbreakable tokens in user-generated text should wrap
    instead of pushing the page wider than the viewport. */
 .prose-markdown,

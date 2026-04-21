@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
 class CommunityPost extends Model
 {
     protected $fillable = [
-        'slug', 'user_id', 'game_id', 'title', 'body', 'type',
+        'slug', 'user_id', 'game_id', 'title', 'body', 'body_html', 'type',
         'upvotes', 'downvotes', 'comments_count',
         'hidden_at', 'hidden_by_user_id', 'hidden_reason',
         'locked_at', 'pinned_at',
@@ -88,13 +88,16 @@ class CommunityPost extends Model
     }
 
     /**
-     * body_html accessor — renders the markdown body through our safe
-     * renderer on each read. For now we don't cache to the DB; the render
-     * is fast and this keeps editing cheap.
+     * body_html accessor — prefers the stored WYSIWYG HTML, falls back to
+     * rendering the legacy markdown body for posts written before the
+     * Tiptap editor landed. That way existing posts keep rendering without
+     * a data migration.
      */
     public function getBodyHtmlAttribute(): string
     {
-        return app(\App\Services\MarkdownRenderer::class)->render($this->body);
+        $stored = $this->attributes['body_html'] ?? null;
+        if (!empty($stored)) return $stored;
+        return app(\App\Services\MarkdownRenderer::class)->render($this->body ?? '');
     }
 
     protected function serializeDate(\DateTimeInterface $date): string

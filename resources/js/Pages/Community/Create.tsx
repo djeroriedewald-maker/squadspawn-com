@@ -1,5 +1,5 @@
 import GamePicker from '@/Components/GamePicker';
-import MarkdownEditor from '@/Components/MarkdownEditor';
+import RichEditor from '@/Components/RichEditor';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Game } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
@@ -98,12 +98,11 @@ export default function CommunityCreate({ games }: { games: Game[] }) {
                         {/* Body */}
                         <div>
                             <label className={labelClass}>Body</label>
-                            <MarkdownEditor
+                            <RichEditor
                                 value={data.body}
-                                onChange={(v) => setData('body', v)}
+                                onChange={(html) => setData('body', html)}
                                 placeholder="Share your thoughts, tips, or questions…"
-                                rows={10}
-                                maxLength={10000}
+                                error={errors.body}
                             />
                             {errors.body && <p className={errorClass}>{errors.body}</p>}
                         </div>

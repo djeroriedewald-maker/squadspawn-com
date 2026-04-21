@@ -117,10 +117,14 @@ class CommunityController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'body' => 'required|string|max:10000',
+            'body' => 'required|string|max:20000', // body is the rich-text HTML
             'game_id' => 'nullable|exists:games,id',
             'type' => 'required|in:discussion,question,tip,team,news',
         ]);
+
+        $validated['body_html'] = clean($validated['body'], 'community_post');
+        // We keep a plain-text mirror in body for search / previews / line-clamp.
+        $validated['body'] = trim(strip_tags($validated['body_html']));
 
         $post = CommunityPost::create([
             ...$validated,
@@ -146,10 +150,13 @@ class CommunityController extends Controller
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'body' => 'required|string|max:10000',
+            'body' => 'required|string|max:20000',
             'game_id' => 'nullable|exists:games,id',
             'type' => 'required|in:discussion,question,tip,team,news',
         ]);
+
+        $validated['body_html'] = clean($validated['body'], 'community_post');
+        $validated['body'] = trim(strip_tags($validated['body_html']));
 
         $communityPost->update($validated);
 
