@@ -168,18 +168,7 @@ class CommunityController extends Controller
      */
     private function sanitisePostBody(string $rawHtml): array
     {
-        try {
-            $html = clean($rawHtml, 'community_post');
-        } catch (\Throwable $e) {
-            \Log::error('HTMLPurifier failed on community post body', [
-                'user_id' => auth()->id(),
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-            // Fallback: strip everything except the safest inline tags so
-            // we still save something instead of blowing up the post.
-            $html = strip_tags($rawHtml, '<p><br><strong><em><u><s><a><ul><ol><li><h2><h3><blockquote><code><pre><img>');
-        }
+        $html = app(\App\Services\HtmlSanitizer::class)->sanitize($rawHtml);
         $plain = trim(strip_tags($html));
         return [$html, $plain];
     }
