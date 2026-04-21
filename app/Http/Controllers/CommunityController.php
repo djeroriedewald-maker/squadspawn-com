@@ -287,30 +287,4 @@ class CommunityController extends Controller
     {
         return Inertia::render('Community/Guidelines');
     }
-
-    /**
-     * Upload an image inline from the rich-text editor. Stored on the
-     * public disk; returns the URL for Tiptap to embed. Rate-limited
-     * on the route so users can't flood storage.
-     */
-    public function uploadImage(Request $request): JsonResponse
-    {
-        $request->validate([
-            'image' => ['required', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:5120', 'dimensions:max_width=4000,max_height=4000'],
-        ]);
-
-        $file = $request->file('image');
-        $ext = strtolower($file->getClientOriginalExtension()) ?: 'jpg';
-        $filename = 'community/' . auth()->id() . '/' . \Illuminate\Support\Str::uuid() . '.' . $ext;
-
-        \Illuminate\Support\Facades\Storage::disk('public')->putFileAs(
-            dirname($filename),
-            $file,
-            basename($filename),
-        );
-
-        return response()->json([
-            'url' => \Illuminate\Support\Facades\Storage::disk('public')->url($filename),
-        ]);
-    }
 }

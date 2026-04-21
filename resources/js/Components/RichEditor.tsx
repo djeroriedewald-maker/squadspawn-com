@@ -4,8 +4,7 @@ import Placeholder from '@tiptap/extension-placeholder';
 import Youtube from '@tiptap/extension-youtube';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import axios from 'axios';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect } from 'react';
 
 interface Props {
     value: string;
@@ -15,9 +14,6 @@ interface Props {
 }
 
 export default function RichEditor({ value, onChange, placeholder = 'Write something…', error }: Props) {
-    const fileInputRef = useRef<HTMLInputElement | null>(null);
-    const [uploading, setUploading] = useState(false);
-
     const editor = useEditor({
         extensions: [
             StarterKit.configure({
@@ -71,37 +67,14 @@ export default function RichEditor({ value, onChange, placeholder = 'Write somet
         editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
     };
 
-    const xsrf = (): string | null => {
-        const m = document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]+)/);
-        return m ? decodeURIComponent(m[1]) : null;
-    };
-
-    const handleImageFile = async (file: File) => {
-        if (uploading) return;
-        setUploading(true);
-        try {
-            const form = new FormData();
-            form.append('image', file);
-            const token = xsrf();
-            const { data } = await axios.post('/community/upload-image', form, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    ...(token ? { 'X-XSRF-TOKEN': token } : {}),
-                },
-            });
-            if (data?.url) {
-                editor.chain().focus().setImage({ src: data.url }).run();
-            }
-        } catch (err: any) {
-            alert(err.response?.data?.message || 'Upload failed.');
-        } finally {
-            setUploading(false);
-        }
-    };
-
     const addImage = () => {
-        fileInputRef.current?.click();
+        const url = window.prompt('Image URL (https://…)');
+        if (!url) return;
+        if (!/^https?:\/\//.test(url)) {
+            alert('Only http(s) image URLs are allowed.');
+            return;
+        }
+        editor.chain().focus().setImage({ src: url }).run();
     };
 
     const addYoutube = () => {
@@ -200,10 +173,10 @@ export default function RichEditor({ value, onChange, placeholder = 'Write somet
                 <ToolbarBtn
                     onClick={addImage}
                     active={false}
-                    label={uploading ? 'Uploading…' : 'Insert image'}
+                    label="Insert image by URL"
                     aria="Insert image"
                 >
-                    {uploading ? '⏳' : '🖼️'}
+                    🖼️
                 </ToolbarBtn>
                 <ToolbarBtn
                     onClick={addYoutube}
@@ -213,17 +186,6 @@ export default function RichEditor({ value, onChange, placeholder = 'Write somet
                 >
                     ▶
                 </ToolbarBtn>
-                <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp,image/gif"
-                    className="hidden"
-                    onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleImageFile(file);
-                        if (fileInputRef.current) fileInputRef.current.value = '';
-                    }}
-                />
             </div>
 
             <EditorContent editor={editor} />
