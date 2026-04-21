@@ -38,7 +38,12 @@ export default function RichEditor({ value, onChange, placeholder = 'Write somet
             Youtube.configure({
                 width: 640,
                 height: 360,
-                nocookie: true,
+                // Default (non-nocookie) domain — youtube-nocookie's anti-bot
+                // check triggers a "verify you're not a bot" interstitial
+                // for users not signed into Google. Trade-off: YouTube drops
+                // a tracking cookie, which is already disclosed in our
+                // cookie policy.
+                nocookie: false,
                 HTMLAttributes: { class: 'max-w-full rounded-lg' },
             }),
             Placeholder.configure({ placeholder }),
