@@ -13,7 +13,7 @@ class LfgPost extends Model
     protected $fillable = [
         'user_id', 'game_id', 'title', 'slug', 'description',
         'spots_needed', 'spots_filled', 'platform', 'rank_min',
-        'mic_required', 'language', 'age_requirement', 'requirements_note', 'discord_url',
+        'mic_required', 'auto_accept', 'language', 'age_requirement', 'requirements_note', 'discord_url',
         'scheduled_at', 'expires_at', 'status',
     ];
 
@@ -41,6 +41,7 @@ class LfgPost extends Model
             'scheduled_at' => 'datetime',
             'expires_at' => 'datetime',
             'mic_required' => 'boolean',
+            'auto_accept' => 'boolean',
         ];
     }
 

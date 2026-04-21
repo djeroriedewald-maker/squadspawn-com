@@ -13,6 +13,7 @@ interface LfgPost {
     platform: string;
     rank_min?: string;
     mic_required: boolean;
+    auto_accept?: boolean;
     language?: string;
     age_requirement?: string;
     requirements_note?: string;
@@ -29,6 +30,7 @@ export default function LfgEdit({ post, games }: { post: LfgPost; games: Game[] 
         platform: post.platform,
         rank_min: post.rank_min || '',
         mic_required: post.mic_required || false,
+        auto_accept: post.auto_accept || false,
         language: post.language || '',
         age_requirement: post.age_requirement || 'None',
         requirements_note: post.requirements_note || '',
@@ -109,6 +111,17 @@ export default function LfgEdit({ post, games }: { post: LfgPost; games: Game[] 
                         <div className="flex items-center gap-3">
                             <input type="checkbox" id="mic" checked={data.mic_required} onChange={(e) => setData('mic_required', e.target.checked)} className="h-4 w-4 rounded border-ink-900/10 bg-bone-50 text-neon-red focus:ring-neon-red" />
                             <label htmlFor="mic" className="text-sm font-medium text-ink-700">Mic Required</label>
+                        </div>
+                        <div className="space-y-1">
+                            <div className="flex items-center gap-3">
+                                <input type="checkbox" id="auto_accept" checked={data.auto_accept} onChange={(e) => setData('auto_accept', e.target.checked)} className="h-4 w-4 rounded border-ink-900/10 bg-bone-50 text-neon-red focus:ring-neon-red" />
+                                <label htmlFor="auto_accept" className="text-sm font-medium text-ink-700">Auto-accept join requests</label>
+                            </div>
+                            <p className="pl-7 text-xs text-ink-500">
+                                {data.auto_accept
+                                    ? 'First-come, first-served — anyone who clicks Join fills a spot instantly.'
+                                    : 'You manually approve each request.'}
+                            </p>
                         </div>
                         <div>
                             <label className={labelClass}>Language</label>

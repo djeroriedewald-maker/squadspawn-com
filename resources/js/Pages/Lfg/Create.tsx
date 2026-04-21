@@ -13,6 +13,7 @@ export default function LfgCreate({ games }: { games: Game[] }) {
         platform: '',
         rank_min: '',
         mic_required: false,
+        auto_accept: false,
         language: '',
         age_requirement: 'None',
         requirements_note: '',
@@ -200,6 +201,27 @@ export default function LfgCreate({ games }: { games: Game[] }) {
                             <label htmlFor="mic_required" className="text-sm font-medium text-ink-700">
                                 Mic Required
                             </label>
+                        </div>
+
+                        {/* Auto-accept */}
+                        <div className="space-y-1">
+                            <div className="flex items-center gap-3">
+                                <input
+                                    type="checkbox"
+                                    id="auto_accept"
+                                    checked={data.auto_accept}
+                                    onChange={(e) => setData('auto_accept', e.target.checked)}
+                                    className="h-4 w-4 rounded border-ink-900/10 bg-bone-50 text-neon-red focus:ring-neon-red"
+                                />
+                                <label htmlFor="auto_accept" className="text-sm font-medium text-ink-700">
+                                    Auto-accept join requests
+                                </label>
+                            </div>
+                            <p className="pl-7 text-xs text-ink-500">
+                                {data.auto_accept
+                                    ? 'First-come, first-served — anyone who clicks Join fills a spot instantly.'
+                                    : 'You manually approve each request. Off means more control; on means faster squads.'}
+                            </p>
                         </div>
 
                         {/* Language */}

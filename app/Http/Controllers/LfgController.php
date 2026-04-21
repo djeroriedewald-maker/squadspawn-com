@@ -36,6 +36,9 @@ class LfgController extends Controller
         if ($request->boolean('mic_required')) {
             $query->where('mic_required', true);
         }
+        if ($request->boolean('auto_accept')) {
+            $query->where('auto_accept', true);
+        }
         if ($request->filled('rank_min')) {
             $query->where('rank_min', $request->input('rank_min'));
         }
@@ -184,7 +187,7 @@ class LfgController extends Controller
             'myPosts' => $myPosts,
             'myHistory' => $myHistory,
             'games' => Game::all(),
-            'filters' => $request->only(['game_id', 'platform', 'language', 'rank_min', 'region', 'mic_required', 'favorites']),
+            'filters' => $request->only(['game_id', 'platform', 'language', 'rank_min', 'region', 'mic_required', 'auto_accept', 'favorites']),
             'filterOptions' => $filterOptions,
         ]);
     }
@@ -206,6 +209,7 @@ class LfgController extends Controller
             'platform' => 'required|string|max:50',
             'rank_min' => 'nullable|string|max:50',
             'mic_required' => 'nullable|boolean',
+            'auto_accept' => 'nullable|boolean',
             'language' => 'nullable|string|max:50',
             'age_requirement' => 'nullable|string|max:20',
             'requirements_note' => 'nullable|string|max:500',
@@ -317,6 +321,50 @@ class LfgController extends Controller
             return response()->json(['error' => 'You have already responded.'], 422);
         }
 
+        // Auto-accept path: host opted into first-come-first-served, so we
+        // instantly take the spot inside a transaction to avoid two people
+        // claiming the last slot at the same instant.
+        if ($lfgPost->auto_accept) {
+            $result = DB::transaction(function () use ($lfgPost, $request) {
+                $locked = LfgPost::whereKey($lfgPost->id)->lockForUpdate()->first();
+                if (!$locked || $locked->status !== 'open') {
+                    return ['error' => 'This post is no longer open.', 'code' => 422];
+                }
+                if ($locked->spots_filled >= $locked->spots_needed) {
+                    return ['error' => 'This squad just filled up.', 'code' => 422];
+                }
+
+                $locked->responses()->create([
+                    'user_id' => auth()->id(),
+                    'message' => $request->input('message'),
+                    'status' => 'accepted',
+                ]);
+
+                $newFilled = $locked->spots_filled + 1;
+                $newStatus = $newFilled >= $locked->spots_needed ? 'full' : 'open';
+                $locked->update(['spots_filled' => $newFilled, 'status' => $newStatus]);
+
+                return ['ok' => true, 'post' => $locked];
+            });
+
+            if (isset($result['error'])) {
+                return response()->json(['error' => $result['error']], $result['code']);
+            }
+
+            // Notifications outside the transaction.
+            try {
+                $lfgPost->refresh()->load(['user', 'game']);
+                $lfgPost->user->notify(new LfgNewRequestNotification($lfgPost, auth()->user()));
+                Cache::forget("user:{$lfgPost->user_id}:unread");
+                auth()->user()->notify(new LfgAcceptedNotification($lfgPost));
+            } catch (\Throwable $e) {
+                \Log::error('LFG auto-accept notification error: ' . $e->getMessage());
+            }
+
+            return response()->json(['success' => true, 'auto_accepted' => true, 'status' => $result['post']->status]);
+        }
+
+        // Manual-approval path: create a pending response, wait for the host.
         $lfgPost->responses()->create([
             'user_id' => auth()->id(),
             'message' => $request->input('message'),
@@ -542,6 +590,7 @@ class LfgController extends Controller
             'platform' => 'required|string|max:50',
             'rank_min' => 'nullable|string|max:50',
             'mic_required' => 'nullable|boolean',
+            'auto_accept' => 'nullable|boolean',
             'language' => 'nullable|string|max:50',
             'age_requirement' => 'nullable|string|max:20',
             'requirements_note' => 'nullable|string|max:500',

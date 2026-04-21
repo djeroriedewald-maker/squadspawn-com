@@ -35,6 +35,7 @@ interface LfgPost {
     platform: string;
     rank_min?: string;
     mic_required?: boolean;
+    auto_accept?: boolean;
     language?: string;
     age_requirement?: string;
     requirements_note?: string;
@@ -176,12 +177,21 @@ export default function LfgShow({
     const handleJoin = async () => {
         setJoining(true);
         try {
-            await axios.post(route('lfg.respond', { lfgPost: post.slug }), { message: joinMessage || undefined });
+            const { data } = await axios.post(route('lfg.respond', { lfgPost: post.slug }), { message: joinMessage || undefined });
+            const autoAccepted = Boolean(data?.auto_accepted);
             setPost((p) => ({
                 ...p,
+                spots_filled: autoAccepted ? p.spots_filled + 1 : p.spots_filled,
+                status: autoAccepted ? (data?.status ?? p.status) : p.status,
                 responses: [
                     ...(p.responses || []),
-                    { id: Date.now(), user_id: auth.user.id, status: 'pending', user: auth.user, message: joinMessage },
+                    {
+                        id: Date.now(),
+                        user_id: auth.user.id,
+                        status: autoAccepted ? 'accepted' : 'pending',
+                        user: auth.user,
+                        message: joinMessage,
+                    },
                 ],
             }));
             setJoinMessage('');
@@ -289,8 +299,16 @@ export default function LfgShow({
                         <div className={`${post.game ? '-mt-12 relative' : ''} p-6`}>
                             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                                 <div>
-                                    <div className="mb-2 flex items-center gap-2">
+                                    <div className="mb-2 flex flex-wrap items-center gap-2">
                                         {statusBadge()}
+                                        {post.auto_accept && (
+                                            <span
+                                                className="rounded-full bg-neon-red/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-neon-red"
+                                                title="Auto-accept — anyone who joins fills a spot instantly"
+                                            >
+                                                ⚡ Auto-join
+                                            </span>
+                                        )}
                                         {post.game && <span className="text-xs text-ink-500">{post.game.name}</span>}
                                     </div>
                                     <h1 className="text-2xl font-bold text-ink-900">{post.title}</h1>
@@ -595,8 +613,13 @@ export default function LfgShow({
                                         disabled={joining}
                                         className="w-full rounded-xl bg-gaming-green/10 px-4 py-2.5 text-sm font-semibold text-gaming-green border border-gaming-green/30 transition hover:bg-gaming-green/20 hover:border-gaming-green/50 disabled:opacity-50"
                                     >
-                                        {joining ? 'Joining...' : 'Request to Join'}
+                                        {joining ? 'Joining...' : post.auto_accept ? '⚡ Join instantly' : 'Request to Join'}
                                     </button>
+                                    {post.auto_accept && !joining && (
+                                        <p className="mt-2 text-[11px] text-ink-500">
+                                            This host auto-accepts — you're in immediately.
+                                        </p>
+                                    )}
                                 </div>
                             )}
 

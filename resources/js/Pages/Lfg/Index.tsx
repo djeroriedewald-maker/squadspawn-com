@@ -40,6 +40,7 @@ interface LfgPost {
     platform: string;
     rank_min?: string;
     mic_required?: boolean;
+    auto_accept?: boolean;
     language?: string;
     age_requirement?: string;
     requirements_note?: string;
@@ -98,6 +99,7 @@ export default function LfgIndex({
         rank_min?: string;
         region?: string;
         mic_required?: boolean | string;
+        auto_accept?: boolean | string;
         favorites?: boolean | string;
     };
     filterOptions?: FilterOptions;
@@ -118,20 +120,23 @@ export default function LfgIndex({
     const handleJoin = async (post: LfgPost) => {
         setJoiningId(post.id);
         try {
-            await axios.post(route('lfg.respond', { lfgPost: post.slug }));
-            // Join creates a *pending* response — spots_filled / status only
-            // move when the host accepts. Just add the optimistic pending row.
+            const { data } = await axios.post(route('lfg.respond', { lfgPost: post.slug }));
+            const autoAccepted = Boolean(data?.auto_accepted);
             setLocalPosts((prev) =>
                 prev.map((p) =>
                     p.id === post.id
                         ? {
                               ...p,
+                              // Auto-accept path: the server just claimed the spot
+                              // for us, so bump spots + pull in the new status.
+                              spots_filled: autoAccepted ? p.spots_filled + 1 : p.spots_filled,
+                              status: autoAccepted ? (data?.status ?? p.status) : p.status,
                               responses: [
                                   ...(p.responses || []),
                                   {
                                       id: Date.now(),
                                       user_id: auth.user.id,
-                                      status: 'pending',
+                                      status: autoAccepted ? 'accepted' : 'pending',
                                       user: auth.user,
                                   },
                               ],
@@ -284,6 +289,17 @@ export default function LfgIndex({
                             }`}
                         >
                             🎤 Mic required
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => handleFilter('auto_accept', filters.auto_accept ? '' : '1')}
+                            className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                                filters.auto_accept
+                                    ? 'border-neon-red bg-neon-red/15 text-neon-red'
+                                    : 'border-ink-900/10 text-ink-700 hover:border-neon-red/40'
+                            }`}
+                        >
+                            ⚡ Auto-join
                         </button>
                         <button
                             type="button"
@@ -461,6 +477,14 @@ export default function LfgIndex({
                                                 <span className="absolute bottom-3 left-4 text-sm font-bold text-white drop-shadow-md">
                                                     {post.game.name}
                                                 </span>
+                                                {post.auto_accept && (
+                                                    <span
+                                                        className="absolute left-3 top-3 rounded-full bg-neon-red px-2 py-0.5 text-[10px] font-bold text-white shadow-[0_0_8px_rgba(230,0,46,0.5)]"
+                                                        title="Auto-accept — anyone who joins fills a spot instantly"
+                                                    >
+                                                        ⚡ Auto-join
+                                                    </span>
+                                                )}
                                                 {(() => {
                                                     const label = expiresInLabel(post.expires_at);
                                                     return label ? (
@@ -608,7 +632,9 @@ export default function LfgIndex({
                                                           ? 'Your Post'
                                                           : joiningId === post.id
                                                             ? 'Joining...'
-                                                            : 'Join'}
+                                                            : post.auto_accept
+                                                              ? '⚡ Join instantly'
+                                                              : 'Join'}
                                             </button>
                                         </div>
                                     </div>
