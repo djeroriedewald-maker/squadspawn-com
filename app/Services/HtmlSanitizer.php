@@ -45,7 +45,10 @@ class HtmlSanitizer
         if (trim($html) === '') return '';
 
         // Wrap in a container so DOMDocument has a single root + utf-8.
-        $wrapped = '<?xml encoding="UTF-8"?><div>' . $html . '</div>';
+        // We use a marker class so we can skip the wrapper during the
+        // sanitise loop — otherwise our own whitelist unwraps it and
+        // destroys the document.
+        $wrapped = '<?xml encoding="UTF-8"?><div data-sanitize-root="1">' . $html . '</div>';
 
         $dom = new DOMDocument('1.0', 'UTF-8');
         $dom->preserveWhiteSpace = true;
@@ -57,7 +60,8 @@ class HtmlSanitizer
         libxml_use_internal_errors($prev);
 
         $xpath = new DOMXPath($dom);
-        $nodes = iterator_to_array($xpath->query('//*') ?: []);
+        // Only iterate elements INSIDE the wrapper, not the wrapper itself.
+        $nodes = iterator_to_array($xpath->query('//*[not(@data-sanitize-root)]') ?: []);
 
         foreach ($nodes as $node) {
             if (!$node instanceof DOMElement) continue;
@@ -101,9 +105,10 @@ class HtmlSanitizer
             }
         }
 
-        // Serialise the inner contents of the wrapper div.
-        $root = $dom->getElementsByTagName('div')->item(0);
-        if (!$root) return '';
+        // Serialise the inner contents of the wrapper div (find by marker).
+        $rootList = $xpath->query('//div[@data-sanitize-root="1"]');
+        $root = $rootList?->item(0);
+        if (!$root instanceof DOMElement) return '';
 
         $html = '';
         foreach ($root->childNodes as $child) {
