@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Game, PageProps, User } from '@/types';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import axios from 'axios';
 import { FormEvent, useState } from 'react';
 
@@ -11,6 +11,9 @@ interface PostComment {
     body: string;
     created_at: string;
     user?: User;
+    hidden_at?: string | null;
+    hidden_reason?: string | null;
+    hidden_by?: { profile?: { username?: string }; name?: string } | null;
 }
 
 interface CommunityPost {
@@ -20,7 +23,7 @@ interface CommunityPost {
     game_id: number | null;
     title: string;
     body: string;
-    body_html?: string; // server-rendered markdown HTML (sanitized)
+    body_html?: string;
     type: 'discussion' | 'question' | 'tip' | 'team' | 'news';
     upvotes: number;
     downvotes: number;
@@ -29,6 +32,11 @@ interface CommunityPost {
     user?: User;
     game?: Game;
     comments?: PostComment[];
+    hidden_at?: string | null;
+    hidden_reason?: string | null;
+    hidden_by?: { profile?: { username?: string }; name?: string } | null;
+    locked_at?: string | null;
+    pinned_at?: string | null;
 }
 
 const typeBadge = (type: string) => {
@@ -62,12 +70,15 @@ function timeAgo(dateStr: string): string {
 export default function CommunityShow({
     post: initialPost,
     userVote: initialUserVote,
+    canModerate = false,
 }: {
     post: CommunityPost;
     userVote: number | null;
+    canModerate?: boolean;
 }) {
     const { auth } = usePage<PageProps>().props;
     const isLoggedIn = !!auth?.user;
+    const canMod = canModerate || (auth?.canModerate ?? false);
 
     const [post, setPost] = useState(initialPost);
     const [userVote, setUserVote] = useState<number | null>(initialUserVote);
@@ -76,6 +87,21 @@ export default function CommunityShow({
     const [submitting, setSubmitting] = useState(false);
     const [voting, setVoting] = useState(false);
     const [deletingId, setDeletingId] = useState<number | null>(null);
+
+    const isLocked = !!post.locked_at;
+    const isHidden = !!post.hidden_at;
+    const isPinned = !!post.pinned_at;
+
+    const modAction = async (url: string, reasonPrompt?: string) => {
+        const reason = reasonPrompt ? (window.prompt(reasonPrompt, '') ?? null) : null;
+        if (reasonPrompt && reason === null) return; // user cancelled
+        try {
+            await axios.post(url, reason ? { reason } : {});
+            router.reload({ only: ['post'] });
+        } catch (err: any) {
+            alert(err.response?.data?.error || 'Mod action failed.');
+        }
+    };
 
     const score = post.upvotes - post.downvotes;
 
@@ -195,8 +221,20 @@ export default function CommunityShow({
                                 </div>
 
                                 <div className="mb-3 flex items-start justify-between gap-3">
-                                    <h1 className="text-xl font-bold text-ink-900 sm:text-2xl">{post.title}</h1>
-                                    {auth?.user?.id === post.user_id && (
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        {isPinned && (
+                                            <span className="rounded-full bg-neon-red/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-neon-red">
+                                                📌 Pinned
+                                            </span>
+                                        )}
+                                        {isLocked && (
+                                            <span className="rounded-full bg-yellow-400/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-yellow-600">
+                                                🔒 Locked
+                                            </span>
+                                        )}
+                                        <h1 className="text-xl font-bold text-ink-900 sm:text-2xl">{post.title}</h1>
+                                    </div>
+                                    {auth?.user?.id === post.user_id && !isLocked && (
                                         <Link
                                             href={route('community.edit', post.slug)}
                                             className="shrink-0 rounded-lg border border-ink-900/10 px-3 py-1.5 text-xs font-semibold text-ink-700 transition hover:border-neon-red hover:text-neon-red"
@@ -205,6 +243,39 @@ export default function CommunityShow({
                                         </Link>
                                     )}
                                 </div>
+
+                                {/* Hidden-by-mod banner — only mods/admins reach this page when hidden */}
+                                {isHidden && canMod && (
+                                    <div className="mb-4 rounded-lg border border-red-500/30 bg-red-500/5 p-3 text-xs">
+                                        <p className="font-semibold text-red-500">This post is hidden from regular users.</p>
+                                        {post.hidden_reason && <p className="mt-1 text-ink-500">Reason: {post.hidden_reason}</p>}
+                                        {post.hidden_by && (
+                                            <p className="mt-1 text-ink-500">Hidden by {post.hidden_by.profile?.username || post.hidden_by.name}</p>
+                                        )}
+                                    </div>
+                                )}
+
+                                {/* Mod action bar */}
+                                {canMod && (
+                                    <div className="mb-4 flex flex-wrap gap-2 rounded-lg border border-ink-900/10 bg-bone-50 p-2">
+                                        <span className="px-1 py-1 text-[10px] font-bold uppercase tracking-widest text-ink-500">Mod</span>
+                                        {isHidden ? (
+                                            <button type="button" onClick={() => modAction(`/mod/posts/${post.id}/unhide`)} className="rounded-lg bg-gaming-green/10 px-2.5 py-1 text-xs font-semibold text-gaming-green hover:bg-gaming-green/20">Unhide</button>
+                                        ) : (
+                                            <button type="button" onClick={() => modAction(`/mod/posts/${post.id}/hide`, 'Reason for hiding (optional):')} className="rounded-lg bg-red-500/10 px-2.5 py-1 text-xs font-semibold text-red-500 hover:bg-red-500/20">Hide</button>
+                                        )}
+                                        {isLocked ? (
+                                            <button type="button" onClick={() => modAction(`/mod/posts/${post.id}/unlock`)} className="rounded-lg bg-gaming-green/10 px-2.5 py-1 text-xs font-semibold text-gaming-green hover:bg-gaming-green/20">Unlock</button>
+                                        ) : (
+                                            <button type="button" onClick={() => modAction(`/mod/posts/${post.id}/lock`)} className="rounded-lg bg-yellow-400/10 px-2.5 py-1 text-xs font-semibold text-yellow-600 hover:bg-yellow-400/20">Lock</button>
+                                        )}
+                                        {isPinned ? (
+                                            <button type="button" onClick={() => modAction(`/mod/posts/${post.id}/unpin`)} className="rounded-lg bg-ink-900/5 px-2.5 py-1 text-xs font-semibold text-ink-700 hover:bg-ink-900/10">Unpin</button>
+                                        ) : (
+                                            <button type="button" onClick={() => modAction(`/mod/posts/${post.id}/pin`)} className="rounded-lg bg-neon-red/10 px-2.5 py-1 text-xs font-semibold text-neon-red hover:bg-neon-red/20">Pin</button>
+                                        )}
+                                    </div>
+                                )}
 
                                 <div className="mb-4 flex items-center gap-3 text-xs text-gray-500">
                                     <Link
@@ -248,8 +319,10 @@ export default function CommunityShow({
                         {/* Comment list */}
                         {comments.length > 0 ? (
                             <div className="space-y-3">
-                                {comments.map((comment) => (
-                                    <div key={comment.id} className="rounded-xl border border-ink-900/5 bg-bone-100/50 p-4">
+                                {comments.filter((c) => !c.hidden_at || canMod).map((comment) => {
+                                    const commentHidden = !!comment.hidden_at;
+                                    return (
+                                    <div key={comment.id} className={`rounded-xl border p-4 ${commentHidden ? 'border-red-500/30 bg-red-500/5' : 'border-ink-900/5 bg-bone-100/50'}`}>
                                         <div className="mb-2 flex items-center justify-between">
                                             <div className="flex items-center gap-2">
                                                 <Link
@@ -270,20 +343,34 @@ export default function CommunityShow({
                                                     </span>
                                                 </Link>
                                                 <span className="text-[10px] text-gray-500">{timeAgo(comment.created_at)}</span>
+                                                {commentHidden && (
+                                                    <span className="rounded-full bg-red-500/20 px-1.5 py-0.5 text-[9px] font-bold uppercase text-red-500">Hidden</span>
+                                                )}
                                             </div>
-                                            {isLoggedIn && comment.user_id === auth.user.id && (
-                                                <button
-                                                    onClick={() => handleDeleteComment(comment.id)}
-                                                    disabled={deletingId === comment.id}
-                                                    className="text-xs text-red-400 transition hover:text-red-300 disabled:opacity-50"
-                                                >
-                                                    Delete
-                                                </button>
-                                            )}
+                                            <div className="flex items-center gap-2">
+                                                {canMod && (commentHidden ? (
+                                                    <button onClick={() => modAction(`/mod/comments/${comment.id}/unhide`)} className="text-[11px] font-semibold text-gaming-green hover:underline">Unhide</button>
+                                                ) : (
+                                                    <button onClick={() => modAction(`/mod/comments/${comment.id}/hide`, 'Reason (optional):')} className="text-[11px] font-semibold text-red-500 hover:underline">Hide</button>
+                                                ))}
+                                                {isLoggedIn && comment.user_id === auth.user.id && (
+                                                    <button
+                                                        onClick={() => handleDeleteComment(comment.id)}
+                                                        disabled={deletingId === comment.id}
+                                                        className="text-xs text-red-400 transition hover:text-red-300 disabled:opacity-50"
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                )}
+                                            </div>
                                         </div>
                                         <p className="text-sm leading-relaxed text-ink-700 whitespace-pre-wrap">{comment.body}</p>
+                                        {commentHidden && canMod && comment.hidden_reason && (
+                                            <p className="mt-2 text-[11px] text-red-500">Hidden reason: {comment.hidden_reason}</p>
+                                        )}
                                     </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         ) : (
                             <div className="rounded-xl border border-ink-900/5 bg-bone-100/50 p-8 text-center">
@@ -291,8 +378,16 @@ export default function CommunityShow({
                             </div>
                         )}
 
+                        {/* Locked — no new comments */}
+                        {isLocked && isLoggedIn && (
+                            <div className="mt-4 rounded-xl border border-yellow-400/30 bg-yellow-400/5 p-4 text-center">
+                                <p className="text-sm font-semibold text-yellow-600">🔒 This thread is locked</p>
+                                <p className="mt-1 text-xs text-ink-500">A moderator froze replies. No new comments can be posted.</p>
+                            </div>
+                        )}
+
                         {/* Add comment form */}
-                        {isLoggedIn ? (
+                        {isLoggedIn && !isLocked ? (
                             <form onSubmit={handleComment} className="mt-4">
                                 <textarea
                                     value={commentBody}
@@ -312,7 +407,7 @@ export default function CommunityShow({
                                     </button>
                                 </div>
                             </form>
-                        ) : (
+                        ) : !isLoggedIn && (
                             <div className="mt-4 rounded-xl border border-neon-red/20 bg-neon-red/5 p-4 text-center">
                                 <p className="text-sm text-ink-500">
                                     <Link href={route('login')} className="font-semibold text-neon-red hover:text-neon-red/80">Log in</Link>

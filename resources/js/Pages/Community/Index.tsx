@@ -18,6 +18,10 @@ interface CommunityPost {
     created_at: string;
     user?: User;
     game?: Game;
+    hidden_at?: string | null;
+    hidden_reason?: string | null;
+    locked_at?: string | null;
+    pinned_at?: string | null;
 }
 
 const typeBadge = (type: string) => {
@@ -53,14 +57,26 @@ export default function CommunityIndex({
     games,
     filters,
     userVotes,
+    canModerate = false,
 }: {
     posts: { data: CommunityPost[]; links: any[]; current_page: number; last_page: number };
     games: Game[];
     filters: { game_id?: string; type?: string; sort?: string };
     userVotes: Record<number, number>;
+    canModerate?: boolean;
 }) {
     const { auth } = usePage<PageProps>().props;
     const isLoggedIn = !!auth?.user;
+    const canMod = canModerate || (auth?.canModerate ?? false);
+
+    const modAction = async (url: string) => {
+        try {
+            await axios.post(url);
+            router.reload();
+        } catch {
+            alert('Mod action failed.');
+        }
+    };
 
     const [localVotes, setLocalVotes] = useState<Record<number, number>>(userVotes || {});
     const [localPosts, setLocalPosts] = useState<CommunityPost[]>(posts.data);
@@ -259,6 +275,15 @@ export default function CommunityIndex({
                                         {/* Post content */}
                                         <div className="min-w-0 flex-1">
                                             <div className="mb-1.5 flex flex-wrap items-center gap-2">
+                                                {post.pinned_at && (
+                                                    <span className="rounded-full bg-neon-red/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-neon-red">📌 Pinned</span>
+                                                )}
+                                                {post.locked_at && (
+                                                    <span className="rounded-full bg-yellow-400/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-yellow-600">🔒 Locked</span>
+                                                )}
+                                                {post.hidden_at && (
+                                                    <span className="rounded-full bg-red-500/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-red-500">Hidden</span>
+                                                )}
                                                 {typeBadge(post.type)}
                                                 {post.game && (
                                                     <span className="flex items-center gap-1.5 rounded-full bg-ink-900/5 px-2.5 py-0.5 text-[10px] font-medium text-ink-700">
@@ -276,6 +301,21 @@ export default function CommunityIndex({
                                             >
                                                 {post.title}
                                             </Link>
+
+                                            {canMod && (
+                                                <div className="mt-2 flex flex-wrap gap-1.5">
+                                                    {post.hidden_at ? (
+                                                        <button type="button" onClick={(e) => { e.preventDefault(); modAction(`/mod/posts/${post.id}/unhide`); }} className="rounded bg-gaming-green/10 px-2 py-0.5 text-[10px] font-semibold text-gaming-green hover:bg-gaming-green/20">Unhide</button>
+                                                    ) : (
+                                                        <button type="button" onClick={(e) => { e.preventDefault(); const r = window.prompt('Reason for hiding (optional):', ''); if (r === null) return; axios.post(`/mod/posts/${post.id}/hide`, { reason: r }).then(() => router.reload()); }} className="rounded bg-red-500/10 px-2 py-0.5 text-[10px] font-semibold text-red-500 hover:bg-red-500/20">Hide</button>
+                                                    )}
+                                                    {post.pinned_at ? (
+                                                        <button type="button" onClick={(e) => { e.preventDefault(); modAction(`/mod/posts/${post.id}/unpin`); }} className="rounded bg-ink-900/5 px-2 py-0.5 text-[10px] font-semibold text-ink-700 hover:bg-ink-900/10">Unpin</button>
+                                                    ) : (
+                                                        <button type="button" onClick={(e) => { e.preventDefault(); modAction(`/mod/posts/${post.id}/pin`); }} className="rounded bg-neon-red/10 px-2 py-0.5 text-[10px] font-semibold text-neon-red hover:bg-neon-red/20">Pin</button>
+                                                    )}
+                                                </div>
+                                            )}
 
                                             <p className="mt-1 text-sm leading-relaxed text-ink-500 line-clamp-2">
                                                 {post.body.length > 150 ? post.body.substring(0, 150) + '...' : post.body}

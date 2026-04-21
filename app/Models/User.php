@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'date_of_birth', 'parental_consent', 'parental_consent_at', 'is_admin', 'is_banned', 'banned_at', 'ban_reason', 'notification_preferences', 'referral_code', 'referred_by_user_id', 'referral_rewarded_at'])]
+#[Fillable(['name', 'email', 'password', 'date_of_birth', 'parental_consent', 'parental_consent_at', 'is_admin', 'is_moderator', 'is_banned', 'banned_at', 'ban_reason', 'notification_preferences', 'referral_code', 'referred_by_user_id', 'referral_rewarded_at'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -30,7 +30,16 @@ class User extends Authenticatable
             'password' => 'hashed',
             'notification_preferences' => 'array',
             'referral_rewarded_at' => 'datetime',
+            'is_admin' => 'boolean',
+            'is_moderator' => 'boolean',
+            'is_banned' => 'boolean',
         ];
+    }
+
+    /** True if the viewer can use community moderation tools. */
+    public function canModerate(): bool
+    {
+        return (bool) ($this->is_admin || $this->is_moderator);
     }
 
     /**

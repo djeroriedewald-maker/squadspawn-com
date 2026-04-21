@@ -9,6 +9,7 @@ use App\Models\LfgPost;
 use App\Models\PlayerMatch;
 use App\Models\Report;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -67,6 +68,17 @@ class AdminController extends Controller
             'users' => $users,
             'filters' => $request->only('search'),
         ]);
+    }
+
+    /** Toggle a user's moderator role. Admin-only. */
+    public function setModerator(Request $request, User $user): JsonResponse
+    {
+        $data = $request->validate(['is_moderator' => ['required', 'boolean']]);
+        if ($user->is_admin) {
+            return response()->json(['error' => "Admins already have moderator powers."], 422);
+        }
+        $user->update(['is_moderator' => $data['is_moderator']]);
+        return response()->json(['is_moderator' => $user->is_moderator]);
     }
 
     public function banUser(Request $request, User $user)

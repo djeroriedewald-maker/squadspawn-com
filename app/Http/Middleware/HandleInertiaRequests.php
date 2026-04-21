@@ -19,7 +19,7 @@ class HandleInertiaRequests extends Middleware
     {
         $user = $request->user();
 
-        $authData = ['user' => null, 'unreadCount' => 0, 'notifications' => [], 'achievementCount' => 0];
+        $authData = ['user' => null, 'unreadCount' => 0, 'notifications' => [], 'achievementCount' => 0, 'canModerate' => false, 'isAdmin' => false];
 
         if ($user) {
             $user->load(['profile', 'games']);
@@ -48,6 +48,8 @@ class HandleInertiaRequests extends Middleware
                 'unreadCount' => $unreadCount,
                 'achievementCount' => $achievementCount,
                 'notifications' => $notifications,
+                'canModerate' => $user->canModerate(),
+                'isAdmin' => (bool) $user->is_admin,
             ];
         }
 

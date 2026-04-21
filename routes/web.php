@@ -302,6 +302,19 @@ Route::middleware('auth')->group(function () {
     Route::post('/community/{communityPost}/comment', [CommunityController::class, 'comment'])->name('community.comment');
     Route::delete('/community/comment/{postComment}', [CommunityController::class, 'destroyComment'])->name('community.comment.destroy');
 
+    // Moderation — admins + moderators only
+    Route::middleware('moderator')->prefix('mod')->name('mod.')->group(function () {
+        Route::get('/queue', [\App\Http\Controllers\ModerationController::class, 'queue'])->name('queue');
+        Route::post('/posts/{post}/hide', [\App\Http\Controllers\ModerationController::class, 'hidePost'])->name('posts.hide');
+        Route::post('/posts/{post}/unhide', [\App\Http\Controllers\ModerationController::class, 'unhidePost'])->name('posts.unhide');
+        Route::post('/posts/{post}/lock', [\App\Http\Controllers\ModerationController::class, 'lockPost'])->name('posts.lock');
+        Route::post('/posts/{post}/unlock', [\App\Http\Controllers\ModerationController::class, 'unlockPost'])->name('posts.unlock');
+        Route::post('/posts/{post}/pin', [\App\Http\Controllers\ModerationController::class, 'pinPost'])->name('posts.pin');
+        Route::post('/posts/{post}/unpin', [\App\Http\Controllers\ModerationController::class, 'unpinPost'])->name('posts.unpin');
+        Route::post('/comments/{comment}/hide', [\App\Http\Controllers\ModerationController::class, 'hideComment'])->name('comments.hide');
+        Route::post('/comments/{comment}/unhide', [\App\Http\Controllers\ModerationController::class, 'unhideComment'])->name('comments.unhide');
+    });
+
     // Player rating (friends)
     Route::post('/player/rate', [PlayerController::class, 'rate'])->middleware('throttle:30,1')->name('player.rate');
 
@@ -362,6 +375,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/', [\App\Http\Controllers\Admin\AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/users', [\App\Http\Controllers\Admin\AdminController::class, 'users'])->name('admin.users');
     Route::post('/users/{user}/ban', [\App\Http\Controllers\Admin\AdminController::class, 'banUser'])->name('admin.ban');
+    Route::post('/users/{user}/moderator', [\App\Http\Controllers\Admin\AdminController::class, 'setModerator'])->name('admin.setModerator');
     Route::get('/reports', [\App\Http\Controllers\Admin\AdminController::class, 'reports'])->name('admin.reports');
     Route::post('/reports/{report}/resolve', [\App\Http\Controllers\Admin\AdminController::class, 'resolveReport'])->name('admin.resolveReport');
     Route::delete('/lfg-posts/{lfgPost}', [\App\Http\Controllers\Admin\AdminController::class, 'deleteLfgPost'])->name('admin.deleteLfgPost');

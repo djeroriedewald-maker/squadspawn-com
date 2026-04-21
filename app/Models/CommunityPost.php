@@ -13,7 +13,29 @@ class CommunityPost extends Model
     protected $fillable = [
         'slug', 'user_id', 'game_id', 'title', 'body', 'type',
         'upvotes', 'downvotes', 'comments_count',
+        'hidden_at', 'hidden_by_user_id', 'hidden_reason',
+        'locked_at', 'pinned_at',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'hidden_at' => 'datetime',
+            'locked_at' => 'datetime',
+            'pinned_at' => 'datetime',
+        ];
+    }
+
+    public function hiddenBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'hidden_by_user_id');
+    }
+
+    public function scopeVisibleTo(Builder $query, ?User $viewer): Builder
+    {
+        if ($viewer && $viewer->canModerate()) return $query; // mods see hidden
+        return $query->whereNull('hidden_at');
+    }
 
     protected static function booted(): void
     {

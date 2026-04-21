@@ -15,8 +15,10 @@ class CommunityController extends Controller
 {
     public function index(Request $request): Response
     {
-        $query = CommunityPost::with(['user.profile', 'game'])
-            ->withCount('comments');
+        $viewer = auth()->user();
+        $query = CommunityPost::with(['user.profile', 'game', 'hiddenBy.profile'])
+            ->withCount('comments')
+            ->visibleTo($viewer);
 
         if ($request->filled('game_id')) {
             $query->where('game_id', $request->input('game_id'));
@@ -26,7 +28,9 @@ class CommunityController extends Controller
             $query->where('type', $request->input('type'));
         }
 
+        // Pinned always first; then the chosen sort for the rest.
         $sort = $request->input('sort', 'hot');
+        $query->orderByRaw('pinned_at IS NULL ASC')->orderByDesc('pinned_at');
         if ($sort === 'new') {
             $query->new();
         } else {
@@ -50,6 +54,7 @@ class CommunityController extends Controller
             'games' => Game::all(),
             'filters' => $request->only(['game_id', 'type', 'sort']),
             'userVotes' => $userVotes,
+            'canModerate' => $viewer ? $viewer->canModerate() : false,
         ]);
     }
 
@@ -62,12 +67,25 @@ class CommunityController extends Controller
 
     public function show(CommunityPost $communityPost): Response
     {
-        $communityPost->load(['user.profile', 'game', 'comments.user.profile']);
+        $viewer = auth()->user();
+
+        // Hidden posts are invisible to regular users — mods/admins see them
+        // (with a red-border indicator) so they can unhide if needed.
+        if ($communityPost->hidden_at && !($viewer && $viewer->canModerate())) {
+            abort(404);
+        }
+
+        $communityPost->load([
+            'user.profile', 'game',
+            'hiddenBy.profile',
+            'comments.user.profile',
+            'comments.hiddenBy.profile',
+        ]);
 
         $userVote = null;
-        if (auth()->check()) {
+        if ($viewer) {
             $vote = PostVote::where('community_post_id', $communityPost->id)
-                ->where('user_id', auth()->id())
+                ->where('user_id', $viewer->id)
                 ->first();
             $userVote = $vote?->vote;
         }
@@ -78,6 +96,7 @@ class CommunityController extends Controller
         return Inertia::render('Community/Show', [
             'post' => $communityPost,
             'userVote' => $userVote,
+            'canModerate' => $viewer ? $viewer->canModerate() : false,
             'seo' => [
                 'title' => "{$communityPost->title} · SquadSpawn Community",
                 'description' => $snippet ?: "Community post by {$author} on SquadSpawn.",
@@ -194,6 +213,13 @@ class CommunityController extends Controller
 
     public function comment(Request $request, CommunityPost $communityPost): JsonResponse
     {
+        if ($communityPost->locked_at) {
+            return response()->json(['error' => 'This thread is locked.'], 422);
+        }
+        if ($communityPost->hidden_at && !(auth()->user()?->canModerate())) {
+            return response()->json(['error' => 'This post is no longer available.'], 404);
+        }
+
         $validated = $request->validate([
             'body' => 'required|string|max:2000',
         ]);

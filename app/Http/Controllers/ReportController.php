@@ -13,6 +13,8 @@ class ReportController extends Controller
         $request->validate([
             'reported_id' => ['required', 'integer', 'exists:users,id'],
             'lfg_post_id' => ['nullable', 'integer', 'exists:lfg_posts,id'],
+            'community_post_id' => ['nullable', 'integer', 'exists:community_posts,id'],
+            'post_comment_id' => ['nullable', 'integer', 'exists:post_comments,id'],
             'reason' => ['required', 'string', 'max:255'],
             'details' => ['nullable', 'string', 'max:2000'],
         ]);
@@ -27,6 +29,8 @@ class ReportController extends Controller
             'reporter_id' => $userId,
             'reported_id' => $request->reported_id,
             'lfg_post_id' => $request->lfg_post_id,
+            'community_post_id' => $request->community_post_id,
+            'post_comment_id' => $request->post_comment_id,
             'reason' => $request->reason,
             'details' => $request->details,
         ]);
