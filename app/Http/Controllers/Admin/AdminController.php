@@ -81,6 +81,17 @@ class AdminController extends Controller
         return response()->json(['is_moderator' => $user->is_moderator]);
     }
 
+    /** Toggle a user's admin role. Admin-only. Self-demotion blocked. */
+    public function setAdmin(Request $request, User $user): JsonResponse
+    {
+        $data = $request->validate(['is_admin' => ['required', 'boolean']]);
+        if (!$data['is_admin'] && $user->id === auth()->id()) {
+            return response()->json(['error' => "You can't demote yourself."], 422);
+        }
+        $user->update(['is_admin' => $data['is_admin']]);
+        return response()->json(['is_admin' => $user->is_admin]);
+    }
+
     public function banUser(Request $request, User $user)
     {
         if ($user->is_admin) {

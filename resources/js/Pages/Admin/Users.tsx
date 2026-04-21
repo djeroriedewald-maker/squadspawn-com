@@ -44,19 +44,38 @@ export default function Users({ users, filters }: Props) {
         router.get(route('admin.users'), { search: search || undefined }, { preserveState: true });
     }
 
-    function handleBan(userId: number, userName: string) {
-        if (!confirm(`Are you sure you want to ban "${userName}"? This will remove their profile and game associations.`)) {
+    function handleBan(user: User) {
+        const name = user.profile?.username || user.name;
+        if (!confirm(`⚠️ Ban "${name}"?\n\nThis will:\n· Log them out of every device\n· Close all their active LFG groups\n· Prevent them from logging back in\n\nThis action is reversible through the user table (unban), but destructive in the moment.`)) {
             return;
         }
-        axios.post(route('admin.ban', { user: userId })).then(() => {
-            router.reload();
-        });
+        axios.post(route('admin.ban', { user: user.id }))
+            .then(() => router.reload())
+            .catch((err) => alert(err.response?.data?.error || 'Failed to ban user.'));
     }
 
-    function toggleMod(userId: number, currentlyMod: boolean) {
-        axios.post(route('admin.setModerator', { user: userId }), { is_moderator: !currentlyMod }).then(() => {
-            router.reload();
-        });
+    function toggleMod(user: User) {
+        const grant = !user.is_moderator;
+        const name = user.profile?.username || user.name;
+        const msg = grant
+            ? `Make "${name}" a moderator? They'll be able to hide / lock / pin community posts and comments.`
+            : `Revoke moderator from "${name}"?`;
+        if (!confirm(msg)) return;
+        axios.post(route('admin.setModerator', { user: user.id }), { is_moderator: grant })
+            .then(() => router.reload())
+            .catch((err) => alert(err.response?.data?.error || 'Failed to update moderator status.'));
+    }
+
+    function toggleAdmin(user: User) {
+        const grant = !user.is_admin;
+        const name = user.profile?.username || user.name;
+        const msg = grant
+            ? `⚠️ Promote "${name}" to ADMIN?\n\nAdmins have full platform access — user bans, role management, games, reports, and moderator powers. Only give this to people you fully trust.`
+            : `Revoke admin from "${name}"? They'll lose all admin + moderator powers.`;
+        if (!confirm(msg)) return;
+        axios.post(route('admin.setAdmin', { user: user.id }), { is_admin: grant })
+            .then(() => router.reload())
+            .catch((err) => alert(err.response?.data?.error || 'Failed to update admin status.'));
     }
 
     return (
@@ -137,14 +156,20 @@ export default function Users({ users, filters }: Props) {
                                         <div className="flex flex-wrap gap-2">
                                             {!user.is_admin && (
                                                 <button
-                                                    onClick={() => toggleMod(user.id, !!user.is_moderator)}
+                                                    onClick={() => toggleMod(user)}
                                                     className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${user.is_moderator ? 'bg-gaming-cyan/10 text-gaming-cyan hover:bg-gaming-cyan/20' : 'bg-ink-900/5 text-ink-700 hover:bg-ink-900/10'}`}
                                                 >
                                                     {user.is_moderator ? 'Revoke mod' : 'Make mod'}
                                                 </button>
                                             )}
                                             <button
-                                                onClick={() => handleBan(user.id, user.name)}
+                                                onClick={() => toggleAdmin(user)}
+                                                className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${user.is_admin ? 'bg-neon-red/10 text-neon-red hover:bg-neon-red/20' : 'bg-ink-900/5 text-ink-700 hover:bg-ink-900/10'}`}
+                                            >
+                                                {user.is_admin ? 'Revoke admin' : 'Make admin'}
+                                            </button>
+                                            <button
+                                                onClick={() => handleBan(user)}
                                                 className="rounded-lg bg-red-500/10 px-3 py-1.5 text-xs font-medium text-red-400 transition hover:bg-red-500/20"
                                             >
                                                 Ban
