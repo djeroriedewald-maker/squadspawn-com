@@ -174,10 +174,11 @@ class CommunityController extends Controller
             \Log::error('HTMLPurifier failed on community post body', [
                 'user_id' => auth()->id(),
                 'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
-            throw \Illuminate\Validation\ValidationException::withMessages([
-                'body' => 'Could not save — the post contains content we could not process. Try simplifying the formatting.',
-            ]);
+            // Fallback: strip everything except the safest inline tags so
+            // we still save something instead of blowing up the post.
+            $html = strip_tags($rawHtml, '<p><br><strong><em><u><s><a><ul><ol><li><h2><h3><blockquote><code><pre><img>');
         }
         $plain = trim(strip_tags($html));
         return [$html, $plain];
