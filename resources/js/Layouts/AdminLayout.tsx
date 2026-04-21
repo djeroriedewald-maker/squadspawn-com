@@ -43,9 +43,10 @@ const navItems = [
 
 export default function AdminLayout({ children }: PropsWithChildren) {
     return (
-        <div className="flex min-h-screen bg-ink-900 dark:bg-bone-50">
-            {/* Sidebar */}
-            <aside className="fixed left-0 top-0 z-40 flex h-screen w-60 flex-col border-r border-ink-900/5 bg-bone-50">
+        <div className="flex min-h-screen bg-bone-50">
+            {/* Sidebar — uses bg-white so it's visually separated from the
+                main content in both light and dark themes. */}
+            <aside className="fixed left-0 top-0 z-40 flex h-screen w-60 flex-col border-r border-ink-900/10 bg-white">
                 {/* Logo */}
                 <div className="flex h-16 items-center gap-2 border-b border-ink-900/5 px-5">
                     <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-neon-red/20">
