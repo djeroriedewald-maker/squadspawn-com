@@ -78,6 +78,8 @@ export default function RichEditor({ value, onChange, placeholder = 'Write somet
             return;
         }
         editor.chain().focus().setImage({ src: url }).run();
+        // eslint-disable-next-line no-console
+        console.log('[RichEditor] setImage ran. getHTML():', editor.getHTML());
     };
 
     const addYoutube = () => {
