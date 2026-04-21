@@ -363,10 +363,13 @@ class LfgController extends Controller
             ->pluck('rated_id')
             ->toArray();
 
-        // Mark LFG notifications as read — filter in SQL, not PHP.
+        // Mark LFG notifications as read. The SQL-side JSON filter
+        // (data->lfg_post_id) broke on prod so we fall back to the
+        // PHP-side filter that was proven safe.
         $user->unreadNotifications()
-            ->where('data->lfg_post_id', $lfgPost->id)
-            ->update(['read_at' => now()]);
+            ->get()
+            ->filter(fn ($n) => ($n->data['lfg_post_id'] ?? null) === $lfgPost->id)
+            ->each->markAsRead();
         Cache::forget("user:{$user->id}:unread");
 
         // Mark chat as read for widget unread tracking
@@ -1057,10 +1060,12 @@ class LfgController extends Controller
         // Mark as read
         Cache::put("lfg_read:{$user->id}:{$lfgPost->id}", now()->toISOString(), 86400 * 30);
 
-        // Clear LFG notifications for this post — filter in SQL, not PHP.
+        // Clear LFG notifications for this post. See matching comment in
+        // show() — the SQL JSON filter broke on prod, fall back to PHP.
         $user->unreadNotifications()
-            ->where('data->lfg_post_id', $lfgPost->id)
-            ->update(['read_at' => now()]);
+            ->get()
+            ->filter(fn ($n) => ($n->data['lfg_post_id'] ?? null) === $lfgPost->id)
+            ->each->markAsRead();
         Cache::forget("user:{$user->id}:unread");
 
         return response()->json([
