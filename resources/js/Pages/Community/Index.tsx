@@ -132,8 +132,8 @@ export default function CommunityIndex({
         <>
             <Head title="Community" />
 
-            <div className="py-8">
-                <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+            <div className="overflow-x-hidden py-8">
+                <div className="mx-auto w-full max-w-4xl px-4 sm:px-6 lg:px-8">
                     {/* Header */}
                     <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
@@ -318,7 +318,7 @@ export default function CommunityIndex({
 
                                             <Link
                                                 href={route('community.show', { communityPost: post.slug })}
-                                                className="block text-base font-bold text-ink-900 transition hover:text-neon-red"
+                                                className="block break-words text-base font-bold text-ink-900 transition hover:text-neon-red"
                                             >
                                                 {post.title}
                                             </Link>

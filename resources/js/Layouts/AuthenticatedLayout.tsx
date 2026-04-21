@@ -262,7 +262,7 @@ export default function Authenticated({
                 </header>
             )}
 
-            <main>{children}</main>
+            <main className="overflow-x-hidden">{children}</main>
 
             <footer className="mt-auto border-t border-ink-900/5 bg-bone-50 px-6 py-6 lg:px-12">
                 <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 sm:flex-row">
