@@ -302,15 +302,17 @@ Route::middleware('auth')->group(function () {
     Route::post('/community/{communityPost}/comment', [CommunityController::class, 'comment'])->name('community.comment');
     Route::delete('/community/comment/{postComment}', [CommunityController::class, 'destroyComment'])->name('community.comment.destroy');
 
-    // Moderation — admins + moderators only
+    // Moderation — admins + moderators only. Explicit `:id` binding because
+    // the community post model's default route key is the slug, but mod
+    // UIs work off post.id for compactness.
     Route::middleware('moderator')->prefix('mod')->name('mod.')->group(function () {
         Route::get('/queue', [\App\Http\Controllers\ModerationController::class, 'queue'])->name('queue');
-        Route::post('/posts/{post}/hide', [\App\Http\Controllers\ModerationController::class, 'hidePost'])->name('posts.hide');
-        Route::post('/posts/{post}/unhide', [\App\Http\Controllers\ModerationController::class, 'unhidePost'])->name('posts.unhide');
-        Route::post('/posts/{post}/lock', [\App\Http\Controllers\ModerationController::class, 'lockPost'])->name('posts.lock');
-        Route::post('/posts/{post}/unlock', [\App\Http\Controllers\ModerationController::class, 'unlockPost'])->name('posts.unlock');
-        Route::post('/posts/{post}/pin', [\App\Http\Controllers\ModerationController::class, 'pinPost'])->name('posts.pin');
-        Route::post('/posts/{post}/unpin', [\App\Http\Controllers\ModerationController::class, 'unpinPost'])->name('posts.unpin');
+        Route::post('/posts/{post:id}/hide', [\App\Http\Controllers\ModerationController::class, 'hidePost'])->name('posts.hide');
+        Route::post('/posts/{post:id}/unhide', [\App\Http\Controllers\ModerationController::class, 'unhidePost'])->name('posts.unhide');
+        Route::post('/posts/{post:id}/lock', [\App\Http\Controllers\ModerationController::class, 'lockPost'])->name('posts.lock');
+        Route::post('/posts/{post:id}/unlock', [\App\Http\Controllers\ModerationController::class, 'unlockPost'])->name('posts.unlock');
+        Route::post('/posts/{post:id}/pin', [\App\Http\Controllers\ModerationController::class, 'pinPost'])->name('posts.pin');
+        Route::post('/posts/{post:id}/unpin', [\App\Http\Controllers\ModerationController::class, 'unpinPost'])->name('posts.unpin');
         Route::post('/comments/{comment}/hide', [\App\Http\Controllers\ModerationController::class, 'hideComment'])->name('comments.hide');
         Route::post('/comments/{comment}/unhide', [\App\Http\Controllers\ModerationController::class, 'unhideComment'])->name('comments.unhide');
     });

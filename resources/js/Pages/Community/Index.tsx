@@ -73,8 +73,9 @@ export default function CommunityIndex({
         try {
             await axios.post(url);
             router.reload();
-        } catch {
-            alert('Mod action failed.');
+        } catch (err: any) {
+            const msg = err.response?.data?.message || err.response?.data?.error || err.message || 'Unknown';
+            alert(`Mod action failed: ${msg} (${err.response?.status ?? 'network'})`);
         }
     };
 

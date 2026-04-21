@@ -97,9 +97,10 @@ export default function CommunityShow({
         if (reasonPrompt && reason === null) return; // user cancelled
         try {
             await axios.post(url, reason ? { reason } : {});
-            router.reload({ only: ['post'] });
+            router.reload();
         } catch (err: any) {
-            alert(err.response?.data?.error || 'Mod action failed.');
+            const msg = err.response?.data?.message || err.response?.data?.error || err.message || 'Mod action failed.';
+            alert(`Mod action failed: ${msg} (${err.response?.status ?? 'network'})`);
         }
     };
 
