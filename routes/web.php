@@ -29,6 +29,7 @@ Route::put('/settings/theme', [\App\Http\Controllers\ThemeController::class, 'up
 Route::get('/privacy-policy', fn () => Inertia::render('Legal/PrivacyPolicy'))->name('legal.privacy');
 Route::get('/terms-of-service', fn () => Inertia::render('Legal/TermsOfService'))->name('legal.terms');
 Route::get('/cookie-policy', fn () => Inertia::render('Legal/CookiePolicy'))->name('legal.cookies');
+Route::get('/help', fn () => Inertia::render('Help/Index'))->name('help');
 
 Route::get('/', function () {
     // Logged-in users have outgrown the marketing homepage — bounce them

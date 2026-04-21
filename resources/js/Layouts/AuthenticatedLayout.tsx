@@ -142,6 +142,14 @@ export default function Authenticated({
                                         <Dropdown.Link href={route('profile.edit')}>
                                             Settings
                                         </Dropdown.Link>
+                                        <Dropdown.Link href={route('help')}>
+                                            <span className="flex items-center gap-2">
+                                                <svg className="h-4 w-4 text-ink-500" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+                                                </svg>
+                                                <span>Help centre</span>
+                                            </span>
+                                        </Dropdown.Link>
                                         <Dropdown.Link href={route('logout')} method="post" as="button">
                                             Log Out
                                         </Dropdown.Link>
@@ -265,6 +273,9 @@ export default function Authenticated({
                             <ResponsiveNavLink href={route('profile.edit')}>
                                 Settings
                             </ResponsiveNavLink>
+                            <ResponsiveNavLink href={route('help')}>
+                                Help centre
+                            </ResponsiveNavLink>
                             <ResponsiveNavLink method="post" href={route('logout')} as="button">
                                 Log Out
                             </ResponsiveNavLink>
@@ -289,6 +300,7 @@ export default function Authenticated({
             <footer className="mt-auto border-t border-ink-900/5 bg-bone-50 px-6 py-6 lg:px-12">
                 <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 sm:flex-row">
                     <div className="flex gap-4 text-xs text-gray-500">
+                        <Link href={route('help')} className="transition hover:text-ink-700">Help</Link>
                         <a href="/privacy-policy" className="transition hover:text-ink-700">Privacy Policy</a>
                         <a href="/terms-of-service" className="transition hover:text-ink-700">Terms of Service</a>
                         <a href="/cookie-policy" className="transition hover:text-ink-700">Cookie Policy</a>

@@ -374,6 +374,7 @@ export default function Welcome({
                 <footer className="border-t border-ink-900/10 bg-bone-50 px-6 py-8 lg:px-12">
                     <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 text-xs text-ink-500 sm:flex-row">
                         <div className="flex flex-wrap items-center gap-4">
+                            <Link href={route('help')} className="hover:text-ink-900">Help</Link>
                             <a href="/privacy-policy" className="hover:text-ink-900">Privacy</a>
                             <a href="/terms-of-service" className="hover:text-ink-900">Terms</a>
                             <a href="/cookie-policy" className="hover:text-ink-900">Cookies</a>
