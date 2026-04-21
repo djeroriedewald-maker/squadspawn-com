@@ -90,7 +90,28 @@ export default function LfgShow({
 
     const acceptedResponses = post.responses?.filter((r) => r.status === 'accepted') || [];
     const pendingResponses = post.responses?.filter((r) => r.status === 'pending') || [];
-    const hasResponded = post.responses?.some((r) => r.user_id === auth.user.id) ?? false;
+    const myResponse = post.responses?.find((r) => r.user_id === auth.user.id);
+    const hasResponded = !!myResponse;
+    const myIsPending = myResponse?.status === 'pending';
+    const [withdrawing, setWithdrawing] = useState(false);
+
+    const handleWithdraw = async () => {
+        if (myResponse?.status === 'accepted' && !window.confirm('Uitstappen uit deze squad? Je plek wordt weer open voor iemand anders.')) return;
+        setWithdrawing(true);
+        try {
+            const { data } = await axios.delete(route('lfg.withdraw', { lfgPost: post.slug }));
+            setPost((p) => ({
+                ...p,
+                spots_filled: data?.spots_filled ?? p.spots_filled,
+                status: data?.status ?? p.status,
+                responses: (p.responses || []).filter((r) => r.user_id !== auth.user.id),
+            }));
+        } catch (err: any) {
+            alert(err.response?.data?.error || 'Withdraw failed.');
+        } finally {
+            setWithdrawing(false);
+        }
+    };
 
     const progress = post.spots_needed > 0 ? Math.min((post.spots_filled / post.spots_needed) * 100, 100) : 0;
 
@@ -596,6 +617,36 @@ export default function LfgShow({
 
                         {/* Right column - Sidebar */}
                         <div className="space-y-6">
+                            {/* Pending — withdraw request */}
+                            {!isMember && !isCreator && myIsPending && (
+                                <div className="rounded-xl border border-yellow-400/30 bg-yellow-400/5 p-6">
+                                    <h3 className="mb-1 text-base font-bold text-ink-900">Awaiting host approval</h3>
+                                    <p className="mb-4 text-xs text-ink-500">Your request is in the host's queue. Change your mind?</p>
+                                    <button
+                                        onClick={handleWithdraw}
+                                        disabled={withdrawing}
+                                        className="w-full rounded-xl border border-ink-900/10 bg-white px-4 py-2.5 text-sm font-semibold text-ink-700 transition hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-500 disabled:opacity-50"
+                                    >
+                                        {withdrawing ? 'Cancelling…' : 'Cancel request'}
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Member — leave squad */}
+                            {isMember && !isCreator && !isClosed && (
+                                <div className="rounded-xl border border-ink-900/10 bg-white p-6">
+                                    <h3 className="mb-1 text-base font-bold text-ink-900">Can't make it?</h3>
+                                    <p className="mb-4 text-xs text-ink-500">Leaving the squad opens your seat back up for someone else.</p>
+                                    <button
+                                        onClick={handleWithdraw}
+                                        disabled={withdrawing}
+                                        className="w-full rounded-xl border border-red-500/30 bg-red-500/5 px-4 py-2.5 text-sm font-semibold text-red-500 transition hover:bg-red-500/10 disabled:opacity-50"
+                                    >
+                                        {withdrawing ? 'Leaving…' : 'Leave squad'}
+                                    </button>
+                                </div>
+                            )}
+
                             {/* Join Section (not member, not creator) */}
                             {!isMember && !isCreator && isOpen && !hasResponded && (
                                 <div className="rounded-xl border border-ink-900/10 bg-white p-6">

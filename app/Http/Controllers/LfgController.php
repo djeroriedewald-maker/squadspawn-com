@@ -383,6 +383,58 @@ class LfgController extends Controller
         return response()->json(['success' => true]);
     }
 
+    /**
+     * Leave an LFG you joined, or withdraw a pending request. Hard-deletes
+     * the response row — if the user was already accepted we also roll back
+     * spots_filled and (if the squad was full) flip status back to open.
+     * The host / remaining teammates never need a stale ghost in the group.
+     */
+    public function withdraw(LfgPost $lfgPost): JsonResponse
+    {
+        $userId = auth()->id();
+
+        if ($lfgPost->user_id === $userId) {
+            return response()->json(['error' => 'Hosts close or delete the post instead of leaving it.'], 422);
+        }
+
+        return DB::transaction(function () use ($lfgPost, $userId) {
+            $locked = LfgPost::whereKey($lfgPost->id)->lockForUpdate()->first();
+            if (!$locked) {
+                return response()->json(['error' => 'Post not found.'], 404);
+            }
+
+            $response = $locked->responses()->where('user_id', $userId)->lockForUpdate()->first();
+            if (!$response) {
+                return response()->json(['error' => "You're not in this group."], 422);
+            }
+
+            $wasAccepted = $response->status === 'accepted';
+            $response->delete();
+
+            if ($wasAccepted) {
+                $newFilled = max(1, $locked->spots_filled - 1);
+                $newStatus = $locked->status === 'full' && $newFilled < $locked->spots_needed ? 'open' : $locked->status;
+                $locked->update(['spots_filled' => $newFilled, 'status' => $newStatus]);
+
+                // Ping the host so they know a seat reopened.
+                try {
+                    $locked->load(['user', 'game']);
+                    $locked->user->notify(new \App\Notifications\LfgMemberLeftNotification($locked, auth()->user()));
+                    Cache::forget("user:{$locked->user_id}:unread");
+                } catch (\Throwable $e) {
+                    \Log::error('LFG withdraw-host-notify error: ' . $e->getMessage());
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'was_accepted' => $wasAccepted,
+                'status' => $locked->fresh()->status,
+                'spots_filled' => $locked->fresh()->spots_filled,
+            ]);
+        });
+    }
+
     public function acceptResponse(LfgPost $lfgPost, int $responseId): JsonResponse
     {
         if ($lfgPost->user_id !== auth()->id()) {

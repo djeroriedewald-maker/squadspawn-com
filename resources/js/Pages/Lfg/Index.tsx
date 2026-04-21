@@ -117,6 +117,28 @@ export default function LfgIndex({
         );
     };
 
+    const handleWithdraw = async (post: LfgPost) => {
+        const myStatus = myResponseStatus(post);
+        if (myStatus === 'accepted' && !window.confirm('Uitstappen uit deze squad? Je plek wordt weer open voor iemand anders.')) return;
+        try {
+            const { data } = await axios.delete(route('lfg.withdraw', { lfgPost: post.slug }));
+            setLocalPosts((prev) =>
+                prev.map((p) =>
+                    p.id === post.id
+                        ? {
+                              ...p,
+                              spots_filled: data?.spots_filled ?? p.spots_filled,
+                              status: data?.status ?? p.status,
+                              responses: (p.responses || []).filter((r) => r.user_id !== auth.user.id),
+                          }
+                        : p,
+                ),
+            );
+        } catch (err: any) {
+            alert(err.response?.data?.error || 'Withdraw failed.');
+        }
+    };
+
     const handleJoin = async (post: LfgPost) => {
         setJoiningId(post.id);
         try {
@@ -606,15 +628,19 @@ export default function LfgIndex({
                                                 </div>
                                             )}
 
-                                            {/* Join button */}
+                                            {/* Join / Leave button */}
                                             <button
-                                                onClick={(e) => { e.stopPropagation(); handleJoin(post); }}
-                                                disabled={isFull || isOwn || isAccepted || isPending || joiningId === post.id}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    if (isAccepted || isPending) handleWithdraw(post);
+                                                    else handleJoin(post);
+                                                }}
+                                                disabled={(!isAccepted && !isPending) && (isFull || isOwn || joiningId === post.id)}
                                                 className={`w-full rounded-lg px-4 py-2 text-sm font-semibold transition ${
                                                     isAccepted
-                                                        ? 'bg-gaming-green/20 text-gaming-green cursor-default'
+                                                        ? 'bg-gaming-green/20 text-gaming-green hover:bg-red-500/15 hover:text-red-500 border border-gaming-green/30 hover:border-red-500/30'
                                                         : isPending
-                                                          ? 'bg-yellow-400/15 text-yellow-500 cursor-default border border-yellow-400/30'
+                                                          ? 'bg-yellow-400/15 text-yellow-600 hover:bg-red-500/15 hover:text-red-500 border border-yellow-400/30 hover:border-red-500/30'
                                                           : isFull
                                                             ? 'bg-ink-900/5 text-gray-500 cursor-not-allowed'
                                                             : isOwn
@@ -623,9 +649,9 @@ export default function LfgIndex({
                                                 }`}
                                             >
                                                 {isAccepted
-                                                    ? 'Joined'
+                                                    ? 'Joined · Leave squad'
                                                     : isPending
-                                                      ? 'Request sent · awaiting host'
+                                                      ? 'Request sent · Cancel'
                                                       : isFull
                                                         ? 'Full'
                                                         : isOwn

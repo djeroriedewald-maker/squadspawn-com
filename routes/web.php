@@ -302,6 +302,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/lfg/{lfgPost}/edit', [LfgController::class, 'edit'])->name('lfg.edit');
         Route::put('/lfg/{lfgPost}', [LfgController::class, 'update'])->name('lfg.update');
         Route::post('/lfg/{lfgPost}/respond', [LfgController::class, 'respond'])->name('lfg.respond');
+        Route::delete('/lfg/{lfgPost}/respond', [LfgController::class, 'withdraw'])->name('lfg.withdraw');
         Route::post('/lfg/{lfgPost}/accept/{response}', [LfgController::class, 'acceptResponse'])->name('lfg.accept');
         Route::post('/lfg/{lfgPost}/reject/{response}', [LfgController::class, 'rejectResponse'])->name('lfg.reject');
         Route::post('/lfg/{lfgPost}/message', [LfgController::class, 'sendMessage'])->name('lfg.message');
