@@ -160,8 +160,12 @@ export default function LfgIndex({
 
     const allPlatforms = ['PC', 'PlayStation', 'Xbox', 'Nintendo Switch', 'Mobile'];
 
-    const hasJoined = (post: LfgPost) =>
-        post.responses?.some((r) => r.user_id === auth.user.id) ?? false;
+    const myResponseStatus = (post: LfgPost): 'pending' | 'accepted' | 'rejected' | null => {
+        const r = post.responses?.find((r) => r.user_id === auth.user.id);
+        if (!r) return null;
+        if (r.status === 'pending' || r.status === 'accepted' || r.status === 'rejected') return r.status;
+        return null;
+    };
 
     return (
         <AuthenticatedLayout>
@@ -426,7 +430,9 @@ export default function LfgIndex({
                             {localPosts.map((post) => {
                                 const isFull = post.status === 'full';
                                 const isOwn = post.user_id === auth.user.id;
-                                const joined = hasJoined(post);
+                                const responseStatus = myResponseStatus(post);
+                                const isAccepted = responseStatus === 'accepted';
+                                const isPending = responseStatus === 'pending';
                                 const filledSpots = Math.max(post.spots_filled, 1);
                                 const progress =
                                     post.spots_needed > 0
@@ -579,26 +585,30 @@ export default function LfgIndex({
                                             {/* Join button */}
                                             <button
                                                 onClick={(e) => { e.stopPropagation(); handleJoin(post); }}
-                                                disabled={isFull || isOwn || joined || joiningId === post.id}
+                                                disabled={isFull || isOwn || isAccepted || isPending || joiningId === post.id}
                                                 className={`w-full rounded-lg px-4 py-2 text-sm font-semibold transition ${
-                                                    joined
+                                                    isAccepted
                                                         ? 'bg-gaming-green/20 text-gaming-green cursor-default'
-                                                        : isFull
-                                                          ? 'bg-ink-900/5 text-gray-500 cursor-not-allowed'
-                                                          : isOwn
+                                                        : isPending
+                                                          ? 'bg-yellow-400/15 text-yellow-500 cursor-default border border-yellow-400/30'
+                                                          : isFull
                                                             ? 'bg-ink-900/5 text-gray-500 cursor-not-allowed'
-                                                            : 'bg-gaming-green/10 text-gaming-green hover:bg-gaming-green/20 border border-gaming-green/30 hover:border-gaming-green/50'
+                                                            : isOwn
+                                                              ? 'bg-ink-900/5 text-gray-500 cursor-not-allowed'
+                                                              : 'bg-gaming-green/10 text-gaming-green hover:bg-gaming-green/20 border border-gaming-green/30 hover:border-gaming-green/50'
                                                 }`}
                                             >
-                                                {joined
+                                                {isAccepted
                                                     ? 'Joined'
-                                                    : isFull
-                                                      ? 'Full'
-                                                      : isOwn
-                                                        ? 'Your Post'
-                                                        : joiningId === post.id
-                                                          ? 'Joining...'
-                                                          : 'Join'}
+                                                    : isPending
+                                                      ? 'Request sent · awaiting host'
+                                                      : isFull
+                                                        ? 'Full'
+                                                        : isOwn
+                                                          ? 'Your Post'
+                                                          : joiningId === post.id
+                                                            ? 'Joining...'
+                                                            : 'Join'}
                                             </button>
                                         </div>
                                     </div>
