@@ -2,7 +2,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Game, PageProps, User } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import axios from 'axios';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 
 interface PostComment {
     id: number;
@@ -83,6 +83,14 @@ export default function CommunityShow({
     const [post, setPost] = useState(initialPost);
     const [userVote, setUserVote] = useState<number | null>(initialUserVote);
     const [comments, setComments] = useState<PostComment[]>(initialPost.comments || []);
+
+    // router.reload() after mod actions delivers fresh props but the local
+    // state hooks still hold the pre-action values. Mirror them forward so
+    // hide / lock / pin toggles are reflected instantly.
+    useEffect(() => {
+        setPost(initialPost);
+        setComments(initialPost.comments || []);
+    }, [initialPost]);
     const [commentBody, setCommentBody] = useState('');
     const [submitting, setSubmitting] = useState(false);
     const [voting, setVoting] = useState(false);

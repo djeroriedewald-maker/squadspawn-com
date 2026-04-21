@@ -2,7 +2,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Game, PageProps, User } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import axios from 'axios';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface CommunityPost {
     id: number;
@@ -82,6 +82,11 @@ export default function CommunityIndex({
     const [localVotes, setLocalVotes] = useState<Record<number, number>>(userVotes || {});
     const [localPosts, setLocalPosts] = useState<CommunityPost[]>(posts.data);
     const [votingId, setVotingId] = useState<number | null>(null);
+
+    // Reload-after-mod-action delivers fresh props; mirror them into state.
+    useEffect(() => {
+        setLocalPosts(posts.data);
+    }, [posts.data]);
 
     const handleVote = async (postId: number, vote: 1 | -1) => {
         if (!isLoggedIn || votingId === postId) return;
