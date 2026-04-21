@@ -660,7 +660,7 @@ export default function LfgIndex({
 
                                             {/* Description */}
                                             {post.description && (
-                                                <p className="mb-3 text-xs leading-relaxed text-ink-500 line-clamp-2">
+                                                <p className="mb-3 break-words text-xs leading-relaxed text-ink-500 line-clamp-2">
                                                     {post.description}
                                                 </p>
                                             )}

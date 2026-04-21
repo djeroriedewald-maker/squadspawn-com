@@ -380,7 +380,7 @@ export default function LfgShow({
                                     </div>
                                     <h1 className="text-2xl font-bold text-ink-900">{post.title}</h1>
                                     <p className="mt-1 text-xs text-ink-500">Posted {relativeTimeShort(post.created_at)}</p>
-                                    {post.description && <p className="mt-2 text-sm text-ink-500">{post.description}</p>}
+                                    {post.description && <p className="mt-2 break-words text-sm text-ink-500">{post.description}</p>}
                                 </div>
                                 <div className="flex flex-col items-start gap-3 sm:items-end">
                                     <HostTrustRow host={post.user} stats={hostStats} size="md" />
@@ -660,7 +660,7 @@ export default function LfgShow({
                                                                     {msg.user?.profile?.username ?? msg.user?.name}
                                                                 </p>
                                                             )}
-                                                            <p className="text-sm text-ink-900">{msg.body}</p>
+                                                            <p className="break-words text-sm text-ink-900">{msg.body}</p>
                                                             <p className={`mt-0.5 text-right text-[10px] ${isMe ? 'text-ink-900/50' : 'text-gray-500'}`}>
                                                                 {formatTime(msg.created_at)}
                                                             </p>

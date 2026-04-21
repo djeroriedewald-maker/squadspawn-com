@@ -311,7 +311,7 @@ export default function CommunityShow({
                                         dangerouslySetInnerHTML={{ __html: post.body_html }}
                                     />
                                 ) : (
-                                    <div className="max-w-none whitespace-pre-wrap text-sm leading-relaxed text-ink-700">
+                                    <div className="max-w-none whitespace-pre-wrap break-words text-sm leading-relaxed text-ink-700">
                                         {post.body}
                                     </div>
                                 )}
@@ -373,7 +373,7 @@ export default function CommunityShow({
                                                 )}
                                             </div>
                                         </div>
-                                        <p className="text-sm leading-relaxed text-ink-700 whitespace-pre-wrap">{comment.body}</p>
+                                        <p className="text-sm leading-relaxed text-ink-700 whitespace-pre-wrap break-words">{comment.body}</p>
                                         {commentHidden && canMod && comment.hidden_reason && (
                                             <p className="mt-2 text-[11px] text-red-500">Hidden reason: {comment.hidden_reason}</p>
                                         )}

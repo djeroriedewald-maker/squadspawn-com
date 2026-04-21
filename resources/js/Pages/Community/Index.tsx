@@ -338,7 +338,7 @@ export default function CommunityIndex({
                                                 </div>
                                             )}
 
-                                            <p className="mt-1 text-sm leading-relaxed text-ink-500 line-clamp-2">
+                                            <p className="mt-1 break-words text-sm leading-relaxed text-ink-500 line-clamp-2">
                                                 {post.body.length > 150 ? post.body.substring(0, 150) + '...' : post.body}
                                             </p>
 

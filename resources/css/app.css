@@ -133,11 +133,30 @@
     border: 0;
 }
 
+html, body {
+    /* Safety net: stop any stray wide element from giving the whole page a
+       horizontal scrollbar. We don't use position:sticky anywhere that
+       this would break. */
+    overflow-x: hidden;
+    max-width: 100vw;
+}
+
 body {
     @apply bg-bone-50 text-ink-900 antialiased;
     background-image:
         radial-gradient(ellipse at 15% 10%, var(--page-glow-1) 0%, transparent 45%),
         radial-gradient(ellipse at 85% 85%, var(--page-glow-2) 0%, transparent 50%);
+}
+
+/* Long URLs and unbreakable tokens in user-generated text should wrap
+   instead of pushing the page wider than the viewport. */
+.prose-markdown,
+.prose-markdown p,
+.prose-markdown a,
+.prose-markdown code,
+.prose-markdown li {
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 /* Subtle grid texture overlay */
