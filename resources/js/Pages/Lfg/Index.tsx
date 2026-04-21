@@ -24,6 +24,14 @@ interface HostStats {
     is_friend?: boolean;
 }
 
+type MyRole = 'host' | 'joined' | 'pending';
+
+const ROLE_BADGES: Record<MyRole, { label: string; className: string }> = {
+    host: { label: '🎮 Hosting', className: 'bg-neon-red/20 text-neon-red' },
+    joined: { label: '👥 Joined', className: 'bg-gaming-green/20 text-gaming-green' },
+    pending: { label: '⏳ Pending', className: 'bg-yellow-400/20 text-yellow-600' },
+};
+
 interface FilterOptions {
     languages: string[];
     ranks: string[];
@@ -32,6 +40,7 @@ interface FilterOptions {
 
 interface LfgPost {
     id: number;
+    my_role?: MyRole;
     user_id: number;
     game_id: number;
     title: string;
@@ -452,7 +461,7 @@ export default function LfgIndex({
                     {/* My Groups */}
                     {myPosts && myPosts.length > 0 && (
                         <div className="mb-8">
-                            <h2 className="mb-3 text-lg font-bold text-ink-900">My Groups</h2>
+                            <h2 className="mb-3 text-lg font-bold text-ink-900">My Active Squads</h2>
                             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                                 {myPosts.map((mp) => (
                                     <Link
@@ -472,6 +481,11 @@ export default function LfgIndex({
                                                 <span className="absolute bottom-2 left-3 text-xs font-bold text-white drop-shadow-md">
                                                     {mp.game.name}
                                                 </span>
+                                                {mp.my_role && (
+                                                    <span className={`absolute right-2 top-2 rounded-full px-2 py-0.5 text-[10px] font-bold backdrop-blur-sm ${ROLE_BADGES[mp.my_role].className}`}>
+                                                        {ROLE_BADGES[mp.my_role].label}
+                                                    </span>
+                                                )}
                                             </div>
                                         )}
                                         <div className="p-3">
@@ -508,7 +522,7 @@ export default function LfgIndex({
                                 onClick={() => setShowHistory(false)}
                                 className={`flex-1 rounded-md px-4 py-2 text-sm font-semibold transition ${!showHistory ? 'bg-neon-red text-white' : 'text-ink-500 hover:text-ink-900'}`}
                             >
-                                Active Groups
+                                Browse
                             </button>
                             <button
                                 onClick={() => setShowHistory(true)}

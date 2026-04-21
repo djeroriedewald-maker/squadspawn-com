@@ -165,11 +165,27 @@ class LfgController extends Controller
 
         $userId = auth()->id();
 
-        $myPosts = LfgPost::where('user_id', $userId)
-            ->whereIn('status', ['open', 'full'])
-            ->with(['game', 'responses.user.profile'])
+        // "My Active Squads" — posts the viewer is involved with in any
+        // role (hosting, accepted member, or pending request). Closed posts
+        // live in history, not here.
+        $myPosts = LfgPost::whereIn('status', ['open', 'full'])
+            ->where(function ($q) use ($userId) {
+                $q->where('user_id', $userId)
+                    ->orWhereHas('responses', fn ($r) => $r->where('user_id', $userId)->whereIn('status', ['accepted', 'pending']));
+            })
+            ->with(['game', 'user.profile', 'responses.user.profile'])
             ->latest()
-            ->get();
+            ->get()
+            ->map(function ($post) use ($userId) {
+                $role = 'joined';
+                if ($post->user_id === $userId) $role = 'host';
+                else {
+                    $myResp = $post->responses->firstWhere('user_id', $userId);
+                    if ($myResp && $myResp->status === 'pending') $role = 'pending';
+                }
+                $post->my_role = $role;
+                return $post;
+            });
 
         // History: closed groups I hosted or participated in
         $myHistory = LfgPost::where(function ($q) use ($userId) {
