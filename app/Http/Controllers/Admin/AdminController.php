@@ -73,6 +73,9 @@ class AdminController extends Controller
     /** Toggle a user's moderator role. Admin-only. */
     public function setModerator(Request $request, User $user): JsonResponse
     {
+        if ($user->isOwner()) {
+            return response()->json(['error' => "The platform owner's roles can't be modified."], 403);
+        }
         $data = $request->validate(['is_moderator' => ['required', 'boolean']]);
         if ($user->is_admin) {
             return response()->json(['error' => "Admins already have moderator powers."], 422);
@@ -81,9 +84,12 @@ class AdminController extends Controller
         return response()->json(['is_moderator' => $user->is_moderator]);
     }
 
-    /** Toggle a user's admin role. Admin-only. Self-demotion blocked. */
+    /** Toggle a user's admin role. Admin-only. Self-demotion + owner protected. */
     public function setAdmin(Request $request, User $user): JsonResponse
     {
+        if ($user->isOwner()) {
+            return response()->json(['error' => "The platform owner's admin status is permanent."], 403);
+        }
         $data = $request->validate(['is_admin' => ['required', 'boolean']]);
         if (!$data['is_admin'] && $user->id === auth()->id()) {
             return response()->json(['error' => "You can't demote yourself."], 422);
@@ -94,6 +100,10 @@ class AdminController extends Controller
 
     public function banUser(Request $request, User $user)
     {
+        if ($user->isOwner()) {
+            \Log::warning('Ban attempted against platform owner', ['by_admin_id' => auth()->id(), 'target_user_id' => $user->id]);
+            return response()->json(['error' => "The platform owner can't be banned."], 403);
+        }
         if ($user->is_admin) {
             return response()->json(['error' => 'Cannot ban admins'], 422);
         }

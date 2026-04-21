@@ -7,6 +7,7 @@ interface TeamMember {
     username?: string;
     avatar?: string;
     bio?: string;
+    is_owner: boolean;
     is_admin: boolean;
     is_moderator: boolean;
     region?: string;
@@ -72,9 +73,11 @@ export default function CommunityTeam({ team }: { team: TeamMember[] }) {
 }
 
 function TeamCard({ member }: { member: TeamMember }) {
-    const badge = member.is_admin
-        ? { label: 'ADMIN', className: 'bg-neon-red/20 text-neon-red' }
-        : { label: 'MOD', className: 'bg-gaming-cyan/20 text-gaming-cyan' };
+    const badge = member.is_owner
+        ? { label: '👑 OWNER', className: 'bg-gaming-orange/20 text-gaming-orange' }
+        : member.is_admin
+            ? { label: 'ADMIN', className: 'bg-neon-red/20 text-neon-red' }
+            : { label: 'MOD', className: 'bg-gaming-cyan/20 text-gaming-cyan' };
 
     return (
         <Link

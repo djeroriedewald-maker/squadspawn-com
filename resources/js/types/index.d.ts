@@ -5,6 +5,7 @@ export interface User {
     email_verified_at?: string;
     is_admin?: boolean;
     is_moderator?: boolean;
+    is_owner?: boolean;
     profile?: Profile;
     games?: Game[];
 }

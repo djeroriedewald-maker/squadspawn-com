@@ -256,6 +256,7 @@ class CommunityController extends Controller
             })
             ->where('is_banned', false)
             ->with('profile')
+            ->orderByDesc('is_owner')
             ->orderByDesc('is_admin')
             ->orderBy('created_at')
             ->get()
@@ -265,6 +266,7 @@ class CommunityController extends Controller
                 'username' => $u->profile?->username,
                 'avatar' => $u->profile?->avatar,
                 'bio' => $u->profile?->bio,
+                'is_owner' => (bool) $u->is_owner,
                 'is_admin' => (bool) $u->is_admin,
                 'is_moderator' => (bool) $u->is_moderator,
                 'region' => $u->profile?->region,

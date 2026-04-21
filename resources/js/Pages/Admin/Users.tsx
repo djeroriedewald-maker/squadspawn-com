@@ -9,6 +9,7 @@ interface User {
     email: string;
     is_admin?: boolean;
     is_moderator?: boolean;
+    is_owner?: boolean;
     games_count: number;
     clips_count: number;
     created_at: string;
@@ -139,7 +140,10 @@ export default function Users({ users, filters }: Props) {
                                                 )}
                                             </div>
                                             <span className="font-medium text-ink-900">{user.name}</span>
-                                            {user.is_admin && (
+                                            {user.is_owner && (
+                                                <span className="rounded-full bg-gaming-orange/20 px-2 py-0.5 text-[10px] font-bold text-gaming-orange" title="Platform owner — untouchable">👑 OWNER</span>
+                                            )}
+                                            {user.is_admin && !user.is_owner && (
                                                 <span className="rounded-full bg-neon-red/20 px-2 py-0.5 text-[10px] font-bold text-neon-red">ADMIN</span>
                                             )}
                                             {!user.is_admin && user.is_moderator && (
@@ -153,28 +157,32 @@ export default function Users({ users, filters }: Props) {
                                     <td className="px-5 py-3">{user.clips_count}</td>
                                     <td className="px-5 py-3 text-gray-500">{new Date(user.created_at).toLocaleDateString()}</td>
                                     <td className="px-5 py-3">
-                                        <div className="flex flex-wrap gap-2">
-                                            {!user.is_admin && (
+                                        {user.is_owner ? (
+                                            <span className="rounded-lg bg-gaming-orange/10 px-3 py-1.5 text-xs font-medium text-gaming-orange">Protected</span>
+                                        ) : (
+                                            <div className="flex flex-wrap gap-2">
+                                                {!user.is_admin && (
+                                                    <button
+                                                        onClick={() => toggleMod(user)}
+                                                        className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${user.is_moderator ? 'bg-gaming-cyan/10 text-gaming-cyan hover:bg-gaming-cyan/20' : 'bg-ink-900/5 text-ink-700 hover:bg-ink-900/10'}`}
+                                                    >
+                                                        {user.is_moderator ? 'Revoke mod' : 'Make mod'}
+                                                    </button>
+                                                )}
                                                 <button
-                                                    onClick={() => toggleMod(user)}
-                                                    className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${user.is_moderator ? 'bg-gaming-cyan/10 text-gaming-cyan hover:bg-gaming-cyan/20' : 'bg-ink-900/5 text-ink-700 hover:bg-ink-900/10'}`}
+                                                    onClick={() => toggleAdmin(user)}
+                                                    className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${user.is_admin ? 'bg-neon-red/10 text-neon-red hover:bg-neon-red/20' : 'bg-ink-900/5 text-ink-700 hover:bg-ink-900/10'}`}
                                                 >
-                                                    {user.is_moderator ? 'Revoke mod' : 'Make mod'}
+                                                    {user.is_admin ? 'Revoke admin' : 'Make admin'}
                                                 </button>
-                                            )}
-                                            <button
-                                                onClick={() => toggleAdmin(user)}
-                                                className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${user.is_admin ? 'bg-neon-red/10 text-neon-red hover:bg-neon-red/20' : 'bg-ink-900/5 text-ink-700 hover:bg-ink-900/10'}`}
-                                            >
-                                                {user.is_admin ? 'Revoke admin' : 'Make admin'}
-                                            </button>
-                                            <button
-                                                onClick={() => handleBan(user)}
-                                                className="rounded-lg bg-red-500/10 px-3 py-1.5 text-xs font-medium text-red-400 transition hover:bg-red-500/20"
-                                            >
-                                                Ban
-                                            </button>
-                                        </div>
+                                                <button
+                                                    onClick={() => handleBan(user)}
+                                                    className="rounded-lg bg-red-500/10 px-3 py-1.5 text-xs font-medium text-red-400 transition hover:bg-red-500/20"
+                                                >
+                                                    Ban
+                                                </button>
+                                            </div>
+                                        )}
                                     </td>
                                 </tr>
                             ))}
