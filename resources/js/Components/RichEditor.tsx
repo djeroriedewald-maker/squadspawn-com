@@ -4,7 +4,7 @@ import Placeholder from '@tiptap/extension-placeholder';
 import Youtube from '@tiptap/extension-youtube';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 interface Props {
     value: string;
@@ -14,6 +14,11 @@ interface Props {
 }
 
 export default function RichEditor({ value, onChange, placeholder = 'Write something…', error }: Props) {
+    // Track the last HTML we reported via onChange so we can tell whether
+    // the `value` prop changed because of our own update (skip the sync
+    // — editor already has it) or because of an external reset (do sync).
+    const lastEmittedRef = useRef<string>(value);
+
     const editor = useEditor({
         extensions: [
             StarterKit.configure({
@@ -40,7 +45,9 @@ export default function RichEditor({ value, onChange, placeholder = 'Write somet
         ],
         content: value,
         onUpdate: ({ editor }) => {
-            onChange(editor.getHTML());
+            const html = editor.getHTML();
+            lastEmittedRef.current = html;
+            onChange(html);
         },
         editorProps: {
             attributes: {
@@ -49,11 +56,14 @@ export default function RichEditor({ value, onChange, placeholder = 'Write somet
         },
     });
 
-    // When a parent resets value (e.g. after submit or prop change), mirror it
+    // Only re-sync when `value` comes from outside (parent reset) — if it's
+    // just the prop updating after our own onChange, we'd re-parse our own
+    // freshly-emitted HTML and could lose img / list nodes in the round trip.
     useEffect(() => {
-        if (editor && value !== editor.getHTML()) {
-            editor.commands.setContent(value || '', { emitUpdate: false });
-        }
+        if (!editor) return;
+        if (value === lastEmittedRef.current) return;
+        editor.commands.setContent(value || '', { emitUpdate: false });
+        lastEmittedRef.current = value;
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [value]);
 
