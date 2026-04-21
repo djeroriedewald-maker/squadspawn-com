@@ -222,15 +222,34 @@ class LfgController extends Controller
         ]);
     }
 
+    /** Max number of concurrently open/full LFG posts per user. */
+    public const ACTIVE_POST_LIMIT = 3;
+
     public function create(): Response
     {
         return Inertia::render('Lfg/Create', [
             'games' => Game::all(),
+            'activeLfgCount' => LfgPost::where('user_id', auth()->id())
+                ->whereIn('status', ['open', 'full'])
+                ->count(),
+            'activeLfgLimit' => self::ACTIVE_POST_LIMIT,
         ]);
     }
 
     public function store(Request $request)
     {
+        // Hard cap on concurrent active posts so one user can't flood the
+        // feed or collect more join requests than they can realistically
+        // manage. Closed posts don't count.
+        $activeCount = LfgPost::where('user_id', auth()->id())
+            ->whereIn('status', ['open', 'full'])
+            ->count();
+        if ($activeCount >= self::ACTIVE_POST_LIMIT) {
+            return back()->withErrors([
+                'active_limit' => "You already have {$activeCount} active LFG posts (max " . self::ACTIVE_POST_LIMIT . "). Close one before creating a new one.",
+            ])->withInput();
+        }
+
         $validated = $request->validate([
             'game_id' => 'required|exists:games,id',
             'title' => 'required|string|max:255',

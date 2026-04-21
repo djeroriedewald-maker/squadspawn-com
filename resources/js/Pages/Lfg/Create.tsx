@@ -4,7 +4,9 @@ import { Game } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { FormEventHandler, useEffect, useState } from 'react';
 
-export default function LfgCreate({ games }: { games: Game[] }) {
+export default function LfgCreate({ games, activeLfgCount = 0, activeLfgLimit = 3 }: { games: Game[]; activeLfgCount?: number; activeLfgLimit?: number }) {
+    const atLimit = activeLfgCount >= activeLfgLimit;
+    const approachingLimit = !atLimit && activeLfgCount >= activeLfgLimit - 1;
     const { data, setData, post, processing, errors } = useForm({
         game_id: '',
         title: '',
@@ -75,7 +77,32 @@ export default function LfgCreate({ games }: { games: Game[] }) {
                         <p className="mt-1 text-sm text-ink-500">Find teammates for your next gaming session.</p>
                     </div>
 
-                    <form onSubmit={submit} className="space-y-5 rounded-xl border border-ink-900/10 bg-white p-6">
+                    {atLimit ? (
+                        <div className="mb-5 rounded-xl border border-red-500/30 bg-red-500/5 p-4">
+                            <p className="text-sm font-semibold text-red-500">
+                                You've hit the {activeLfgLimit}-post limit
+                            </p>
+                            <p className="mt-1 text-xs text-ink-500">
+                                Close or finish one of your active posts before creating a new one — keeps the feed clean and makes sure your join requests don't pile up unanswered.
+                            </p>
+                            <Link
+                                href={route('lfg.index')}
+                                className="mt-3 inline-block rounded-lg bg-neon-red px-4 py-2 text-sm font-semibold text-white transition hover:bg-neon-red/80"
+                            >
+                                Go to My Groups
+                            </Link>
+                        </div>
+                    ) : approachingLimit && (
+                        <div className="mb-5 rounded-xl border border-yellow-500/30 bg-yellow-500/5 p-3 text-xs text-yellow-700">
+                            ⚠ You'll hit your {activeLfgLimit}-post limit after this one. Close finished sessions to free up slots.
+                        </div>
+                    )}
+                    {(errors as any).active_limit && (
+                        <div className="mb-5 rounded-xl border border-red-500/30 bg-red-500/5 p-3 text-xs text-red-500">
+                            {(errors as any).active_limit}
+                        </div>
+                    )}
+                    <form onSubmit={submit} className={`space-y-5 rounded-xl border border-ink-900/10 bg-white p-6 ${atLimit ? 'pointer-events-none opacity-50' : ''}`}>
                         {/* Game Select */}
                         <div>
                             <label className={labelClass}>Game</label>
@@ -299,7 +326,7 @@ export default function LfgCreate({ games }: { games: Game[] }) {
                         {/* Submit */}
                         <button
                             type="submit"
-                            disabled={processing}
+                            disabled={processing || atLimit}
                             className="w-full rounded-xl bg-neon-red px-6 py-3 text-sm font-semibold text-white transition hover:bg-neon-red/80 disabled:opacity-50"
                         >
                             {processing ? 'Posting...' : 'Post LFG'}
