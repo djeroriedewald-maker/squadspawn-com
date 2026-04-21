@@ -47,8 +47,6 @@ export default function RichEditor({ value, onChange, placeholder = 'Write somet
         onUpdate: ({ editor }) => {
             const html = editor.getHTML();
             lastEmittedRef.current = html;
-            // eslint-disable-next-line no-console
-            console.log('[RichEditor] onUpdate fired. has<img>?', html.includes('<img'), 'len:', html.length);
             onChange(html);
         },
         editorProps: {
@@ -90,8 +88,6 @@ export default function RichEditor({ value, onChange, placeholder = 'Write somet
             return;
         }
         editor.chain().focus().setImage({ src: url }).run();
-        // eslint-disable-next-line no-console
-        console.log('[RichEditor] setImage ran. getHTML():', editor.getHTML());
     };
 
     const addYoutube = () => {

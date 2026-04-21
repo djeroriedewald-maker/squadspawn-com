@@ -170,18 +170,6 @@ class CommunityController extends Controller
     {
         $html = app(\App\Services\HtmlSanitizer::class)->sanitize($rawHtml);
         $plain = trim(strip_tags($html));
-
-        // Temporary diagnostic — log every community save so we can see
-        // whether <img> is present on input / output. Remove once the
-        // rich-editor pipeline is verified stable.
-        \Log::info('Community post save', [
-            'user_id' => auth()->id(),
-            'raw_has_img' => str_contains($rawHtml, '<img'),
-            'out_has_img' => str_contains($html, '<img'),
-            'raw_snippet' => mb_substr($rawHtml, 0, 2000),
-            'out_snippet' => mb_substr($html, 0, 2000),
-        ]);
-
         return [$html, $plain];
     }
 

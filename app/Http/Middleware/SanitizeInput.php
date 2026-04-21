@@ -9,9 +9,14 @@ class SanitizeInput
 {
     /**
      * Fields that should have HTML tags stripped for XSS prevention.
+     *
+     * NOTE: `body` is NOT in this list. Community post bodies go through
+     * the Tiptap rich-text editor and are sanitised with a proper
+     * tag/attribute whitelist in App\Services\HtmlSanitizer before save.
+     * Stripping HTML here would kill all formatting + images.
      */
     private const SANITIZE_FIELDS = [
-        'title', 'body', 'bio', 'description', 'message',
+        'title', 'bio', 'description', 'message',
         'requirements_note', 'comment', 'username', 'name',
     ];
 
