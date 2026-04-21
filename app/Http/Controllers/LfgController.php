@@ -294,7 +294,7 @@ class LfgController extends Controller
             abort(404);
         }
 
-        $lfgPost->load(['user.profile', 'game', 'responses.user.profile', 'messages.user.profile', 'ratings']);
+        $lfgPost->load(['user.profile', 'user.games', 'game', 'responses.user.profile', 'responses.user.games', 'messages.user.profile', 'ratings']);
 
         // Sync spots_filled with actual accepted count + host
         $actualFilled = $lfgPost->responses()->where('status', 'accepted')->count() + 1;
@@ -350,9 +350,65 @@ class LfgController extends Controller
             })->exists(),
         ];
 
+        // Per-member stats for the Members popover — batched so clicking on
+        // any member in the squad instantly shows trust signals without N+1.
+        $memberIds = $lfgPost->responses
+            ->where('status', 'accepted')
+            ->pluck('user_id')
+            ->push($lfgPost->user_id)
+            ->unique()
+            ->values();
+
+        $memberStats = [];
+        if ($memberIds->isNotEmpty()) {
+            $hostedCounts = LfgPost::whereIn('user_id', $memberIds)
+                ->where('status', 'closed')
+                ->selectRaw('user_id, COUNT(*) as c')->groupBy('user_id')->pluck('c', 'user_id');
+            $playerRatingCounts = \App\Models\PlayerRating::whereIn('rated_id', $memberIds)
+                ->selectRaw('rated_id, COUNT(*) as c')->groupBy('rated_id')->pluck('c', 'rated_id');
+            $lfgRatingCounts = \App\Models\LfgRating::whereIn('rated_id', $memberIds)
+                ->selectRaw('rated_id, COUNT(*) as c')->groupBy('rated_id')->pluck('c', 'rated_id');
+
+            $favoriteMap = $user->favoriteHosts()->whereIn('users.id', $memberIds)->pluck('users.id')->flip();
+            $friendPairs = \App\Models\PlayerMatch::where(function ($q) use ($user, $memberIds) {
+                $q->where(function ($q2) use ($user, $memberIds) {
+                    $q2->where('user_one_id', $user->id)->whereIn('user_two_id', $memberIds);
+                })->orWhere(function ($q2) use ($user, $memberIds) {
+                    $q2->where('user_two_id', $user->id)->whereIn('user_one_id', $memberIds);
+                });
+            })->get()->flatMap(fn ($m) => [$m->user_one_id, $m->user_two_id])->unique()->flip();
+
+            $viewerGameIds = $user->games->pluck('id');
+            $onlineCutoff = now()->subMinutes(10);
+
+            // Collect user records for each member from the already-loaded graph.
+            $memberUsers = collect([$lfgPost->user])
+                ->merge($lfgPost->responses->where('status', 'accepted')->pluck('user'))
+                ->filter()
+                ->keyBy('id');
+
+            foreach ($memberIds as $id) {
+                $m = $memberUsers->get($id);
+                if (!$m) continue;
+                $sharedGames = $m->games->pluck('id')->intersect($viewerGameIds)->values();
+                $memberStats[$id] = [
+                    'sessions_hosted' => (int) ($hostedCounts[$id] ?? 0),
+                    'rating_count' => (int) (($playerRatingCounts[$id] ?? 0) + ($lfgRatingCounts[$id] ?? 0)),
+                    'is_online' => $m->updated_at && $m->updated_at->greaterThanOrEqualTo($onlineCutoff),
+                    'hours_since_active' => $m->updated_at?->diffInHours(now()),
+                    'is_favorited' => $favoriteMap->has($id),
+                    'is_friend' => $friendPairs->has($id),
+                    'shared_game_ids' => $sharedGames->all(),
+                    'shared_game_names' => $m->games->whereIn('id', $viewerGameIds)->pluck('name')->values()->all(),
+                    'games' => $m->games->take(5)->map(fn ($g) => ['id' => $g->id, 'name' => $g->name, 'slug' => $g->slug])->values()->all(),
+                ];
+            }
+        }
+
         return Inertia::render('Lfg/Show', [
             'post' => $lfgPost,
             'hostStats' => $hostStats,
+            'memberStats' => $memberStats,
             'isMember' => $isMember,
             'myRatings' => $myRatings,
             'myQueuePosition' => $myQueuePosition,

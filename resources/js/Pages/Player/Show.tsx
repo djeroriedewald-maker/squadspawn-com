@@ -1,3 +1,4 @@
+import FavoriteHostButton from '@/Components/FavoriteHostButton';
 import SocialLinks from '@/Components/SocialLinks';
 import SteamStatsCard, { SteamStats } from '@/Components/SteamStatsCard';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
@@ -57,7 +58,7 @@ const RATING_TAGS = [
     { value: 'no_show', label: 'No Show' },
 ];
 
-export default function PlayerShow({ player, clips = [], reputationData, friendsCount = 0, isFriend = false, myRating, steamStats }: PageProps<{ player: User; clips: Clip[]; reputationData?: ReputationData; friendsCount?: number; isFriend?: boolean; myRating?: { score: number; tag?: string } | null; steamStats?: SteamStats | null }>) {
+export default function PlayerShow({ player, clips = [], reputationData, friendsCount = 0, isFriend = false, isFavorited = false, myRating, steamStats }: PageProps<{ player: User; clips: Clip[]; reputationData?: ReputationData; friendsCount?: number; isFriend?: boolean; isFavorited?: boolean; myRating?: { score: number; tag?: string } | null; steamStats?: SteamStats | null }>) {
     const { auth } = usePage<PageProps>().props;
     const isLoggedIn = !!auth?.user;
     const isOwnProfile = auth?.user?.id === player.id;
@@ -286,9 +287,13 @@ export default function PlayerShow({ player, clips = [], reputationData, friends
                         </div>
                     )}
 
-                    {/* Report & Block buttons */}
+                    {/* Favourite + Report + Block */}
                     {isLoggedIn && !isOwnProfile && (
-                        <div className="mt-6 flex items-center gap-3">
+                        <div className="mt-6 flex flex-wrap items-center gap-3">
+                            <FavoriteHostButton
+                                hostId={player.id}
+                                initialFavorited={isFavorited}
+                            />
                             <button
                                 onClick={() => setShowReportModal(true)}
                                 className="rounded-lg border border-ink-900/10 bg-white px-4 py-2 text-sm font-medium text-ink-700 transition hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-400"

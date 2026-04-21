@@ -31,6 +31,14 @@ Route::get('/terms-of-service', fn () => Inertia::render('Legal/TermsOfService')
 Route::get('/cookie-policy', fn () => Inertia::render('Legal/CookiePolicy'))->name('legal.cookies');
 
 Route::get('/', function () {
+    // Logged-in users have outgrown the marketing homepage — bounce them
+    // straight to the dashboard. Also fixes a mobile-back annoyance where
+    // tapping back would land them on the landing page instead of wherever
+    // they were actually working.
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
+
     $totalPlayers = Cache::remember('home:players', 300, fn () => \App\Models\User::whereHas('profile')->count());
     $totalGames = Cache::remember('home:games', 300, fn () => \App\Models\Game::count());
     $activeLfg = Cache::remember('home:lfg', 300, fn () => \App\Models\LfgPost::where('status', 'open')->count());

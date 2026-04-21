@@ -47,6 +47,7 @@ class PlayerController extends Controller
 
         // Check if viewer is friends with this player + existing rating
         $isFriend = false;
+        $isFavorited = false;
         $myRating = null;
         if ($viewer && $viewer->id !== $player->id) {
             $isFriend = PlayerMatch::where(function ($q) use ($viewer, $player) {
@@ -54,6 +55,8 @@ class PlayerController extends Controller
             })->orWhere(function ($q) use ($viewer, $player) {
                 $q->where('user_one_id', $player->id)->where('user_two_id', $viewer->id);
             })->exists();
+
+            $isFavorited = $viewer->favoriteHosts()->where('users.id', $player->id)->exists();
 
             $myRating = PlayerRating::where('rater_id', $viewer->id)
                 ->where('rated_id', $player->id)
@@ -82,6 +85,7 @@ class PlayerController extends Controller
             'reputationData' => $reputationData,
             'friendsCount' => $friendsCount,
             'isFriend' => $isFriend,
+            'isFavorited' => $isFavorited,
             'steamStats' => $steamStats,
             'myRating' => $myRating ? [
                 'score' => $myRating->score,

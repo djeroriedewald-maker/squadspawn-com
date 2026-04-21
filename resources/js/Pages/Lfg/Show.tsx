@@ -1,5 +1,6 @@
 import FavoriteHostButton from '@/Components/FavoriteHostButton';
 import HostTrustRow, { HostStats } from '@/Components/HostTrustRow';
+import MemberCard, { MemberStats } from '@/Components/MemberCard';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Game, PageProps, User } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
@@ -68,6 +69,7 @@ const REPORT_REASONS = [
 export default function LfgShow({
     post: initialPost,
     hostStats,
+    memberStats,
     isMember,
     myRatings: initialMyRatings,
     messages: initialMessages,
@@ -75,6 +77,7 @@ export default function LfgShow({
 }: {
     post: LfgPost;
     hostStats?: HostStats & { hours_since_active?: number | null };
+    memberStats?: Record<number, MemberStats>;
     isMember: boolean;
     myRatings: number[];
     messages: LfgMessage[];
@@ -104,6 +107,7 @@ export default function LfgShow({
     const hasResponded = !!myResponse;
     const myIsPending = myResponse?.status === 'pending';
     const [withdrawing, setWithdrawing] = useState(false);
+    const [openMember, setOpenMember] = useState<User | null>(null);
     const [showReport, setShowReport] = useState(false);
     const [reportReason, setReportReason] = useState('');
     const [reportDetails, setReportDetails] = useState('');
@@ -853,23 +857,44 @@ export default function LfgShow({
                                     </h3>
                                     <div className="space-y-2">
                                         {/* Host */}
-                                        <div className="flex items-center gap-3 rounded-lg bg-bone-50 p-2.5">
+                                        <button
+                                            type="button"
+                                            onClick={() => post.user && setOpenMember(post.user)}
+                                            className="flex w-full items-center gap-3 rounded-lg bg-bone-50 p-2.5 text-left transition hover:bg-bone-100"
+                                        >
                                             <UserAvatar user={post.user} size="sm" />
                                             <div className="min-w-0 flex-1">
                                                 <p className="text-sm font-medium text-ink-900">
                                                     {post.user?.profile?.username ?? post.user?.name}
                                                 </p>
+                                                {post.user && memberStats?.[post.user.id]?.shared_game_names && memberStats[post.user.id].shared_game_names!.length > 0 && post.user.id !== auth.user.id && (
+                                                    <p className="truncate text-[11px] text-gaming-cyan">
+                                                        ✓ you both play {memberStats[post.user.id].shared_game_names!.slice(0, 2).join(', ')}
+                                                    </p>
+                                                )}
                                             </div>
                                             <span className="rounded-full bg-neon-red/20 px-2 py-0.5 text-[10px] font-medium text-neon-red">Host</span>
-                                        </div>
+                                        </button>
                                         {/* Accepted members */}
                                         {acceptedResponses.map((resp) => (
-                                            <div key={resp.id} className="flex items-center gap-3 rounded-lg bg-bone-50 p-2.5">
+                                            <button
+                                                type="button"
+                                                key={resp.id}
+                                                onClick={() => resp.user && setOpenMember(resp.user)}
+                                                className="flex w-full items-center gap-3 rounded-lg bg-bone-50 p-2.5 text-left transition hover:bg-bone-100"
+                                            >
                                                 <UserAvatar user={resp.user} size="sm" />
-                                                <p className="min-w-0 flex-1 text-sm font-medium text-ink-900">
-                                                    {resp.user?.profile?.username ?? resp.user?.name}
-                                                </p>
-                                            </div>
+                                                <div className="min-w-0 flex-1">
+                                                    <p className="text-sm font-medium text-ink-900">
+                                                        {resp.user?.profile?.username ?? resp.user?.name}
+                                                    </p>
+                                                    {resp.user && memberStats?.[resp.user.id]?.shared_game_names && memberStats[resp.user.id].shared_game_names!.length > 0 && resp.user.id !== auth.user.id && (
+                                                        <p className="truncate text-[11px] text-gaming-cyan">
+                                                            ✓ you both play {memberStats[resp.user.id].shared_game_names!.slice(0, 2).join(', ')}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </button>
                                         ))}
                                     </div>
                                 </div>
@@ -878,6 +903,16 @@ export default function LfgShow({
                     </div>
                 </div>
             </div>
+
+            {openMember && (
+                <MemberCard
+                    member={openMember}
+                    stats={memberStats?.[openMember.id]}
+                    roleBadge={openMember.id === post.user_id ? 'Host' : undefined}
+                    isSelf={openMember.id === auth.user.id}
+                    onClose={() => setOpenMember(null)}
+                />
+            )}
 
             {showReport && (
                 <div
