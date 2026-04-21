@@ -18,6 +18,9 @@ export default function RichEditor({ value, onChange, placeholder = 'Write somet
         extensions: [
             StarterKit.configure({
                 heading: { levels: [2, 3] },
+                // StarterKit 3.x includes Link; we keep our explicit, URL-
+                // validated Link extension so disable the bundled one.
+                link: false,
             }),
             Link.configure({
                 openOnClick: false,

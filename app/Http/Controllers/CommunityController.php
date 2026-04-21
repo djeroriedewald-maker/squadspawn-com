@@ -122,9 +122,7 @@ class CommunityController extends Controller
             'type' => 'required|in:discussion,question,tip,team,news',
         ]);
 
-        $validated['body_html'] = clean($validated['body'], 'community_post');
-        // We keep a plain-text mirror in body for search / previews / line-clamp.
-        $validated['body'] = trim(strip_tags($validated['body_html']));
+        [$validated['body_html'], $validated['body']] = $this->sanitisePostBody($validated['body']);
 
         $post = CommunityPost::create([
             ...$validated,
@@ -155,12 +153,34 @@ class CommunityController extends Controller
             'type' => 'required|in:discussion,question,tip,team,news',
         ]);
 
-        $validated['body_html'] = clean($validated['body'], 'community_post');
-        $validated['body'] = trim(strip_tags($validated['body_html']));
+        [$validated['body_html'], $validated['body']] = $this->sanitisePostBody($validated['body']);
 
         $communityPost->update($validated);
 
         return redirect()->route('community.show', $communityPost);
+    }
+
+    /**
+     * Sanitise the Tiptap HTML through HTMLPurifier (community_post preset)
+     * and return [html, plainText]. Logs and throws a validation exception
+     * if the sanitiser explodes, which surfaces the real cause instead of
+     * a generic 500.
+     */
+    private function sanitisePostBody(string $rawHtml): array
+    {
+        try {
+            $html = clean($rawHtml, 'community_post');
+        } catch (\Throwable $e) {
+            \Log::error('HTMLPurifier failed on community post body', [
+                'user_id' => auth()->id(),
+                'error' => $e->getMessage(),
+            ]);
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'body' => 'Could not save — the post contains content we could not process. Try simplifying the formatting.',
+            ]);
+        }
+        $plain = trim(strip_tags($html));
+        return [$html, $plain];
     }
 
     public function destroy(CommunityPost $communityPost)

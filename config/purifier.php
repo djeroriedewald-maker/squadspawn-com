@@ -33,7 +33,11 @@ return [
         // Richer preset for community post bodies — allows everything the
         // Tiptap StarterKit can produce without opening XSS risk. Images
         // and YouTube iframes are locked down via SafeIframe regex so only
-        // same-origin uploads + embeddable video hosts slip through.
+        // embeddable video hosts slip through.
+        //
+        // Cache.DefinitionImpl => null skips the on-disk definition cache
+        // so we don't fail if storage/app/purifier isn't writable on prod.
+        // Render is still fast — the cost is a couple of ms per call.
         'community_post' => [
             'HTML.Doctype'             => 'HTML 4.01 Transitional',
             'HTML.Allowed'             => 'p,br,strong,b,em,i,u,s,a[href|target|rel|title],ul,ol,li,h2,h3,blockquote,code,pre,img[src|alt|width|height],iframe[src|width|height|allowfullscreen|frameborder]',
@@ -44,6 +48,7 @@ return [
             'AutoFormat.AutoParagraph' => true,
             'AutoFormat.RemoveEmpty'   => true,
             'URI.AllowedSchemes'       => ['http' => true, 'https' => true, 'mailto' => true, 'data' => false],
+            'Cache.DefinitionImpl'     => null,
         ],
         'test'    => [
             'Attr.EnableID' => 'true',
