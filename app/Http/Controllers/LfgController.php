@@ -58,6 +58,34 @@ class LfgController extends Controller
             $query->whereIn('lfg_posts.user_id', $favoriteIds->isEmpty() ? [0] : $favoriteIds);
         }
 
+        // Scheduled filter — default "all", explicit "now" shows only
+        // immediately-playable posts, explicit "scheduled" only future ones.
+        $when = $request->input('when');
+        if ($when === 'now') {
+            $query->where(fn ($q) => $q->whereNull('scheduled_at')->orWhere('scheduled_at', '<=', now()));
+        } elseif ($when === 'scheduled') {
+            $query->whereNotNull('scheduled_at')->where('scheduled_at', '>', now());
+        }
+
+        // Keyword search — title + description, simple LIKE. Short queries
+        // bypassed to avoid noise from single-char matches.
+        if ($request->filled('q') && strlen(trim((string) $request->input('q'))) >= 2) {
+            $needle = '%' . trim((string) $request->input('q')) . '%';
+            $query->where(fn ($q) => $q->where('title', 'LIKE', $needle)->orWhere('description', 'LIKE', $needle));
+        }
+
+        // Block integration — hide posts by users the viewer has blocked or
+        // who have blocked the viewer. Applied as a NOT IN of the combined
+        // id set.
+        if ($viewer) {
+            $blockedIds = \App\Models\Block::where('blocker_id', $viewer->id)->pluck('blocked_id')
+                ->merge(\App\Models\Block::where('blocked_id', $viewer->id)->pluck('blocker_id'))
+                ->unique();
+            if ($blockedIds->isNotEmpty()) {
+                $query->whereNotIn('lfg_posts.user_id', $blockedIds);
+            }
+        }
+
         // Personalised "For You" sort — bump posts whose game the viewer
         // plays and whose host shares the viewer's region to the top, then
         // favour freshness as a tiebreak. Anonymous viewers fall back to
@@ -123,10 +151,12 @@ class LfgController extends Controller
             }
 
             foreach ($posts as $post) {
+                $hoursSinceActive = $post->user?->updated_at?->diffInHours(now()) ?? null;
                 $post->host_stats = [
                     'sessions_hosted' => (int) ($hostedCounts[$post->user_id] ?? 0),
                     'rating_count' => (int) (($playerRatingCounts[$post->user_id] ?? 0) + ($lfgRatingCounts[$post->user_id] ?? 0)),
                     'is_online' => $post->user && $post->user->updated_at && $post->user->updated_at->greaterThanOrEqualTo($onlineCutoff),
+                    'hours_since_active' => $hoursSinceActive,
                     'is_favorited' => $favoriteHostIds->has($post->user_id),
                     'is_friend' => $friendHostIds->has($post->user_id),
                 ];
@@ -187,7 +217,7 @@ class LfgController extends Controller
             'myPosts' => $myPosts,
             'myHistory' => $myHistory,
             'games' => Game::all(),
-            'filters' => $request->only(['game_id', 'platform', 'language', 'rank_min', 'region', 'mic_required', 'auto_accept', 'favorites']),
+            'filters' => $request->only(['game_id', 'platform', 'language', 'rank_min', 'region', 'mic_required', 'auto_accept', 'favorites', 'when', 'q']),
             'filterOptions' => $filterOptions,
         ]);
     }
@@ -252,6 +282,18 @@ class LfgController extends Controller
 
     public function show(LfgPost $lfgPost): Response
     {
+        $user = auth()->user();
+
+        // Block check — either direction hides the post like it doesn't exist.
+        $blocked = \App\Models\Block::where(function ($q) use ($user, $lfgPost) {
+            $q->where('blocker_id', $user->id)->where('blocked_id', $lfgPost->user_id);
+        })->orWhere(function ($q) use ($user, $lfgPost) {
+            $q->where('blocker_id', $lfgPost->user_id)->where('blocked_id', $user->id);
+        })->exists();
+        if ($blocked) {
+            abort(404);
+        }
+
         $lfgPost->load(['user.profile', 'game', 'responses.user.profile', 'messages.user.profile', 'ratings']);
 
         // Sync spots_filled with actual accepted count + host
@@ -260,8 +302,19 @@ class LfgController extends Controller
             $lfgPost->update(['spots_filled' => $actualFilled]);
         }
 
-        $user = auth()->user();
         $isMember = $this->isMember($lfgPost, $user->id);
+
+        // Queue position for the viewer's pending request, 1-based by arrival.
+        $myQueuePosition = null;
+        $myResp = $lfgPost->responses->firstWhere('user_id', $user->id);
+        if ($myResp && $myResp->status === 'pending') {
+            $myQueuePosition = $lfgPost->responses
+                ->where('status', 'pending')
+                ->sortBy('created_at')
+                ->values()
+                ->search(fn ($r) => $r->user_id === $user->id);
+            $myQueuePosition = $myQueuePosition === false ? null : ($myQueuePosition + 1);
+        }
 
         $myRatings = LfgRating::where('lfg_post_id', $lfgPost->id)
             ->where('rater_id', $user->id)
@@ -286,6 +339,7 @@ class LfgController extends Controller
             'rating_count' => \App\Models\PlayerRating::where('rated_id', $hostId)->count()
                 + \App\Models\LfgRating::where('rated_id', $hostId)->count(),
             'is_online' => $lfgPost->user && $lfgPost->user->updated_at && $lfgPost->user->updated_at->greaterThanOrEqualTo(now()->subMinutes(10)),
+            'hours_since_active' => $lfgPost->user?->updated_at?->diffInHours(now()),
             'is_favorited' => $user->favoriteHosts()->where('users.id', $hostId)->exists(),
             'is_friend' => \App\Models\PlayerMatch::where(function ($q) use ($user, $hostId) {
                 $q->where(function ($q2) use ($user, $hostId) {
@@ -301,6 +355,7 @@ class LfgController extends Controller
             'hostStats' => $hostStats,
             'isMember' => $isMember,
             'myRatings' => $myRatings,
+            'myQueuePosition' => $myQueuePosition,
             'messages' => $isMember ? $lfgPost->messages()->with('user.profile')->latest()->take(50)->get()->reverse()->values() : [],
         ]);
     }

@@ -57,18 +57,28 @@ const TAGS = [
     { value: 'no_show', label: 'No Show' },
 ];
 
+const REPORT_REASONS = [
+    'Inappropriate content',
+    'Harassment',
+    'Spam',
+    'Scam or phishing',
+    'Other',
+];
+
 export default function LfgShow({
     post: initialPost,
     hostStats,
     isMember,
     myRatings: initialMyRatings,
     messages: initialMessages,
+    myQueuePosition,
 }: {
     post: LfgPost;
-    hostStats?: HostStats;
+    hostStats?: HostStats & { hours_since_active?: number | null };
     isMember: boolean;
     myRatings: number[];
     messages: LfgMessage[];
+    myQueuePosition?: number | null;
 }) {
     const { auth } = usePage<PageProps>().props;
     const [post, setPost] = useState(initialPost);
@@ -94,6 +104,35 @@ export default function LfgShow({
     const hasResponded = !!myResponse;
     const myIsPending = myResponse?.status === 'pending';
     const [withdrawing, setWithdrawing] = useState(false);
+    const [showReport, setShowReport] = useState(false);
+    const [reportReason, setReportReason] = useState('');
+    const [reportDetails, setReportDetails] = useState('');
+    const [reportSubmitting, setReportSubmitting] = useState(false);
+    const [reportDone, setReportDone] = useState(false);
+
+    const submitReport = async () => {
+        if (!reportReason) return;
+        setReportSubmitting(true);
+        try {
+            await axios.post('/report', {
+                reported_id: post.user_id,
+                lfg_post_id: post.id,
+                reason: reportReason,
+                details: reportDetails || undefined,
+            });
+            setReportDone(true);
+            setTimeout(() => {
+                setShowReport(false);
+                setReportDone(false);
+                setReportReason('');
+                setReportDetails('');
+            }, 1800);
+        } catch {
+            alert('Failed to submit report.');
+        } finally {
+            setReportSubmitting(false);
+        }
+    };
 
     const handleWithdraw = async () => {
         if (myResponse?.status === 'accepted' && !window.confirm('Uitstappen uit deze squad? Je plek wordt weer open voor iemand anders.')) return;
@@ -351,18 +390,45 @@ export default function LfgShow({
                     <div className="grid gap-6 lg:grid-cols-3">
                         {/* Left column */}
                         <div className="space-y-6 lg:col-span-2">
+                            {/* Squad-complete go-banner — pops when the group just filled */}
+                            {isFull && isMember && (
+                                <div className="animate-pulse-glow overflow-hidden rounded-xl border border-gaming-green/40 bg-gradient-to-br from-gaming-green/20 via-gaming-green/10 to-transparent p-5">
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gaming-green/20 text-2xl">
+                                            🎮
+                                        </div>
+                                        <div className="flex-1">
+                                            <p className="text-lg font-black text-gaming-green">Squad complete — jump in!</p>
+                                            <p className="text-xs text-ink-500">
+                                                {post.discord_url
+                                                    ? 'Hop into the Discord below to voice up.'
+                                                    : 'Sync up in the group chat below and get the lobby going.'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
                             {/* Discord Server */}
                             {post.discord_url && isMember && (
                                 <a
                                     href={post.discord_url.startsWith('http') ? post.discord_url : 'https://' + post.discord_url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex items-center gap-3 rounded-xl border border-[#5865F2]/30 bg-[#5865F2]/10 px-5 py-4 transition hover:bg-[#5865F2]/20"
+                                    className={`flex items-center gap-3 rounded-xl border transition ${
+                                        isFull
+                                            ? 'border-[#5865F2] bg-[#5865F2]/20 px-5 py-5 shadow-[0_0_24px_rgba(88,101,242,0.25)] hover:bg-[#5865F2]/30'
+                                            : 'border-[#5865F2]/30 bg-[#5865F2]/10 px-5 py-4 hover:bg-[#5865F2]/20'
+                                    }`}
                                 >
                                     <svg className="h-6 w-6 text-[#5865F2]" fill="currentColor" viewBox="0 0 24 24"><path d="M20.317 4.3698a19.791 19.791 0 00-4.885-1.5152.0729.0729 0 00-.0785.0378c-.2107.3748-.4443.8632-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1641-.3933-.4058-.8747-.6177-1.2495a.077.077 0 00-.0785-.0378 19.736 19.736 0 00-4.8852 1.5152.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.299 12.299 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286z" /></svg>
                                     <div className="flex-1">
-                                        <p className="font-semibold text-ink-900">Join Discord Server</p>
-                                        <p className="text-xs text-ink-500">Join voice chat with your squad</p>
+                                        <p className={`font-semibold ${isFull ? 'text-base text-ink-900' : 'text-ink-900'}`}>
+                                            {isFull ? 'Jump into Discord now →' : 'Join Discord Server'}
+                                        </p>
+                                        <p className="text-xs text-ink-500">
+                                            {isFull ? 'The squad is ready — sync up in voice' : 'Join voice chat with your squad'}
+                                        </p>
                                     </div>
                                     <svg className="h-5 w-5 text-[#5865F2]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
@@ -621,7 +687,18 @@ export default function LfgShow({
                             {!isMember && !isCreator && myIsPending && (
                                 <div className="rounded-xl border border-yellow-400/30 bg-yellow-400/5 p-6">
                                     <h3 className="mb-1 text-base font-bold text-ink-900">Awaiting host approval</h3>
-                                    <p className="mb-4 text-xs text-ink-500">Your request is in the host's queue. Change your mind?</p>
+                                    {myQueuePosition != null ? (
+                                        <p className="mb-4 text-xs text-ink-500">
+                                            You're <span className="font-bold text-yellow-600">#{myQueuePosition}</span> in the queue. Hang tight or cancel below.
+                                        </p>
+                                    ) : (
+                                        <p className="mb-4 text-xs text-ink-500">Your request is in the host's queue. Change your mind?</p>
+                                    )}
+                                    {hostStats?.hours_since_active != null && hostStats.hours_since_active >= 4 && (
+                                        <p className="mb-4 rounded-md border border-yellow-400/30 bg-yellow-400/10 p-2 text-[11px] text-yellow-700">
+                                            ⚠️ Host hasn't been seen in {hostStats.hours_since_active}h — they may be AFK.
+                                        </p>
+                                    )}
                                     <button
                                         onClick={handleWithdraw}
                                         disabled={withdrawing}
@@ -645,6 +722,20 @@ export default function LfgShow({
                                         {withdrawing ? 'Leaving…' : 'Leave squad'}
                                     </button>
                                 </div>
+                            )}
+
+                            {/* Report post */}
+                            {!isCreator && (
+                                <button
+                                    type="button"
+                                    onClick={() => setShowReport(true)}
+                                    className="flex w-full items-center justify-center gap-1.5 text-xs font-medium text-ink-500 transition hover:text-red-500"
+                                >
+                                    <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 3v1.5M3 21v-6m0 0l2.77-.693a9 9 0 016.208.682l.108.054a9 9 0 006.086.71l3.114-.732a48.524 48.524 0 01-.005-10.499l-3.11.732a9 9 0 01-6.085-.711l-.108-.054a9 9 0 00-6.208-.682L3 4.5" />
+                                    </svg>
+                                    Report this post
+                                </button>
                             )}
 
                             {/* Join Section (not member, not creator) */}
@@ -787,6 +878,72 @@ export default function LfgShow({
                     </div>
                 </div>
             </div>
+
+            {showReport && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-ink-900/60 p-4 backdrop-blur-sm"
+                    onClick={() => !reportSubmitting && setShowReport(false)}
+                >
+                    <div
+                        className="w-full max-w-md rounded-xl border border-ink-900/10 bg-white p-6"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {reportDone ? (
+                            <div className="py-6 text-center text-sm text-gaming-green">
+                                Thanks — we'll take it from here.
+                            </div>
+                        ) : (
+                            <>
+                                <h3 className="mb-1 text-lg font-bold text-ink-900">Report LFG post</h3>
+                                <p className="mb-4 text-xs text-ink-500">
+                                    Reports go to our moderation team. The post and host will be reviewed.
+                                </p>
+                                <div className="mb-3 space-y-2">
+                                    {REPORT_REASONS.map((r) => (
+                                        <label key={r} className="flex cursor-pointer items-center gap-2 rounded-lg border border-ink-900/10 p-2 text-sm hover:border-red-500/30">
+                                            <input
+                                                type="radio"
+                                                name="reason"
+                                                value={r}
+                                                checked={reportReason === r}
+                                                onChange={(e) => setReportReason(e.target.value)}
+                                                className="text-red-500 focus:ring-red-500"
+                                            />
+                                            <span className="text-ink-700">{r}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                                <textarea
+                                    value={reportDetails}
+                                    onChange={(e) => setReportDetails(e.target.value)}
+                                    placeholder="Extra context (optional)"
+                                    rows={3}
+                                    maxLength={2000}
+                                    className="mb-4 w-full rounded-lg border border-ink-900/10 bg-bone-50 p-2 text-sm"
+                                />
+                                <div className="flex gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowReport(false)}
+                                        disabled={reportSubmitting}
+                                        className="flex-1 rounded-lg border border-ink-900/10 bg-white px-4 py-2 text-sm font-medium text-ink-700 transition hover:bg-bone-100 disabled:opacity-50"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={submitReport}
+                                        disabled={!reportReason || reportSubmitting}
+                                        className="flex-1 rounded-lg bg-red-500 px-4 py-2 text-sm font-bold text-white transition hover:bg-red-500/90 disabled:opacity-50"
+                                    >
+                                        {reportSubmitting ? 'Submitting…' : 'Submit report'}
+                                    </button>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </div>
+            )}
         </AuthenticatedLayout>
     );
 }

@@ -4,6 +4,7 @@ export interface HostStats {
     sessions_hosted: number;
     rating_count: number;
     is_online: boolean;
+    hours_since_active?: number | null;
     is_favorited?: boolean;
     is_friend?: boolean;
 }
@@ -66,6 +67,11 @@ export default function HostTrustRow({ host, stats, size = 'sm', showRelationshi
                         </span>
                     )}
                     {region && <span>· {region}</span>}
+                    {!stats?.is_online && stats?.hours_since_active != null && stats.hours_since_active >= 4 && (
+                        <span className="text-yellow-600" title={`Host hasn't been seen in ${stats.hours_since_active}h`}>
+                            · ⚠ quiet {stats.hours_since_active}h
+                        </span>
+                    )}
                 </div>
                 {showRelationshipBadges && stats && (stats.is_favorited || stats.is_friend) && (
                     <div className="mt-1 flex flex-wrap gap-1">

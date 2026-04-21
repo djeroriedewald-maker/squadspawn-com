@@ -12,6 +12,7 @@ class ReportController extends Controller
     {
         $request->validate([
             'reported_id' => ['required', 'integer', 'exists:users,id'],
+            'lfg_post_id' => ['nullable', 'integer', 'exists:lfg_posts,id'],
             'reason' => ['required', 'string', 'max:255'],
             'details' => ['nullable', 'string', 'max:2000'],
         ]);
@@ -25,6 +26,7 @@ class ReportController extends Controller
         Report::create([
             'reporter_id' => $userId,
             'reported_id' => $request->reported_id,
+            'lfg_post_id' => $request->lfg_post_id,
             'reason' => $request->reason,
             'details' => $request->details,
         ]);

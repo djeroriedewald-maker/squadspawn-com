@@ -18,6 +18,7 @@ interface HostStats {
     sessions_hosted: number;
     rating_count: number;
     is_online: boolean;
+    hours_since_active?: number | null;
     is_favorited?: boolean;
     is_friend?: boolean;
 }
@@ -101,6 +102,8 @@ export default function LfgIndex({
         mic_required?: boolean | string;
         auto_accept?: boolean | string;
         favorites?: boolean | string;
+        when?: string;
+        q?: string;
     };
     filterOptions?: FilterOptions;
 }) {
@@ -108,6 +111,27 @@ export default function LfgIndex({
     const [joiningId, setJoiningId] = useState<number | null>(null);
     const [localPosts, setLocalPosts] = useState<LfgPost[]>(posts.data);
     const [showHistory, setShowHistory] = useState(false);
+    const [searchInput, setSearchInput] = useState<string>(filters.q ?? '');
+    const [filtersOpen, setFiltersOpen] = useState(false);
+
+    const activeFilterCount =
+        (filters.platform ? 1 : 0) +
+        (filters.language ? 1 : 0) +
+        (filters.rank_min ? 1 : 0) +
+        (filters.region ? 1 : 0) +
+        (filters.mic_required ? 1 : 0) +
+        (filters.auto_accept ? 1 : 0) +
+        (filters.favorites ? 1 : 0) +
+        (filters.when ? 1 : 0);
+
+    const submitSearch = (e?: React.FormEvent) => {
+        e?.preventDefault();
+        handleFilter('q', searchInput.trim());
+    };
+
+    const clearAllFilters = () => {
+        router.get(route('lfg.index'), {}, { preserveState: true, replace: true });
+    };
 
     const handleFilter = (key: string, value: string) => {
         router.get(
@@ -236,7 +260,55 @@ export default function LfgIndex({
                         </Link>
                     </div>
 
-                    {/* Filters */}
+                    {/* Search bar — always visible */}
+                    <form onSubmit={submitSearch} className="mb-3 flex gap-2">
+                        <div className="relative flex-1">
+                            <svg className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                            </svg>
+                            <input
+                                type="search"
+                                value={searchInput}
+                                onChange={(e) => setSearchInput(e.target.value)}
+                                placeholder="Search titles and descriptions…"
+                                className="w-full rounded-lg border border-ink-900/10 bg-white py-2 pl-9 pr-3 text-sm text-ink-900 placeholder:text-ink-500 focus:border-neon-red focus:outline-none focus:ring-1 focus:ring-neon-red"
+                            />
+                        </div>
+                        {filters.q && (
+                            <button
+                                type="button"
+                                onClick={() => { setSearchInput(''); handleFilter('q', ''); }}
+                                className="rounded-lg border border-ink-900/10 bg-white px-3 py-2 text-sm text-ink-500 hover:text-ink-900"
+                            >
+                                Clear
+                            </button>
+                        )}
+                    </form>
+
+                    {/* Mobile filter toggle */}
+                    <button
+                        type="button"
+                        onClick={() => setFiltersOpen((v) => !v)}
+                        className="mb-3 flex w-full items-center justify-between rounded-lg border border-ink-900/10 bg-white px-4 py-2 text-sm font-semibold text-ink-700 sm:hidden"
+                    >
+                        <span className="flex items-center gap-2">
+                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M3 4.5h18M6 12h12M10 19.5h4" />
+                            </svg>
+                            Filters
+                            {activeFilterCount > 0 && (
+                                <span className="rounded-full bg-neon-red/20 px-2 py-0.5 text-[10px] font-bold text-neon-red">
+                                    {activeFilterCount}
+                                </span>
+                            )}
+                        </span>
+                        <svg className={`h-4 w-4 transition ${filtersOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+
+                    {/* Filter panel (collapsible on mobile, always open on desktop) */}
+                    <div className={`${filtersOpen ? 'block' : 'hidden'} sm:block`}>
                     <div className="mb-4 flex flex-wrap items-stretch gap-2">
                         <div className="w-full sm:w-64">
                             <GamePicker
@@ -334,6 +406,38 @@ export default function LfgIndex({
                         >
                             ★ Favourites only
                         </button>
+                        <button
+                            type="button"
+                            onClick={() => handleFilter('when', filters.when === 'now' ? '' : 'now')}
+                            className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                                filters.when === 'now'
+                                    ? 'border-gaming-cyan bg-gaming-cyan/15 text-gaming-cyan'
+                                    : 'border-ink-900/10 text-ink-700 hover:border-gaming-cyan/40'
+                            }`}
+                        >
+                            🟢 Playing now
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => handleFilter('when', filters.when === 'scheduled' ? '' : 'scheduled')}
+                            className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                                filters.when === 'scheduled'
+                                    ? 'border-gaming-pink bg-gaming-pink/15 text-gaming-pink'
+                                    : 'border-ink-900/10 text-ink-700 hover:border-gaming-pink/40'
+                            }`}
+                        >
+                            📅 Scheduled
+                        </button>
+                        {activeFilterCount > 0 && (
+                            <button
+                                type="button"
+                                onClick={clearAllFilters}
+                                className="rounded-full border border-red-500/30 bg-red-500/5 px-3 py-1.5 text-xs font-semibold text-red-500 hover:bg-red-500/10"
+                            >
+                                Clear all
+                            </button>
+                        )}
+                    </div>
                     </div>
 
                     {/* My Groups */}
@@ -667,7 +771,7 @@ export default function LfgIndex({
                                 );
                             })}
                         </div>
-                    ) : (
+                    ) : !showHistory && (
                         <div className="rounded-2xl border border-ink-900/10 bg-white p-12 text-center">
                             <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-neon-red/10">
                                 <svg
@@ -684,16 +788,46 @@ export default function LfgIndex({
                                     />
                                 </svg>
                             </div>
-                            <h3 className="mb-2 text-xl font-bold text-ink-900">No LFG posts yet</h3>
-                            <p className="mb-6 text-ink-500">
-                                Be the first to create a Looking for Group post!
-                            </p>
-                            <Link
-                                href={route('lfg.create')}
-                                className="inline-flex rounded-xl bg-neon-red px-6 py-3 font-semibold text-white hover:bg-neon-red/80"
-                            >
-                                Create Post
-                            </Link>
+                            {activeFilterCount > 0 || filters.q ? (
+                                <>
+                                    <h3 className="mb-2 text-xl font-bold text-ink-900">No posts match your filters</h3>
+                                    <p className="mb-6 text-ink-500">
+                                        {filters.favorites
+                                            ? "None of your favourited hosts are live right now — clear the Favourites filter to see everyone."
+                                            : filters.when === 'now'
+                                              ? 'No "playing now" posts in this range — switch to Scheduled or broaden your filters.'
+                                              : 'Try removing a filter or widening the region/rank to see more squads.'}
+                                    </p>
+                                    <div className="flex flex-wrap justify-center gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={clearAllFilters}
+                                            className="rounded-xl border border-ink-900/10 bg-white px-5 py-2.5 text-sm font-semibold text-ink-700 hover:border-neon-red/30 hover:text-neon-red"
+                                        >
+                                            Clear filters
+                                        </button>
+                                        <Link
+                                            href={route('lfg.create')}
+                                            className="rounded-xl bg-neon-red px-5 py-2.5 text-sm font-semibold text-white hover:bg-neon-red/80"
+                                        >
+                                            Post your own
+                                        </Link>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <h3 className="mb-2 text-xl font-bold text-ink-900">No LFG posts yet</h3>
+                                    <p className="mb-6 text-ink-500">
+                                        Be the first to create a Looking for Group post!
+                                    </p>
+                                    <Link
+                                        href={route('lfg.create')}
+                                        className="inline-flex rounded-xl bg-neon-red px-6 py-3 font-semibold text-white hover:bg-neon-red/80"
+                                    >
+                                        Create Post
+                                    </Link>
+                                </>
+                            )}
                         </div>
                     )}
 
