@@ -538,11 +538,15 @@ export default function HelpIndex() {
 
             {/* ── Contact block ──────────────────────────────── */}
             <section className="mx-auto max-w-4xl px-4 pb-20 sm:px-6 lg:px-8">
-                <div className="relative overflow-hidden rounded-3xl border border-ink-900/10 bg-gradient-to-br from-ink-900 via-ink-900 to-neon-red-deep p-8 text-white sm:p-10">
+                {/* Hardcoded dark background: `ink-900` is a themed token
+                    that inverts to near-white in dark mode, which made the
+                    gradient render as a washed-out card. Using raw hex
+                    keeps the "black → red" look in both themes. */}
+                <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#14121a] via-[#14121a] to-neon-red-deep p-8 text-white sm:p-10">
                     <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-neon-red/30 blur-3xl" />
                     <div className="relative grid gap-6 sm:grid-cols-[1fr_auto] sm:items-center">
                         <div>
-                            <h3 className="text-2xl font-bold sm:text-3xl">Still stuck?</h3>
+                            <h3 className="text-2xl font-bold sm:text-3xl text-white">Still stuck?</h3>
                             <p className="mt-2 max-w-lg text-sm text-white/70">
                                 Can't find what you're looking for? Reach out directly — we're a small team and we read every message.
                             </p>
