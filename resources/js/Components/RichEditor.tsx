@@ -47,6 +47,8 @@ export default function RichEditor({ value, onChange, placeholder = 'Write somet
         onUpdate: ({ editor }) => {
             const html = editor.getHTML();
             lastEmittedRef.current = html;
+            // eslint-disable-next-line no-console
+            console.log('[RichEditor] onUpdate fired. has<img>?', html.includes('<img'), 'len:', html.length);
             onChange(html);
         },
         editorProps: {
