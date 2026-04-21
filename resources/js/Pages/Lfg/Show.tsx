@@ -1,7 +1,7 @@
 import FavoriteHostButton from '@/Components/FavoriteHostButton';
 import HostTrustRow, { HostStats } from '@/Components/HostTrustRow';
 import MemberCard, { MemberStats } from '@/Components/MemberCard';
-import { relativeTimeShort } from '@/utils/time';
+import { formatHMS, relativeTimeShort } from '@/utils/time';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Game, PageProps, User } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
@@ -78,7 +78,7 @@ export default function LfgShow({
     myRatings: initialMyRatings,
     messages: initialMessages,
     myQueuePosition,
-    staleFullHours,
+    staleFullSeconds,
     canModerate = false,
 }: {
     post: LfgPost;
@@ -88,7 +88,7 @@ export default function LfgShow({
     myRatings: number[];
     messages: LfgMessage[];
     myQueuePosition?: number | null;
-    staleFullHours?: number | null;
+    staleFullSeconds?: number | null;
     canModerate?: boolean;
 }) {
     const { auth } = usePage<PageProps>().props;
@@ -452,11 +452,11 @@ export default function LfgShow({
                             )}
 
                             {/* Still-playing nudge — host has a full squad that's been sitting */}
-                            {isCreator && staleFullHours != null && (
+                            {isCreator && staleFullSeconds != null && (
                                 <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/5 p-4">
                                     <p className="text-sm font-semibold text-yellow-700">Still playing?</p>
                                     <p className="mt-1 text-xs text-ink-500">
-                                        Your squad has been full for {staleFullHours}h. If you wrapped up, close the session so everyone can rate each other.
+                                        Your squad has been full for <span className="font-mono font-semibold text-ink-700">{formatHMS(staleFullSeconds)}</span>. If you wrapped up, close the session so everyone can rate each other.
                                     </p>
                                     <button
                                         onClick={handleClose}

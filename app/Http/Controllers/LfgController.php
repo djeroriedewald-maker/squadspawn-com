@@ -453,10 +453,12 @@ class LfgController extends Controller
 
         // Host-side nudge: session that's been full for 4h+ should probably
         // be closed so everyone can rate. Don't auto-close — just surface.
-        $staleFullHours = null;
+        // Send seconds (int) so the frontend can render hh:mm:ss without
+        // the float-hours noise diffInHours gives back in Laravel 12+.
+        $staleFullSeconds = null;
         if ($lfgPost->status === 'full' && $lfgPost->updated_at) {
-            $hrs = $lfgPost->updated_at->diffInHours(now());
-            if ($hrs >= 4) $staleFullHours = $hrs;
+            $seconds = (int) $lfgPost->updated_at->diffInSeconds(now());
+            if ($seconds >= 4 * 3600) $staleFullSeconds = $seconds;
         }
 
         // Per-post OpenGraph so sharing an LFG link in Discord/Twitter shows
@@ -478,7 +480,7 @@ class LfgController extends Controller
             'isMember' => $isMember,
             'myRatings' => $myRatings,
             'myQueuePosition' => $myQueuePosition,
-            'staleFullHours' => $staleFullHours,
+            'staleFullSeconds' => $staleFullSeconds,
             'canModerate' => $canMod,
             'messages' => $isMember ? $lfgPost->messages()->with('user.profile')->latest()->take(50)->get()->reverse()->values() : [],
             'seo' => $seo,

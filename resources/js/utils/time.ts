@@ -1,4 +1,21 @@
 /**
+ * Format a duration in seconds as `hh:mm:ss` with zero-padded parts.
+ * Example: 40944 → "11:22:24". Used for session-length displays where
+ * the raw float-hours representation from Carbon::diffInHours is ugly.
+ */
+export function formatHMS(totalSeconds: number | null | undefined): string {
+    if (totalSeconds == null || !Number.isFinite(totalSeconds) || totalSeconds < 0) {
+        return '00:00:00';
+    }
+    const s = Math.floor(totalSeconds);
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = s % 60;
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    return `${pad(h)}:${pad(m)}:${pad(sec)}`;
+}
+
+/**
  * Short, compact relative-time formatter: "just now", "5m", "2h", "3d".
  * Keeps cards readable — Carbon's diffForHumans("5 minutes ago") is too
  * wordy for a pill.
