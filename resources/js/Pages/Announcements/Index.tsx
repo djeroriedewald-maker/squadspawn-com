@@ -127,7 +127,7 @@ export default function AnnouncementsIndex({ views }: { views: View[] }) {
 
                 <p className="mt-8 text-center text-xs text-ink-500">
                     Want fewer (or more) of these? Head to{' '}
-                    <Link href={route('notifPrefs.show')} className="text-neon-red hover:underline">
+                    <Link href={route('profile.edit')} className="text-neon-red hover:underline">
                         Notification preferences
                     </Link>
                     .

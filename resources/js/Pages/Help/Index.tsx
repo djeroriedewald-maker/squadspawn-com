@@ -287,7 +287,7 @@ const FAQS: Faq[] = [
         question: 'How do I turn push notifications on or off?',
         answer: (
             <>
-                Open <Link href={route('notifPrefs.show')} className="text-neon-red hover:underline">Notification preferences</Link> and toggle per type (new message, LFG request, match, etc.). You can also revoke the whole browser permission from your browser's site settings.
+                Open <Link href={route('profile.edit')} className="text-neon-red hover:underline">your profile settings</Link> and scroll to <em>Push notifications</em> to toggle per type (new message, LFG request, match, etc.). You can also revoke the whole browser permission from your browser's site settings.
             </>
         ),
     },
