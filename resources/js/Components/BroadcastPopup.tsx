@@ -64,6 +64,18 @@ export default function BroadcastPopup() {
 
     if (!broadcast) return null;
 
+    // A CTA pointing at our own origin should navigate inside the PWA —
+    // not punt the user out into a Chrome Custom Tab (which is what
+    // target="_blank" does from an installed PWA on Android).
+    const ctaIsExternal = (() => {
+        if (!broadcast.cta_url) return false;
+        try {
+            return new URL(broadcast.cta_url, window.location.href).origin !== window.location.origin;
+        } catch {
+            return false;
+        }
+    })();
+
     const close = () => {
         setClosing(true);
         axios.post(route('announcements.dismiss', broadcast.id)).catch(() => {});
@@ -192,14 +204,14 @@ export default function BroadcastPopup() {
                             {broadcast.cta_url && broadcast.cta_label && (
                                 <a
                                     href={broadcast.cta_url}
-                                    target={broadcast.cta_url.startsWith('http') ? '_blank' : undefined}
-                                    rel={broadcast.cta_url.startsWith('http') ? 'noopener noreferrer' : undefined}
+                                    target={ctaIsExternal ? '_blank' : undefined}
+                                    rel={ctaIsExternal ? 'noopener noreferrer' : undefined}
                                     onClick={onCtaClick}
                                     className="inline-flex items-center gap-1.5 rounded-xl bg-neon-red px-4 py-2 text-sm font-bold text-white shadow-glow-red transition hover:bg-neon-red/90"
                                 >
                                     {broadcast.cta_label}
                                     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5-5 5M6 12h12" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" d={ctaIsExternal ? "M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" : "M13 7l5 5-5 5M6 12h12"} />
                                     </svg>
                                 </a>
                             )}

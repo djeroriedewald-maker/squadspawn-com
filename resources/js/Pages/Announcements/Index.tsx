@@ -1,6 +1,35 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
 
+/**
+ * Single-origin check — lets us keep internal CTAs inside the PWA
+ * instead of launching a Chrome Custom Tab with `target="_blank"`.
+ */
+function isExternalUrl(url: string): boolean {
+    try {
+        return new URL(url, window.location.href).origin !== window.location.origin;
+    } catch {
+        return false;
+    }
+}
+
+function AnnouncementCta({ href, label }: { href: string; label: string }) {
+    const external = isExternalUrl(href);
+    return (
+        <a
+            href={href}
+            target={external ? '_blank' : undefined}
+            rel={external ? 'noopener noreferrer' : undefined}
+            className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-neon-red px-4 py-2 text-sm font-bold text-white shadow-glow-red transition hover:bg-neon-red/90"
+        >
+            {label}
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d={external ? "M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" : "M13 7l5 5-5 5M6 12h12"} />
+            </svg>
+        </a>
+    );
+}
+
 interface View {
     id: number;
     broadcast_id: number;
@@ -62,19 +91,7 @@ export default function AnnouncementsIndex({ views }: { views: View[] }) {
                                     {v.body_html && (
                                         <div className="prose prose-sm mt-2 max-w-none text-ink-700" dangerouslySetInnerHTML={{ __html: v.body_html }} />
                                     )}
-                                    {v.cta_url && v.cta_label && (
-                                        <a
-                                            href={v.cta_url}
-                                            target={v.cta_url.startsWith('http') ? '_blank' : undefined}
-                                            rel={v.cta_url.startsWith('http') ? 'noopener noreferrer' : undefined}
-                                            className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-neon-red px-4 py-2 text-sm font-bold text-white shadow-glow-red transition hover:bg-neon-red/90"
-                                        >
-                                            {v.cta_label}
-                                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5-5 5M6 12h12" />
-                                            </svg>
-                                        </a>
-                                    )}
+                                    {v.cta_url && v.cta_label && <AnnouncementCta href={v.cta_url} label={v.cta_label} />}
                                 </div>
                             </li>
                         ))}
