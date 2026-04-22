@@ -1,5 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
+import { useEffect } from 'react';
 
 /**
  * Single-origin check — lets us keep internal CTAs inside the PWA
@@ -45,9 +46,35 @@ interface View {
 }
 
 export default function AnnouncementsIndex({ views }: { views: View[] }) {
+    // Deep-link support: if we arrive at /announcements#broadcast-123
+    // (e.g. from a notification click), scroll the matching card into
+    // view with a gentle highlight so the user sees which one we meant.
+    useEffect(() => {
+        const hash = window.location.hash;
+        if (!hash.startsWith('#broadcast-')) return;
+        const el = document.querySelector(hash);
+        if (!el) return;
+        setTimeout(() => {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            el.classList.add('broadcast-highlight');
+            setTimeout(() => el.classList.remove('broadcast-highlight'), 2400);
+        }, 50);
+    }, []);
+
     return (
         <AuthenticatedLayout>
             <Head title="Announcements" />
+            <style>{`
+                @keyframes broadcastPulse {
+                    0%   { box-shadow: 0 0 0 0 rgba(230,0,46,0.4); }
+                    50%  { box-shadow: 0 0 0 12px rgba(230,0,46,0); }
+                    100% { box-shadow: 0 0 0 0 rgba(230,0,46,0); }
+                }
+                .broadcast-highlight {
+                    animation: broadcastPulse 1.2s ease-out 2;
+                    border-color: rgb(230 0 46 / 0.6) !important;
+                }
+            `}</style>
 
             <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
                 <header className="mb-8">
@@ -62,7 +89,7 @@ export default function AnnouncementsIndex({ views }: { views: View[] }) {
                 ) : (
                     <ol className="space-y-4">
                         {views.map((v) => (
-                            <li key={v.id} className="overflow-hidden rounded-2xl border border-ink-900/10 bg-white transition hover:-translate-y-0.5 hover:shadow-lg">
+                            <li key={v.id} id={`broadcast-${v.broadcast_id}`} className="scroll-mt-24 overflow-hidden rounded-2xl border border-ink-900/10 bg-white transition hover:-translate-y-0.5 hover:shadow-lg">
                                 {v.image_url && !v.youtube_id && (
                                     <img src={v.image_url} alt="" className="h-40 w-full object-cover" />
                                 )}

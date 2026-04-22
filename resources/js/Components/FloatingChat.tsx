@@ -58,6 +58,10 @@ interface Notification {
         host_avatar?: string;
         applicant_name?: string;
         applicant_avatar?: string;
+        // Broadcast / announcement payload
+        broadcast_id?: number;
+        title?: string;
+        preview?: string;
     };
     created_at: string;
 }
@@ -250,6 +254,15 @@ export default function FloatingChat() {
             setUnreadCount((prev: number) => Math.max(0, prev - 1));
         } catch {}
 
+        // Platform announcements: jump straight to the archive, anchored
+        // on the specific broadcast so the user lands on the same text
+        // they saw in the popup.
+        if (notif.data.type === 'announcement' && notif.data.broadcast_id) {
+            setView('closed');
+            router.visit(route('announcements.index') + '#broadcast-' + notif.data.broadcast_id);
+            return;
+        }
+
         // LFG notifications: open LFG group chat if available
         if (notif.data.lfg_slug) {
             const group = lfgGroups.find((g) => g.slug === notif.data.lfg_slug);
@@ -367,6 +380,14 @@ export default function FloatingChat() {
                 return <><strong>{d.applicant_name}</strong><span className="text-ink-500"> wants to join {d.lfg_title}</span></>;
             case 'lfg_ended':
                 return <><span className="mr-1.5 inline-block h-2 w-2 rounded-full bg-yellow-400" />Session ended: <strong>{d.lfg_title}</strong><span className="text-ink-500"> — rate your teammates!</span></>;
+            case 'announcement':
+                return (
+                    <>
+                        <span className="mr-1.5 inline-block h-2 w-2 rounded-full bg-neon-red" />
+                        📢 <strong>{d.title}</strong>
+                        {d.preview && <span className="text-ink-500"> — {d.preview}</span>}
+                    </>
+                );
             default:
                 return 'New notification';
         }
