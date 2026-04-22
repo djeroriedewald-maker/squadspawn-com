@@ -77,11 +77,12 @@ class HandleInertiaRequests extends Middleware
         }
 
         // Active broadcast — the oldest sent-but-undismissed popup for the
-        // viewer. Resolved as a closure so it only hits the DB on pages
-        // that actually read it (the layout does once per render).
-        $activeBroadcast = $user
-            ? fn () => $this->resolveActiveBroadcast($user)
-            : null;
+        // viewer. Inertia 2 treats top-level closures as lazy props that
+        // only evaluate on partial reloads, so we must resolve eagerly
+        // here or the popup never ships to the frontend on normal page
+        // loads. The underlying query is cheap (index on user_id +
+        // dismissed_at).
+        $activeBroadcast = $user ? $this->resolveActiveBroadcast($user) : null;
 
         return [
             ...parent::share($request),

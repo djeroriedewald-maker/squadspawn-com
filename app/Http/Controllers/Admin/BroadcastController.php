@@ -157,25 +157,35 @@ class BroadcastController extends Controller
     {
         $userId = $request->user()->id;
 
-        // Temporarily clear sent_at so dispatch runs; immediately restore
-        // and instead just call the private path that notifies one user.
-        // Easiest: insert a one-off view row + notify directly.
-        \App\Models\BroadcastView::firstOrCreate(
+        // Upsert the view row AND reset its dismissed state — otherwise
+        // a previous test run (or real delivery) leaves dismissed_at set
+        // and the popup stays hidden even though we "resent" it.
+        \App\Models\BroadcastView::updateOrCreate(
             ['broadcast_id' => $broadcast->id, 'user_id' => $userId],
+            ['dismissed_at' => null, 'viewed_at' => null, 'clicked_at' => null],
         );
         $request->user()->notify(new \App\Notifications\BroadcastNotification($broadcast));
         \Illuminate\Support\Facades\Cache::forget("user:{$userId}:unread");
 
         $hasSubscription = \App\Models\PushSubscription::where('user_id', $userId)->exists();
+        $wantsPush = $request->user()->wantsPush('announcement');
 
         return response()->json([
             'ok' => true,
             'has_push_subscription' => $hasSubscription,
+            'wants_push' => $wantsPush,
             'push_enabled' => $broadcast->push_enabled,
-            'message' => $hasSubscription
-                ? 'Test delivered. Push fired if this browser is subscribed — check your device.'
-                : 'Test delivered. No push subscription on file for your account — enable push from a profile page first.',
+            'message' => $this->testDiagnosticMessage($hasSubscription, $wantsPush, $broadcast->push_enabled),
         ]);
+    }
+
+    private function testDiagnosticMessage(bool $hasSub, bool $wantsPush, bool $pushEnabled): string
+    {
+        $popup = 'In-app popup: delivered — reload any page and it should appear.';
+        if (!$pushEnabled) return $popup . ' Push disabled on this broadcast.';
+        if (!$hasSub) return $popup . ' Push: no subscription on file for your account. Enable push from the prompt in your app.';
+        if (!$wantsPush) return $popup . ' Push: suppressed because you toggled "Platform announcements" off in notification preferences.';
+        return $popup . ' Push: fired — check your device within 30 seconds.';
     }
 
     private function validated(Request $request): array
