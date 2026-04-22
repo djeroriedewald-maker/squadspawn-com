@@ -2,6 +2,30 @@ import { router, usePage } from '@inertiajs/react';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 
+/**
+ * Fire a POST that's allowed to outlive the current page. Uses
+ * navigator.sendBeacon when available (most browsers) and falls back
+ * to `fetch` with `keepalive: true`. The CSRF token rides in the URL
+ * via a query arg because Beacon can't set custom headers.
+ */
+function sendBeaconPost(url: string): void {
+    const xsrfMatch = document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]+)/);
+    const token = xsrfMatch ? decodeURIComponent(xsrfMatch[1]) : null;
+    const blob = new Blob([''], { type: 'application/x-www-form-urlencoded' });
+    const target = token ? `${url}${url.includes('?') ? '&' : '?'}_token=${encodeURIComponent(token)}` : url;
+
+    if (navigator.sendBeacon?.(target, blob)) return;
+
+    // Fallback: fetch with keepalive so the browser keeps the request
+    // in-flight even after page unload.
+    fetch(target, {
+        method: 'POST',
+        credentials: 'same-origin',
+        keepalive: true,
+        headers: token ? { 'X-XSRF-TOKEN': token } : undefined,
+    }).catch(() => {});
+}
+
 interface ActiveBroadcast {
     id: number;
     title: string;
@@ -88,12 +112,13 @@ export default function BroadcastPopup() {
     };
 
     const onCtaClick = () => {
-        // A CTA click implies the user has engaged with the announcement
-        // — mark both clicked (for stats) and dismissed so the popup
-        // doesn't reappear on the next navigation. Fire-and-forget; the
-        // browser follows the link immediately regardless.
-        axios.post(route('announcements.clicked', broadcast.id)).catch(() => {});
-        axios.post(route('announcements.dismiss', broadcast.id)).catch(() => {});
+        // CTA clicks race the browser's navigation: axios.post can be
+        // aborted mid-flight when the page unloads, meaning the server
+        // never sees the dismiss and the popup re-appears on the next
+        // page. navigator.sendBeacon is purpose-built for requests that
+        // must survive unload, and the clicked endpoint now also stamps
+        // dismissed_at so one reliable call handles both.
+        sendBeaconPost(route('announcements.clicked', broadcast.id));
     };
 
     return (
@@ -184,9 +209,8 @@ export default function BroadcastPopup() {
                             <a
                                 href={route('announcements.index')}
                                 onClick={() => {
-                                    // Navigating to /announcements counts as engagement;
-                                    // dismiss so we don't also pop up once they get there.
-                                    axios.post(route('announcements.dismiss', broadcast.id)).catch(() => {});
+                                    // Same unload-race as the CTA — use sendBeacon.
+                                    sendBeaconPost(route('announcements.dismiss', broadcast.id));
                                 }}
                                 className="inline-flex items-center gap-1 font-semibold text-ink-700 hover:text-neon-red"
                             >

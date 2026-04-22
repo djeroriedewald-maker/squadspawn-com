@@ -69,8 +69,15 @@ class BroadcastViewController extends Controller
         $row = BroadcastView::where('broadcast_id', $broadcastId)
             ->where('user_id', $request->user()->id)
             ->first();
-        if ($row && !$row->clicked_at) {
-            $row->update(['clicked_at' => now()]);
+        if ($row) {
+            // A CTA click both records engagement (clicked_at) and
+            // implicitly dismisses the popup. Setting both in the same
+            // request means the browser can navigate away before a
+            // second request completes without the popup re-appearing.
+            $updates = [];
+            if (!$row->clicked_at) $updates['clicked_at'] = now();
+            if (!$row->dismissed_at) $updates['dismissed_at'] = now();
+            if (!empty($updates)) $row->update($updates);
         }
         return response()->json(['ok' => true]);
     }
