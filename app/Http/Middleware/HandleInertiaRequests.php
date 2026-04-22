@@ -105,13 +105,15 @@ class HandleInertiaRequests extends Middleware
     private function resolveActiveBroadcast($user): ?array
     {
         // Pop the MOST RECENT undismissed broadcast — freshest news wins.
-        // If the user never explicitly dismissed an older one (closed the
-        // tab, say), an ordering on oldest-first would let the stale entry
-        // block every subsequent broadcast from surfacing.
+        // We trust the broadcast_views row to gate delivery: dispatch()
+        // and the "Send test to me" flow both create rows explicitly, so
+        // filtering on sent_at here would hide draft-test popups for no
+        // good reason (the admin expects the test to show up even before
+        // a production send).
         $view = \App\Models\BroadcastView::where('user_id', $user->id)
             ->whereNull('dismissed_at')
             ->whereHas('broadcast', function ($q) {
-                $q->where('style', 'popup')->whereNotNull('sent_at');
+                $q->where('style', 'popup');
             })
             ->with('broadcast')
             ->latest('id')

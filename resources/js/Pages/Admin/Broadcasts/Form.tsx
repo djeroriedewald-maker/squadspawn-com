@@ -58,6 +58,11 @@ export default function BroadcastForm({
         try {
             const res = await axios.post(route('admin.broadcasts.test', broadcast.id));
             setTestResult({ ok: true, message: res.data.message });
+            // Re-fetch the shared activeBroadcast prop so the popup shows
+            // up in this tab without the admin having to navigate. The
+            // view row was created server-side; this just tells Inertia
+            // to read it.
+            router.reload({ only: ['activeBroadcast'] });
         } catch (err: any) {
             setTestResult({ ok: false, message: err?.response?.data?.message ?? 'Test failed.' });
         } finally {
