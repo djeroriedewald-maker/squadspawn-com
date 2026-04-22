@@ -56,7 +56,10 @@ class BroadcastController extends Controller
             return redirect()->route('admin.broadcasts.index')->with('message', 'Broadcast sent.');
         }
 
-        return redirect()->route('admin.broadcasts.index')->with('message', 'Broadcast saved.');
+        // Drafts go straight back into the edit screen so the admin can
+        // hit "Send test to me" without re-clicking through the list.
+        return redirect()->route('admin.broadcasts.edit', $broadcast->id)
+            ->with('message', 'Draft saved. Use "Send test to me" to check the popup + push before going live.');
     }
 
     public function edit(Broadcast $broadcast): Response

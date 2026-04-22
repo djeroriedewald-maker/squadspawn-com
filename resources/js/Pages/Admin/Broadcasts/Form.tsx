@@ -419,21 +419,23 @@ export default function BroadcastForm({
                             >
                                 {processing ? 'Saving…' : 'Save as draft'}
                             </button>
-                            {isEditing && (
-                                <button
-                                    type="button"
-                                    onClick={sendTest}
-                                    disabled={testSending}
-                                    className="inline-flex w-full items-center justify-center gap-1.5 rounded-xl border border-gaming-cyan/40 bg-gaming-cyan/10 px-4 py-3 text-sm font-semibold text-gaming-cyan transition hover:bg-gaming-cyan/20 disabled:opacity-50"
-                                >
-                                    {testSending ? 'Sending…' : 'Send test to me only'}
-                                </button>
-                            )}
-                            {!isEditing && (
-                                <p className="text-center text-[11px] text-ink-500">
-                                    Save as draft first to enable the "Send test to me" button.
-                                </p>
-                            )}
+                            <button
+                                type="button"
+                                onClick={sendTest}
+                                disabled={testSending || !isEditing}
+                                title={!isEditing ? 'Save the draft first — this button needs a saved broadcast id.' : undefined}
+                                className={`inline-flex w-full items-center justify-center gap-1.5 rounded-xl border px-4 py-3 text-sm font-semibold transition ${
+                                    isEditing
+                                        ? 'border-gaming-cyan/40 bg-gaming-cyan/10 text-gaming-cyan hover:bg-gaming-cyan/20'
+                                        : 'cursor-not-allowed border-ink-900/10 bg-bone-100/50 text-ink-500'
+                                } disabled:opacity-50`}
+                            >
+                                {testSending
+                                    ? 'Sending…'
+                                    : isEditing
+                                        ? '🎯 Send test to me only'
+                                        : 'Send test (save draft first)'}
+                            </button>
                             <button
                                 type="button"
                                 disabled={processing || !data.title || audienceCount === 0}

@@ -40,7 +40,10 @@ class BroadcastDispatcher
 
         $userIds = $overrideUserIds ?? $this->targetUserIds($broadcast);
         if (empty($userIds)) {
-            $broadcast->update(['sent_at' => now(), 'push_eligible_count' => 0, 'push_sent_count' => 0]);
+            // Safe-update: if the push-stats migration hasn't landed yet
+            // (fresh deploy without migrate), fall back to just stamping
+            // sent_at so the admin can at least close out the broadcast.
+            $this->safeUpdate($broadcast, ['sent_at' => now(), 'push_eligible_count' => 0, 'push_sent_count' => 0]);
             return 0;
         }
 
@@ -95,12 +98,27 @@ class BroadcastDispatcher
             'push_sent' => $pushSentCount,
         ]);
 
-        $broadcast->update([
+        $this->safeUpdate($broadcast, [
             'sent_at' => now(),
             'push_eligible_count' => $pushEligibleCount,
             'push_sent_count' => $pushSentCount,
         ]);
         return count($userIds);
+    }
+
+    /**
+     * Update tolerant of missing columns — if the push-stats migration
+     * hasn't run yet, drop those keys and try again. Prevents a fresh
+     * deploy from 500ing when a broadcast is dispatched before migrate.
+     */
+    private function safeUpdate(Broadcast $broadcast, array $attrs): void
+    {
+        try {
+            $broadcast->update($attrs);
+        } catch (\Throwable $e) {
+            Log::warning('Broadcast update fell back (likely pending migration): ' . $e->getMessage());
+            $broadcast->update(array_intersect_key($attrs, ['sent_at' => true]));
+        }
     }
 
     /** Query builder matching the broadcast's targeting rules. */
