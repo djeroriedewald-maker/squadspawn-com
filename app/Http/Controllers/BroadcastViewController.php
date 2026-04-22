@@ -61,6 +61,7 @@ class BroadcastViewController extends Controller
         if ($row && !$row->dismissed_at) {
             $row->update(['dismissed_at' => now()]);
         }
+        $this->markNotificationRead($request->user(), $broadcastId);
         return response()->json(['ok' => true]);
     }
 
@@ -79,6 +80,22 @@ class BroadcastViewController extends Controller
             if (!$row->dismissed_at) $updates['dismissed_at'] = now();
             if (!empty($updates)) $row->update($updates);
         }
+        $this->markNotificationRead($request->user(), $broadcastId);
         return response()->json(['ok' => true]);
+    }
+
+    /**
+     * Clear the database-channel notification row for this broadcast,
+     * so the user doesn't also see it lingering under Alerts after
+     * they've already interacted with the popup. We filter in PHP to
+     * avoid JSON-path DB dialect issues (same pattern LFG uses).
+     */
+    private function markNotificationRead($user, int $broadcastId): void
+    {
+        $user->unreadNotifications()
+            ->get()
+            ->filter(fn ($n) => ($n->data['broadcast_id'] ?? null) === $broadcastId)
+            ->each->markAsRead();
+        \Illuminate\Support\Facades\Cache::forget("user:{$user->id}:unread");
     }
 }
