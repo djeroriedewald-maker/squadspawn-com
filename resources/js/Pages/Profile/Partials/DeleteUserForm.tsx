@@ -4,7 +4,7 @@ import InputLabel from '@/Components/InputLabel';
 import Modal from '@/Components/Modal';
 import SecondaryButton from '@/Components/SecondaryButton';
 import TextInput from '@/Components/TextInput';
-import { useForm } from '@inertiajs/react';
+import { useForm, usePage } from '@inertiajs/react';
 import { FormEventHandler, useRef, useState } from 'react';
 
 export default function DeleteUserForm({
@@ -12,8 +12,14 @@ export default function DeleteUserForm({
 }: {
     className?: string;
 }) {
+    const { auth } = usePage().props as any;
+    // Users who signed up via Google never set a password, so asking
+    // them to type one makes the account un-deletable. Switch to a
+    // typed-string confirmation for those accounts.
+    const isOAuthOnly = !!auth?.user?.google_id;
+
     const [confirmingUserDeletion, setConfirmingUserDeletion] = useState(false);
-    const passwordInput = useRef<HTMLInputElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
 
     const {
         data,
@@ -23,8 +29,9 @@ export default function DeleteUserForm({
         reset,
         errors,
         clearErrors,
-    } = useForm({
+    } = useForm<{ password: string; confirmation: string }>({
         password: '',
+        confirmation: '',
     });
 
     const confirmUserDeletion = () => {
@@ -37,7 +44,7 @@ export default function DeleteUserForm({
         destroy(route('profile.destroy'), {
             preserveScroll: true,
             onSuccess: () => closeModal(),
-            onError: () => passwordInput.current?.focus(),
+            onError: () => inputRef.current?.focus(),
             onFinish: () => reset(),
         });
     };
@@ -48,6 +55,8 @@ export default function DeleteUserForm({
         clearErrors();
         reset();
     };
+
+    const canSubmit = isOAuthOnly ? data.confirmation === 'DELETE' : data.password.length > 0;
 
     return (
         <section className={`space-y-6 ${className}`}>
@@ -76,44 +85,54 @@ export default function DeleteUserForm({
 
                     <p className="mt-1 text-sm text-ink-500">
                         Once your account is deleted, all of its resources and
-                        data will be permanently deleted. Please enter your
-                        password to confirm you would like to permanently delete
-                        your account.
+                        data will be permanently deleted.{' '}
+                        {isOAuthOnly
+                            ? 'Your account signed in with Google, so type the word DELETE in capitals to confirm.'
+                            : 'Please enter your password to confirm you would like to permanently delete your account.'}
                     </p>
 
-                    <div className="mt-6">
-                        <InputLabel
-                            htmlFor="password"
-                            value="Password"
-                            className="sr-only"
-                        />
-
-                        <TextInput
-                            id="password"
-                            type="password"
-                            name="password"
-                            ref={passwordInput}
-                            value={data.password}
-                            onChange={(e) =>
-                                setData('password', e.target.value)
-                            }
-                            className="mt-1 block w-3/4"
-                            isFocused
-                            placeholder="Password"
-                        />
-
-                        <InputError
-                            message={errors.password}
-                            className="mt-2"
-                        />
-                    </div>
+                    {isOAuthOnly ? (
+                        <div className="mt-6">
+                            <InputLabel htmlFor="confirmation" value="Type DELETE to confirm" className="sr-only" />
+                            <TextInput
+                                id="confirmation"
+                                type="text"
+                                name="confirmation"
+                                ref={inputRef}
+                                value={data.confirmation}
+                                onChange={(e) => setData('confirmation', e.target.value)}
+                                className="mt-1 block w-3/4 font-mono tracking-widest"
+                                autoComplete="off"
+                                autoCapitalize="characters"
+                                isFocused
+                                placeholder="DELETE"
+                            />
+                            <InputError message={errors.confirmation} className="mt-2" />
+                        </div>
+                    ) : (
+                        <div className="mt-6">
+                            <InputLabel htmlFor="password" value="Password" className="sr-only" />
+                            <TextInput
+                                id="password"
+                                type="password"
+                                name="password"
+                                ref={inputRef}
+                                value={data.password}
+                                onChange={(e) => setData('password', e.target.value)}
+                                className="mt-1 block w-3/4"
+                                isFocused
+                                placeholder="Password"
+                            />
+                            <InputError message={errors.password} className="mt-2" />
+                        </div>
+                    )}
 
                     <div className="mt-6 flex justify-end">
                         <SecondaryButton onClick={closeModal}>
                             Cancel
                         </SecondaryButton>
 
-                        <DangerButton className="ms-3" disabled={processing}>
+                        <DangerButton className="ms-3" disabled={processing || !canSubmit}>
                             Delete Account
                         </DangerButton>
                     </div>

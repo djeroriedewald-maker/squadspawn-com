@@ -47,11 +47,25 @@ class ProfileController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
-        $request->validate([
-            'password' => ['required', 'current_password'],
-        ]);
-
         $user = $request->user();
+
+        // Users who signed up via Google never picked a password — we
+        // generated a random bcrypt on their behalf, so `current_password`
+        // can't be satisfied. Fall back to a typed-string confirmation
+        // ("DELETE") for those accounts. Password accounts still use the
+        // stronger current-password check.
+        if ($user->google_id) {
+            $request->validate([
+                'confirmation' => ['required', 'in:DELETE'],
+            ], [
+                'confirmation.in' => 'Type DELETE in capital letters to confirm.',
+            ]);
+        } else {
+            $request->validate([
+                'password' => ['required', 'current_password'],
+            ]);
+        }
+
         $userId = $user->id;
 
         Auth::logout();
