@@ -15,7 +15,7 @@ class ChangelogController extends Controller
 {
     public function index(): Response
     {
-        $entries = ChangelogEntry::with('author:id,name')
+        $entries = ChangelogEntry::with('author:id,name', 'author.profile:user_id,username')
             ->orderByDesc('published_at')
             ->orderByDesc('id')
             ->paginate(25)
@@ -30,7 +30,7 @@ class ChangelogController extends Controller
                 'published_at' => $e->published_at?->toDateTimeString(),
                 'is_published' => $e->published_at && $e->published_at->lte(now()),
                 'is_scheduled' => $e->published_at && $e->published_at->gt(now()),
-                'author_name' => $e->author?->name,
+                'author_name' => $e->author?->profile?->username ?? $e->author?->name,
             ]);
 
         return Inertia::render('Admin/Changelog/Index', [

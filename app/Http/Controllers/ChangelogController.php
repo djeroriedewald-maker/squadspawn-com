@@ -12,7 +12,7 @@ class ChangelogController extends Controller
     public function index(Request $request): Response
     {
         $entries = ChangelogEntry::published()
-            ->with('author:id,name')
+            ->with('author:id,name', 'author.profile:user_id,username')
             ->orderByDesc('published_at')
             ->orderByDesc('id')
             ->get()
@@ -51,7 +51,7 @@ class ChangelogController extends Controller
     public function show(string $slug): Response
     {
         $entry = ChangelogEntry::published()
-            ->with('author:id,name')
+            ->with('author:id,name', 'author.profile:user_id,username')
             ->where('slug', $slug)
             ->firstOrFail();
 
@@ -78,7 +78,10 @@ class ChangelogController extends Controller
             'published_at' => $e->published_at?->toIso8601String(),
             'published_at_raw' => $e->published_at?->toDateTimeString(),
             'published_at_human' => $e->published_at?->diffForHumans(),
-            'author_name' => $e->author?->name,
+            // Prefer the gamer-tag (profile username) over the legal name
+            // so the "shipped by …" line feels like a gamer platform, not
+            // an enterprise change-ticket.
+            'author_name' => $e->author?->profile?->username ?? $e->author?->name,
         ];
     }
 }
