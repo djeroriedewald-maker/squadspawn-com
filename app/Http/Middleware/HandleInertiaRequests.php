@@ -19,7 +19,18 @@ class HandleInertiaRequests extends Middleware
     {
         $user = $request->user();
 
-        $authData = ['user' => null, 'unreadCount' => 0, 'notifications' => [], 'achievementCount' => 0, 'canModerate' => false, 'isAdmin' => false];
+        $authData = ['user' => null, 'unreadCount' => 0, 'notifications' => [], 'achievementCount' => 0, 'canModerate' => false, 'isAdmin' => false, 'hasChangelogUpdate' => false];
+
+        // Cached globally — every authenticated visitor checks this, so
+        // hitting the DB each time is wasteful. Invalidated on create/
+        // update/delete in Admin\ChangelogController via a helper below.
+        $latestChangelogAt = \Illuminate\Support\Facades\Cache::remember(
+            'changelog:latest_published_at',
+            600,
+            fn () => \App\Models\ChangelogEntry::published()
+                ->orderByDesc('published_at')
+                ->value('published_at'),
+        );
 
         if ($user) {
             $user->load(['profile', 'games']);
@@ -43,6 +54,12 @@ class HandleInertiaRequests extends Middleware
                 ]);
             }
 
+            // Dot on the nav until the user hits /changelog. Uses the
+            // profile timestamp so it survives across devices.
+            $lastSeen = $user->profile?->changelog_last_seen_at;
+            $hasChangelogUpdate = $latestChangelogAt
+                && ($lastSeen === null || $latestChangelogAt > $lastSeen);
+
             $authData = [
                 'user' => $user,
                 'unreadCount' => $unreadCount,
@@ -50,6 +67,7 @@ class HandleInertiaRequests extends Middleware
                 'notifications' => $notifications,
                 'canModerate' => $user->canModerate(),
                 'isAdmin' => (bool) $user->is_admin,
+                'hasChangelogUpdate' => $hasChangelogUpdate,
             ];
         }
 

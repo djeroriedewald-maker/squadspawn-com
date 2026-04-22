@@ -31,6 +31,12 @@ Route::get('/terms-of-service', fn () => Inertia::render('Legal/TermsOfService')
 Route::get('/cookie-policy', fn () => Inertia::render('Legal/CookiePolicy'))->name('legal.cookies');
 Route::get('/help', fn () => Inertia::render('Help/Index'))->name('help');
 
+// Changelog — public for SEO + shareability.
+Route::get('/changelog', [\App\Http\Controllers\ChangelogController::class, 'index'])->name('changelog.index');
+Route::get('/changelog/{slug}', [\App\Http\Controllers\ChangelogController::class, 'show'])
+    ->where('slug', '[a-z0-9\-]+')
+    ->name('changelog.show');
+
 Route::get('/', function () {
     // Logged-in users have outgrown the marketing homepage — bounce them
     // straight to the dashboard. Also fixes a mobile-back annoyance where
@@ -401,6 +407,14 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/games', [\App\Http\Controllers\Admin\AdminController::class, 'games'])->name('admin.games');
     Route::post('/games', [\App\Http\Controllers\Admin\AdminController::class, 'storeGame'])->name('admin.storeGame');
     Route::delete('/games/{game}', [\App\Http\Controllers\Admin\AdminController::class, 'deleteGame'])->name('admin.deleteGame');
+
+    // Changelog
+    Route::get('/changelog', [\App\Http\Controllers\Admin\ChangelogController::class, 'index'])->name('admin.changelog.index');
+    Route::get('/changelog/create', [\App\Http\Controllers\Admin\ChangelogController::class, 'create'])->name('admin.changelog.create');
+    Route::post('/changelog', [\App\Http\Controllers\Admin\ChangelogController::class, 'store'])->name('admin.changelog.store');
+    Route::get('/changelog/{entry}/edit', [\App\Http\Controllers\Admin\ChangelogController::class, 'edit'])->name('admin.changelog.edit');
+    Route::put('/changelog/{entry}', [\App\Http\Controllers\Admin\ChangelogController::class, 'update'])->name('admin.changelog.update');
+    Route::delete('/changelog/{entry}', [\App\Http\Controllers\Admin\ChangelogController::class, 'destroy'])->name('admin.changelog.destroy');
 });
 
 require __DIR__.'/auth.php';

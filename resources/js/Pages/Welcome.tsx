@@ -375,6 +375,7 @@ export default function Welcome({
                     <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 text-xs text-ink-500 sm:flex-row">
                         <div className="flex flex-wrap items-center gap-4">
                             <Link href={route('help')} className="hover:text-ink-900">Help</Link>
+                            <Link href={route('changelog.index')} className="hover:text-ink-900">Changelog</Link>
                             <a href="/privacy-policy" className="hover:text-ink-900">Privacy</a>
                             <a href="/terms-of-service" className="hover:text-ink-900">Terms</a>
                             <a href="/cookie-policy" className="hover:text-ink-900">Cookies</a>

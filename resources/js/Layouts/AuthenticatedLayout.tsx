@@ -16,6 +16,7 @@ export default function Authenticated({
     const achievementCount = auth.achievementCount || 0;
     const canModerate = !!auth.canModerate;
     const hasRole = !!(user?.is_admin || user?.is_moderator || user?.is_owner);
+    const hasChangelogUpdate = !!auth.hasChangelogUpdate;
 
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
 
@@ -58,6 +59,27 @@ export default function Authenticated({
 
                         <div className="hidden sm:ms-6 sm:flex sm:items-center sm:gap-3">
                             <SearchBar />
+
+                            <Link
+                                href={route('changelog.index')}
+                                title="What's new"
+                                aria-label="Changelog"
+                                className={`relative inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${
+                                    route().current('changelog.*')
+                                        ? 'border-neon-red/40 bg-neon-red/10 text-neon-red'
+                                        : 'border-ink-900/10 bg-bone-100 text-ink-700 hover:border-neon-red/30 hover:text-neon-red'
+                                }`}
+                            >
+                                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.7}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                                </svg>
+                                {hasChangelogUpdate && (
+                                    <span className="absolute -right-0.5 -top-0.5 flex h-2.5 w-2.5">
+                                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-neon-red opacity-70" />
+                                        <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-neon-red ring-2 ring-bone-50" />
+                                    </span>
+                                )}
+                            </Link>
 
                             <Link
                                 href={route('help')}
@@ -291,6 +313,12 @@ export default function Authenticated({
                             <ResponsiveNavLink href={route('help')}>
                                 Help centre
                             </ResponsiveNavLink>
+                            <ResponsiveNavLink href={route('changelog.index')}>
+                                <span className="flex items-center gap-2">
+                                    What's new
+                                    {hasChangelogUpdate && <span className="h-2 w-2 rounded-full bg-neon-red" />}
+                                </span>
+                            </ResponsiveNavLink>
                             <ResponsiveNavLink method="post" href={route('logout')} as="button">
                                 Log Out
                             </ResponsiveNavLink>
@@ -316,6 +344,7 @@ export default function Authenticated({
                 <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 sm:flex-row">
                     <div className="flex gap-4 text-xs text-gray-500">
                         <Link href={route('help')} className="transition hover:text-ink-700">Help</Link>
+                        <Link href={route('changelog.index')} className="transition hover:text-ink-700">Changelog</Link>
                         <a href="/privacy-policy" className="transition hover:text-ink-700">Privacy Policy</a>
                         <a href="/terms-of-service" className="transition hover:text-ink-700">Terms of Service</a>
                         <a href="/cookie-policy" className="transition hover:text-ink-700">Cookie Policy</a>

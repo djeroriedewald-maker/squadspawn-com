@@ -1,3 +1,4 @@
+import { ProfileBanner } from '@/Components/ProfileBanner';
 import SocialLinks from '@/Components/SocialLinks';
 import SteamStatsCard, { SteamStats } from '@/Components/SteamStatsCard';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
@@ -151,19 +152,16 @@ export default function Show({
                 </div>
             ) : (
                 <div className="pb-12">
-                    {/* Cover Banner */}
-                    <div className="relative h-48 w-full overflow-hidden">
-                        {mainGame?.cover_image ? (
-                            <img
-                                src={mainGame.cover_image}
-                                alt=""
-                                className="h-full w-full object-cover"
-                            />
-                        ) : (
-                            <div className="h-full w-full bg-gradient-to-r from-neon-red/30 via-white to-gaming-cyan/30" />
-                        )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-bone-50 via-bone-50/60 to-transparent" />
-                        <div className="absolute inset-0 bg-grid opacity-20" />
+                    {/* Cover Banner — same component as Dashboard + Player/Show */}
+                    <div className="relative">
+                        <ProfileBanner
+                            style={profile?.banner_style}
+                            preset={profile?.banner_preset}
+                            uploadPath={profile?.banner_upload_path}
+                            mainGame={mainGame ?? null}
+                            heightClass="h-48"
+                        />
+                        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-bone-50 to-transparent" />
                     </div>
 
                     <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
