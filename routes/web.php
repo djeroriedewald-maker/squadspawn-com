@@ -251,6 +251,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/notifications/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllRead'])->name('notifications.readAll');
     Route::post('/notifications/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markRead'])->name('notifications.markRead');
 
+    // Announcements (user side of broadcasts)
+    Route::get('/announcements', [\App\Http\Controllers\BroadcastViewController::class, 'index'])->name('announcements.index');
+    Route::post('/announcements/{broadcast}/viewed', [\App\Http\Controllers\BroadcastViewController::class, 'markViewed'])->middleware('throttle:60,1')->name('announcements.viewed');
+    Route::post('/announcements/{broadcast}/dismiss', [\App\Http\Controllers\BroadcastViewController::class, 'dismiss'])->middleware('throttle:30,1')->name('announcements.dismiss');
+    Route::post('/announcements/{broadcast}/clicked', [\App\Http\Controllers\BroadcastViewController::class, 'clicked'])->middleware('throttle:30,1')->name('announcements.clicked');
+
     // Age verification (for Google OAuth users who skipped registration form)
     Route::get('/verify-age', [\App\Http\Controllers\Auth\AgeVerificationController::class, 'show'])->name('age-verification');
     Route::post('/verify-age', [\App\Http\Controllers\Auth\AgeVerificationController::class, 'store'])->name('age-verification.store');
@@ -415,6 +421,16 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/changelog/{entry}/edit', [\App\Http\Controllers\Admin\ChangelogController::class, 'edit'])->name('admin.changelog.edit');
     Route::put('/changelog/{entry}', [\App\Http\Controllers\Admin\ChangelogController::class, 'update'])->name('admin.changelog.update');
     Route::delete('/changelog/{entry}', [\App\Http\Controllers\Admin\ChangelogController::class, 'destroy'])->name('admin.changelog.destroy');
+
+    // Broadcasts
+    Route::get('/broadcasts', [\App\Http\Controllers\Admin\BroadcastController::class, 'index'])->name('admin.broadcasts.index');
+    Route::get('/broadcasts/create', [\App\Http\Controllers\Admin\BroadcastController::class, 'create'])->name('admin.broadcasts.create');
+    Route::post('/broadcasts', [\App\Http\Controllers\Admin\BroadcastController::class, 'store'])->name('admin.broadcasts.store');
+    Route::post('/broadcasts/preview', [\App\Http\Controllers\Admin\BroadcastController::class, 'preview'])->name('admin.broadcasts.preview');
+    Route::get('/broadcasts/{broadcast}/edit', [\App\Http\Controllers\Admin\BroadcastController::class, 'edit'])->name('admin.broadcasts.edit');
+    Route::put('/broadcasts/{broadcast}', [\App\Http\Controllers\Admin\BroadcastController::class, 'update'])->name('admin.broadcasts.update');
+    Route::post('/broadcasts/{broadcast}/send', [\App\Http\Controllers\Admin\BroadcastController::class, 'send'])->name('admin.broadcasts.send');
+    Route::delete('/broadcasts/{broadcast}', [\App\Http\Controllers\Admin\BroadcastController::class, 'destroy'])->name('admin.broadcasts.destroy');
 });
 
 require __DIR__.'/auth.php';

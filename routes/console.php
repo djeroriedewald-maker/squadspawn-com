@@ -10,3 +10,7 @@ Artisan::command('inspire', function () {
 
 // Weekly digest every Monday at 9:00 AM
 Schedule::command('digest:send-weekly')->weeklyOn(1, '09:00');
+
+// Scheduled broadcasts — check every minute for anything due. The command
+// no-ops when the queue is empty, so running it constantly is cheap.
+Schedule::command('broadcasts:dispatch-scheduled')->everyMinute()->withoutOverlapping();

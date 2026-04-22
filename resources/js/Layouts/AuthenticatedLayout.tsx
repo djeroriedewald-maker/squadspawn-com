@@ -1,3 +1,4 @@
+import BroadcastPopup from '@/Components/BroadcastPopup';
 import Dropdown from '@/Components/Dropdown';
 import FloatingChat from '@/Components/FloatingChat';
 import NavLink from '@/Components/NavLink';
@@ -360,6 +361,10 @@ export default function Authenticated({
 
             {/* Floating Chat Widget */}
             <FloatingChat />
+
+            {/* Admin broadcasts surface here — one popup at a time, queue
+                handled server-side via dismissed_at. */}
+            <BroadcastPopup />
         </div>
     );
 }

@@ -76,6 +76,13 @@ class HandleInertiaRequests extends Middleware
             $themePreference = 'auto';
         }
 
+        // Active broadcast — the oldest sent-but-undismissed popup for the
+        // viewer. Resolved as a closure so it only hits the DB on pages
+        // that actually read it (the layout does once per render).
+        $activeBroadcast = $user
+            ? fn () => $this->resolveActiveBroadcast($user)
+            : null;
+
         return [
             ...parent::share($request),
             'auth' => $authData,
@@ -86,6 +93,37 @@ class HandleInertiaRequests extends Middleware
                 'preference' => $themePreference,
                 'authed' => $user !== null,
             ],
+            'activeBroadcast' => $activeBroadcast,
+        ];
+    }
+
+    /**
+     * Find the popup-style broadcast the user hasn't dismissed yet, if any.
+     * Banner-style broadcasts surface on /announcements instead.
+     */
+    private function resolveActiveBroadcast($user): ?array
+    {
+        $view = \App\Models\BroadcastView::where('user_id', $user->id)
+            ->whereNull('dismissed_at')
+            ->whereHas('broadcast', function ($q) {
+                $q->where('style', 'popup')->whereNotNull('sent_at');
+            })
+            ->with('broadcast')
+            ->orderBy('id')
+            ->first();
+
+        if (!$view || !$view->broadcast) return null;
+
+        $b = $view->broadcast;
+        return [
+            'id' => $b->id,
+            'title' => $b->title,
+            'body_html' => $b->body_html,
+            'cta_label' => $b->cta_label,
+            'cta_url' => $b->cta_url,
+            'image_url' => $b->image_path ? '/storage/' . $b->image_path : null,
+            'youtube_id' => $b->youtubeId(),
+            'sent_at_human' => $b->sent_at?->diffForHumans(),
         ];
     }
 }

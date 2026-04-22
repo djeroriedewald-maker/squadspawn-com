@@ -49,6 +49,17 @@ const navItems = [
             </svg>
         ),
     },
+    {
+        label: 'Broadcasts',
+        route: 'admin.broadcasts.index',
+        matchPattern: 'admin.broadcasts.*',
+        icon: (
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10.34 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.17 1.023a2.25 2.25 0 0 1-.223 1.534l-.53 1.06a5.25 5.25 0 0 1-3.06 3.06l-1.06.53a2.25 2.25 0 0 1-1.534.223l-1.023-.17c-.542-.09-.94-.56-.94-1.11V9.04c0-.55.398-1.02.94-1.11l1.023-.17ZM7.5 12h2.25M12 15l3-3m0 0 3 3m-3-3v9" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M18.75 4.97A48.416 48.416 0 0 0 12 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-3-.52 2.62 10.726c.122.499-.106 1.028-.589 1.202a5.988 5.988 0 0 1-2.031.352 5.988 5.988 0 0 1-2.031-.352c-.483-.174-.711-.703-.59-1.202L18.75 4.971Zm-16.5.52c.99-.203 1.99-.377 3-.52m0 0 2.62 10.726c.122.499-.106 1.028-.589 1.202a5.989 5.989 0 0 1-2.031.352 5.989 5.989 0 0 1-2.031-.352c-.483-.174-.711-.703-.59-1.202L5.25 4.971Z" />
+            </svg>
+        ),
+    },
 ];
 
 export default function AdminLayout({ children }: PropsWithChildren) {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-type PushType = 'new_message' | 'new_match' | 'lfg_request' | 'lfg_accepted' | 'favorite_host_lfg' | 'squad_invite' | 'role_change';
+type PushType = 'new_message' | 'new_match' | 'lfg_request' | 'lfg_accepted' | 'favorite_host_lfg' | 'squad_invite' | 'role_change' | 'announcement';
 
 const LABELS: Record<PushType, { title: string; description: string }> = {
     new_message: {
@@ -31,6 +31,10 @@ const LABELS: Record<PushType, { title: string; description: string }> = {
         title: 'Role changes',
         description: 'Ping me when an admin makes me a moderator or admin.',
     },
+    announcement: {
+        title: 'Platform announcements',
+        description: "Ping me for news, release drops, and anything the team wants everyone to see.",
+    },
 };
 
 function getXsrf(): string | null {
@@ -47,7 +51,7 @@ export default function NotificationPreferences() {
             .then((r) => r.json())
             .then((data) => setPrefs(data.push))
             .catch(() => setPrefs({
-                new_message: true, new_match: true, lfg_request: true, lfg_accepted: true, favorite_host_lfg: true, squad_invite: true, role_change: true,
+                new_message: true, new_match: true, lfg_request: true, lfg_accepted: true, favorite_host_lfg: true, squad_invite: true, role_change: true, announcement: true,
             }));
     }, []);
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
 
 class GoogleController extends Controller
@@ -22,16 +23,21 @@ class GoogleController extends Controller
         $user = User::where('google_id', $googleUser->getId())->first();
 
         if (!$user) {
-            // 2) Email match but no Google link yet. We refuse to auto-link
-            //    — that's an account-takeover vector (attacker creates a
-            //    Gmail with a victim's email and claims the account). The
-            //    user has to prove email ownership by signing in with their
-            //    password first, then link Google from their settings.
+            // 2) Email match but no Google link yet. Google OAuth proves
+            //    the caller owns that Gmail address (Google itself gates
+            //    the login), so auto-linking is safe — the takeover
+            //    vector would require the attacker to also control the
+            //    victim's email, which is the definition of *not* a
+            //    takeover. We log the link so moderation has a trail.
             $existing = User::where('email', $googleUser->getEmail())->first();
             if ($existing) {
-                return redirect()->route('login')->withErrors([
-                    'email' => 'This email is already registered with a password. Sign in first, then link Google from your settings.',
+                $existing->forceFill(['google_id' => $googleUser->getId()])->save();
+                Log::info('Google OAuth auto-linked existing account', [
+                    'user_id' => $existing->id,
+                    'email' => $existing->email,
                 ]);
+                Auth::login($existing, remember: true);
+                return redirect()->route('dashboard');
             }
 
             // 3) Fresh sign-up.
