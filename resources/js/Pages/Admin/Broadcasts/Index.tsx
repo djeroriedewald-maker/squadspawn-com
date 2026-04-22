@@ -23,6 +23,17 @@ interface Paginator<T> {
     last_page: number;
 }
 
+/**
+ * Compact "25 Apr, 14:03" formatter — keeps the status column tidy
+ * compared to the raw DB datetime-string.
+ */
+function formatDateTime(iso: string | null): string {
+    if (!iso) return '';
+    const d = new Date(iso.replace(' ', 'T'));
+    if (Number.isNaN(d.getTime())) return iso;
+    return d.toLocaleString([], { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+}
+
 export default function BroadcastsIndex({ broadcasts }: { broadcasts: Paginator<Row> }) {
     const { flash } = usePage().props as any;
 
@@ -111,19 +122,43 @@ export default function BroadcastsIndex({ broadcasts }: { broadcasts: Paginator<
                                                     📱 push
                                                 </span>
                                             )}
+                                            {/* A "scheduled" tag stays on the broadcast
+                                                even after it's been sent, so it's
+                                                always clear whether it fired manually
+                                                or via the cron. */}
+                                            {b.scheduled_at && (
+                                                <span className="inline-flex items-center gap-1 rounded-full bg-gaming-orange/10 px-2 py-0.5 text-[10px] font-semibold text-gaming-orange">
+                                                    <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                                    </svg>
+                                                    Scheduled
+                                                </span>
+                                            )}
                                         </div>
                                     </td>
                                     <td className="px-4 py-3">
                                         {b.sent_at ? (
-                                            <span className="inline-flex items-center gap-1 text-xs font-semibold text-gaming-green">
-                                                <span className="h-1.5 w-1.5 rounded-full bg-gaming-green" />
-                                                Sent {b.sent_at}
-                                            </span>
+                                            <div className="space-y-0.5">
+                                                <span className="inline-flex items-center gap-1 text-xs font-semibold text-gaming-green">
+                                                    <span className="h-1.5 w-1.5 rounded-full bg-gaming-green" />
+                                                    Sent {formatDateTime(b.sent_at)}
+                                                </span>
+                                                {b.scheduled_at && (
+                                                    <div className="text-[10px] text-ink-500">
+                                                        ⏱ Planned for {formatDateTime(b.scheduled_at)}
+                                                    </div>
+                                                )}
+                                            </div>
                                         ) : b.scheduled_at ? (
-                                            <span className="inline-flex items-center gap-1 text-xs font-semibold text-gaming-orange">
-                                                <span className="h-1.5 w-1.5 rounded-full bg-gaming-orange" />
-                                                Scheduled {b.scheduled_at}
-                                            </span>
+                                            <div className="space-y-0.5">
+                                                <span className="inline-flex items-center gap-1 text-xs font-semibold text-gaming-orange">
+                                                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-gaming-orange" />
+                                                    Fires {formatDateTime(b.scheduled_at)}
+                                                </span>
+                                                <div className="text-[10px] text-ink-500">
+                                                    Waiting on the scheduler
+                                                </div>
+                                            </div>
                                         ) : (
                                             <span className="inline-flex items-center gap-1 text-xs font-semibold text-ink-500">
                                                 <span className="h-1.5 w-1.5 rounded-full bg-ink-500" />
