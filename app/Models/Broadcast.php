@@ -14,7 +14,7 @@ class Broadcast extends Model
         'youtube_url', 'image_path',
         'target_filters',
         'scheduled_at', 'sent_at',
-        'push_enabled', 'style',
+        'push_enabled', 'push_eligible_count', 'push_sent_count', 'style',
         'created_by',
     ];
 

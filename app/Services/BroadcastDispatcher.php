@@ -32,15 +32,15 @@ class BroadcastDispatcher
         return $this->targetQuery($broadcast)->count();
     }
 
-    public function dispatch(Broadcast $broadcast): int
+    public function dispatch(Broadcast $broadcast, ?array $overrideUserIds = null): int
     {
         if ($broadcast->sent_at) {
             return 0; // Already sent; never re-send.
         }
 
-        $userIds = $this->targetUserIds($broadcast);
+        $userIds = $overrideUserIds ?? $this->targetUserIds($broadcast);
         if (empty($userIds)) {
-            $broadcast->update(['sent_at' => now()]);
+            $broadcast->update(['sent_at' => now(), 'push_eligible_count' => 0, 'push_sent_count' => 0]);
             return 0;
         }
 
@@ -55,20 +55,51 @@ class BroadcastDispatcher
         ], $userIds);
         BroadcastView::insertOrIgnore($rows);
 
+        // Count how many targeted users actually have a push subscription
+        // on file — a "could we have pinged them" denominator for stats.
+        $pushEligibleCount = $broadcast->push_enabled
+            ? \App\Models\PushSubscription::whereIn('user_id', $userIds)
+                ->distinct()
+                ->count('user_id')
+            : 0;
+
         // Notify in chunks so a single failing user doesn't nuke the batch.
         $users = User::whereIn('id', $userIds)->get();
+        $pushSentCount = 0;
         foreach ($users->chunk(200) as $chunk) {
             foreach ($chunk as $user) {
                 try {
                     $user->notify(new BroadcastNotification($broadcast));
                     \Illuminate\Support\Facades\Cache::forget("user:{$user->id}:unread");
+
+                    // Increment the "actually fired a push" counter only if
+                    // this user has a subscription AND the announcement
+                    // type isn't muted — mirrors WebPushChannel's checks.
+                    if (
+                        $broadcast->push_enabled
+                        && $user->wantsPush('announcement')
+                        && $user->pushSubscriptions()->exists()
+                    ) {
+                        $pushSentCount++;
+                    }
                 } catch (\Throwable $e) {
                     Log::error('Broadcast notify failed', ['user_id' => $user->id, 'e' => $e->getMessage()]);
                 }
             }
         }
 
-        $broadcast->update(['sent_at' => now()]);
+        Log::info('Broadcast dispatched', [
+            'broadcast_id' => $broadcast->id,
+            'target_count' => count($userIds),
+            'push_eligible' => $pushEligibleCount,
+            'push_sent' => $pushSentCount,
+        ]);
+
+        $broadcast->update([
+            'sent_at' => now(),
+            'push_eligible_count' => $pushEligibleCount,
+            'push_sent_count' => $pushSentCount,
+        ]);
         return count($userIds);
     }
 

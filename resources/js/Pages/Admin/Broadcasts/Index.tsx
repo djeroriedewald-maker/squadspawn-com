@@ -12,6 +12,8 @@ interface Row {
     viewed: number;
     clicked: number;
     dismissed: number;
+    push_eligible: number;
+    push_sent: number;
     author_name?: string | null;
 }
 
@@ -123,6 +125,11 @@ export default function BroadcastsIndex({ broadcasts }: { broadcasts: Paginator<
                                                 <div className="text-[10px] text-ink-500">
                                                     {b.clicked} clicked · {b.dismissed} dismissed
                                                 </div>
+                                                {b.push_enabled && (
+                                                    <div className="text-[10px] text-gaming-orange">
+                                                        📱 {b.push_sent}/{b.push_eligible} push delivered
+                                                    </div>
+                                                )}
                                             </div>
                                         ) : (
                                             <span className="text-ink-500">—</span>

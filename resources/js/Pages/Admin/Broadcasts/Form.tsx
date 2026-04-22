@@ -42,6 +42,22 @@ export default function BroadcastForm({
     const [image, setImage] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(broadcast?.image_url ?? null);
     const imageInputRef = useRef<HTMLInputElement>(null);
+    const [testSending, setTestSending] = useState(false);
+    const [testResult, setTestResult] = useState<{ ok: boolean; message: string } | null>(null);
+
+    const sendTest = async () => {
+        if (!broadcast?.id) return;
+        setTestSending(true);
+        setTestResult(null);
+        try {
+            const res = await axios.post(route('admin.broadcasts.test', broadcast.id));
+            setTestResult({ ok: true, message: res.data.message });
+        } catch (err: any) {
+            setTestResult({ ok: false, message: err?.response?.data?.message ?? 'Test failed.' });
+        } finally {
+            setTestSending(false);
+        }
+    };
 
     const { data, setData, processing, errors } = useForm<{
         title: string;
@@ -403,6 +419,21 @@ export default function BroadcastForm({
                             >
                                 {processing ? 'Saving…' : 'Save as draft'}
                             </button>
+                            {isEditing && (
+                                <button
+                                    type="button"
+                                    onClick={sendTest}
+                                    disabled={testSending}
+                                    className="inline-flex w-full items-center justify-center gap-1.5 rounded-xl border border-gaming-cyan/40 bg-gaming-cyan/10 px-4 py-3 text-sm font-semibold text-gaming-cyan transition hover:bg-gaming-cyan/20 disabled:opacity-50"
+                                >
+                                    {testSending ? 'Sending…' : 'Send test to me only'}
+                                </button>
+                            )}
+                            {!isEditing && (
+                                <p className="text-center text-[11px] text-ink-500">
+                                    Save as draft first to enable the "Send test to me" button.
+                                </p>
+                            )}
                             <button
                                 type="button"
                                 disabled={processing || !data.title || audienceCount === 0}
@@ -414,6 +445,15 @@ export default function BroadcastForm({
                             >
                                 {audienceCount === 0 ? 'No matching users' : processing ? 'Sending…' : `Send to ${audienceCount?.toLocaleString() ?? '?'} users`}
                             </button>
+                            {testResult && (
+                                <div className={`rounded-lg border px-3 py-2 text-[11px] ${
+                                    testResult.ok
+                                        ? 'border-gaming-green/30 bg-gaming-green/5 text-gaming-green'
+                                        : 'border-red-500/30 bg-red-500/5 text-red-600'
+                                }`}>
+                                    {testResult.message}
+                                </div>
+                            )}
                         </div>
                     )}
                 </aside>

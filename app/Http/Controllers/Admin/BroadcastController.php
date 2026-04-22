@@ -143,7 +143,39 @@ class BroadcastController extends Controller
             return back()->withErrors(['general' => 'Broadcast already sent.']);
         }
         $count = $dispatcher->dispatch($broadcast);
-        return redirect()->route('admin.broadcasts.index')->with('message', "Broadcast sent to {$count} users.");
+        $pushed = $broadcast->refresh()->push_sent_count ?? 0;
+        return redirect()->route('admin.broadcasts.index')->with('message', "Broadcast sent to {$count} users ({$pushed} push).");
+    }
+
+    /**
+     * Fire the broadcast only at the admin's own account — useful for
+     * smoke-testing the popup + push pipeline without spamming users.
+     * Skips the sent_at stamp so you can still send the real broadcast
+     * to the target audience afterwards.
+     */
+    public function sendTest(Request $request, Broadcast $broadcast, BroadcastDispatcher $dispatcher): \Illuminate\Http\JsonResponse
+    {
+        $userId = $request->user()->id;
+
+        // Temporarily clear sent_at so dispatch runs; immediately restore
+        // and instead just call the private path that notifies one user.
+        // Easiest: insert a one-off view row + notify directly.
+        \App\Models\BroadcastView::firstOrCreate(
+            ['broadcast_id' => $broadcast->id, 'user_id' => $userId],
+        );
+        $request->user()->notify(new \App\Notifications\BroadcastNotification($broadcast));
+        \Illuminate\Support\Facades\Cache::forget("user:{$userId}:unread");
+
+        $hasSubscription = \App\Models\PushSubscription::where('user_id', $userId)->exists();
+
+        return response()->json([
+            'ok' => true,
+            'has_push_subscription' => $hasSubscription,
+            'push_enabled' => $broadcast->push_enabled,
+            'message' => $hasSubscription
+                ? 'Test delivered. Push fired if this browser is subscribed — check your device.'
+                : 'Test delivered. No push subscription on file for your account — enable push from a profile page first.',
+        ]);
     }
 
     private function validated(Request $request): array
@@ -188,6 +220,8 @@ class BroadcastController extends Controller
             'viewed' => (int) ($b->viewed_count ?? 0),
             'clicked' => (int) ($b->clicked_count ?? 0),
             'dismissed' => (int) ($b->dismissed_count ?? 0),
+            'push_eligible' => (int) ($b->push_eligible_count ?? 0),
+            'push_sent' => (int) ($b->push_sent_count ?? 0),
             'author_name' => $b->author?->name,
         ];
     }

@@ -430,6 +430,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/broadcasts/{broadcast}/edit', [\App\Http\Controllers\Admin\BroadcastController::class, 'edit'])->name('admin.broadcasts.edit');
     Route::put('/broadcasts/{broadcast}', [\App\Http\Controllers\Admin\BroadcastController::class, 'update'])->name('admin.broadcasts.update');
     Route::post('/broadcasts/{broadcast}/send', [\App\Http\Controllers\Admin\BroadcastController::class, 'send'])->name('admin.broadcasts.send');
+    Route::post('/broadcasts/{broadcast}/test', [\App\Http\Controllers\Admin\BroadcastController::class, 'sendTest'])->middleware('throttle:10,1')->name('admin.broadcasts.test');
     Route::delete('/broadcasts/{broadcast}', [\App\Http\Controllers\Admin\BroadcastController::class, 'destroy'])->name('admin.broadcasts.destroy');
 });
 
