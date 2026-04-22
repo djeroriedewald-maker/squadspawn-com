@@ -32,6 +32,78 @@ class BroadcastController extends Controller
         ]);
     }
 
+    /**
+     * Dedicated analytics view — aggregate stats across every sent
+     * broadcast + a per-broadcast breakdown sorted by engagement. Lets
+     * you see reach and click-through at a glance without opening the
+     * edit screen.
+     */
+    public function analytics(): Response
+    {
+        $broadcasts = Broadcast::with('author:id,name')
+            ->withCount([
+                'views',
+                'views as viewed_count' => fn ($q) => $q->whereNotNull('viewed_at'),
+                'views as clicked_count' => fn ($q) => $q->whereNotNull('clicked_at'),
+                'views as dismissed_count' => fn ($q) => $q->whereNotNull('dismissed_at'),
+            ])
+            ->whereNotNull('sent_at')
+            ->orderByDesc('sent_at')
+            ->take(50)
+            ->get()
+            ->map(fn (Broadcast $b) => $this->analyticsRowFor($b));
+
+        // Aggregates: sum of reach, view rate, click-through, push reach.
+        $totals = [
+            'sent_count' => $broadcasts->count(),
+            'total_audience' => (int) $broadcasts->sum('audience'),
+            'total_viewed' => (int) $broadcasts->sum('viewed'),
+            'total_clicked' => (int) $broadcasts->sum('clicked'),
+            'total_dismissed' => (int) $broadcasts->sum('dismissed'),
+            'total_push_sent' => (int) $broadcasts->sum('push_sent'),
+            'total_push_eligible' => (int) $broadcasts->sum('push_eligible'),
+        ];
+        $totals['view_rate'] = $totals['total_audience'] > 0
+            ? round(($totals['total_viewed'] / $totals['total_audience']) * 100, 1)
+            : null;
+        $totals['click_rate'] = $totals['total_viewed'] > 0
+            ? round(($totals['total_clicked'] / $totals['total_viewed']) * 100, 1)
+            : null;
+        $totals['push_rate'] = $totals['total_push_eligible'] > 0
+            ? round(($totals['total_push_sent'] / $totals['total_push_eligible']) * 100, 1)
+            : null;
+
+        return Inertia::render('Admin/Broadcasts/Analytics', [
+            'broadcasts' => $broadcasts->values(),
+            'totals' => $totals,
+        ]);
+    }
+
+    private function analyticsRowFor(Broadcast $b): array
+    {
+        $audience = (int) ($b->views_count ?? 0);
+        $viewed = (int) ($b->viewed_count ?? 0);
+        $clicked = (int) ($b->clicked_count ?? 0);
+
+        return [
+            'id' => $b->id,
+            'title' => $b->title,
+            'style' => $b->style,
+            'push_enabled' => (bool) $b->push_enabled,
+            'sent_at' => $b->sent_at?->toDateTimeString(),
+            'sent_at_human' => $b->sent_at?->diffForHumans(),
+            'audience' => $audience,
+            'viewed' => $viewed,
+            'clicked' => $clicked,
+            'dismissed' => (int) ($b->dismissed_count ?? 0),
+            'push_eligible' => (int) ($b->push_eligible_count ?? 0),
+            'push_sent' => (int) ($b->push_sent_count ?? 0),
+            'view_rate' => $audience > 0 ? round(($viewed / $audience) * 100, 1) : null,
+            'click_rate' => $viewed > 0 ? round(($clicked / $viewed) * 100, 1) : null,
+            'author_name' => $b->author?->name,
+        ];
+    }
+
     public function create(BroadcastDispatcher $dispatcher): Response
     {
         return Inertia::render('Admin/Broadcasts/Form', [

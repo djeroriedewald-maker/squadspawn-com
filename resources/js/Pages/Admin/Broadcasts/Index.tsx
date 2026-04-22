@@ -56,6 +56,22 @@ export default function BroadcastsIndex({ broadcasts }: { broadcasts: Paginator<
                 </Link>
             </div>
 
+            <div className="mb-6 flex gap-1 border-b border-ink-900/10">
+                <Link
+                    href={route('admin.broadcasts.index')}
+                    className="relative px-4 py-2 text-sm font-semibold text-ink-900"
+                >
+                    All broadcasts
+                    <span className="absolute inset-x-4 -bottom-px h-0.5 rounded-t bg-neon-red" />
+                </Link>
+                <Link
+                    href={route('admin.broadcasts.analytics')}
+                    className="px-4 py-2 text-sm font-semibold text-ink-500 transition hover:text-ink-700"
+                >
+                    Analytics
+                </Link>
+            </div>
+
             {flash?.message && (
                 <div className="mb-6 rounded-lg border border-gaming-green/40 bg-gaming-green/10 px-4 py-2.5 text-sm font-semibold text-gaming-green">
                     {flash.message}
