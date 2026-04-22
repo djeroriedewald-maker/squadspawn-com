@@ -180,6 +180,14 @@ export default function Authenticated({
                                         <Dropdown.Link href={route('profile.edit')}>
                                             Settings
                                         </Dropdown.Link>
+                                        <Dropdown.Link href={route('announcements.index')}>
+                                            <span className="flex items-center gap-2">
+                                                <svg className="h-4 w-4 text-ink-500" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H7.5a4.5 4.5 0 1 1 0-9h.75c.704 0 1.402-.03 2.09-.09m0 9.18c.253.962.584 1.892.985 2.783.247.55.06 1.21-.463 1.511l-.657.38c-.551.318-1.26.117-1.527-.461a20.845 20.845 0 0 1-1.44-4.282m3.102.069a18.03 18.03 0 0 1-.59-4.59c0-1.586.205-3.124.59-4.59m0 9.18a23.848 23.848 0 0 1 8.835 2.535M10.34 6.66a23.847 23.847 0 0 0 8.835-2.535m0 0A23.74 23.74 0 0 0 18.795 3m.38 1.125a23.91 23.91 0 0 1 1.014 5.395m-1.014 8.855c-.118.38-.245.754-.38 1.125m.38-1.125a23.91 23.91 0 0 0 1.014-5.395m0-3.46c.495.413.811 1.035.811 1.73 0 .695-.316 1.317-.811 1.73m0-3.46a24.347 24.347 0 0 1 0 3.46" />
+                                                </svg>
+                                                <span>Announcements</span>
+                                            </span>
+                                        </Dropdown.Link>
                                         <Dropdown.Link href={route('help')}>
                                             <span className="flex items-center gap-2">
                                                 <svg className="h-4 w-4 text-ink-500" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24">
@@ -311,6 +319,9 @@ export default function Authenticated({
                             <ResponsiveNavLink href={route('profile.edit')}>
                                 Settings
                             </ResponsiveNavLink>
+                            <ResponsiveNavLink href={route('announcements.index')}>
+                                Announcements
+                            </ResponsiveNavLink>
                             <ResponsiveNavLink href={route('help')}>
                                 Help centre
                             </ResponsiveNavLink>
@@ -343,7 +354,8 @@ export default function Authenticated({
 
             <footer className="mt-auto border-t border-ink-900/5 bg-bone-50 px-6 py-6 lg:px-12">
                 <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 sm:flex-row">
-                    <div className="flex gap-4 text-xs text-gray-500">
+                    <div className="flex flex-wrap gap-4 text-xs text-gray-500">
+                        <Link href={route('announcements.index')} className="transition hover:text-ink-700">Announcements</Link>
                         <Link href={route('help')} className="transition hover:text-ink-700">Help</Link>
                         <Link href={route('changelog.index')} className="transition hover:text-ink-700">Changelog</Link>
                         <a href="/privacy-policy" className="transition hover:text-ink-700">Privacy Policy</a>

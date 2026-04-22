@@ -76,7 +76,12 @@ export default function BroadcastPopup() {
     };
 
     const onCtaClick = () => {
+        // A CTA click implies the user has engaged with the announcement
+        // — mark both clicked (for stats) and dismissed so the popup
+        // doesn't reappear on the next navigation. Fire-and-forget; the
+        // browser follows the link immediately regardless.
         axios.post(route('announcements.clicked', broadcast.id)).catch(() => {});
+        axios.post(route('announcements.dismiss', broadcast.id)).catch(() => {});
     };
 
     return (
@@ -162,9 +167,20 @@ export default function BroadcastPopup() {
                     )}
 
                     <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-                        {broadcast.sent_at_human && (
-                            <span className="text-[11px] text-ink-500">{broadcast.sent_at_human}</span>
-                        )}
+                        <div className="flex flex-col gap-0.5 text-[11px] text-ink-500">
+                            {broadcast.sent_at_human && <span>{broadcast.sent_at_human}</span>}
+                            <a
+                                href={route('announcements.index')}
+                                onClick={() => {
+                                    // Navigating to /announcements counts as engagement;
+                                    // dismiss so we don't also pop up once they get there.
+                                    axios.post(route('announcements.dismiss', broadcast.id)).catch(() => {});
+                                }}
+                                className="inline-flex items-center gap-1 font-semibold text-ink-700 hover:text-neon-red"
+                            >
+                                See all announcements →
+                            </a>
+                        </div>
                         <div className="flex items-center gap-2">
                             <button
                                 type="button"
