@@ -43,7 +43,10 @@ export default function BroadcastsIndex({ broadcasts }: { broadcasts: Paginator<
     };
 
     const send = (b: Row) => {
-        if (!confirm(`Send "${b.title}" to the full audience now?`)) return;
+        const prompt = b.scheduled_at
+            ? `Fire "${b.title}" right now? This skips the scheduled time (${formatDateTime(b.scheduled_at)}) and delivers immediately.`
+            : `Send "${b.title}" to the full audience now?`;
+        if (!confirm(prompt)) return;
         router.post(route('admin.broadcasts.send', b.id), {}, { preserveScroll: true });
     };
 
@@ -192,9 +195,10 @@ export default function BroadcastsIndex({ broadcasts }: { broadcasts: Paginator<
                                                 <button
                                                     type="button"
                                                     onClick={() => send(b)}
+                                                    title={b.scheduled_at ? 'Fire now instead of waiting for the scheduler.' : 'Dispatch this draft immediately.'}
                                                     className="rounded-lg bg-gaming-green/10 px-3 py-1.5 text-xs font-semibold text-gaming-green transition hover:bg-gaming-green/20"
                                                 >
-                                                    Send
+                                                    {b.scheduled_at ? 'Send now' : 'Send'}
                                                 </button>
                                             )}
                                             {!b.sent_at && (
