@@ -113,6 +113,57 @@ export default function GameProfileEdit({
         }
     };
 
+    const handleBannerUpload = async (e: ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        setBannerError(null);
+
+        if (file.size > 3 * 1024 * 1024) {
+            setBannerError('File must be under 3 MB.');
+            return;
+        }
+
+        setBannerUploading(true);
+        const form = new FormData();
+        form.append('banner', file);
+        try {
+            const res = await axios.post(route('banner.upload'), form);
+            setBannerUploadPath(res.data.path);
+            setData('banner_style', 'upload');
+        } catch (err: any) {
+            const msg = err.response?.data?.errors?.banner?.[0]
+                ?? err.response?.data?.message
+                ?? 'Upload failed.';
+            setBannerError(msg);
+        } finally {
+            setBannerUploading(false);
+            if (bannerInputRef.current) bannerInputRef.current.value = '';
+        }
+    };
+
+    const removeBannerUpload = async () => {
+        if (!bannerUploadPath) return;
+        if (!confirm('Remove your uploaded banner?')) return;
+        try {
+            await axios.delete(route('banner.destroy'));
+            setBannerUploadPath(null);
+            setData('banner_style', 'game');
+        } catch {
+            setBannerError('Could not remove banner.');
+        }
+    };
+
+    // Banner upload state (phase 2). We post the file separately from
+    // the main form (same pattern as avatars) and then let the user save
+    // the chosen style via the main Save button.
+    const [bannerUploadPath, setBannerUploadPath] = useState<string | null>(profile?.banner_upload_path ?? null);
+    const [bannerUploading, setBannerUploading] = useState(false);
+    const [bannerError, setBannerError] = useState<string | null>(null);
+    const bannerInputRef = useRef<HTMLInputElement>(null);
+    const userLevel = (profile as any)?.level ?? 1;
+    const BANNER_MIN_LEVEL = 2;
+    const canUploadBanner = userLevel >= BANNER_MIN_LEVEL;
+
     const { data, setData, put, processing, errors } = useForm<{
         username: string;
         bio: string;
@@ -122,7 +173,7 @@ export default function GameProfileEdit({
         is_creator: boolean;
         has_mic: boolean;
         stream_url: string;
-        banner_style: 'game' | 'preset';
+        banner_style: 'game' | 'preset' | 'upload';
         banner_preset: string;
         socials: Record<string, string>;
         // Only keyed by game id for games the user plays. Not keeping an
@@ -138,7 +189,7 @@ export default function GameProfileEdit({
         is_creator: profile?.is_creator ?? false,
         has_mic: profile?.has_mic ?? false,
         stream_url: profile?.stream_url ?? '',
-        banner_style: (profile?.banner_style as 'game' | 'preset') ?? 'game',
+        banner_style: (profile?.banner_style as 'game' | 'preset' | 'upload') ?? 'game',
         banner_preset: profile?.banner_preset ?? DEFAULT_PRESET_ID,
         socials: {
             discord: profile?.socials?.discord ?? '',
@@ -323,6 +374,7 @@ export default function GameProfileEdit({
                                 <ProfileBanner
                                     style={data.banner_style}
                                     preset={data.banner_preset}
+                                    uploadPath={bannerUploadPath}
                                     mainGame={userGames[0] ?? null}
                                     heightClass="h-28 sm:h-32"
                                 >
@@ -359,6 +411,38 @@ export default function GameProfileEdit({
                                 >
                                     Gradient preset
                                 </button>
+                                <button
+                                    type="button"
+                                    disabled={!canUploadBanner && !bannerUploadPath}
+                                    onClick={() => {
+                                        if (!bannerUploadPath) {
+                                            bannerInputRef.current?.click();
+                                        } else {
+                                            setData('banner_style', 'upload');
+                                        }
+                                    }}
+                                    className={`inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-semibold transition ${
+                                        data.banner_style === 'upload'
+                                            ? 'bg-neon-red text-white shadow-glow-red'
+                                            : !canUploadBanner && !bannerUploadPath
+                                              ? 'cursor-not-allowed border border-ink-900/10 bg-bone-100/60 text-ink-500'
+                                              : 'border border-ink-900/10 bg-bone-100 text-ink-700 hover:border-neon-red/30'
+                                    }`}
+                                >
+                                    {!canUploadBanner && !bannerUploadPath && (
+                                        <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                                        </svg>
+                                    )}
+                                    Upload your own
+                                </button>
+                                <input
+                                    ref={bannerInputRef}
+                                    type="file"
+                                    accept="image/jpeg,image/png,image/webp"
+                                    onChange={handleBannerUpload}
+                                    className="hidden"
+                                />
                             </div>
 
                             {data.banner_style === 'preset' && (
@@ -382,6 +466,36 @@ export default function GameProfileEdit({
                                 <p className="text-xs text-ink-500">
                                     Uses the cover art of the first game in your list, blurred and darkened so your name stays readable.
                                 </p>
+                            )}
+                            {data.banner_style === 'upload' && (
+                                <div className="flex flex-wrap items-center gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => bannerInputRef.current?.click()}
+                                        disabled={bannerUploading}
+                                        className="rounded-lg bg-neon-red px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-neon-red/90 disabled:opacity-50"
+                                    >
+                                        {bannerUploading ? 'Uploading…' : bannerUploadPath ? 'Replace image' : 'Choose file'}
+                                    </button>
+                                    {bannerUploadPath && (
+                                        <button
+                                            type="button"
+                                            onClick={removeBannerUpload}
+                                            className="rounded-lg border border-ink-900/10 bg-white px-3 py-1.5 text-xs font-semibold text-ink-700 transition hover:border-neon-red/30 hover:text-neon-red"
+                                        >
+                                            Remove
+                                        </button>
+                                    )}
+                                    <p className="text-xs text-ink-500">JPG / PNG / WebP, max 3 MB, min 1200×300 px.</p>
+                                </div>
+                            )}
+                            {!canUploadBanner && (
+                                <p className="mt-3 text-[11px] text-ink-500">
+                                    Custom banner upload unlocks at level {BANNER_MIN_LEVEL}. You're currently level {userLevel} — host an LFG or rate teammates to level up.
+                                </p>
+                            )}
+                            {bannerError && (
+                                <p className="mt-2 text-xs text-red-500">{bannerError}</p>
                             )}
                         </div>
 

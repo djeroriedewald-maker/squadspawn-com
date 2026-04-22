@@ -15,8 +15,9 @@ export interface Profile {
     user_id: number;
     username: string;
     avatar?: string;
-    banner_style?: 'game' | 'preset';
+    banner_style?: 'game' | 'preset' | 'upload';
     banner_preset?: string | null;
+    banner_upload_path?: string | null;
     bio?: string;
     looking_for: 'casual' | 'ranked' | 'friends' | 'any';
     region?: string;

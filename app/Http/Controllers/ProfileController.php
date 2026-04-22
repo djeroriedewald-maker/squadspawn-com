@@ -138,5 +138,12 @@ class ProfileController extends Controller
             $path = str_replace('/storage/', '', $user->profile->avatar);
             \Illuminate\Support\Facades\Storage::disk('public')->delete($path);
         }
+
+        // Phase-2 uploaded banner — stored relative to the public disk
+        // (e.g. `banners/banner_123_1700000000.jpg`) so pass the raw
+        // path straight through.
+        if ($user->profile?->banner_upload_path) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($user->profile->banner_upload_path);
+        }
     }
 }

@@ -294,6 +294,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/avatar/upload', [AvatarController::class, 'upload'])->middleware('throttle:10,1')->name('avatar.upload');
     Route::post('/avatar/preset', [AvatarController::class, 'setPreset'])->name('avatar.preset');
 
+    // Banner (phase-2 user upload, gated behind level 2+)
+    Route::post('/banner/upload', [\App\Http\Controllers\BannerController::class, 'upload'])->middleware('throttle:5,1')->name('banner.upload');
+    Route::delete('/banner', [\App\Http\Controllers\BannerController::class, 'destroy'])->middleware('throttle:10,1')->name('banner.destroy');
+
     // Game Profile
     Route::get('/profile/me', [GameProfileController::class, 'show'])->name('game-profile.show');
     Route::get('/profile/setup', [GameProfileController::class, 'edit'])->name('game-profile.edit');

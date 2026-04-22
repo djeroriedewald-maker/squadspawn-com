@@ -5,7 +5,8 @@ import { ReactNode } from 'react';
 /**
  * Universal profile banner renderer.
  *
- * Three modes:
+ * Four modes:
+ *   - `upload`  → a user-uploaded image (phase 2, level 2+).
  *   - `preset`  → one of the curated gradients in utils/bannerPresets.
  *   - `game`    → the user's main-game cover art, blurred and darkened
  *                 so the username on top stays readable.
@@ -19,6 +20,7 @@ import { ReactNode } from 'react';
 export function ProfileBanner({
     style,
     preset,
+    uploadPath,
     mainGame,
     className = '',
     heightClass = 'h-40 sm:h-48',
@@ -26,19 +28,47 @@ export function ProfileBanner({
 }: {
     style?: string | null;
     preset?: string | null;
+    /** Relative storage path (e.g. `banners/banner_123_1700000000.jpg`).
+     *  Component handles the `/storage/` prefix so callers can pass the
+     *  raw DB value straight through. */
+    uploadPath?: string | null;
     mainGame?: Game | null;
     className?: string;
     heightClass?: string;
     children?: ReactNode;
 }) {
-    // Normalise: anything that isn't an explicit game-cover request is
-    // treated as a preset, defaulting to the signature neon-pulse.
-    const isGameMode = style === 'game' && !!mainGame?.cover_image;
+    const isUploadMode = style === 'upload' && !!uploadPath;
+    const isGameMode = !isUploadMode && style === 'game' && !!mainGame?.cover_image;
     const selected = findPreset(preset) || findPreset(DEFAULT_PRESET_ID)!;
+
+    const uploadUrl = uploadPath
+        ? uploadPath.startsWith('/') || uploadPath.startsWith('http')
+            ? uploadPath
+            : '/storage/' + uploadPath
+        : null;
 
     return (
         <div className={`relative overflow-hidden ${heightClass} ${className}`}>
-            {isGameMode ? (
+            {isUploadMode ? (
+                <>
+                    <img
+                        src={uploadUrl!}
+                        alt=""
+                        aria-hidden
+                        className="h-full w-full object-cover"
+                    />
+                    {/* Softer left-scrim for user art so their photo is the
+                        star; still enough to keep the username legible. */}
+                    <div
+                        aria-hidden
+                        className="absolute inset-0"
+                        style={{
+                            background:
+                                'linear-gradient(90deg, rgba(10,8,15,0.6) 0%, rgba(10,8,15,0.35) 40%, rgba(10,8,15,0.1) 70%, rgba(10,8,15,0) 100%)',
+                        }}
+                    />
+                </>
+            ) : isGameMode ? (
                 <>
                     <img
                         src={mainGame!.cover_image!}
@@ -62,9 +92,14 @@ export function ProfileBanner({
             )}
 
             {/* Subtle grid overlay + red-neon glow — keeps the SquadSpawn
-                look even on the game-cover fallback. */}
-            <div aria-hidden className="absolute inset-0 bg-grid opacity-15" />
-            <div aria-hidden className="pointer-events-none absolute -right-10 top-0 h-40 w-40 rounded-full bg-neon-red/20 blur-3xl" />
+                look even on the game-cover fallback. Skipped on upload
+                mode so we don't muddy user photos. */}
+            {!isUploadMode && (
+                <>
+                    <div aria-hidden className="absolute inset-0 bg-grid opacity-15" />
+                    <div aria-hidden className="pointer-events-none absolute -right-10 top-0 h-40 w-40 rounded-full bg-neon-red/20 blur-3xl" />
+                </>
+            )}
 
             {/* Pill in the bottom-right showing the game, if we have one. */}
             {mainGame && (

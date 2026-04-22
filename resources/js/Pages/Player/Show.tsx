@@ -148,6 +148,7 @@ export default function PlayerShow({ player, clips = [], reputationData, friends
                     <ProfileBanner
                         style={player.profile?.banner_style}
                         preset={player.profile?.banner_preset}
+                        uploadPath={player.profile?.banner_upload_path}
                         mainGame={mainGame ?? null}
                         heightClass="h-48"
                     />

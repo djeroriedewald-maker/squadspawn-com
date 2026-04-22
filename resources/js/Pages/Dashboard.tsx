@@ -188,6 +188,7 @@ export default function Dashboard({
                             <ProfileBanner
                                 style={user.profile?.banner_style}
                                 preset={user.profile?.banner_preset}
+                                uploadPath={user.profile?.banner_upload_path}
                                 mainGame={mainGame ?? null}
                                 heightClass="h-20 sm:h-24"
                             />
