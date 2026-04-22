@@ -1,6 +1,8 @@
 import GamePicker from '@/Components/GamePicker';
+import { BannerPresetThumb, ProfileBanner } from '@/Components/ProfileBanner';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Game, Profile } from '@/types';
+import { BANNER_PRESETS, DEFAULT_PRESET_ID } from '@/utils/bannerPresets';
 import { Head, router, useForm } from '@inertiajs/react';
 import axios from 'axios';
 import { ChangeEvent, FormEventHandler, useMemo, useRef, useState } from 'react';
@@ -120,6 +122,8 @@ export default function GameProfileEdit({
         is_creator: boolean;
         has_mic: boolean;
         stream_url: string;
+        banner_style: 'game' | 'preset';
+        banner_preset: string;
         socials: Record<string, string>;
         // Only keyed by game id for games the user plays. Not keeping an
         // entry for all 1000+ games in the catalogue — wastes memory and
@@ -134,6 +138,8 @@ export default function GameProfileEdit({
         is_creator: profile?.is_creator ?? false,
         has_mic: profile?.has_mic ?? false,
         stream_url: profile?.stream_url ?? '',
+        banner_style: (profile?.banner_style as 'game' | 'preset') ?? 'game',
+        banner_preset: profile?.banner_preset ?? DEFAULT_PRESET_ID,
         socials: {
             discord: profile?.socials?.discord ?? '',
             instagram: profile?.socials?.instagram ?? '',
@@ -300,6 +306,82 @@ export default function GameProfileEdit({
                                         ))}
                                     </div>
                                 </div>
+                            )}
+                        </div>
+
+                        {/* Banner */}
+                        <div className="rounded-xl border border-ink-900/10 bg-white p-6">
+                            <div className="mb-4 flex items-center justify-between">
+                                <h3 className="text-lg font-semibold text-ink-900">Profile banner</h3>
+                                <span className="rounded-full bg-bone-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-ink-500">
+                                    Preview
+                                </span>
+                            </div>
+
+                            {/* Live preview — rebuilds whenever the user flips style/preset */}
+                            <div className="mb-5 overflow-hidden rounded-xl border border-ink-900/10">
+                                <ProfileBanner
+                                    style={data.banner_style}
+                                    preset={data.banner_preset}
+                                    mainGame={userGames[0] ?? null}
+                                    heightClass="h-28 sm:h-32"
+                                >
+                                    <div className="flex w-full items-end justify-between gap-3">
+                                        <div>
+                                            <p className="text-lg font-bold text-white sm:text-2xl">{data.username || 'Your username'}</p>
+                                            <p className="text-[11px] text-white/70">This is how it looks on your profile.</p>
+                                        </div>
+                                    </div>
+                                </ProfileBanner>
+                            </div>
+
+                            {/* Style switch */}
+                            <div className="mb-4 flex flex-wrap gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setData('banner_style', 'game')}
+                                    className={`rounded-full px-4 py-1.5 text-xs font-semibold transition ${
+                                        data.banner_style === 'game'
+                                            ? 'bg-neon-red text-white shadow-glow-red'
+                                            : 'border border-ink-900/10 bg-bone-100 text-ink-700 hover:border-neon-red/30'
+                                    }`}
+                                >
+                                    Your main game
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setData('banner_style', 'preset')}
+                                    className={`rounded-full px-4 py-1.5 text-xs font-semibold transition ${
+                                        data.banner_style === 'preset'
+                                            ? 'bg-neon-red text-white shadow-glow-red'
+                                            : 'border border-ink-900/10 bg-bone-100 text-ink-700 hover:border-neon-red/30'
+                                    }`}
+                                >
+                                    Gradient preset
+                                </button>
+                            </div>
+
+                            {data.banner_style === 'preset' && (
+                                <>
+                                    <p className="mb-3 text-xs text-ink-500">
+                                        Pick one of the presets below — each one keeps the text on top readable in both light and dark mode.
+                                    </p>
+                                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                                        {BANNER_PRESETS.map((p) => (
+                                            <BannerPresetThumb
+                                                key={p.id}
+                                                preset={p}
+                                                active={data.banner_preset === p.id}
+                                                onClick={() => setData('banner_preset', p.id)}
+                                            />
+                                        ))}
+                                    </div>
+                                </>
+                            )}
+                            {data.banner_style === 'game' && (
+                                <p className="text-xs text-ink-500">
+                                    Uses the cover art of the first game in your list, blurred and darkened so your name stays readable.
+                                </p>
                             )}
                         </div>
 

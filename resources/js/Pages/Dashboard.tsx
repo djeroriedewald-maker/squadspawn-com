@@ -1,3 +1,4 @@
+import { ProfileBanner } from '@/Components/ProfileBanner';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Achievement, Game, PageProps, User } from '@/types';
 import { getAchievementColors, getAchievementIcon } from '@/utils/achievements';
@@ -182,22 +183,14 @@ export default function Dashboard({
 
                         {/* ── GAMER ID CARD ── */}
                         <div className="overflow-hidden rounded-2xl border border-ink-900/10 bg-bone-100/80 backdrop-blur-sm">
-                            {/* Card top: main game banner */}
-                            <div className="relative h-20 overflow-hidden sm:h-24">
-                                {mainGame ? (
-                                    <img src={mainGame.cover_image || `/images/games/${mainGame.slug}.svg`} alt="" className="h-full w-full object-cover" />
-                                ) : (
-                                    <img src="/images/gamer6.jpg" alt="" className="h-full w-full object-cover" />
-                                )}
-                                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-bone-100/60 to-white" />
-                                {mainGame && (
-                                    <div className="absolute bottom-2 right-3 flex items-center gap-1.5 rounded-full bg-black/50 px-2.5 py-1 backdrop-blur-sm">
-                                        <img src={mainGame.cover_image || `/images/games/${mainGame.slug}.svg`} alt="" className="h-4 w-6 rounded-sm object-cover" />
-                                        <span className="text-[10px] font-semibold text-ink-900">{mainGame.name}</span>
-                                        {mainGame.pivot?.rank && <span className="text-[10px] text-gaming-green">{mainGame.pivot.rank}</span>}
-                                    </div>
-                                )}
-                            </div>
+                            {/* Card top — respects the user's banner style
+                                (gradient preset or main-game cover). */}
+                            <ProfileBanner
+                                style={user.profile?.banner_style}
+                                preset={user.profile?.banner_preset}
+                                mainGame={mainGame ?? null}
+                                heightClass="h-20 sm:h-24"
+                            />
 
                             <div className="px-5 pb-5">
                                 {/* Avatar + Name row */}

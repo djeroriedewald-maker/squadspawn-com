@@ -89,6 +89,8 @@ class GameProfileController extends Controller
             'timezone' => ['nullable', 'string', 'max:50'],
             'available_times' => ['nullable', 'array'],
             'avatar' => ['nullable', 'string', 'max:255'],
+            'banner_style' => ['nullable', 'in:game,preset'],
+            'banner_preset' => ['nullable', 'string', 'max:32'],
             'socials' => ['nullable', 'array'],
             'socials.discord' => ['nullable', 'string', 'max:100'],
             'socials.instagram' => ['nullable', 'string', 'max:100'],
@@ -119,6 +121,8 @@ class GameProfileController extends Controller
             'is_creator' => $validated['is_creator'] ?? false,
             'has_mic' => $validated['has_mic'] ?? false,
             'stream_url' => $validated['stream_url'] ?? null,
+            'banner_style' => $validated['banner_style'] ?? 'game',
+            'banner_preset' => $validated['banner_preset'] ?? null,
         ];
 
         $user->profile()->updateOrCreate(
