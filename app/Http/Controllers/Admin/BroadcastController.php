@@ -123,9 +123,21 @@ class BroadcastController extends Controller
 
         $broadcast = Broadcast::create($data);
 
-        if ($request->boolean('send_now')) {
+        // Send-now only wins if there's no future scheduled_at. If the
+        // admin picked a future date, the cron picks it up when due — we
+        // must not also fire it immediately or the broadcast would land
+        // twice (once now, once when scheduled).
+        $shouldSendNow = $request->boolean('send_now')
+            && (!$broadcast->scheduled_at || $broadcast->scheduled_at->isPast());
+
+        if ($shouldSendNow) {
             $dispatcher->dispatch($broadcast);
             return redirect()->route('admin.broadcasts.index')->with('message', 'Broadcast sent.');
+        }
+
+        if ($broadcast->scheduled_at && $broadcast->scheduled_at->isFuture()) {
+            return redirect()->route('admin.broadcasts.index')
+                ->with('message', 'Broadcast scheduled for ' . $broadcast->scheduled_at->format('Y-m-d H:i') . '.');
         }
 
         // Drafts go straight back into the edit screen so the admin can
@@ -175,10 +187,19 @@ class BroadcastController extends Controller
         }
 
         $broadcast->update($data);
+        $broadcast->refresh();
 
-        if ($request->boolean('send_now')) {
+        $shouldSendNow = $request->boolean('send_now')
+            && (!$broadcast->scheduled_at || $broadcast->scheduled_at->isPast());
+
+        if ($shouldSendNow) {
             app(BroadcastDispatcher::class)->dispatch($broadcast);
             return redirect()->route('admin.broadcasts.index')->with('message', 'Broadcast sent.');
+        }
+
+        if ($broadcast->scheduled_at && $broadcast->scheduled_at->isFuture()) {
+            return redirect()->route('admin.broadcasts.index')
+                ->with('message', 'Broadcast scheduled for ' . $broadcast->scheduled_at->format('Y-m-d H:i') . '.');
         }
 
         return redirect()->route('admin.broadcasts.index')->with('message', 'Broadcast saved.');
