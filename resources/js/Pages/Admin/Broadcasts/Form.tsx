@@ -127,7 +127,14 @@ export default function BroadcastForm({
         fd.append('youtube_url', data.youtube_url);
         fd.append('style', data.style);
         fd.append('push_enabled', data.push_enabled ? '1' : '0');
-        if (data.scheduled_at) fd.append('scheduled_at', data.scheduled_at);
+        if (data.scheduled_at) {
+            // Browser datetime-local gives us a naive "2026-04-22T15:30"
+            // string in the user's local timezone. The server runs on UTC,
+            // so convert to an ISO 8601 with Z suffix here — otherwise a
+            // 15:30 CEST schedule would be stored as 15:30 UTC and fire
+            // two hours late.
+            fd.append('scheduled_at', new Date(data.scheduled_at).toISOString());
+        }
         if (image) fd.append('image', image);
         data.target_filters.game_ids.forEach((id) => fd.append('target_filters[game_ids][]', String(id)));
         data.target_filters.regions.forEach((r) => fd.append('target_filters[regions][]', r));
@@ -351,6 +358,9 @@ export default function BroadcastForm({
                         />
                         <p className="mt-1 text-[10px] text-ink-500">
                             Leave blank to deliver immediately on Send. Pick a future date and the button below switches to <strong className="text-gaming-orange">Schedule</strong> mode — the cron dispatches it automatically.
+                        </p>
+                        <p className="mt-1 text-[10px] font-mono text-ink-500">
+                            Using your local time: <strong>{Intl.DateTimeFormat().resolvedOptions().timeZone}</strong>
                         </p>
                     </div>
 
