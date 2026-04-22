@@ -1,4 +1,4 @@
-import { usePage } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 
@@ -43,12 +43,36 @@ export default function BroadcastPopup() {
         };
     }, [broadcast?.id]);
 
+    // Inertia only re-runs shared-prop resolvers on full page visits, so a
+    // broadcast that gets sent while the user is sitting idle on one tab
+    // never shows up until they navigate. Do a partial reload of just the
+    // `activeBroadcast` prop on an interval + when the tab regains focus.
+    useEffect(() => {
+        const refresh = () => {
+            router.reload({ only: ['activeBroadcast'] });
+        };
+        const id = window.setInterval(refresh, 60_000);
+        const onFocus = () => {
+            if (document.visibilityState === 'visible') refresh();
+        };
+        document.addEventListener('visibilitychange', onFocus);
+        return () => {
+            window.clearInterval(id);
+            document.removeEventListener('visibilitychange', onFocus);
+        };
+    }, []);
+
     if (!broadcast) return null;
 
     const close = () => {
         setClosing(true);
         axios.post(route('announcements.dismiss', broadcast.id)).catch(() => {});
-        setTimeout(() => setVisible(false), 180);
+        setTimeout(() => {
+            setVisible(false);
+            // Re-fetch activeBroadcast: if another undismissed one is
+            // queued behind this one, it takes over the popup slot.
+            router.reload({ only: ['activeBroadcast'] });
+        }, 180);
     };
 
     const onCtaClick = () => {
