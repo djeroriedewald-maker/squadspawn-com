@@ -20,7 +20,12 @@ class InviteController extends Controller
             $user->save();
         }
 
-        $invitedCount = User::where('referred_by_user_id', $user->id)->count();
+        // Only count invitees who actually became real players (have a
+        // profile). Otherwise one person could mint throwaway accounts
+        // with their own ref code to pump the counter.
+        $invitedCount = User::where('referred_by_user_id', $user->id)
+            ->whereHas('profile')
+            ->count();
         $inviteUrl = url('/?ref=' . $user->referral_code);
 
         return Inertia::render('Invite/Index', [

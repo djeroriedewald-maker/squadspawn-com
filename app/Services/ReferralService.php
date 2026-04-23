@@ -9,9 +9,14 @@ use App\Notifications\NewMatchNotification;
 class ReferralService
 {
     /**
-     * Attribute a fresh signup to a referrer (looked up by code) and
-     * auto-befriend the two users so they appear in each other's friend list
-     * immediately. Returns the referrer if attribution succeeded.
+     * STAGE 1 (runs at signup): record the inviter attribution only.
+     *
+     * We used to create the PlayerMatch + notify on the signup call,
+     * which made the counter and the "you have a new friend" push
+     * farmable — one user could mint throwaway accounts with their
+     * own ref code to inflate invitedCount and friend counts before
+     * anyone finished onboarding. Now we just stamp who invited them
+     * and defer the actual friendship to the profile-complete step.
      */
     public static function attributeSignup(User $newUser, ?string $refCode): ?User
     {
@@ -26,17 +31,42 @@ class ReferralService
 
         $newUser->forceFill(['referred_by_user_id' => $referrer->id])->save();
 
+        return $referrer;
+    }
+
+    /**
+     * STAGE 2 (runs when the invitee completes their profile): now
+     * that we know they're a real user who stuck around past the
+     * one-click signup, materialise the friendship + notify both
+     * sides. Idempotent — safe to call on every profile save.
+     */
+    public static function completeReferralIfPending(User $user): ?User
+    {
+        if (!$user->referred_by_user_id) {
+            return null;
+        }
+
+        $referrer = User::find($user->referred_by_user_id);
+        if (!$referrer || $referrer->id === $user->id) {
+            return null;
+        }
+
         $match = PlayerMatch::firstOrCreate([
-            'user_one_id' => min($newUser->id, $referrer->id),
-            'user_two_id' => max($newUser->id, $referrer->id),
+            'user_one_id' => min($user->id, $referrer->id),
+            'user_two_id' => max($user->id, $referrer->id),
         ]);
 
-        try {
-            $match->load(['userOne.profile', 'userTwo.profile']);
-            $referrer->notify(new NewMatchNotification($newUser, $match->id, $match->uuid));
-            $newUser->notify(new NewMatchNotification($referrer, $match->id, $match->uuid));
-        } catch (\Throwable) {
-            // Best-effort: don't fail the signup if push/db notify misbehaves.
+        // firstOrCreate returns the existing match on subsequent calls;
+        // `wasRecentlyCreated` tells us whether this call is the first
+        // materialisation, so we only fire the notification once.
+        if ($match->wasRecentlyCreated) {
+            try {
+                $match->load(['userOne.profile', 'userTwo.profile']);
+                $referrer->notify(new NewMatchNotification($user, $match->id, $match->uuid));
+                $user->notify(new NewMatchNotification($referrer, $match->id, $match->uuid));
+            } catch (\Throwable) {
+                // Best-effort: don't fail the profile save if notify breaks.
+            }
         }
 
         return $referrer;

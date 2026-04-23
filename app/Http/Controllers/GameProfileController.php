@@ -130,6 +130,11 @@ class GameProfileController extends Controller
             $profileData
         );
 
+        // Materialise any pending referral friendship now that the
+        // invitee has a real profile. No-op if already materialised
+        // or if this user wasn't referred.
+        \App\Services\ReferralService::completeReferralIfPending($user);
+
         // Sync user games
         if (isset($validated['games'])) {
             $syncData = [];
