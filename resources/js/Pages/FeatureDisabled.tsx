@@ -14,8 +14,8 @@ const COPY: Record<string, { title: string; blurb: string }> = {
         blurb: 'Community posts are temporarily unavailable. We\'ll have them back up shortly.',
     },
     clips: {
-        title: 'Clips are on pause',
-        blurb: 'The clips feed is temporarily off. We\'ll be back shortly.',
+        title: 'Creators is on pause',
+        blurb: 'The Creators page and Spotlight are temporarily off. We\'ll be back shortly — your profile and clip submissions are safe.',
     },
     chat: {
         title: 'Chat is briefly offline',
