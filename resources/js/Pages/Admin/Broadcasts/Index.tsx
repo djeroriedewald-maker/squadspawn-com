@@ -24,12 +24,20 @@ interface Paginator<T> {
 }
 
 /**
- * Compact "25 Apr, 14:03" formatter — keeps the status column tidy
- * compared to the raw DB datetime-string.
+ * Compact "25 Apr, 14:03" formatter.
+ *
+ * The backend stores timestamps in UTC (app.timezone = UTC) and
+ * serialises them as "2026-04-23 07:12:00" without a zone suffix.
+ * Plain `new Date("2026-04-23T07:12:00")` would interpret that as
+ * local time — so 07:12 UTC would render as 07:12 CEST, two hours
+ * off. Appending "Z" before parsing tells JS it's UTC; toLocaleString
+ * then converts it to the viewer's own timezone for display.
  */
 function formatDateTime(iso: string | null): string {
     if (!iso) return '';
-    const d = new Date(iso.replace(' ', 'T'));
+    const normalised = iso.includes('T') ? iso : iso.replace(' ', 'T');
+    const withZone = /[Zz]|[+-]\d{2}:?\d{2}$/.test(normalised) ? normalised : normalised + 'Z';
+    const d = new Date(withZone);
     if (Number.isNaN(d.getTime())) return iso;
     return d.toLocaleString([], { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 }

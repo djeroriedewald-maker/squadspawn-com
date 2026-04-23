@@ -147,8 +147,11 @@ class BroadcastController extends Controller
         }
 
         if ($broadcast->scheduled_at && $broadcast->scheduled_at->isFuture()) {
+            // Message keeps the tz-correct formatting to the list view
+            // (which renders in the viewer's local timezone). Saying
+            // "scheduled for 07:12" here would be UTC and misleading.
             return redirect()->route('admin.broadcasts.index')
-                ->with('message', 'Broadcast scheduled for ' . $broadcast->scheduled_at->format('Y-m-d H:i') . '.');
+                ->with('message', 'Broadcast scheduled. Check the row below for the exact fire time in your local timezone.');
         }
 
         // Drafts go straight back into the edit screen so the admin can
@@ -210,7 +213,7 @@ class BroadcastController extends Controller
 
         if ($broadcast->scheduled_at && $broadcast->scheduled_at->isFuture()) {
             return redirect()->route('admin.broadcasts.index')
-                ->with('message', 'Broadcast scheduled for ' . $broadcast->scheduled_at->format('Y-m-d H:i') . '.');
+                ->with('message', 'Broadcast scheduled. Check the row below for the exact fire time in your local timezone.');
         }
 
         return redirect()->route('admin.broadcasts.index')->with('message', 'Broadcast saved.');
