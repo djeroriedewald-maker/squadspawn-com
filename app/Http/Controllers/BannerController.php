@@ -39,7 +39,11 @@ class BannerController extends Controller
                 'image',
                 'mimes:jpg,jpeg,png,webp',
                 'max:3072', // 3 MB
-                'dimensions:min_width=1200,min_height=300,max_width=3840,max_height=1500',
+                // max_height bumped from 1500 → 2160 (4K). object-cover
+                // crops at render time anyway, so tall images aren't a
+                // failure mode — they just show less. The previous 1500
+                // cap rejected the site's own 3200x1792 banner.
+                'dimensions:min_width=1200,min_height=300,max_width=3840,max_height=2160',
             ],
         ]);
 
