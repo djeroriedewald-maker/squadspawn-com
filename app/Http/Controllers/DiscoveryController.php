@@ -6,6 +6,7 @@ use App\Models\Block;
 use App\Models\Game;
 use App\Models\Like;
 use App\Models\Pass;
+use App\Models\PlayerMatch;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -29,11 +30,15 @@ class DiscoveryController extends Controller
         $passedIds = Pass::where('passer_id', $user->id)->pluck('passed_id');
         $blockedByMe = Block::where('blocker_id', $user->id)->pluck('blocked_id');
         $blockedMe = Block::where('blocked_id', $user->id)->pluck('blocker_id');
+        // Existing matches (e.g. referral auto-friendships don't create Like rows).
+        $matchedIds = PlayerMatch::where('user_one_id', $user->id)->pluck('user_two_id')
+            ->merge(PlayerMatch::where('user_two_id', $user->id)->pluck('user_one_id'));
         $excludeIds = collect([$user->id])
             ->merge($likedIds)
             ->merge($passedIds)
             ->merge($blockedByMe)
             ->merge($blockedMe)
+            ->merge($matchedIds)
             ->unique()
             ->values()
             ->toArray();
