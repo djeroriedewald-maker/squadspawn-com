@@ -63,6 +63,12 @@ interface Notification {
         broadcast_id?: number;
         title?: string;
         preview?: string;
+        // Admin: new contact-form message
+        message_id?: number;
+        subject?: string;
+        category?: string;
+        from_name?: string;
+        url?: string;
     };
     created_at: string;
 }
@@ -297,6 +303,15 @@ export default function FloatingChat() {
                 return;
             }
         }
+
+        // Admin + any other notification type that carries an absolute
+        // url in its payload — jump straight there.
+        if (notif.data.url) {
+            setView('closed');
+            router.visit(notif.data.url);
+            return;
+        }
+
         setView('closed');
         router.visit(route('dashboard'));
     }, [friends, lfgGroups, openFriendChat, openLfgChat]);
@@ -401,6 +416,18 @@ export default function FloatingChat() {
                         {d.preview && <span className="text-ink-500"> — {d.preview}</span>}
                     </>
                 );
+            case 'admin_new_contact_message': {
+                const catLabel = (d.category || '').replace(/^\w/, (c) => c.toUpperCase());
+                return (
+                    <>
+                        <span className="mr-1.5 inline-flex items-center rounded bg-neon-red px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white">Admin</span>
+                        <strong>{d.from_name || 'Someone'}</strong>
+                        <span className="text-ink-500">
+                            {catLabel && ` · ${catLabel}`} — {d.subject}
+                        </span>
+                    </>
+                );
+            }
             default:
                 return 'New notification';
         }
@@ -442,6 +469,10 @@ export default function FloatingChat() {
             role_change: {
                 bg: 'bg-gaming-cyan/15', fg: 'text-gaming-cyan',
                 node: <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" /></svg>,
+            },
+            admin_new_contact_message: {
+                bg: 'bg-neon-red/15', fg: 'text-neon-red',
+                node: <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" /></svg>,
             },
         };
         const fallback = {
