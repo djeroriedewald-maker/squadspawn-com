@@ -680,6 +680,22 @@ class LfgController extends Controller
             return response()->json(['error' => 'Only group members can chat.'], 403);
         }
 
+        // If this user has blocked the host (or the host blocked them),
+        // they don't get to post into the host's group chat. Other
+        // members still see the group — this only stops the blocked
+        // pair from exchanging messages here.
+        $hostId = $lfgPost->user_id;
+        if ($hostId !== $user->id) {
+            $blocked = \App\Models\Block::where(function ($q) use ($user, $hostId) {
+                $q->where('blocker_id', $user->id)->where('blocked_id', $hostId);
+            })->orWhere(function ($q) use ($user, $hostId) {
+                $q->where('blocker_id', $hostId)->where('blocked_id', $user->id);
+            })->exists();
+            if ($blocked) {
+                return response()->json(['error' => 'You cannot post in this group.'], 403);
+            }
+        }
+
         // Once a session is closed the chat freezes — ratings + history
         // still visible but no new noise. Host can repost for a fresh
         // group chat; this one becomes a read-only record.

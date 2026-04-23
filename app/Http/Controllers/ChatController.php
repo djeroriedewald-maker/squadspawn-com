@@ -169,6 +169,22 @@ class ChatController extends Controller
             abort(HttpResponse::HTTP_FORBIDDEN, 'You are not part of this match.');
         }
 
+        // Block covers chat: if either side has blocked the other, the
+        // DM channel is dead even though the friendship row still exists
+        // (a block doesn't auto-unfriend — by design — so the block has
+        // to gate every write that would reach the other party).
+        $partnerId = $playerMatch->user_one_id === $user->id
+            ? $playerMatch->user_two_id
+            : $playerMatch->user_one_id;
+        $blocked = \App\Models\Block::where(function ($q) use ($user, $partnerId) {
+            $q->where('blocker_id', $user->id)->where('blocked_id', $partnerId);
+        })->orWhere(function ($q) use ($user, $partnerId) {
+            $q->where('blocker_id', $partnerId)->where('blocked_id', $user->id);
+        })->exists();
+        if ($blocked) {
+            return response()->json(['error' => 'This conversation is blocked.'], 403);
+        }
+
         $validated = $request->validate([
             'body' => ['required', 'string', 'max:2000'],
         ]);
