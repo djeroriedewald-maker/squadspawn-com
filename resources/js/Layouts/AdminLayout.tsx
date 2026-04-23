@@ -1,6 +1,6 @@
 import ThemeToggle from '@/Components/ThemeToggle';
-import { Link } from '@inertiajs/react';
-import { PropsWithChildren } from 'react';
+import { Link, router } from '@inertiajs/react';
+import { PropsWithChildren, useEffect, useState } from 'react';
 
 const navItems = [
     {
@@ -63,26 +63,103 @@ const navItems = [
 ];
 
 export default function AdminLayout({ children }: PropsWithChildren) {
+    const [open, setOpen] = useState(false);
+
+    // Auto-close the mobile drawer whenever the route changes (admin
+    // navigates to a different section). Also snap it closed when the
+    // viewport grows past sm so we don't keep a stale drawer state.
+    useEffect(() => {
+        const unsub = router.on('finish', () => setOpen(false));
+        const mq = window.matchMedia('(min-width: 640px)');
+        const onChange = () => { if (mq.matches) setOpen(false); };
+        mq.addEventListener('change', onChange);
+        return () => { unsub(); mq.removeEventListener('change', onChange); };
+    }, []);
+
+    // Lock body scroll while the drawer is open on mobile.
+    useEffect(() => {
+        document.body.style.overflow = open ? 'hidden' : '';
+        return () => { document.body.style.overflow = ''; };
+    }, [open]);
+
     return (
         <div className="flex min-h-screen bg-bone-50">
-            {/* Sidebar — uses bg-white so it's visually separated from the
-                main content in both light and dark themes. */}
-            <aside className="fixed left-0 top-0 z-40 flex h-screen w-60 flex-col border-r border-ink-900/10 bg-white">
-                {/* Logo */}
-                <div className="flex h-16 items-center gap-2 border-b border-ink-900/5 px-5">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-neon-red/20">
-                        <svg className="h-4 w-4 text-neon-red" fill="currentColor" viewBox="0 0 24 24">
+            {/* ── Mobile top bar ─────────────────────────────── */}
+            <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-ink-900/10 bg-white/90 px-4 backdrop-blur-md sm:hidden">
+                <button
+                    type="button"
+                    onClick={() => setOpen(true)}
+                    aria-label="Open admin menu"
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-ink-900/10 bg-bone-100 text-ink-700 transition hover:border-neon-red/30 hover:text-neon-red"
+                >
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                    </svg>
+                </button>
+                <div className="flex items-center gap-2">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-neon-red/20">
+                        <svg className="h-3.5 w-3.5 text-neon-red" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
                         </svg>
                     </div>
-                    <div>
-                        <span className="text-sm font-bold text-neon-red">SquadSpawn</span>
-                        <span className="ml-1 rounded bg-neon-red/20 px-1.5 py-0.5 text-[10px] font-bold text-neon-red">ADMIN</span>
+                    <span className="text-sm font-bold text-neon-red">SquadSpawn</span>
+                    <span className="rounded bg-neon-red/20 px-1.5 py-0.5 text-[10px] font-bold text-neon-red">ADMIN</span>
+                </div>
+                <Link
+                    href={route('dashboard')}
+                    title="Back to platform"
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-ink-900/10 bg-bone-100 text-ink-700 transition hover:border-neon-red/30 hover:text-neon-red"
+                >
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                    </svg>
+                </Link>
+            </header>
+
+            {/* ── Mobile drawer backdrop ─────────────────────── */}
+            {open && (
+                <button
+                    type="button"
+                    onClick={() => setOpen(false)}
+                    aria-label="Close menu"
+                    className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm sm:hidden"
+                />
+            )}
+
+            {/* ── Sidebar ────────────────────────────────────── */}
+            <aside
+                className={`fixed left-0 top-0 z-50 flex h-screen w-72 flex-col border-r border-ink-900/10 bg-white transition-transform duration-200 sm:w-60 sm:translate-x-0 ${
+                    open ? 'translate-x-0' : '-translate-x-full'
+                }`}
+            >
+                {/* Logo row */}
+                <div className="flex h-16 items-center justify-between gap-2 border-b border-ink-900/5 px-5">
+                    <div className="flex items-center gap-2">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-neon-red/20">
+                            <svg className="h-4 w-4 text-neon-red" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                            </svg>
+                        </div>
+                        <div>
+                            <span className="text-sm font-bold text-neon-red">SquadSpawn</span>
+                            <span className="ml-1 rounded bg-neon-red/20 px-1.5 py-0.5 text-[10px] font-bold text-neon-red">ADMIN</span>
+                        </div>
                     </div>
+                    {/* Close button on mobile only */}
+                    <button
+                        type="button"
+                        onClick={() => setOpen(false)}
+                        aria-label="Close menu"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-ink-500 transition hover:bg-bone-100 hover:text-ink-900 sm:hidden"
+                    >
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                        </svg>
+                    </button>
                 </div>
 
                 {/* Nav Links */}
-                <nav className="flex-1 space-y-1 px-3 py-4">
+                <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
                     {navItems.map((item) => {
                         const isActive = route().current((item as any).matchPattern ?? item.route);
                         return (
@@ -119,8 +196,10 @@ export default function AdminLayout({ children }: PropsWithChildren) {
                 </div>
             </aside>
 
-            {/* Main Content */}
-            <main className="ml-60 flex-1 p-8">
+            {/* ── Main Content ───────────────────────────────── */}
+            {/* sm:ml-60 compensates for the fixed desktop sidebar; on
+                mobile the sidebar lives off-canvas so we take full width. */}
+            <main className="min-w-0 flex-1 p-4 sm:ml-60 sm:p-8">
                 {children}
             </main>
         </div>
