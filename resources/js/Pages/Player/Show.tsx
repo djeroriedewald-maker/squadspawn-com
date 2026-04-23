@@ -236,6 +236,100 @@ export default function PlayerShow({ player, clips = [], reputationData, friends
                         </div>
                     </div>
 
+                    {/* Creator hero — only rendered for is_creator profiles. Promotes
+                         clips + streaming context to the top of the page so visiting
+                         viewers land on the things a creator actually wants you to
+                         watch before scrolling through stats. */}
+                    {player.profile?.is_creator && clips && clips.length > 0 && (
+                        <div className="mt-6 overflow-hidden rounded-2xl border border-gaming-pink/20 bg-gradient-to-br from-gaming-pink/5 to-neon-red/5">
+                            <div className="grid gap-0 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+                                {/* Big top clip */}
+                                <a
+                                    href={clips[0].url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="group relative block aspect-video overflow-hidden bg-ink-900"
+                                >
+                                    {(() => {
+                                        const thumb = clips[0].thumbnail || (clips[0].platform === 'youtube' ? getYouTubeThumbnail(clips[0].url) : null);
+                                        return thumb ? (
+                                            <img src={thumb} alt={clips[0].title} className="h-full w-full object-cover transition group-hover:scale-105" />
+                                        ) : (
+                                            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-neon-red/20 to-gaming-pink/20 text-5xl">🎬</div>
+                                        );
+                                    })()}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                                    <div className="absolute left-3 top-3 flex items-center gap-2">
+                                        {player.profile?.is_featured_now && (
+                                            <span className="rounded-full bg-gaming-orange px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-black">✨ Featured</span>
+                                        )}
+                                        {player.profile?.is_live && (
+                                            <span className="flex items-center gap-1 rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+                                                <span className="relative flex h-1.5 w-1.5">
+                                                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75"></span>
+                                                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-white"></span>
+                                                </span>
+                                                Live
+                                            </span>
+                                        )}
+                                    </div>
+                                    <div className="absolute inset-x-3 bottom-3">
+                                        <p className="text-sm font-semibold text-white drop-shadow-lg line-clamp-2">{clips[0].title}</p>
+                                        <p className="mt-0.5 text-[10px] uppercase tracking-wider text-white/80">
+                                            {clips[0].platform === 'youtube' ? '▶ YouTube' : clips[0].platform === 'twitch' ? '🎮 Twitch' : clips[0].platform} · {clips.length} clip{clips.length === 1 ? '' : 's'}
+                                        </p>
+                                    </div>
+                                    <div className="absolute inset-0 flex items-center justify-center opacity-0 transition group-hover:opacity-100">
+                                        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-neon-red/90 shadow-2xl">
+                                            <svg className="h-7 w-7 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                                        </div>
+                                    </div>
+                                </a>
+
+                                {/* Creator meta — socials + stream CTA */}
+                                <div className="flex flex-col justify-between gap-4 p-4 sm:p-5">
+                                    <div>
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-gaming-pink">Content creator</p>
+                                        <h2 className="mt-1 text-lg font-bold text-ink-900">Watch {username}</h2>
+                                        {player.profile?.bio && (
+                                            <p className="mt-2 line-clamp-3 text-xs text-ink-500">{player.profile.bio}</p>
+                                        )}
+                                    </div>
+
+                                    {/* Socials as prominent chips */}
+                                    {player.profile?.socials && (
+                                        <div className="flex flex-wrap gap-2">
+                                            {Object.entries(player.profile.socials).filter(([, v]) => v && String(v).trim() !== '').slice(0, 6).map(([key, value]) => {
+                                                const raw = String(value).trim();
+                                                const stripped = raw.replace(/^@/, '');
+                                                const href = raw.startsWith('http') ? raw : (
+                                                    key === 'twitch' ? `https://twitch.tv/${stripped}` :
+                                                    key === 'youtube' ? `https://youtube.com/${stripped}` :
+                                                    key === 'tiktok' ? `https://tiktok.com/@${stripped}` :
+                                                    key === 'twitter' ? `https://x.com/${stripped}` :
+                                                    key === 'instagram' ? `https://instagram.com/${stripped}` :
+                                                    raw
+                                                );
+                                                const label = key.charAt(0).toUpperCase() + key.slice(1);
+                                                return (
+                                                    <a
+                                                        key={key}
+                                                        href={href}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-ink-900 transition hover:bg-gaming-pink/10 hover:text-gaming-pink"
+                                                    >
+                                                        {label}
+                                                    </a>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Stats Row */}
                     <div className="mt-6 grid grid-cols-4 gap-3">
                         <div className="glow-border rounded-xl border border-ink-900/5 bg-white p-4 text-center">
