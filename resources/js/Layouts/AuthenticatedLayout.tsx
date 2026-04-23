@@ -330,6 +330,14 @@ export default function Authenticated({
                             <ResponsiveNavLink href={route('friends.index')}>
                                 Friends
                             </ResponsiveNavLink>
+                            <ResponsiveNavLink href={route('invite.index')}>
+                                <span className="flex items-center gap-2">
+                                    <span>Invite friends</span>
+                                    <span className="rounded-full bg-neon-red/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-widest text-neon-red">
+                                        +xp
+                                    </span>
+                                </span>
+                            </ResponsiveNavLink>
                             <ResponsiveNavLink href={route('achievements.index')}>
                                 <span className="flex items-center gap-2">
                                     Achievements & XP
