@@ -12,6 +12,7 @@ interface Props {
         wau: number;
         mau: number;
         online_now: number;
+        plus_waitlist: number;
     };
     series: {
         labels: string[];
@@ -212,11 +213,12 @@ export default function Analytics({ headline, series, content, topGames, topRegi
 
             {/* Signups */}
             <h2 className="mb-3 text-sm font-bold uppercase tracking-wider text-gray-500">Signups</h2>
-            <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-5">
                 <StatCard label="Today" value={headline.signups_today} tone="pink" />
                 <StatCard label="Last 7 days" value={headline.signups_7d} />
                 <StatCard label="Last 30 days" value={headline.signups_30d} />
                 <StatCard label="7d avg / day" value={(headline.signups_7d / 7).toFixed(1)} />
+                <StatCard label="Plus waitlist" value={headline.plus_waitlist} tone="red" sublabel="premium-tier demand" />
             </div>
 
             {/* Platform time series */}
