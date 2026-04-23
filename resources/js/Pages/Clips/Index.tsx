@@ -233,6 +233,9 @@ export default function ClipsIndex({
                             <p className="text-sm text-ink-700">
                                 <strong className="text-gaming-orange">✨ You're marked as a creator.</strong> Share individual clips below to be considered for the Creator Spotlight — your YouTube/Twitch channel link in your profile isn't a clip on its own.
                             </p>
+                            <p className="mt-1.5 text-[11px] text-ink-500">
+                                Spotlight featuring is <strong>free for founding creators</strong> while we grow the platform. Paid promoted slots will arrive once we have the audience to make them worthwhile.
+                            </p>
                         </div>
                     )}
 

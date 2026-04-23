@@ -74,6 +74,9 @@ export default function AdminCreators({ creators, filters, counts }: Props) {
                 <p className="mt-1 text-sm text-ink-500">
                     Manage the Creator Spotlight roster. Featuring runs 1-90 days; slots auto-expire on their own.
                 </p>
+                <p className="mt-2 rounded-lg border border-gaming-pink/20 bg-gaming-pink/5 px-3 py-2 text-xs text-ink-700">
+                    <strong className="text-gaming-pink">Business note:</strong> featuring is currently free for all verified creators as an early-access perk. When traffic + signups justify it, the plan is to introduce paid promoted slots alongside this free curation tier — this hub is built to support both.
+                </p>
             </div>
 
             {/* Filter tabs */}

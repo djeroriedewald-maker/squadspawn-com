@@ -75,14 +75,20 @@ export default function CreatorSpotlight({
         <section className="mb-8">
             <div className="mb-4 flex items-end justify-between gap-3">
                 <div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                         <span className="text-gaming-orange">✨</span>
                         <h2 className="text-lg font-bold text-ink-900">{heading}</h2>
+                        <span
+                            className="rounded-full bg-gaming-pink/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-gaming-pink"
+                            title="Free for all SquadSpawn creators while we build the community. Premium slots are planned for later."
+                        >
+                            Early access · Free
+                        </span>
                     </div>
                     <p className="mt-0.5 text-xs text-ink-500">{subheading}</p>
                 </div>
                 <Link href="/clips" className="text-sm text-neon-red hover:text-neon-red/80">
-                    All clips →
+                    All creators →
                 </Link>
             </div>
 
