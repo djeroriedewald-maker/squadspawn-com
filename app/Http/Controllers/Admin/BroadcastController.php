@@ -27,8 +27,19 @@ class BroadcastController extends Controller
             ->paginate(25)
             ->through(fn (Broadcast $b) => $this->rowFor($b));
 
+        // Heartbeat stamp written by DispatchScheduledBroadcasts on every
+        // run. If this is stale (or missing) the admin can see at a
+        // glance that Forge's cron isn't invoking schedule:run.
+        $lastRun = \Illuminate\Support\Facades\Cache::get('broadcasts:scheduler_last_run');
+
         return Inertia::render('Admin/Broadcasts/Index', [
             'broadcasts' => $broadcasts,
+            'scheduler' => [
+                'last_run_at' => $lastRun,
+                'healthy' => $lastRun
+                    ? \Illuminate\Support\Carbon::parse($lastRun)->diffInMinutes(now()) < 3
+                    : false,
+            ],
         ]);
     }
 

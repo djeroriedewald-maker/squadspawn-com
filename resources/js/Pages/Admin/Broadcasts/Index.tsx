@@ -34,7 +34,12 @@ function formatDateTime(iso: string | null): string {
     return d.toLocaleString([], { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 }
 
-export default function BroadcastsIndex({ broadcasts }: { broadcasts: Paginator<Row> }) {
+interface SchedulerHealth {
+    last_run_at: string | null;
+    healthy: boolean;
+}
+
+export default function BroadcastsIndex({ broadcasts, scheduler }: { broadcasts: Paginator<Row>; scheduler: SchedulerHealth }) {
     const { flash } = usePage().props as any;
 
     const destroy = (b: Row) => {
@@ -84,6 +89,45 @@ export default function BroadcastsIndex({ broadcasts }: { broadcasts: Paginator<
                 >
                     Analytics
                 </Link>
+            </div>
+
+            {/* Scheduler heartbeat panel — tells you immediately whether
+                the cron on Forge is actually firing schedule:run. */}
+            <div
+                className={`mb-6 flex items-start gap-3 rounded-xl border p-4 ${
+                    scheduler.healthy
+                        ? 'border-gaming-green/30 bg-gaming-green/5'
+                        : 'border-gaming-orange/40 bg-gaming-orange/5'
+                }`}
+            >
+                <div className={`mt-0.5 flex h-6 w-6 items-center justify-center rounded-full ${
+                    scheduler.healthy ? 'bg-gaming-green/20 text-gaming-green' : 'bg-gaming-orange/20 text-gaming-orange'
+                }`}>
+                    {scheduler.healthy ? (
+                        <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.4}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                        </svg>
+                    ) : (
+                        <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m0 3.75h.008M5.07 19.5h13.86a2.25 2.25 0 0 0 1.95-3.375L13.95 3.375a2.25 2.25 0 0 0-3.9 0L3.12 16.125A2.25 2.25 0 0 0 5.07 19.5Z" />
+                        </svg>
+                    )}
+                </div>
+                <div className="flex-1 text-xs">
+                    <p className={`font-semibold ${scheduler.healthy ? 'text-gaming-green' : 'text-gaming-orange'}`}>
+                        Scheduler: {scheduler.healthy ? 'running' : 'not running'}
+                    </p>
+                    <p className="mt-0.5 text-ink-500">
+                        {scheduler.last_run_at
+                            ? <>Last heartbeat at <strong className="text-ink-700">{new Date(scheduler.last_run_at).toLocaleString()}</strong>. Scheduled broadcasts fire within a minute of their planned time.</>
+                            : <>No heartbeat recorded yet. Configure a cron on Forge: <code className="rounded bg-bone-100 px-1 py-0.5">php /home/forge/squadspawn.com/artisan schedule:run</code> — every minute.</>}
+                    </p>
+                    {!scheduler.healthy && scheduler.last_run_at && (
+                        <p className="mt-1 text-ink-500">
+                            The command hasn't run in &gt;3 minutes. Forge → server → <em>Scheduler</em> tab → verify the job is listed and hasn't errored.
+                        </p>
+                    )}
+                </div>
             </div>
 
             {flash?.message && (
