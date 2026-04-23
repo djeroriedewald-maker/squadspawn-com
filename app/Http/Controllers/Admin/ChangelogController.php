@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ChangelogEntry;
+use App\Services\AdminAudit;
 use App\Services\HtmlSanitizer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -55,8 +56,14 @@ class ChangelogController extends Controller
         $data['slug'] = $this->uniqueSlug($data['version'], $data['title']);
         $data['body_html'] = app(HtmlSanitizer::class)->sanitize($data['body'] ?? '');
 
-        ChangelogEntry::create($data);
+        $entry = ChangelogEntry::create($data);
         \Illuminate\Support\Facades\Cache::forget('changelog:latest_published_at');
+
+        AdminAudit::log('changelog.created', null, [
+            'entry_id' => $entry->id,
+            'version' => $entry->version,
+            'title' => $entry->title,
+        ]);
 
         return redirect()->route('admin.changelog.index')->with('message', 'Release published.');
     }
@@ -92,13 +99,27 @@ class ChangelogController extends Controller
         $entry->update($data);
         \Illuminate\Support\Facades\Cache::forget('changelog:latest_published_at');
 
+        AdminAudit::log('changelog.updated', null, [
+            'entry_id' => $entry->id,
+            'version' => $entry->version,
+        ]);
+
         return redirect()->route('admin.changelog.index')->with('message', 'Release saved.');
     }
 
     public function destroy(ChangelogEntry $entry): RedirectResponse
     {
+        $version = $entry->version;
+        $title = $entry->title;
+        $entryId = $entry->id;
         $entry->delete();
         \Illuminate\Support\Facades\Cache::forget('changelog:latest_published_at');
+
+        AdminAudit::log('changelog.deleted', null, [
+            'entry_id' => $entryId,
+            'version' => $version,
+            'title' => $title,
+        ]);
 
         return redirect()->route('admin.changelog.index')->with('message', 'Release deleted.');
     }

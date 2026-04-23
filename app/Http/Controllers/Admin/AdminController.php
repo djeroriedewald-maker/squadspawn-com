@@ -325,6 +325,12 @@ class AdminController extends Controller
         $request->validate(['status' => 'required|in:reviewed,resolved']);
         $report->update(['status' => $request->input('status')]);
 
+        AdminAudit::log('report.resolved', $report->reported, [
+            'report_id' => $report->id,
+            'status' => $request->input('status'),
+            'reason' => $report->reason,
+        ]);
+
         return response()->json(['success' => true]);
     }
 
@@ -335,7 +341,20 @@ class AdminController extends Controller
      */
     public function deleteLfgPost(\App\Models\LfgPost $lfgPost)
     {
+        // Capture attribution before the cascade wipes the post.
+        $hostId = $lfgPost->user_id;
+        $title = $lfgPost->title;
+        $slug = $lfgPost->slug;
+        $host = \App\Models\User::find($hostId);
+
         $lfgPost->delete(); // FK cascade cleans responses / messages / ratings
+
+        AdminAudit::log('lfg.deleted', $host, [
+            'lfg_post_id' => $lfgPost->id,
+            'slug' => $slug,
+            'title' => $title,
+        ]);
+
         return response()->json(['success' => true]);
     }
 
@@ -361,14 +380,27 @@ class AdminController extends Controller
 
         $validated['slug'] = \Illuminate\Support\Str::slug($validated['name']);
 
-        Game::create($validated);
+        $game = Game::create($validated);
+
+        AdminAudit::log('game.created', null, [
+            'game_id' => $game->id,
+            'name' => $game->name,
+        ]);
 
         return redirect()->route('admin.games')->with('message', 'Game added!');
     }
 
     public function deleteGame(Game $game)
     {
+        $gameName = $game->name;
+        $gameId = $game->id;
         $game->delete();
+
+        AdminAudit::log('game.deleted', null, [
+            'game_id' => $gameId,
+            'name' => $gameName,
+        ]);
+
         return response()->json(['success' => true]);
     }
 }

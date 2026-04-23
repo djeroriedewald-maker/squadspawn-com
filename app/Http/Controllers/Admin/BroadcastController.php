@@ -355,10 +355,17 @@ class BroadcastController extends Controller
 
     public function destroy(Broadcast $broadcast): RedirectResponse
     {
+        $title = $broadcast->title;
+        $broadcastId = $broadcast->id;
         if ($broadcast->image_path) {
             Storage::disk('public')->delete($broadcast->image_path);
         }
         $broadcast->delete();
+
+        \App\Services\AdminAudit::log('broadcast.deleted', null, [
+            'broadcast_id' => $broadcastId,
+            'title' => $title,
+        ]);
 
         return redirect()->route('admin.broadcasts.index')->with('message', 'Broadcast deleted.');
     }
@@ -388,6 +395,14 @@ class BroadcastController extends Controller
         }
         $count = $dispatcher->dispatch($broadcast);
         $pushed = $broadcast->refresh()->push_sent_count ?? 0;
+
+        \App\Services\AdminAudit::log('broadcast.sent', null, [
+            'broadcast_id' => $broadcast->id,
+            'title' => $broadcast->title,
+            'recipients' => $count,
+            'push_sent' => $pushed,
+        ]);
+
         return redirect()->route('admin.broadcasts.index')->with('message', "Broadcast sent to {$count} users ({$pushed} push).");
     }
 
