@@ -61,9 +61,16 @@ export default function InviteIndex({ referralCode, inviteUrl, invitedCount }: P
         <AuthenticatedLayout>
             <Head title="Invite friends" />
 
+            {/* Hero — visual cue that this is about bringing your own people in,
+                not another utility page. gamer3.jpg has a "team" vibe that fits. */}
+            <div className="relative h-40 overflow-hidden sm:h-52">
+                <img src="/images/gamer3.jpg" alt="" className="h-full w-full object-cover opacity-70" />
+                <div className="absolute inset-0 bg-gradient-to-b from-ink-900/60 via-bone-50/40 to-bone-50" />
+            </div>
+
             <div className="py-8">
                 <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-                    <div className="mb-6 text-center">
+                    <div className="mb-6 -mt-20 rounded-2xl border border-ink-900/10 bg-white p-6 text-center shadow-lg">
                         <div className="inline-flex items-center gap-2 rounded-full border border-neon-red/30 bg-neon-red/10 px-3 py-1 text-xs font-bold uppercase tracking-widest text-neon-red">
                             Founding squad
                         </div>

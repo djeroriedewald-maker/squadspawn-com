@@ -132,18 +132,19 @@ export default function CommunityIndex({
         <>
             <Head title="Community" />
 
-            <div className="overflow-x-hidden py-8">
-                <div className="mx-auto w-full max-w-4xl px-4 sm:px-6 lg:px-8">
-                    {/* Header */}
-                    <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="relative h-32 overflow-hidden sm:h-40">
+                <img src="/images/gamer4.jpg" alt="" className="h-full w-full object-cover opacity-60" />
+                <div className="absolute inset-0 bg-gradient-to-b from-bone-50/10 via-bone-50/50 to-bone-50" />
+                <div className="absolute inset-0 flex items-end px-4 pb-5 sm:px-6 lg:px-8">
+                    <div className="mx-auto flex w-full max-w-4xl items-end justify-between gap-3">
                         <div>
-                            <h1 className="text-2xl font-bold text-ink-900">Community</h1>
+                            <h1 className="text-2xl font-bold text-ink-900 sm:text-3xl">Community</h1>
                             <p className="mt-1 text-sm text-ink-500">Discuss, share tips, and connect with gamers</p>
                         </div>
                         {isLoggedIn ? (
                             <Link
                                 href={route('community.create')}
-                                className="inline-flex items-center gap-2 rounded-xl bg-neon-red px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-neon-red/80"
+                                className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-neon-red px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-neon-red/80"
                             >
                                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -153,12 +154,17 @@ export default function CommunityIndex({
                         ) : (
                             <Link
                                 href={route('register')}
-                                className="inline-flex items-center gap-2 rounded-xl bg-neon-red px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-neon-red/80"
+                                className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-neon-red px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-neon-red/80"
                             >
                                 Sign Up to Post
                             </Link>
                         )}
                     </div>
+                </div>
+            </div>
+
+            <div className="overflow-x-hidden py-8">
+                <div className="mx-auto w-full max-w-4xl px-4 sm:px-6 lg:px-8">
 
                     {/* Sort Tabs */}
                     <div className="mb-4 flex items-center gap-1 rounded-lg border border-ink-900/10 bg-white p-1 w-fit">

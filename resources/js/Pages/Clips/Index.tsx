@@ -1,4 +1,5 @@
 import CreatorSpotlight, { FeaturedCreator } from '@/Components/CreatorSpotlight';
+import PageHero from '@/Components/PageHero';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Clip, Game, PageProps } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
@@ -172,47 +173,51 @@ export default function ClipsIndex({
         <>
             <Head title="Creators & Clips" />
 
+            <PageHero
+                image="/images/gamer7.jpg"
+                eyebrow="Creator Spotlight"
+                title="Creators"
+                subtitle="Discover streamers and content creators in the SquadSpawn community — and share your own best clips from YouTube, Twitch or TikTok to get found."
+                size="md"
+                badges={
+                    <span className="rounded-full bg-gaming-pink/20 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white ring-1 ring-gaming-pink/40">
+                        ✨ Early access · Free
+                    </span>
+                }
+                actions={
+                    <>
+                        <select
+                            value={filters.game_id || ''}
+                            onChange={(e) => handleGameFilter(e.target.value)}
+                            className="rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm text-white backdrop-blur-sm focus:border-white/40 focus:outline-none"
+                        >
+                            <option value="" className="text-ink-900">All Games</option>
+                            {games.map((game) => (
+                                <option key={game.id} value={game.id} className="text-ink-900">{game.name}</option>
+                            ))}
+                        </select>
+                        {isLoggedIn ? (
+                            <button
+                                onClick={() => setShowForm(!showForm)}
+                                className="flex items-center gap-2 rounded-lg bg-neon-red px-4 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-neon-red/90"
+                            >
+                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
+                                Share a Clip
+                            </button>
+                        ) : (
+                            <Link
+                                href={route('register')}
+                                className="flex items-center gap-2 rounded-lg bg-neon-red px-4 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-neon-red/90"
+                            >
+                                Sign Up to Share
+                            </Link>
+                        )}
+                    </>
+                }
+            />
+
             <div className="py-8">
                 <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-                    {/* Header */}
-                    <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                        <div>
-                            <h1 className="text-2xl font-bold text-ink-900">Creators</h1>
-                            <p className="mt-1 max-w-2xl text-sm text-ink-500">
-                                Discover streamers + content creators in the SquadSpawn community — and share your own best clips from YouTube, Twitch or TikTok to get found.
-                            </p>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            {/* Game filter */}
-                            <select
-                                value={filters.game_id || ''}
-                                onChange={(e) => handleGameFilter(e.target.value)}
-                                className="rounded-lg border border-ink-900/10 bg-white px-3 py-2 text-sm text-ink-900 focus:border-neon-red focus:outline-none focus:ring-1 focus:ring-neon-red"
-                            >
-                                <option value="">All Games</option>
-                                {games.map((game) => (
-                                    <option key={game.id} value={game.id}>{game.name}</option>
-                                ))}
-                            </select>
-
-                            {isLoggedIn ? (
-                                <button
-                                    onClick={() => setShowForm(!showForm)}
-                                    className="flex items-center gap-2 rounded-lg bg-neon-red px-4 py-2 text-sm font-semibold text-white transition hover:bg-neon-red/80"
-                                >
-                                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
-                                    Share a Clip
-                                </button>
-                            ) : (
-                                <Link
-                                    href={route('register')}
-                                    className="flex items-center gap-2 rounded-lg bg-neon-red px-4 py-2 text-sm font-semibold text-white transition hover:bg-neon-red/80"
-                                >
-                                    Sign Up to Share
-                                </Link>
-                            )}
-                        </div>
-                    </div>
 
                     {/* Creator-discovery hints. Shown only to logged-in users who
                          haven't fully set themselves up yet — silent for admins who
