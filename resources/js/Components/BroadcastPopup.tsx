@@ -111,14 +111,25 @@ export default function BroadcastPopup() {
         }, 180);
     };
 
-    const onCtaClick = () => {
-        // CTA clicks race the browser's navigation: axios.post can be
-        // aborted mid-flight when the page unloads, meaning the server
-        // never sees the dismiss and the popup re-appears on the next
-        // page. navigator.sendBeacon is purpose-built for requests that
-        // must survive unload, and the clicked endpoint now also stamps
-        // dismissed_at so one reliable call handles both.
-        sendBeaconPost(route('announcements.clicked', broadcast.id));
+    const onCtaClick = async (e: React.MouseEvent<HTMLAnchorElement>) => {
+        // Take manual control of the navigation so we can guarantee the
+        // clicked+dismiss POST completes *before* the browser leaves.
+        // sendBeacon strips headers, so Laravel's CSRF middleware would
+        // reject it and the popup would come back on the next page load.
+        // Preventing default + awaiting axios is the one approach that
+        // works everywhere without loosening security.
+        e.preventDefault();
+        const href = broadcast.cta_url!;
+        try {
+            await axios.post(route('announcements.clicked', broadcast.id));
+        } catch {
+            // Network error — still navigate, the user clearly wants to go.
+        }
+        if (ctaIsExternal) {
+            window.open(href, '_blank', 'noopener,noreferrer');
+        } else {
+            window.location.href = href;
+        }
     };
 
     return (
@@ -208,9 +219,12 @@ export default function BroadcastPopup() {
                             {broadcast.sent_at_human && <span>{broadcast.sent_at_human}</span>}
                             <a
                                 href={route('announcements.index')}
-                                onClick={() => {
-                                    // Same unload-race as the CTA — use sendBeacon.
-                                    sendBeaconPost(route('announcements.dismiss', broadcast.id));
+                                onClick={async (e) => {
+                                    e.preventDefault();
+                                    try {
+                                        await axios.post(route('announcements.dismiss', broadcast.id));
+                                    } catch {}
+                                    window.location.href = route('announcements.index');
                                 }}
                                 className="inline-flex items-center gap-1 font-semibold text-ink-700 hover:text-neon-red"
                             >
