@@ -455,6 +455,12 @@ class AdminController extends Controller
                 'wau' => \App\Models\User::where('updated_at', '>=', $now->copy()->subWeek())->count(),
                 'mau' => \App\Models\User::where('updated_at', '>=', $now->copy()->subMonth())->count(),
                 'online_now' => \App\Models\User::where('updated_at', '>=', $now->copy()->subMinutes(15))->count(),
+                // Demand signal for the future Plus tier — counts how many
+                // visitors have actually opted in via /plus. 0 == build it
+                // later; growing == real validation.
+                'plus_waitlist' => \Illuminate\Support\Facades\Schema::hasTable('plus_waitlist')
+                    ? \Illuminate\Support\Facades\DB::table('plus_waitlist')->count()
+                    : 0,
             ];
         });
 

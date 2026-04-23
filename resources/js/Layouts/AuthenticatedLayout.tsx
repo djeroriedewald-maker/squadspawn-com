@@ -393,6 +393,9 @@ export default function Authenticated({
                         <a href="/privacy-policy" className="transition hover:text-ink-700">Privacy Policy</a>
                         <a href="/terms-of-service" className="transition hover:text-ink-700">Terms of Service</a>
                         <a href="/cookie-policy" className="transition hover:text-ink-700">Cookie Policy</a>
+                        <Link href="/plus" className="font-semibold text-neon-red transition hover:text-neon-red/80">
+                            ✨ Plus waitlist
+                        </Link>
                     </div>
                     <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500">
                         <a

@@ -31,6 +31,13 @@ Route::get('/terms-of-service', fn () => Inertia::render('Legal/TermsOfService')
 Route::get('/cookie-policy', fn () => Inertia::render('Legal/CookiePolicy'))->name('legal.cookies');
 Route::get('/help', fn () => Inertia::render('Help/Index'))->name('help');
 
+// SquadSpawn Plus waitlist — public landing, emails validated + rate-limited
+// on submit. Demand-signal for a future premium tier, no product yet.
+Route::get('/plus', [\App\Http\Controllers\PlusWaitlistController::class, 'show'])->name('plus');
+Route::post('/plus', [\App\Http\Controllers\PlusWaitlistController::class, 'store'])
+    ->middleware('throttle:5,1')
+    ->name('plus.store');
+
 // Changelog — public for SEO + shareability.
 Route::get('/changelog', [\App\Http\Controllers\ChangelogController::class, 'index'])->name('changelog.index');
 Route::get('/changelog/{slug}', [\App\Http\Controllers\ChangelogController::class, 'show'])

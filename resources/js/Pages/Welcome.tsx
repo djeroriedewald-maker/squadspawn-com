@@ -409,6 +409,9 @@ export default function Welcome({
                             <a href="/terms-of-service" className="hover:text-ink-900">Terms</a>
                             <a href="/cookie-policy" className="hover:text-ink-900">Cookies</a>
                             <Link href={route('community.guidelines')} className="hover:text-ink-900">Community guidelines</Link>
+                            <Link href="/plus" className="font-semibold text-neon-red hover:text-neon-red/80">
+                                ✨ Plus waitlist
+                            </Link>
                         </div>
                         <div className="flex flex-wrap items-center gap-4">
                             <a
