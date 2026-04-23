@@ -6,12 +6,18 @@
     "scope": "/",
     "display": "standalone",
     "orientation": "portrait",
-    "background_color": "#F4F1EC",
-    "theme_color": "#F4F1EC",
+    "background_color": "#14121A",
+    "theme_color": "#14121A",
     "categories": ["games", "social", "entertainment"],
     "lang": "en",
     "dir": "ltr",
     "icons": [
+        {
+            "src": "/images/SquadSpawn_logo.jpg",
+            "sizes": "1200x1200",
+            "type": "image/jpeg",
+            "purpose": "any"
+        },
         {
             "src": "/icons/icon-192.png",
             "sizes": "192x192",

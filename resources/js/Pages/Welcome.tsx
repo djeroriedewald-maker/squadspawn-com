@@ -52,8 +52,9 @@ export default function Welcome({
             <div className="min-h-screen bg-bone-50 text-ink-900">
                 {/* ── Nav ─────────────────────────────────────────── */}
                 <nav className="relative z-20 flex items-center justify-between px-6 py-4 lg:px-12">
-                    <Link href="/" className="text-2xl font-bold text-neon-red">
-                        SquadSpawn
+                    <Link href="/" className="flex items-center gap-2" aria-label="SquadSpawn home">
+                        <img src="/images/SquadSpawn_logo.jpg" alt="SquadSpawn" className="h-10 w-10 rounded-lg object-cover shadow-md ring-1 ring-white/10 sm:h-11 sm:w-11" />
+                        <span className="text-xl font-bold text-neon-red sm:text-2xl">SquadSpawn</span>
                     </Link>
                     <div className="flex items-center gap-3">
                         <ThemeToggle compact />
@@ -80,6 +81,14 @@ export default function Welcome({
 
                     <div className="relative mx-auto max-w-6xl px-6 py-20 lg:px-12 lg:py-32">
                         <div className="max-w-3xl">
+                            {/* Brand mark front and centre — sets the tone
+                                before the user reads a word. */}
+                            <img
+                                src="/images/SquadSpawn_logo.jpg"
+                                alt="SquadSpawn"
+                                className="mb-6 h-24 w-24 rounded-2xl object-cover shadow-2xl ring-1 ring-white/10 sm:h-28 sm:w-28"
+                                loading="eager"
+                            />
                             {isFounderPhase && (
                                 <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-neon-red/40 bg-black/40 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-neon-red backdrop-blur-sm">
                                     <span className="relative flex h-2 w-2">

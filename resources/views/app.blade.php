@@ -35,8 +35,11 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="description" content="{{ $seoDescription }}">
-        <meta name="theme-color" content="#F4F1EC" media="(prefers-color-scheme: light)">
-        <meta name="theme-color" content="#12101b" media="(prefers-color-scheme: dark)">
+        {{-- Theme colour drives the mobile browser chrome + PWA splash
+             background. Dark in both themes so the splash matches the
+             SquadSpawn logo's navy backdrop instead of flashing a white
+             frame before the app paints. --}}
+        <meta name="theme-color" content="#14121A">
         <meta name="keywords" content="gaming, LFG, looking for group, find teammates, gaming squad, esports, multiplayer, reputation, player rating">
         <meta name="robots" content="index, follow">
 
@@ -62,7 +65,10 @@
         <meta name="application-name" content="SquadSpawn">
         <meta name="mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-capable" content="yes">
-        <meta name="apple-mobile-web-app-status-bar-style" content="default">
+        {{-- black-translucent lets the status bar blend into the dark
+             background when the PWA launches, so the logo splash fills
+             the whole top of the screen on iOS. --}}
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
         <meta name="apple-mobile-web-app-title" content="SquadSpawn">
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 
