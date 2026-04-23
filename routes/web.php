@@ -454,6 +454,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     // tooling passes integer ids (from the reports table), so bind by id
     // explicitly here to avoid a 404 on `/admin/lfg-posts/42`.
     Route::delete('/lfg-posts/{lfgPost:id}', [\App\Http\Controllers\Admin\AdminController::class, 'deleteLfgPost'])->name('admin.deleteLfgPost');
+    Route::get('/creators', [\App\Http\Controllers\Admin\AdminController::class, 'creators'])->name('admin.creators');
     Route::get('/games', [\App\Http\Controllers\Admin\AdminController::class, 'games'])->name('admin.games');
     Route::post('/games', [\App\Http\Controllers\Admin\AdminController::class, 'storeGame'])->name('admin.storeGame');
     Route::delete('/games/{game}', [\App\Http\Controllers\Admin\AdminController::class, 'deleteGame'])->name('admin.deleteGame');

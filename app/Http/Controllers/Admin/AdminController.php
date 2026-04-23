@@ -414,6 +414,51 @@ class AdminController extends Controller
         return response()->json(['success' => true]);
     }
 
+    /**
+     * Dedicated hub for managing the Creator Spotlight roster. Shows
+     * every is_creator profile with their clip count, current spotlight
+     * state + days remaining. Drives the per-user detail page for the
+     * actual toggle action so we keep one source of truth on that.
+     */
+    public function creators(Request $request): Response
+    {
+        $filter = $request->input('filter', 'all'); // all | featured | idle
+
+        $query = User::with('profile')
+            ->whereHas('profile', fn ($q) => $q->where('is_creator', true))
+            ->withCount('clips');
+
+        if ($filter === 'featured') {
+            $query->whereHas('profile', function ($q) {
+                $q->whereNotNull('featured_until')->where('featured_until', '>', now());
+            });
+        } elseif ($filter === 'idle') {
+            $query->whereDoesntHave('profile', function ($q) {
+                $q->whereNotNull('featured_until')->where('featured_until', '>', now());
+            });
+        }
+
+        $creators = $query->latest()->paginate(25)->withQueryString();
+        $creators->getCollection()->each->makeVisible(['email']);
+
+        // Counts for the filter tab pills.
+        $counts = [
+            'all' => User::whereHas('profile', fn ($q) => $q->where('is_creator', true))->count(),
+            'featured' => User::whereHas('profile', function ($q) {
+                $q->where('is_creator', true)
+                    ->whereNotNull('featured_until')
+                    ->where('featured_until', '>', now());
+            })->count(),
+        ];
+        $counts['idle'] = $counts['all'] - $counts['featured'];
+
+        return Inertia::render('Admin/Creators', [
+            'creators' => $creators,
+            'filters' => ['filter' => $filter],
+            'counts' => $counts,
+        ]);
+    }
+
     public function games(): Response
     {
         $games = Game::withCount('users')->get();
