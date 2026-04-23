@@ -170,16 +170,16 @@ export default function ClipsIndex({
 
     const pageContent = (
         <>
-            <Head title="Clips & Highlights" />
+            <Head title="Creators & Clips" />
 
             <div className="py-8">
                 <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
                     {/* Header */}
                     <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                            <h1 className="text-2xl font-bold text-ink-900">Clips &amp; Creators</h1>
+                            <h1 className="text-2xl font-bold text-ink-900">Creators</h1>
                             <p className="mt-1 max-w-2xl text-sm text-ink-500">
-                                Discover streamers + content creators in the SquadSpawn community — and share your own best moments from YouTube, Twitch or TikTok.
+                                Discover streamers + content creators in the SquadSpawn community — and share your own best clips from YouTube, Twitch or TikTok to get found.
                             </p>
                         </div>
                         <div className="flex items-center gap-3">
@@ -213,6 +213,28 @@ export default function ClipsIndex({
                             )}
                         </div>
                     </div>
+
+                    {/* Creator-discovery hints. Shown only to logged-in users who
+                         haven't fully set themselves up yet — silent for admins who
+                         have already positioned themselves. */}
+                    {isLoggedIn && !auth.user?.profile?.is_creator && (
+                        <div className="mb-6 rounded-xl border border-gaming-cyan/30 bg-gaming-cyan/5 p-4">
+                            <p className="text-sm text-ink-700">
+                                <strong className="text-gaming-cyan">Are you a streamer or content creator?</strong> Mark yourself as a creator in{' '}
+                                <Link href={route('game-profile.edit')} className="font-semibold text-neon-red hover:underline">
+                                    Profile settings
+                                </Link>
+                                {' '}and your clips become eligible for the Spotlight on the homepage + dashboard.
+                            </p>
+                        </div>
+                    )}
+                    {isLoggedIn && auth.user?.profile?.is_creator && (
+                        <div className="mb-6 rounded-xl border border-gaming-orange/30 bg-gaming-orange/5 p-4">
+                            <p className="text-sm text-ink-700">
+                                <strong className="text-gaming-orange">✨ You're marked as a creator.</strong> Share individual clips below to be considered for the Creator Spotlight — your YouTube/Twitch channel link in your profile isn't a clip on its own.
+                            </p>
+                        </div>
+                    )}
 
                     {/* Share Form */}
                     {showForm && isLoggedIn && (

@@ -65,7 +65,7 @@ export default function Authenticated({
                                 )}
                                 {isOn('clips') && (
                                     <NavLink href={route('clips.index')} active={route().current('clips.*')}>
-                                        Clips
+                                        Creators
                                     </NavLink>
                                 )}
                                 <NavLink href={route('game-profile.show')} active={route().current('game-profile.*')}>
@@ -267,7 +267,7 @@ export default function Authenticated({
                         )}
                         {isOn('clips') && (
                             <ResponsiveNavLink href={route('clips.index')} active={route().current('clips.*')}>
-                                Clips
+                                Creators
                             </ResponsiveNavLink>
                         )}
                         <ResponsiveNavLink href={route('game-profile.show')} active={route().current('game-profile.*')}>
