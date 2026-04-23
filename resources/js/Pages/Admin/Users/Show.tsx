@@ -30,6 +30,9 @@ interface UserDetail {
         looking_for?: string;
         reputation_score?: number | string;
         level?: number;
+        is_creator?: boolean;
+        featured_until?: string | null;
+        is_featured_now?: boolean;
     } | null;
     games: UserGame[];
     referred_by: { id: number; name: string } | null;
@@ -157,6 +160,27 @@ export default function UserShow({ user, stats, invitees, recentLfg, reportsAgai
         router.post(route('admin.system.kill', { user: user.id }), { reason }, { preserveScroll: true });
     }
 
+    function setFeatured() {
+        if (!user.profile?.is_creator) {
+            alert('This profile isn\'t marked as a creator yet. Toggle is_creator in their profile first.');
+            return;
+        }
+        const raw = prompt(
+            `Feature "${name}" in the Creator Spotlight for how many days?\n` +
+            `Enter a number 1-90. Enter 0 to remove from spotlight immediately.`,
+            '7',
+        );
+        if (raw === null) return;
+        const days = parseInt(raw, 10);
+        if (isNaN(days) || days < 0 || days > 90) {
+            alert('Enter a number between 0 and 90.');
+            return;
+        }
+        axios.post(route('admin.setFeatured', { user: user.id }), { duration_days: days })
+            .then(() => router.reload())
+            .catch((err) => alert(err.response?.data?.error || 'Failed to update spotlight.'));
+    }
+
     return (
         <AdminLayout>
             <Head title={`Admin — ${name}`} />
@@ -194,6 +218,8 @@ export default function UserShow({ user, stats, invitees, recentLfg, reportsAgai
                             {user.is_admin && !user.is_owner && <span className="rounded-full bg-neon-red/20 px-2 py-0.5 text-[10px] font-bold text-neon-red">ADMIN</span>}
                             {!user.is_admin && user.is_moderator && <span className="rounded-full bg-gaming-cyan/20 px-2 py-0.5 text-[10px] font-bold text-gaming-cyan">MOD</span>}
                             {user.is_banned && <span className="rounded-full bg-red-500/20 px-2 py-0.5 text-[10px] font-bold text-red-400">BANNED</span>}
+                            {user.profile?.is_creator && <span className="rounded-full bg-gaming-pink/20 px-2 py-0.5 text-[10px] font-bold text-gaming-pink">CREATOR</span>}
+                            {user.profile?.is_featured_now && <span className="rounded-full bg-gaming-orange/20 px-2 py-0.5 text-[10px] font-bold text-gaming-orange">✨ FEATURED</span>}
                         </div>
                         <p className="mt-1 text-sm text-ink-500">
                             {user.name} · {user.email} · joined {new Date(user.created_at).toLocaleDateString()} · last active {user.last_active}
@@ -255,6 +281,17 @@ export default function UserShow({ user, stats, invitees, recentLfg, reportsAgai
                         >
                             Kill
                         </button>
+                        {user.profile?.is_creator && (
+                            <button
+                                onClick={setFeatured}
+                                title="Add to or remove from Creator Spotlight on homepage + dashboard"
+                                className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${user.profile.is_featured_now ? 'bg-gaming-orange/10 text-gaming-orange hover:bg-gaming-orange/20' : 'bg-gaming-pink/10 text-gaming-pink hover:bg-gaming-pink/20'}`}
+                            >
+                                {user.profile.is_featured_now
+                                    ? `Edit spotlight (until ${user.profile.featured_until ? new Date(user.profile.featured_until).toLocaleDateString() : '?'})`
+                                    : 'Add to spotlight'}
+                            </button>
+                        )}
                     </div>
                 )}
             </div>

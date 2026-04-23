@@ -13,6 +13,7 @@ class Profile extends Model
         'bio', 'looking_for',
         'region', 'timezone', 'available_times', 'socials',
         'is_creator', 'stream_url', 'is_live', 'has_mic',
+        'featured_until',
         'reputation_score', 'achievement_points',
         'theme_preference',
     ];
@@ -25,7 +26,16 @@ class Profile extends Model
             'is_creator' => 'boolean',
             'is_live' => 'boolean',
             'has_mic' => 'boolean',
+            'featured_until' => 'datetime',
         ];
+    }
+
+    /** True iff this profile is currently inside an active spotlight window. */
+    public function isFeatured(): bool
+    {
+        return (bool) $this->is_creator
+            && $this->featured_until !== null
+            && $this->featured_until->isFuture();
     }
 
     public function user(): BelongsTo

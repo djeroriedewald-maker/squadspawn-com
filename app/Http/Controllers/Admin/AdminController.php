@@ -162,6 +162,9 @@ class AdminController extends Controller
                     'looking_for' => $user->profile->looking_for,
                     'reputation_score' => $user->profile->reputation_score,
                     'level' => $user->profile->level ?? null,
+                    'is_creator' => (bool) $user->profile->is_creator,
+                    'featured_until' => $user->profile->featured_until?->toDateTimeString(),
+                    'is_featured_now' => $user->profile->isFeatured(),
                 ] : null,
                 'games' => $user->games->map(fn ($g) => [
                     'id' => $g->id,
@@ -292,6 +295,49 @@ class AdminController extends Controller
         \Log::info('User banned', ['user_id' => $user->id, 'admin_id' => auth()->id(), 'reason' => $request->input('reason')]);
 
         return response()->json(['success' => true]);
+    }
+
+    /**
+     * Toggle Creator Spotlight membership for this user's profile.
+     * Passing duration_days extends/sets; passing 0 (or omitting when
+     * already featured) retires the slot. Always checks is_creator
+     * first — non-creators never land in the spotlight even by admin
+     * mistake.
+     */
+    public function setFeatured(Request $request, User $user): JsonResponse
+    {
+        $data = $request->validate([
+            'duration_days' => ['nullable', 'integer', 'min:0', 'max:90'],
+        ]);
+
+        if (!$user->profile) {
+            return response()->json(['error' => 'User has no profile yet.'], 422);
+        }
+        if (!$user->profile->is_creator) {
+            return response()->json(['error' => 'Only creators can be spotlighted. Mark is_creator on their profile first.'], 422);
+        }
+
+        $days = (int) ($data['duration_days'] ?? 7);
+        $previous = $user->profile->featured_until;
+
+        if ($days === 0) {
+            $user->profile->update(['featured_until' => null]);
+            AdminAudit::log('creator.spotlight_removed', $user);
+            return response()->json(['featured_until' => null]);
+        }
+
+        $until = now()->addDays($days);
+        $user->profile->update(['featured_until' => $until]);
+
+        AdminAudit::log('creator.spotlight_set', $user, [
+            'until' => $until->toDateTimeString(),
+            'duration_days' => $days,
+            'was_already_featured' => $previous !== null && $previous->isFuture(),
+        ]);
+
+        return response()->json([
+            'featured_until' => $until->toDateTimeString(),
+        ]);
     }
 
     public function unbanUser(Request $request, User $user)
