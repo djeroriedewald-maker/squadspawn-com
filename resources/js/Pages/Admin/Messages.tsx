@@ -8,6 +8,8 @@ interface Message {
     name: string;
     email: string;
     subject: string;
+    category: string;
+    category_label: string;
     body: string;
     status: 'new' | 'read' | 'replied' | 'archived';
     created_at: string;
@@ -29,8 +31,9 @@ interface Props {
         last_page: number;
         total: number;
     };
-    filters: { status: string };
+    filters: { status: string; category: string | null };
     counts: { new: number; read: number; replied: number; archived: number };
+    categories: Record<string, string>;
 }
 
 const TABS: { value: string; label: string; countKey: keyof Props['counts'] | null }[] = [
@@ -48,7 +51,18 @@ const STATUS_TONE: Record<string, string> = {
     archived: 'bg-ink-900/10 text-ink-500',
 };
 
-export default function AdminMessages({ messages, filters, counts }: Props) {
+const CATEGORY_TONE: Record<string, string> = {
+    bug: 'bg-red-500/10 text-red-500',
+    feature: 'bg-gaming-cyan/10 text-gaming-cyan',
+    feedback: 'bg-gaming-green/10 text-gaming-green',
+    press: 'bg-gaming-pink/10 text-gaming-pink',
+    partnership: 'bg-gaming-orange/10 text-gaming-orange',
+    creator: 'bg-gaming-pink/10 text-gaming-pink',
+    privacy: 'bg-ink-900/10 text-ink-700',
+    other: 'bg-ink-900/5 text-ink-500',
+};
+
+export default function AdminMessages({ messages, filters, counts, categories }: Props) {
     const [expanded, setExpanded] = useState<number | null>(null);
 
     function changeStatus(m: Message, status: Message['status']) {
@@ -83,22 +97,58 @@ export default function AdminMessages({ messages, filters, counts }: Props) {
             </div>
 
             {/* Filter tabs */}
-            <div className="mb-6 flex flex-wrap gap-1 rounded-lg border border-ink-900/10 bg-white dark:bg-bone-100 p-1 w-fit">
-                {TABS.map((tab) => (
+            <div className="mb-3 flex flex-wrap gap-1 rounded-lg border border-ink-900/10 bg-white dark:bg-bone-100 p-1 w-fit">
+                {TABS.map((tab) => {
+                    const params: Record<string, string> = {};
+                    if (tab.value !== 'all') params.status = tab.value;
+                    if (filters.category) params.category = filters.category;
+                    return (
+                        <Link
+                            key={tab.value}
+                            href={route('admin.messages.index', params)}
+                            preserveState
+                            className={`rounded-md px-4 py-2 text-sm font-medium transition ${
+                                filters.status === tab.value
+                                    ? 'bg-neon-red text-white shadow-sm'
+                                    : 'text-ink-500 hover:text-ink-900'
+                            }`}
+                        >
+                            {tab.label}
+                            {tab.countKey !== null && (
+                                <span className="ml-1 opacity-70">({counts[tab.countKey]})</span>
+                            )}
+                        </Link>
+                    );
+                })}
+            </div>
+
+            {/* Category filter */}
+            <div className="mb-6 flex flex-wrap items-center gap-2">
+                <span className="text-xs font-medium uppercase tracking-wide text-gray-500">Category:</span>
+                <Link
+                    href={route('admin.messages.index', filters.status === 'all' ? {} : { status: filters.status })}
+                    preserveState
+                    className={`rounded-full px-3 py-1 text-xs font-medium transition ${
+                        !filters.category ? 'bg-ink-900 text-white' : 'bg-ink-900/5 text-ink-700 hover:bg-ink-900/10'
+                    }`}
+                >
+                    All
+                </Link>
+                {Object.entries(categories).map(([value, label]) => (
                     <Link
-                        key={tab.value}
-                        href={route('admin.messages.index', tab.value === 'all' ? {} : { status: tab.value })}
+                        key={value}
+                        href={route('admin.messages.index', {
+                            ...(filters.status !== 'all' ? { status: filters.status } : {}),
+                            category: value,
+                        })}
                         preserveState
-                        className={`rounded-md px-4 py-2 text-sm font-medium transition ${
-                            filters.status === tab.value
-                                ? 'bg-neon-red text-white shadow-sm'
-                                : 'text-ink-500 hover:text-ink-900'
+                        className={`rounded-full px-3 py-1 text-xs font-medium transition ${
+                            filters.category === value
+                                ? 'bg-neon-red text-white'
+                                : 'bg-ink-900/5 text-ink-700 hover:bg-ink-900/10'
                         }`}
                     >
-                        {tab.label}
-                        {tab.countKey !== null && (
-                            <span className="ml-1 opacity-70">({counts[tab.countKey]})</span>
-                        )}
+                        {label}
                     </Link>
                 ))}
             </div>
@@ -124,6 +174,9 @@ export default function AdminMessages({ messages, filters, counts }: Props) {
                                 <div className="flex flex-wrap items-start gap-3 p-4 sm:flex-nowrap sm:items-center">
                                     <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${STATUS_TONE[m.status]}`}>
                                         {m.status}
+                                    </span>
+                                    <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${CATEGORY_TONE[m.category] ?? CATEGORY_TONE.other}`}>
+                                        {m.category_label}
                                     </span>
                                     <div className="min-w-0 flex-1">
                                         <div className="flex flex-wrap items-center gap-2">

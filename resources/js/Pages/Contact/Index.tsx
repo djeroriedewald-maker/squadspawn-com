@@ -1,25 +1,47 @@
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { FormEventHandler, useState } from 'react';
 
+interface AuthUser {
+    id: number;
+    name: string;
+    email?: string;
+    profile?: { username?: string; avatar?: string };
+}
+
 interface Props {
     prefillName: string;
     prefillEmail: string;
 }
 
+const CATEGORIES: { value: string; label: string; description: string }[] = [
+    { value: 'bug', label: 'Bug report', description: 'Something broken or throwing errors.' },
+    { value: 'feature', label: 'Feature request', description: "An idea you'd like us to build." },
+    { value: 'feedback', label: 'General feedback', description: 'How SquadSpawn is feeling to use.' },
+    { value: 'creator', label: 'Creator Spotlight', description: 'Want your channel considered for the spotlight.' },
+    { value: 'partnership', label: 'Partnership / brand', description: 'Sponsorship, collab, or team inquiry.' },
+    { value: 'press', label: 'Press / media', description: 'Interviews, articles, features.' },
+    { value: 'privacy', label: 'Privacy / GDPR', description: 'Data access, export, or erasure requests.' },
+    { value: 'other', label: 'Something else', description: 'Anything not listed above.' },
+];
+
 export default function ContactIndex({ prefillName, prefillEmail }: Props) {
-    const flash = (usePage().props as { flash?: { message?: string } }).flash;
+    const page = usePage<{ flash?: { message?: string }; auth?: { user?: AuthUser } }>();
+    const flash = page.props.flash;
+    const authedUser = page.props.auth?.user;
     const [sent, setSent] = useState(false);
 
     const { data, setData, post, processing, errors, reset } = useForm<{
         name: string;
         email: string;
         subject: string;
+        category: string;
         body: string;
         website: string;
     }>({
         name: prefillName,
         email: prefillEmail,
         subject: '',
+        category: 'feedback',
         body: '',
         website: '',
     });
@@ -31,52 +53,136 @@ export default function ContactIndex({ prefillName, prefillEmail }: Props) {
             onSuccess: () => {
                 setSent(true);
                 reset('subject', 'body');
+                setData('category', 'feedback');
             },
         });
     };
+
+    const selectedCat = CATEGORIES.find((c) => c.value === data.category);
 
     return (
         <>
             <Head title="Contact — SquadSpawn" />
 
             <div className="min-h-screen bg-bone-50 text-ink-900">
-                <nav className="flex items-center justify-between px-6 py-4 lg:px-12">
-                    <Link href="/" className="text-2xl font-bold text-neon-red">SquadSpawn</Link>
-                    <Link href="/" className="text-sm text-ink-500 hover:text-ink-900">← Back</Link>
-                </nav>
-
-                <div className="mx-auto max-w-2xl px-6 py-12 lg:px-12">
-                    <div className="mb-8 text-center">
-                        <span className="mb-3 inline-flex items-center gap-2 rounded-full border border-gaming-cyan/30 bg-gaming-cyan/10 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-gaming-cyan">
-                            We read every one
-                        </span>
-                        <h1 className="text-3xl font-black tracking-tight text-ink-900 sm:text-4xl">Get in touch</h1>
-                        <p className="mx-auto mt-3 max-w-lg text-sm text-ink-500 sm:text-base">
-                            Feedback, bug reports, creator partnerships, press, legal — anything. Your message lands directly in the SquadSpawn admin inbox. No ticket queue, no auto-responder.
-                        </p>
+                {/* Hero with banner image */}
+                <section className="relative h-56 overflow-hidden sm:h-64">
+                    <div className="absolute inset-0">
+                        <img
+                            src="/images/gamer6.jpg"
+                            alt=""
+                            className="h-full w-full object-cover"
+                            loading="eager"
+                        />
                     </div>
 
-                    <div className="rounded-2xl border border-ink-900/10 bg-white p-6 shadow-lg shadow-neon-red/5 sm:p-8">
+                    <nav className="relative flex items-center justify-between px-6 py-4 lg:px-12">
+                        <Link href="/" className="rounded-md bg-white/90 px-3 py-1 text-lg font-bold text-neon-red backdrop-blur">
+                            SquadSpawn
+                        </Link>
+                        <Link
+                            href="/"
+                            className="rounded-md bg-white/90 px-3 py-1.5 text-sm font-medium text-ink-900 backdrop-blur transition hover:bg-white"
+                        >
+                            ← Back
+                        </Link>
+                    </nav>
+
+                    <div className="relative mx-auto mt-4 max-w-2xl px-6 text-center lg:px-12">
+                        <span
+                            className="inline-flex items-center gap-2 rounded-full bg-gaming-cyan/90 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-black shadow"
+                        >
+                            📬 We read every message
+                        </span>
+                        <h1
+                            className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl"
+                            style={{ textShadow: '0 2px 12px rgba(0,0,0,0.9)' }}
+                        >
+                            Get in touch
+                        </h1>
+                        <p
+                            className="mx-auto mt-2 max-w-lg text-sm text-white sm:text-base"
+                            style={{ textShadow: '0 2px 8px rgba(0,0,0,0.9)' }}
+                        >
+                            Feedback, bugs, partnerships, press &mdash; anything. Messages land directly in the SquadSpawn admin inbox. No ticket queue.
+                        </p>
+                    </div>
+                </section>
+
+                <div className="mx-auto -mt-12 max-w-2xl px-6 pb-16 lg:px-12">
+                    {authedUser && !sent && (
+                        <div className="mb-4 flex items-center gap-3 rounded-xl border border-gaming-cyan/30 bg-gaming-cyan/10 px-4 py-3 text-sm">
+                            <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gaming-cyan/30 text-xs font-bold text-gaming-cyan">
+                                {authedUser.profile?.avatar ? (
+                                    <img src={authedUser.profile.avatar} alt="" className="h-full w-full object-cover" />
+                                ) : (
+                                    (authedUser.profile?.username ?? authedUser.name).charAt(0).toUpperCase()
+                                )}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                                <p className="font-semibold text-ink-900">
+                                    Signed in as {authedUser.profile?.username ?? authedUser.name}
+                                </p>
+                                <p className="text-[11px] text-ink-500">
+                                    This message will be linked to your account so we can help faster. Log out first if you want to send it anonymously.
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="rounded-2xl border border-ink-900/10 bg-white p-6 shadow-xl shadow-neon-red/5 sm:p-8">
                         {sent ? (
-                            <div className="text-center">
-                                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gaming-green/10 text-2xl">✓</div>
-                                <h2 className="text-xl font-bold text-ink-900">Message sent</h2>
-                                <p className="mt-2 text-sm text-ink-500">
+                            <div className="py-4 text-center">
+                                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-gaming-green/15 text-3xl">✓</div>
+                                <h2 className="text-xl font-bold text-ink-900">Message received</h2>
+                                <p className="mx-auto mt-2 max-w-sm text-sm text-ink-500">
                                     {flash?.message ?? "Thanks — we read every message and usually reply within a few days."}
                                 </p>
-                                <button
-                                    type="button"
-                                    onClick={() => setSent(false)}
-                                    className="mt-4 text-sm text-neon-red hover:text-neon-red/80"
-                                >
-                                    Send another
-                                </button>
+                                <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => setSent(false)}
+                                        className="rounded-xl border border-ink-900/10 bg-white px-5 py-2.5 text-sm font-semibold text-ink-700 transition hover:border-neon-red/30 hover:text-neon-red"
+                                    >
+                                        Send another
+                                    </button>
+                                    <Link
+                                        href="/"
+                                        className="rounded-xl bg-neon-red px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-neon-red/25 transition hover:bg-neon-red/90"
+                                    >
+                                        Back to SquadSpawn
+                                    </Link>
+                                </div>
                             </div>
                         ) : (
-                            <form onSubmit={submit} className="space-y-4">
+                            <form onSubmit={submit} className="space-y-5">
+                                <div>
+                                    <label htmlFor="category" className="mb-1 block text-sm font-semibold text-ink-900">
+                                        What&apos;s this about? <span className="text-red-400">*</span>
+                                    </label>
+                                    <select
+                                        id="category"
+                                        value={data.category}
+                                        onChange={(e) => setData('category', e.target.value)}
+                                        className="w-full rounded-lg border border-ink-900/10 bg-bone-50 px-4 py-2.5 text-sm text-ink-900 focus:border-neon-red focus:outline-none focus:ring-1 focus:ring-neon-red"
+                                    >
+                                        {CATEGORIES.map((c) => (
+                                            <option key={c.value} value={c.value}>
+                                                {c.label}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    {selectedCat && (
+                                        <p className="mt-1 text-[11px] text-ink-500">{selectedCat.description}</p>
+                                    )}
+                                    {errors.category && <p className="mt-1 text-xs text-red-500">{errors.category}</p>}
+                                </div>
+
                                 <div className="grid gap-4 sm:grid-cols-2">
                                     <div>
-                                        <label htmlFor="name" className="mb-1 block text-sm font-semibold text-ink-900">Your name</label>
+                                        <label htmlFor="name" className="mb-1 block text-sm font-semibold text-ink-900">
+                                            Your name <span className="text-red-400">*</span>
+                                        </label>
                                         <input
                                             id="name"
                                             type="text"
@@ -89,7 +195,9 @@ export default function ContactIndex({ prefillName, prefillEmail }: Props) {
                                         {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name}</p>}
                                     </div>
                                     <div>
-                                        <label htmlFor="email" className="mb-1 block text-sm font-semibold text-ink-900">Email</label>
+                                        <label htmlFor="email" className="mb-1 block text-sm font-semibold text-ink-900">
+                                            Email <span className="text-red-400">*</span>
+                                        </label>
                                         <input
                                             id="email"
                                             type="email"
@@ -103,7 +211,9 @@ export default function ContactIndex({ prefillName, prefillEmail }: Props) {
                                 </div>
 
                                 <div>
-                                    <label htmlFor="subject" className="mb-1 block text-sm font-semibold text-ink-900">Subject</label>
+                                    <label htmlFor="subject" className="mb-1 block text-sm font-semibold text-ink-900">
+                                        Subject <span className="text-red-400">*</span>
+                                    </label>
                                     <input
                                         id="subject"
                                         type="text"
@@ -112,14 +222,16 @@ export default function ContactIndex({ prefillName, prefillEmail }: Props) {
                                         required
                                         minLength={3}
                                         maxLength={200}
-                                        placeholder="What's this about?"
+                                        placeholder="One short line that sums it up"
                                         className="w-full rounded-lg border border-ink-900/10 bg-bone-50 px-4 py-2.5 text-sm text-ink-900 placeholder-gray-500 focus:border-neon-red focus:outline-none focus:ring-1 focus:ring-neon-red"
                                     />
                                     {errors.subject && <p className="mt-1 text-xs text-red-500">{errors.subject}</p>}
                                 </div>
 
                                 <div>
-                                    <label htmlFor="body" className="mb-1 block text-sm font-semibold text-ink-900">Message</label>
+                                    <label htmlFor="body" className="mb-1 block text-sm font-semibold text-ink-900">
+                                        Message <span className="text-red-400">*</span>
+                                    </label>
                                     <textarea
                                         id="body"
                                         value={data.body}
@@ -128,7 +240,15 @@ export default function ContactIndex({ prefillName, prefillEmail }: Props) {
                                         minLength={10}
                                         maxLength={5000}
                                         rows={6}
-                                        placeholder="The more detail you give, the easier it is to help. For bug reports, what were you doing + which browser you were on helps a lot."
+                                        placeholder={
+                                            data.category === 'bug'
+                                                ? 'What did you try to do? What happened instead? Which browser / device are you on?'
+                                                : data.category === 'creator'
+                                                  ? 'Tell us about your channel + games you cover. Links to recent videos / streams help a lot.'
+                                                  : data.category === 'partnership'
+                                                    ? "What are you pitching? Team, brand, studio? What would a partnership look like?"
+                                                    : 'The more detail, the better we can help.'
+                                        }
                                         className="w-full resize-none rounded-lg border border-ink-900/10 bg-bone-50 px-4 py-2.5 text-sm text-ink-900 placeholder-gray-500 focus:border-neon-red focus:outline-none focus:ring-1 focus:ring-neon-red"
                                     />
                                     <p className="mt-1 text-[11px] text-ink-500">{data.body.length}/5000</p>
@@ -157,14 +277,14 @@ export default function ContactIndex({ prefillName, prefillEmail }: Props) {
                                     {processing ? 'Sending…' : 'Send message'}
                                 </button>
                                 <p className="text-center text-[11px] text-ink-500">
-                                    We'll only use your email to reply to this message.
+                                    We only use your email to reply to this message. No newsletter, no list-sharing.
                                 </p>
                             </form>
                         )}
                     </div>
 
                     <p className="mt-6 text-center text-xs text-ink-500">
-                        For urgent privacy / data-protection requests specifically, you can also email{' '}
+                        For urgent privacy / data-protection requests you can also email{' '}
                         <a href="mailto:info@squadspawn.com" className="text-neon-red hover:underline">info@squadspawn.com</a>.
                     </p>
                 </div>

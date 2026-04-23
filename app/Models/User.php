@@ -40,7 +40,7 @@ class User extends Authenticatable
     /**
      * Push notification types users can opt out of individually.
      */
-    public const PUSH_TYPES = ['new_message', 'new_match', 'lfg_request', 'lfg_accepted', 'favorite_host_lfg', 'squad_invite', 'role_change', 'announcement'];
+    public const PUSH_TYPES = ['new_message', 'new_match', 'lfg_request', 'lfg_accepted', 'favorite_host_lfg', 'squad_invite', 'role_change', 'announcement', 'admin_new_contact_message'];
 
     protected function casts(): array
     {

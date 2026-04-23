@@ -18,10 +18,17 @@ class MessagesController extends Controller
         if (!in_array($status, ['all', ...ContactMessage::STATUSES], true)) {
             $status = 'new';
         }
+        $category = $request->input('category');
+        if ($category !== null && !array_key_exists($category, ContactMessage::CATEGORIES)) {
+            $category = null;
+        }
 
         $query = ContactMessage::with(['user:id,name', 'user.profile:user_id,username']);
         if ($status !== 'all') {
             $query->where('status', $status);
+        }
+        if ($category) {
+            $query->where('category', $category);
         }
 
         $messages = $query->latest()->paginate(25)->withQueryString()
@@ -30,6 +37,8 @@ class MessagesController extends Controller
                 'name' => $m->name,
                 'email' => $m->email,
                 'subject' => $m->subject,
+                'category' => $m->category ?? 'other',
+                'category_label' => ContactMessage::CATEGORIES[$m->category ?? 'other'] ?? 'Other',
                 'body' => $m->body,
                 'status' => $m->status,
                 'created_at' => $m->created_at?->toDateTimeString(),
@@ -42,13 +51,14 @@ class MessagesController extends Controller
 
         return Inertia::render('Admin/Messages', [
             'messages' => $messages,
-            'filters' => ['status' => $status],
+            'filters' => ['status' => $status, 'category' => $category],
             'counts' => [
                 'new' => ContactMessage::where('status', 'new')->count(),
                 'read' => ContactMessage::where('status', 'read')->count(),
                 'replied' => ContactMessage::where('status', 'replied')->count(),
                 'archived' => ContactMessage::where('status', 'archived')->count(),
             ],
+            'categories' => ContactMessage::CATEGORIES,
         ]);
     }
 

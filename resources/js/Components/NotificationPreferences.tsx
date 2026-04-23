@@ -1,6 +1,9 @@
+import { usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 
-type PushType = 'new_message' | 'new_match' | 'lfg_request' | 'lfg_accepted' | 'favorite_host_lfg' | 'squad_invite' | 'role_change' | 'announcement';
+type PushType = 'new_message' | 'new_match' | 'lfg_request' | 'lfg_accepted' | 'favorite_host_lfg' | 'squad_invite' | 'role_change' | 'announcement' | 'admin_new_contact_message';
+
+const ADMIN_ONLY_TYPES: PushType[] = ['admin_new_contact_message'];
 
 const LABELS: Record<PushType, { title: string; description: string }> = {
     new_message: {
@@ -35,6 +38,10 @@ const LABELS: Record<PushType, { title: string; description: string }> = {
         title: 'Platform announcements',
         description: "Ping me for news, release drops, and anything the team wants everyone to see.",
     },
+    admin_new_contact_message: {
+        title: 'New contact message (admin)',
+        description: 'Admin-only: ping me whenever someone sends a message via the public /contact form so I can triage fast.',
+    },
 };
 
 function getXsrf(): string | null {
@@ -43,6 +50,9 @@ function getXsrf(): string | null {
 }
 
 export default function NotificationPreferences() {
+    const authUser = (usePage().props as { auth?: { user?: { is_admin?: boolean; is_owner?: boolean } } }).auth?.user;
+    const isAdmin = !!(authUser?.is_admin || authUser?.is_owner);
+
     const [prefs, setPrefs] = useState<Record<PushType, boolean> | null>(null);
     const [saving, setSaving] = useState<PushType | null>(null);
 
@@ -51,7 +61,7 @@ export default function NotificationPreferences() {
             .then((r) => r.json())
             .then((data) => setPrefs(data.push))
             .catch(() => setPrefs({
-                new_message: true, new_match: true, lfg_request: true, lfg_accepted: true, favorite_host_lfg: true, squad_invite: true, role_change: true, announcement: true,
+                new_message: true, new_match: true, lfg_request: true, lfg_accepted: true, favorite_host_lfg: true, squad_invite: true, role_change: true, announcement: true, admin_new_contact_message: true,
             }));
     }, []);
 
@@ -95,7 +105,9 @@ export default function NotificationPreferences() {
             </header>
 
             <div className="space-y-2">
-                {(Object.keys(LABELS) as PushType[]).map((type) => {
+                {(Object.keys(LABELS) as PushType[])
+                    .filter((type) => !ADMIN_ONLY_TYPES.includes(type) || isAdmin)
+                    .map((type) => {
                     const enabled = prefs[type];
                     const label = LABELS[type];
                     const busy = saving === type;
