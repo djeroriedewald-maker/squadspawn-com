@@ -187,19 +187,35 @@ class BroadcastController extends Controller
     }
 
     /**
-     * Guess a cron-usable PHP binary. In FPM requests PHP_BINARY is the
-     * FPM binary, which can't run artisan. Strip the `-fpm` suffix when
-     * present; otherwise fall back to `php` and rely on PATH.
+     * Guess a cron-usable PHP binary that matches the FPM version the
+     * web server is running on. On Forge the CLI `php` often points at
+     * an older version (e.g. 8.2) while FPM runs 8.3, so using bare
+     * `php` in cron causes a Composer platform_check fatal. We extract
+     * the version from PHP_BINARY (which IS the FPM binary in web
+     * requests) and suggest the version-pinned CLI like `php8.3`.
      */
     private function cliPhpBinary(): string
     {
         $binary = PHP_BINARY ?: 'php';
-        if (str_contains($binary, 'fpm')) {
-            $candidate = str_replace(['-fpm8.3', '-fpm8.2', '-fpm8.1', '-fpm'], ['8.3', '8.2', '8.1', ''], $binary);
-            if ($candidate !== $binary && file_exists($candidate)) {
-                return $candidate;
+
+        // Extract "8.3" from "/usr/sbin/php-fpm8.3" or "/usr/bin/php8.3"
+        if (preg_match('/php(?:-fpm)?(\d+\.\d+)/', $binary, $m)) {
+            $version = $m[1];
+            // Prefer a verified absolute path; otherwise a bare
+            // version-pinned name that Forge's PATH resolves.
+            foreach (["/usr/bin/php{$version}", "/usr/local/bin/php{$version}"] as $candidate) {
+                if (file_exists($candidate)) {
+                    return $candidate;
+                }
             }
-            return 'php'; // safest universal fallback
+            return "php{$version}";
+        }
+
+        // Fallback: strip `-fpm` if present, else bare `php`.
+        if (str_contains($binary, 'fpm')) {
+            $stripped = str_replace('-fpm', '', $binary);
+            if (file_exists($stripped)) return $stripped;
+            return 'php';
         }
         return $binary;
     }
