@@ -53,9 +53,12 @@ Route::get('/', function () {
     $recentPlayers = Cache::remember('home:recent', 300, fn () => \App\Models\Profile::with('user')->latest()->take(8)->get()->toArray());
     $onlineNow = Cache::remember('home:online', 120, fn () => \App\Models\User::where('updated_at', '>=', now()->subMinutes(15))->count());
     // Creator Spotlight — cached 5 min so the roster feels fresh without
-    // hammering the DB on every homepage hit. Low cost if empty (query
-    // short-circuits on the whereHas before the with-loads).
-    $featuredCreators = Cache::remember('home:featuredcreators', 300, fn () => \App\Services\FeaturedCreators::list(5)->toArray());
+    // hammering the DB on every homepage hit. Gated by the same `clips`
+    // feature flag as the public Creators page; flipping it off in
+    // /admin/system hides the whole surface in one move.
+    $featuredCreators = \App\Services\Settings::isFeatureEnabled('clips')
+        ? Cache::remember('home:featuredcreators', 300, fn () => \App\Services\FeaturedCreators::list(5)->toArray())
+        : [];
 
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
@@ -100,7 +103,9 @@ Route::get('/dashboard', function () {
         });
 
     $allGames = Cache::remember('dash:allgames', 300, fn () => \App\Models\Game::withCount('users')->get()->toArray());
-    $featuredCreators = Cache::remember('dash:featuredcreators', 300, fn () => \App\Services\FeaturedCreators::list(5)->toArray());
+    $featuredCreators = \App\Services\Settings::isFeatureEnabled('clips')
+        ? Cache::remember('dash:featuredcreators', 300, fn () => \App\Services\FeaturedCreators::list(5)->toArray())
+        : [];
 
     // How many people liked this user (motivation to swipe)
     $likedByCount = $user->likedByUsers()->count();
@@ -445,7 +450,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::post('/users/{user}/ban', [\App\Http\Controllers\Admin\AdminController::class, 'banUser'])->name('admin.ban');
     Route::post('/users/{user}/unban', [\App\Http\Controllers\Admin\AdminController::class, 'unbanUser'])->name('admin.unban');
     Route::post('/users/{user}/impersonate', [\App\Http\Controllers\Admin\ImpersonationController::class, 'start'])->name('admin.impersonate');
-    Route::post('/users/{user}/featured', [\App\Http\Controllers\Admin\AdminController::class, 'setFeatured'])->name('admin.setFeatured');
+    // setFeatured + /admin/creators share the `clips` feature flag with the
+    // public Creators page so the whole experience toggles as one unit.
+    Route::post('/users/{user}/featured', [\App\Http\Controllers\Admin\AdminController::class, 'setFeatured'])
+        ->middleware('feature:clips')
+        ->name('admin.setFeatured');
     Route::post('/users/{user}/moderator', [\App\Http\Controllers\Admin\AdminController::class, 'setModerator'])->name('admin.setModerator');
     Route::post('/users/{user}/admin', [\App\Http\Controllers\Admin\AdminController::class, 'setAdmin'])->name('admin.setAdmin');
     Route::get('/reports', [\App\Http\Controllers\Admin\AdminController::class, 'reports'])->name('admin.reports');
@@ -454,7 +463,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     // tooling passes integer ids (from the reports table), so bind by id
     // explicitly here to avoid a 404 on `/admin/lfg-posts/42`.
     Route::delete('/lfg-posts/{lfgPost:id}', [\App\Http\Controllers\Admin\AdminController::class, 'deleteLfgPost'])->name('admin.deleteLfgPost');
-    Route::get('/creators', [\App\Http\Controllers\Admin\AdminController::class, 'creators'])->name('admin.creators');
+    Route::get('/creators', [\App\Http\Controllers\Admin\AdminController::class, 'creators'])
+        ->middleware('feature:clips')
+        ->name('admin.creators');
     Route::get('/games', [\App\Http\Controllers\Admin\AdminController::class, 'games'])->name('admin.games');
     Route::post('/games', [\App\Http\Controllers\Admin\AdminController::class, 'storeGame'])->name('admin.storeGame');
     Route::delete('/games/{game}', [\App\Http\Controllers\Admin\AdminController::class, 'deleteGame'])->name('admin.deleteGame');

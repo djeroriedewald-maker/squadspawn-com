@@ -90,6 +90,17 @@ class Settings
         return $out;
     }
 
+    /**
+     * Shortcut for code paths that need to check a single flag without
+     * pulling the whole features() array. Falls back to true when the
+     * key is unknown so a typo doesn't silently disable a surface.
+     */
+    public static function isFeatureEnabled(string $flag): bool
+    {
+        $features = self::features();
+        return (bool) ($features[$flag] ?? true);
+    }
+
     /** Return the flash-bar message + tone, or null when empty. */
     public static function flashBar(): ?array
     {

@@ -60,7 +60,8 @@ const RATING_TAGS = [
 ];
 
 export default function PlayerShow({ player, clips = [], reputationData, friendsCount = 0, isFriend = false, isFavorited = false, myRating, steamStats }: PageProps<{ player: User; clips: Clip[]; reputationData?: ReputationData; friendsCount?: number; isFriend?: boolean; isFavorited?: boolean; myRating?: { score: number; tag?: string } | null; steamStats?: SteamStats | null }>) {
-    const { auth } = usePage<PageProps>().props;
+    const { auth, features } = usePage<PageProps & { features?: Record<string, boolean> }>().props;
+    const clipsEnabled = features?.clips !== false;
     const isLoggedIn = !!auth?.user;
     const isOwnProfile = auth?.user?.id === player.id;
 
@@ -239,8 +240,10 @@ export default function PlayerShow({ player, clips = [], reputationData, friends
                     {/* Creator hero — only rendered for is_creator profiles. Promotes
                          clips + streaming context to the top of the page so visiting
                          viewers land on the things a creator actually wants you to
-                         watch before scrolling through stats. */}
-                    {player.profile?.is_creator && clips && clips.length > 0 && (
+                         watch before scrolling through stats. Gated by the `clips`
+                         feature flag so admins can disable the entire creator surface
+                         in one toggle. */}
+                    {clipsEnabled && player.profile?.is_creator && clips && clips.length > 0 && (
                         <div className="mt-6 overflow-hidden rounded-2xl border border-gaming-pink/20 bg-gradient-to-br from-gaming-pink/5 to-neon-red/5">
                             <div className="grid gap-0 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
                                 {/* Big top clip */}
@@ -580,8 +583,9 @@ export default function PlayerShow({ player, clips = [], reputationData, friends
                         </div>
                     )}
 
-                    {/* Clips */}
-                    {clips && clips.length > 0 && (
+                    {/* Clips (gated by the same clips feature flag as the rest
+                         of the creator surface) */}
+                    {clipsEnabled && clips && clips.length > 0 && (
                         <div className="mt-8">
                             <h3 className="mb-4 text-lg font-bold text-ink-900">
                                 Clips & Highlights ({clips.length})
