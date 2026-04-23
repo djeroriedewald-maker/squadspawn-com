@@ -23,7 +23,8 @@
       "Bash(xargs grep:*)",
       "Bash(find:*)",
       "Bash(git commit -m ' *)",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(identify \"C:/Users/Lenovo/Projects/squadspawn.com/public/images/Squadspawn_banner.jpg\")"
     ]
   }
 }
