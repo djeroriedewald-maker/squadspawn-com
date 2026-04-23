@@ -12,7 +12,26 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 #[Fillable(['name', 'email', 'google_id', 'password', 'date_of_birth', 'parental_consent', 'parental_consent_at', 'is_admin', 'is_moderator', 'is_owner', 'is_banned', 'banned_at', 'ban_reason', 'notification_preferences', 'referral_code', 'referred_by_user_id', 'referral_rewarded_at'])]
-#[Hidden(['password', 'remember_token'])]
+// Anything that could be scraped to harvest or profile users is hidden
+// by default. `HandleInertiaRequests` selectively makeVisible()s the
+// fields the user themselves needs (email/DOB in settings) for
+// auth.user only.
+#[Hidden([
+    'password',
+    'remember_token',
+    'email',
+    'google_id',
+    'date_of_birth',
+    'parental_consent',
+    'parental_consent_at',
+    'banned_at',
+    'ban_reason',
+    'referral_code',
+    'referred_by_user_id',
+    'referral_rewarded_at',
+    'notification_preferences',
+    'email_verified_at',
+])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */

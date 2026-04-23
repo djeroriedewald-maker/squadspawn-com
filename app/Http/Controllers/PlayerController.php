@@ -80,7 +80,17 @@ class PlayerController extends Controller
             : null;
 
         return Inertia::render('Player/Show', [
-            'player' => $player,
+            'player' => [
+                'id' => $player->id,
+                'name' => $player->name,
+                'created_at' => $player->created_at,
+                'is_admin' => (bool) $player->is_admin,
+                'is_moderator' => (bool) $player->is_moderator,
+                'is_owner' => (bool) $player->is_owner,
+                'is_banned' => (bool) $player->is_banned,
+                'profile' => $player->profile,
+                'games' => $player->games,
+            ],
             'clips' => $clips,
             'reputationData' => $reputationData,
             'friendsCount' => $friendsCount,

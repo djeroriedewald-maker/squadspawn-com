@@ -41,7 +41,8 @@ class AdminController extends Controller
         $recentUsers = User::with('profile')
             ->latest()
             ->take(10)
-            ->get();
+            ->get()
+            ->each->makeVisible(['email']);
 
         return Inertia::render('Admin/Dashboard', [
             'stats' => $stats,
@@ -64,6 +65,8 @@ class AdminController extends Controller
         }
 
         $users = $query->latest()->paginate(25)->withQueryString();
+        // Admin panel legitimately needs PII the frontend hides by default.
+        $users->getCollection()->each->makeVisible(['email', 'banned_at', 'ban_reason']);
 
         return Inertia::render('Admin/Users', [
             'users' => $users,

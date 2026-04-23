@@ -57,7 +57,13 @@ class MatchController extends Controller
             return [
                 'id' => $match->id,
                 'chat_id' => $match->uuid,
-                'partner' => $partner,
+                'partner' => [
+                    'id' => $partner->id,
+                    'name' => $partner->name,
+                    'profile' => $partner->profile,
+                    'games' => $partner->games,
+                    'is_banned' => (bool) $partner->is_banned,
+                ],
                 'created_at' => $match->created_at,
                 'last_message' => $lastMessage ? [
                     'body' => $lastMessage->body,

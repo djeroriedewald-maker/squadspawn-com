@@ -289,8 +289,8 @@ Route::middleware('auth')->group(function () {
     });
 
     // Quick add/remove a game to/from my profile
-    Route::post('/games/{game}/add', [GamesController::class, 'quickAdd'])->name('games.quickAdd');
-    Route::delete('/games/{game}/remove', [GamesController::class, 'quickRemove'])->name('games.quickRemove');
+    Route::post('/games/{game}/add', [GamesController::class, 'quickAdd'])->middleware('throttle:30,1')->name('games.quickAdd');
+    Route::delete('/games/{game}/remove', [GamesController::class, 'quickRemove'])->middleware('throttle:30,1')->name('games.quickRemove');
 
     // Web Push subscriptions
     Route::get('/push/config', [\App\Http\Controllers\PushSubscriptionController::class, 'config'])->name('push.config');
@@ -370,8 +370,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/chat/lfg-groups', [LfgController::class, 'myGroups'])->name('chat.lfgGroups');
         Route::get('/chat/lfg/{lfgPost}/messages', [LfgController::class, 'widgetMessages'])->name('chat.lfgMessages');
         Route::delete('/chat/lfg/{lfgPost}/leave', [LfgController::class, 'leaveGroup'])->name('chat.lfgLeave');
-        Route::post('/chat/lfg/bulk-leave', [LfgController::class, 'bulkLeaveGroups'])->name('chat.lfgBulkLeave');
-        Route::post('/chat/bulk-hide', [ChatController::class, 'bulkHide'])->name('chat.bulkHide');
+        Route::post('/chat/lfg/bulk-leave', [LfgController::class, 'bulkLeaveGroups'])->middleware('throttle:10,1')->name('chat.lfgBulkLeave');
+        Route::post('/chat/bulk-hide', [ChatController::class, 'bulkHide'])->middleware('throttle:10,1')->name('chat.bulkHide');
     });
 
     // Discovery (requires complete profile)
@@ -382,7 +382,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/discover/passed', [DiscoveryController::class, 'passed'])->name('discovery.passed');
             Route::get('/discover/liked-you', [DiscoveryController::class, 'likedYou'])->name('discovery.likedYou');
             Route::post('/discover/undo', [DiscoveryController::class, 'undo'])->name('discovery.undo');
-            Route::delete('/discover/pass/{user}', [DiscoveryController::class, 'removePass'])->name('discovery.removePass');
+            Route::delete('/discover/pass/{user}', [DiscoveryController::class, 'removePass'])->middleware('throttle:30,1')->name('discovery.removePass');
             Route::post('/likes', [LikeController::class, 'store'])->middleware('throttle:30,1')->name('likes.store');
             Route::post('/likes/pass', [LikeController::class, 'pass'])->middleware('throttle:30,1')->name('likes.pass');
         });
@@ -390,9 +390,9 @@ Route::middleware('auth')->group(function () {
         Route::middleware('feature:chat')->group(function () {
             Route::get('/friends/{playerMatch}/chat', [ChatController::class, 'show'])->name('chat.show');
             Route::post('/friends/{playerMatch}/messages', [ChatController::class, 'store'])->middleware('throttle:60,1')->name('chat.store');
-            Route::post('/friends/{playerMatch}/read', [ChatController::class, 'markRead'])->name('chat.markRead');
+            Route::post('/friends/{playerMatch}/read', [ChatController::class, 'markRead'])->middleware('throttle:60,1')->name('chat.markRead');
             Route::get('/friends/{playerMatch}/poll', [ChatController::class, 'poll'])->name('chat.poll');
-            Route::delete('/friends/{playerMatch}/hide', [ChatController::class, 'hide'])->name('chat.hide');
+            Route::delete('/friends/{playerMatch}/hide', [ChatController::class, 'hide'])->middleware('throttle:30,1')->name('chat.hide');
         });
 
         // LFG (all LFG endpoints behind the `lfg` flag)
@@ -407,7 +407,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/lfg/{lfgPost}/respond', [LfgController::class, 'withdraw'])->name('lfg.withdraw');
         Route::post('/lfg/{lfgPost}/accept/{response}', [LfgController::class, 'acceptResponse'])->name('lfg.accept');
         Route::post('/lfg/{lfgPost}/reject/{response}', [LfgController::class, 'rejectResponse'])->name('lfg.reject');
-        Route::post('/lfg/{lfgPost}/message', [LfgController::class, 'sendMessage'])->name('lfg.message');
+        Route::post('/lfg/{lfgPost}/message', [LfgController::class, 'sendMessage'])->middleware('throttle:60,1')->name('lfg.message');
         Route::get('/lfg/{lfgPost}/poll', [LfgController::class, 'pollMessages'])->name('lfg.poll');
         Route::post('/lfg/{lfgPost}/rate', [LfgController::class, 'rate'])->name('lfg.rate');
         Route::post('/lfg/{lfgPost}/close', [LfgController::class, 'close'])->name('lfg.close');

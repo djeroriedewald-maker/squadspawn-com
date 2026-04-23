@@ -34,6 +34,14 @@ class HandleInertiaRequests extends Middleware
 
         if ($user) {
             $user->load(['profile', 'games']);
+            // The User model hides sensitive PII globally; the user themselves
+            // needs to see their own email / DOB / referral code in settings,
+            // notification prefs on the profile page, etc. Unhide here only
+            // for the viewer's OWN record.
+            $user->makeVisible([
+                'email', 'date_of_birth', 'referral_code',
+                'notification_preferences', 'email_verified_at',
+            ]);
 
             // Cache notification count for 10 seconds (polling refreshes this)
             $unreadCount = Cache::remember("user:{$user->id}:unread", 10, function () use ($user) {
