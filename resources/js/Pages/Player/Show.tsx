@@ -588,7 +588,7 @@ export default function PlayerShow({ player, clips = [], reputationData, friends
                     {clipsEnabled && clips && clips.length > 0 && (
                         <div className="mt-8">
                             <h3 className="mb-4 text-lg font-bold text-ink-900">
-                                Clips & Highlights ({clips.length})
+                                Clips ({clips.length})
                             </h3>
                             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                                 {clips.map((clip) => {

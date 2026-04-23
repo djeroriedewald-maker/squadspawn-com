@@ -407,9 +407,10 @@ export default function ClipsIndex({
 
     if (isLoggedIn) {
         return (
-            <AuthenticatedLayout
-                header={<h2 className="text-xl font-semibold leading-tight text-ink-900">Clips & Highlights</h2>}
-            >
+            // No header prop — the PageHero inside pageContent doubles as the
+            // page header, and duplicating the title above it creates the
+            // "pale strip + hero" stack that looked like a white overlay.
+            <AuthenticatedLayout>
                 {pageContent}
             </AuthenticatedLayout>
         );
