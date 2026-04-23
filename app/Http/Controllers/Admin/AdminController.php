@@ -149,6 +149,23 @@ class AdminController extends Controller
         return response()->json(['success' => true]);
     }
 
+    public function unbanUser(Request $request, User $user)
+    {
+        if (!$user->is_banned) {
+            return response()->json(['error' => 'User is not banned.'], 422);
+        }
+
+        $user->update([
+            'is_banned' => false,
+            'banned_at' => null,
+            'ban_reason' => null,
+        ]);
+
+        \Log::info('User unbanned', ['user_id' => $user->id, 'admin_id' => auth()->id()]);
+
+        return response()->json(['success' => true]);
+    }
+
     public function reports(Request $request): Response
     {
         $query = Report::with(['reporter.profile', 'reported.profile', 'lfgPost.game']);

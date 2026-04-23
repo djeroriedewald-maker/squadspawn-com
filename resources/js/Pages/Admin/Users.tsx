@@ -48,12 +48,20 @@ export default function Users({ users, filters }: Props) {
 
     function handleBan(user: User) {
         const name = user.profile?.username || user.name;
-        if (!confirm(`⚠️ Ban "${name}"?\n\nThis will:\n· Log them out of every device\n· Close all their active LFG groups\n· Prevent them from logging back in\n\nThis action is reversible through the user table (unban), but destructive in the moment.`)) {
+        if (!confirm(`⚠️ Ban "${name}"?\n\nThis will:\n· Log them out of every device\n· Close all their active LFG groups\n· Prevent them from logging back in\n\nYou can unban them later from this same table — their closed LFGs stay closed though.`)) {
             return;
         }
         axios.post(route('admin.ban', { user: user.id }))
             .then(() => router.reload())
             .catch((err) => alert(err.response?.data?.error || 'Failed to ban user.'));
+    }
+
+    function handleUnban(user: User) {
+        const name = user.profile?.username || user.name;
+        if (!confirm(`Unban "${name}"? They'll be able to log in again.`)) return;
+        axios.post(route('admin.unban', { user: user.id }))
+            .then(() => router.reload())
+            .catch((err) => alert(err.response?.data?.error || 'Failed to unban user.'));
     }
 
     function toggleMod(user: User) {
@@ -187,12 +195,21 @@ export default function Users({ users, filters }: Props) {
                                                 >
                                                     Log in as
                                                 </button>
-                                                <button
-                                                    onClick={() => handleBan(user)}
-                                                    className="rounded-lg bg-red-500/10 px-3 py-1.5 text-xs font-medium text-red-400 transition hover:bg-red-500/20"
-                                                >
-                                                    Ban
-                                                </button>
+                                                {user.is_banned ? (
+                                                    <button
+                                                        onClick={() => handleUnban(user)}
+                                                        className="rounded-lg bg-gaming-green/10 px-3 py-1.5 text-xs font-medium text-gaming-green transition hover:bg-gaming-green/20"
+                                                    >
+                                                        Unban
+                                                    </button>
+                                                ) : (
+                                                    <button
+                                                        onClick={() => handleBan(user)}
+                                                        className="rounded-lg bg-red-500/10 px-3 py-1.5 text-xs font-medium text-red-400 transition hover:bg-red-500/20"
+                                                    >
+                                                        Ban
+                                                    </button>
+                                                )}
                                                 <button
                                                     onClick={() => {
                                                         const name = user.profile?.username || user.name;
