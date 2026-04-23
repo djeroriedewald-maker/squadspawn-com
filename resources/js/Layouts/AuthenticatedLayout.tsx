@@ -396,6 +396,7 @@ export default function Authenticated({
                         <Link href="/plus" className="font-semibold text-neon-red transition hover:text-neon-red/80">
                             ✨ Plus waitlist
                         </Link>
+                        <Link href="/contact" className="transition hover:text-ink-700">Contact</Link>
                     </div>
                     <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500">
                         <a

@@ -412,6 +412,7 @@ export default function Welcome({
                             <Link href="/plus" className="font-semibold text-neon-red hover:text-neon-red/80">
                                 ✨ Plus waitlist
                             </Link>
+                            <Link href="/contact" className="hover:text-ink-900">Contact</Link>
                         </div>
                         <div className="flex flex-wrap items-center gap-4">
                             <a
