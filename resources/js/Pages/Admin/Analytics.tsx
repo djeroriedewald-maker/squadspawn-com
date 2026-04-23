@@ -31,31 +31,35 @@ interface Props {
     };
     topGames: { id: number; name: string; slug: string; cover_image?: string | null; users_count: number }[];
     topRegions: { region: string; count: number }[];
-    traffic: {
-        configured: boolean;
-        today?: TrafficBlock | null;
-        week?: TrafficBlock | null;
-        month?: TrafficBlock | null;
-        sources?: BreakdownRow[] | null;
-        pages?: BreakdownRow[] | null;
-        countries?: BreakdownRow[] | null;
-    };
-    plausibleDomain: string;
+    traffic: TrafficStats;
 }
 
-interface TrafficBlock {
-    visitors: number;
-    pageviews: number;
-    bounce_rate: number;
-    visit_duration: number;
+interface TrafficStats {
+    pageviews: { today: number; '7d': number; '30d': number };
+    visitors: { today: number; '7d': number; '30d': number };
+    top_pages: { path: string; views: number; visitors: number }[];
+    series: { labels: string[]; pageviews: number[]; visitors: number[] };
 }
 
-interface BreakdownRow {
-    name: string;
-    visitors: number;
+function asArray<T>(v: unknown): T[] {
+    return Array.isArray(v) ? (v as T[]) : [];
 }
 
-function StatCard({ label, value, sublabel, tone }: { label: string; value: number | string; sublabel?: string; tone?: 'red' | 'green' | 'cyan' | 'pink' | 'orange' }) {
+function sum(values: unknown): number {
+    return asArray<number>(values).reduce((a, b) => a + (Number(b) || 0), 0);
+}
+
+function StatCard({
+    label,
+    value,
+    sublabel,
+    tone,
+}: {
+    label: string;
+    value: number | string;
+    sublabel?: string;
+    tone?: 'red' | 'green' | 'cyan' | 'pink' | 'orange';
+}) {
     const toneMap: Record<string, string> = {
         red: 'text-neon-red',
         green: 'text-gaming-green',
@@ -75,9 +79,17 @@ function StatCard({ label, value, sublabel, tone }: { label: string; value: numb
     );
 }
 
-function BarChart({ labels, values, color = '#E5484D' }: { labels: string[]; values: number[]; color?: string }) {
-    const safeValues = Array.isArray(values) ? values : [];
-    const safeLabels = Array.isArray(labels) ? labels : [];
+function BarChart({
+    labels,
+    values,
+    color = '#E5484D',
+}: {
+    labels: string[] | undefined;
+    values: number[] | undefined;
+    color?: string;
+}) {
+    const safeValues = asArray<number>(values);
+    const safeLabels = asArray<string>(labels);
     const max = Math.max(1, ...safeValues);
     return (
         <div className="flex h-40 items-end gap-[2px]">
@@ -100,189 +112,147 @@ function BarChart({ labels, values, color = '#E5484D' }: { labels: string[]; val
     );
 }
 
-function formatDuration(seconds: number): string {
-    if (!seconds || seconds < 1) return '0s';
-    const m = Math.floor(seconds / 60);
-    const s = Math.round(seconds - m * 60);
-    return m > 0 ? `${m}m ${s}s` : `${s}s`;
-}
-
-function TrafficRow({ label, block }: { label: string; block: TrafficBlock | null | undefined }) {
-    if (!block) {
-        return (
-            <div className="rounded-xl border border-ink-900/10 bg-white dark:bg-bone-100 p-4">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">{label}</p>
-                <p className="mt-1 text-sm text-ink-500">No data yet</p>
-            </div>
-        );
-    }
+function TrafficCard({ label, visitors, pageviews }: { label: string; visitors: number; pageviews: number }) {
     return (
         <div className="rounded-xl border border-ink-900/10 bg-white dark:bg-bone-100 p-4">
             <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">{label}</p>
-            <p className="mt-1 text-2xl font-black text-gaming-cyan">{block.visitors.toLocaleString()}</p>
-            <p className="text-[11px] text-ink-500">visitors</p>
-            <div className="mt-2 flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-ink-500">
-                <span>{block.pageviews.toLocaleString()} pageviews</span>
-                <span>{Math.round(Number(block.bounce_rate))}% bounce</span>
-                <span>{formatDuration(Number(block.visit_duration))} avg</span>
-            </div>
+            <p className="mt-1 text-2xl font-black text-gaming-cyan">{Number(visitors || 0).toLocaleString()}</p>
+            <p className="text-[11px] text-ink-500">unique visitors</p>
+            <p className="mt-1 text-[11px] text-ink-500">{Number(pageviews || 0).toLocaleString()} pageviews</p>
         </div>
     );
 }
 
-function BreakdownList({ title, rows }: { title: string; rows: BreakdownRow[] | null | undefined }) {
-    // Defensive: if the server somehow ships a non-array (should never
-    // happen after the PlausibleClient array_values fix, but the rendering
-    // layer shouldn't crash on a malformed payload either).
-    const safeRows: BreakdownRow[] = Array.isArray(rows) ? rows : [];
-    if (safeRows.length === 0) {
-        return (
-            <div className="rounded-xl border border-ink-900/10 bg-white dark:bg-bone-100 p-5">
-                <h3 className="mb-2 font-bold text-ink-900">{title}</h3>
-                <p className="text-sm text-ink-500">No visitors yet.</p>
-            </div>
-        );
-    }
-    const max = Math.max(1, ...safeRows.map((r) => r.visitors));
-    return (
-        <div className="rounded-xl border border-ink-900/10 bg-white dark:bg-bone-100 p-5">
-            <h3 className="mb-4 font-bold text-ink-900">{title}</h3>
-            <div className="space-y-2">
-                {safeRows.map((r) => {
-                    const pct = (r.visitors / max) * 100;
-                    return (
-                        <div key={r.name} className="flex items-center gap-3">
-                            <div className="flex-1 min-w-0">
-                                <p className="truncate text-sm font-medium text-ink-900">{r.name || 'Direct / None'}</p>
-                                <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-ink-900/5">
-                                    <div className="h-full rounded-full bg-gaming-cyan" style={{ width: `${pct}%` }} />
-                                </div>
-                            </div>
-                            <span className="shrink-0 text-sm font-bold text-ink-900">{r.visitors}</span>
-                        </div>
-                    );
-                })}
-            </div>
-        </div>
-    );
-}
+export default function Analytics({ headline, series, content, topGames, topRegions, traffic }: Props) {
+    const safeTopGames = asArray<Props['topGames'][number]>(topGames);
+    const safeTopRegions = asArray<Props['topRegions'][number]>(topRegions);
+    const safeTopPages = asArray<TrafficStats['top_pages'][number]>(traffic?.top_pages);
+    const maxPageViews = Math.max(1, ...safeTopPages.map((p) => p.views || 0));
 
-export default function Analytics({ headline, series, content, topGames, topRegions, traffic, plausibleDomain }: Props) {
     return (
         <AdminLayout>
             <Head title="Admin — Analytics" />
 
-            <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold text-ink-900">Analytics</h1>
-                    <p className="mt-1 text-sm text-ink-500">
-                        Platform activity from the database. Visitor-side data (pageviews, sources, countries) lives on your Plausible dashboard.
-                    </p>
-                </div>
-                <a
-                    href={`https://plausible.io/${plausibleDomain}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 rounded-xl bg-gaming-cyan/10 px-4 py-2.5 text-sm font-semibold text-gaming-cyan transition hover:bg-gaming-cyan/20"
-                >
-                    Open Plausible
-                    <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-                    </svg>
-                </a>
+            <div className="mb-8">
+                <h1 className="text-2xl font-bold text-ink-900">Analytics</h1>
+                <p className="mt-1 text-sm text-ink-500">
+                    Platform + website traffic from your own database — no third-party analytics, no cookies, no data leaving your server.
+                </p>
             </div>
 
-            {/* Website traffic (Plausible) */}
+            {/* Website traffic — native tracker */}
             <h2 className="mb-3 text-sm font-bold uppercase tracking-wider text-gray-500">Website traffic</h2>
-            {!traffic.configured ? (
-                <div className="mb-8 rounded-xl border border-gaming-orange/30 bg-gaming-orange/5 p-5">
-                    <p className="text-sm font-semibold text-gaming-orange">
-                        Plausible API key not configured
-                    </p>
-                    <p className="mt-1 text-sm text-ink-700">
-                        To show visitor + pageview numbers inline, generate a Plausible API key under{' '}
-                        <a href="https://plausible.io/settings/api-keys" target="_blank" rel="noopener noreferrer" className="font-semibold text-neon-red hover:underline">
-                            Account → API Keys
-                        </a>{' '}
-                        and add it to your production <code className="rounded bg-ink-900/5 px-1">.env</code> as{' '}
-                        <code className="rounded bg-ink-900/5 px-1">PLAUSIBLE_API_KEY=…</code> (then{' '}
-                        <code className="rounded bg-ink-900/5 px-1">php artisan config:clear</code>).
-                    </p>
-                    <p className="mt-2 text-xs text-ink-500">
-                        Until then, open Plausible directly for the full visitor dashboard.
-                    </p>
-                </div>
-            ) : (
-                <>
-                    <div className="mb-6 grid gap-3 sm:grid-cols-3">
-                        <TrafficRow label="Today" block={traffic.today} />
-                        <TrafficRow label="Last 7 days" block={traffic.week} />
-                        <TrafficRow label="Last 30 days" block={traffic.month} />
-                    </div>
-                    <div className="mb-8 grid gap-4 lg:grid-cols-3">
-                        <BreakdownList title="Top traffic sources" rows={traffic.sources} />
-                        <BreakdownList title="Top pages" rows={traffic.pages} />
-                        <BreakdownList title="Top countries" rows={traffic.countries} />
-                    </div>
-                </>
-            )}
+            <div className="mb-6 grid gap-3 sm:grid-cols-3">
+                <TrafficCard label="Today" visitors={traffic?.visitors?.today ?? 0} pageviews={traffic?.pageviews?.today ?? 0} />
+                <TrafficCard label="Last 7 days" visitors={traffic?.visitors?.['7d'] ?? 0} pageviews={traffic?.pageviews?.['7d'] ?? 0} />
+                <TrafficCard label="Last 30 days" visitors={traffic?.visitors?.['30d'] ?? 0} pageviews={traffic?.pageviews?.['30d'] ?? 0} />
+            </div>
 
-            {/* Headline — audience */}
+            <div className="mb-8 grid gap-4 lg:grid-cols-2">
+                <div className="rounded-xl border border-ink-900/10 bg-white dark:bg-bone-100 p-5">
+                    <div className="mb-3 flex items-center justify-between">
+                        <h3 className="font-bold text-ink-900">Pageviews — last 30 days</h3>
+                        <span className="text-xs text-ink-500">{sum(traffic?.series?.pageviews).toLocaleString()} total</span>
+                    </div>
+                    <BarChart labels={traffic?.series?.labels} values={traffic?.series?.pageviews} color="#06B6D4" />
+                </div>
+                <div className="rounded-xl border border-ink-900/10 bg-white dark:bg-bone-100 p-5">
+                    <div className="mb-3 flex items-center justify-between">
+                        <h3 className="font-bold text-ink-900">Unique visitors — last 30 days</h3>
+                        <span className="text-xs text-ink-500">daily</span>
+                    </div>
+                    <BarChart labels={traffic?.series?.labels} values={traffic?.series?.visitors} color="#22C55E" />
+                </div>
+            </div>
+
+            {/* Top pages */}
+            <div className="mb-8 rounded-xl border border-ink-900/10 bg-white dark:bg-bone-100 p-5">
+                <h3 className="mb-4 font-bold text-ink-900">Top pages — last 30 days</h3>
+                {safeTopPages.length === 0 ? (
+                    <p className="text-sm text-ink-500">
+                        No pageviews tracked yet. Pages will start showing up here after the first real visit.
+                    </p>
+                ) : (
+                    <div className="space-y-2">
+                        {safeTopPages.map((p) => {
+                            const pct = ((p.views || 0) / maxPageViews) * 100;
+                            return (
+                                <div key={p.path} className="flex items-center gap-3">
+                                    <div className="flex-1 min-w-0">
+                                        <p className="truncate font-mono text-xs text-ink-900">{p.path}</p>
+                                        <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-ink-900/5">
+                                            <div className="h-full rounded-full bg-gaming-cyan" style={{ width: `${pct}%` }} />
+                                        </div>
+                                    </div>
+                                    <div className="shrink-0 text-right">
+                                        <p className="text-sm font-bold text-ink-900">{Number(p.views || 0).toLocaleString()}</p>
+                                        <p className="text-[10px] text-gray-500">{p.visitors} visitors</p>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
+            </div>
+
+            {/* Audience */}
             <h2 className="mb-3 text-sm font-bold uppercase tracking-wider text-gray-500">Audience</h2>
             <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-                <StatCard label="Total users" value={headline.total_users} tone="red" sublabel={`${headline.total_profiles.toLocaleString()} with profile`} />
+                <StatCard
+                    label="Total users"
+                    value={headline.total_users}
+                    tone="red"
+                    sublabel={`${headline.total_profiles.toLocaleString()} with profile`}
+                />
                 <StatCard label="Online now" value={headline.online_now} tone="green" sublabel="last 15 min" />
                 <StatCard label="Active today" value={headline.dau} tone="cyan" sublabel="last 24 hours (DAU)" />
                 <StatCard label="Active this week" value={headline.wau} sublabel="last 7 days (WAU)" />
                 <StatCard label="Active this month" value={headline.mau} sublabel="last 30 days (MAU)" />
             </div>
 
-            {/* Headline — signups */}
+            {/* Signups */}
             <h2 className="mb-3 text-sm font-bold uppercase tracking-wider text-gray-500">Signups</h2>
             <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
                 <StatCard label="Today" value={headline.signups_today} tone="pink" />
                 <StatCard label="Last 7 days" value={headline.signups_7d} />
                 <StatCard label="Last 30 days" value={headline.signups_30d} />
-                <StatCard
-                    label="7d avg / day"
-                    value={(headline.signups_7d / 7).toFixed(1)}
-                />
+                <StatCard label="7d avg / day" value={(headline.signups_7d / 7).toFixed(1)} />
             </div>
 
-            {/* Time series */}
-            <h2 className="mb-3 text-sm font-bold uppercase tracking-wider text-gray-500">Last 30 days</h2>
+            {/* Platform time series */}
+            <h2 className="mb-3 text-sm font-bold uppercase tracking-wider text-gray-500">Platform activity — last 30 days</h2>
             <div className="mb-8 grid gap-4 lg:grid-cols-2">
                 <div className="rounded-xl border border-ink-900/10 bg-white dark:bg-bone-100 p-5">
                     <div className="mb-3 flex items-center justify-between">
                         <h3 className="font-bold text-ink-900">Signups</h3>
-                        <span className="text-xs text-ink-500">{series.signups.reduce((a, b) => a + b, 0)} total</span>
+                        <span className="text-xs text-ink-500">{sum(series?.signups).toLocaleString()} total</span>
                     </div>
-                    <BarChart labels={series.labels} values={series.signups} color="#E5484D" />
+                    <BarChart labels={series?.labels} values={series?.signups} color="#E5484D" />
                 </div>
                 <div className="rounded-xl border border-ink-900/10 bg-white dark:bg-bone-100 p-5">
                     <div className="mb-3 flex items-center justify-between">
                         <h3 className="font-bold text-ink-900">LFG posts</h3>
-                        <span className="text-xs text-ink-500">{series.lfgs.reduce((a, b) => a + b, 0)} total</span>
+                        <span className="text-xs text-ink-500">{sum(series?.lfgs).toLocaleString()} total</span>
                     </div>
-                    <BarChart labels={series.labels} values={series.lfgs} color="#22C55E" />
+                    <BarChart labels={series?.labels} values={series?.lfgs} color="#22C55E" />
                 </div>
                 <div className="rounded-xl border border-ink-900/10 bg-white dark:bg-bone-100 p-5">
                     <div className="mb-3 flex items-center justify-between">
                         <h3 className="font-bold text-ink-900">Matches (friendships)</h3>
-                        <span className="text-xs text-ink-500">{series.matches.reduce((a, b) => a + b, 0)} total</span>
+                        <span className="text-xs text-ink-500">{sum(series?.matches).toLocaleString()} total</span>
                     </div>
-                    <BarChart labels={series.labels} values={series.matches} color="#06B6D4" />
+                    <BarChart labels={series?.labels} values={series?.matches} color="#06B6D4" />
                 </div>
                 <div className="rounded-xl border border-ink-900/10 bg-white dark:bg-bone-100 p-5">
                     <div className="mb-3 flex items-center justify-between">
                         <h3 className="font-bold text-ink-900">Messages</h3>
-                        <span className="text-xs text-ink-500">{series.messages.reduce((a, b) => a + b, 0)} total</span>
+                        <span className="text-xs text-ink-500">{sum(series?.messages).toLocaleString()} total</span>
                     </div>
-                    <BarChart labels={series.labels} values={series.messages} color="#EC4899" />
+                    <BarChart labels={series?.labels} values={series?.messages} color="#EC4899" />
                 </div>
             </div>
 
-            {/* Content totals */}
+            {/* Platform totals */}
             <h2 className="mb-3 text-sm font-bold uppercase tracking-wider text-gray-500">Platform totals</h2>
             <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
                 <StatCard label="LFGs total" value={content.lfgs_total} />
@@ -299,12 +269,10 @@ export default function Analytics({ headline, series, content, topGames, topRegi
                 <div className="rounded-xl border border-ink-900/10 bg-white dark:bg-bone-100 p-5">
                     <h3 className="mb-4 font-bold text-ink-900">Top games by players</h3>
                     <div className="space-y-2">
-                        {topGames.length === 0 && (
-                            <p className="text-sm text-ink-500">No data yet.</p>
-                        )}
-                        {topGames.map((g, i) => {
-                            const max = topGames[0]?.users_count || 1;
-                            const pct = (g.users_count / max) * 100;
+                        {safeTopGames.length === 0 && <p className="text-sm text-ink-500">No data yet.</p>}
+                        {safeTopGames.map((g, i) => {
+                            const max = safeTopGames[0]?.users_count || 1;
+                            const pct = ((g.users_count || 0) / max) * 100;
                             return (
                                 <div key={g.id} className="flex items-center gap-3">
                                     <span className="w-5 shrink-0 text-center text-xs font-bold text-gray-500">#{i + 1}</span>
@@ -325,12 +293,10 @@ export default function Analytics({ headline, series, content, topGames, topRegi
                 <div className="rounded-xl border border-ink-900/10 bg-white dark:bg-bone-100 p-5">
                     <h3 className="mb-4 font-bold text-ink-900">Top regions</h3>
                     <div className="space-y-2">
-                        {topRegions.length === 0 && (
-                            <p className="text-sm text-ink-500">No data yet.</p>
-                        )}
-                        {topRegions.map((r, i) => {
-                            const max = topRegions[0]?.count || 1;
-                            const pct = (r.count / max) * 100;
+                        {safeTopRegions.length === 0 && <p className="text-sm text-ink-500">No data yet.</p>}
+                        {safeTopRegions.map((r, i) => {
+                            const max = safeTopRegions[0]?.count || 1;
+                            const pct = ((r.count || 0) / max) * 100;
                             return (
                                 <div key={r.region} className="flex items-center gap-3">
                                     <span className="w-5 shrink-0 text-center text-xs font-bold text-gray-500">#{i + 1}</span>
@@ -349,7 +315,7 @@ export default function Analytics({ headline, series, content, topGames, topRegi
             </div>
 
             <p className="mt-6 text-[11px] text-gray-500">
-                Headline metrics cache 2 minutes. Time-series + content totals 5 minutes. Top lists 10 minutes. A manual refresh via page reload picks up fresher data.
+                Pageview + platform metrics cache 2 minutes. Top lists 10 minutes. Reload the page to pick up fresher data.
             </p>
         </AdminLayout>
     );
