@@ -30,24 +30,19 @@ class RegisteredUserController extends Controller
             'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'date_of_birth' => 'required|date|before:today',
-            'parental_consent' => 'nullable|boolean',
         ]);
 
-        // Calculate age
+        // Launch-window policy: 16+ only. We raised the floor from 13+
+        // to avoid the "self-checked parental consent" loophole (which
+        // isn't verifiable consent under AVG Art. 8 Dutch AP guidance).
+        // If we ever reintroduce under-16 signups it'll be behind a
+        // real parent-email verification flow.
         $dob = Carbon::parse($request->date_of_birth);
         $age = $dob->age;
 
-        // Must be at least 13
-        if ($age < 13) {
+        if ($age < 16) {
             throw ValidationException::withMessages([
-                'date_of_birth' => 'You must be at least 13 years old to use SquadSpawn.',
-            ]);
-        }
-
-        // Ages 13-15 require parental consent (GDPR Article 8)
-        if ($age < 16 && !$request->parental_consent) {
-            throw ValidationException::withMessages([
-                'parental_consent' => 'Parental consent is required for users under 16.',
+                'date_of_birth' => 'You must be at least 16 years old to sign up for SquadSpawn.',
             ]);
         }
 
@@ -60,8 +55,6 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'date_of_birth' => $request->date_of_birth,
-            'parental_consent' => $age < 16 ? true : false,
-            'parental_consent_at' => $age < 16 ? now() : null,
         ]);
 
         ReferralService::attributeSignup($user, $refCode ?: null);

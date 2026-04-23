@@ -247,7 +247,7 @@ Route::middleware('feature:community')->group(function () {
     Route::get('/community/{communityPost}', [CommunityController::class, 'show'])->name('community.show');
 });
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'age.verified'])->group(function () {
     // Impersonation stop — the impersonated user holds the original
     // admin id in their session and clicks the red return banner.
     Route::post('/impersonate/stop', [\App\Http\Controllers\Admin\ImpersonationController::class, 'stop'])->name('impersonate.stop');

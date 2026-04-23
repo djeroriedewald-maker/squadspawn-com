@@ -20,30 +20,24 @@ class AgeVerificationController extends Controller
     {
         $request->validate([
             'date_of_birth' => 'required|date|before:today',
-            'parental_consent' => 'nullable|boolean',
         ]);
 
         $dob = Carbon::parse($request->date_of_birth);
         $age = $dob->age;
 
-        if ($age < 13) {
+        // Launch-window policy: 16+ only (AVG Art. 8 — no self-checked
+        // parental consent loophole). Under-16 accounts are logged out
+        // immediately with a clear message.
+        if ($age < 16) {
             auth()->logout();
             $request->session()->invalidate();
 
-            return redirect('/')->with('message', 'You must be at least 13 years old to use SquadSpawn. Your account has been logged out.');
-        }
-
-        if ($age < 16 && !$request->parental_consent) {
-            throw ValidationException::withMessages([
-                'parental_consent' => 'Parental consent is required for users under 16 in the EU.',
-            ]);
+            return redirect('/')->with('message', 'You must be at least 16 years old to use SquadSpawn. Your account has been logged out.');
         }
 
         $user = auth()->user();
         $user->update([
             'date_of_birth' => $request->date_of_birth,
-            'parental_consent' => $age < 16 ? true : false,
-            'parental_consent_at' => $age < 16 ? now() : null,
         ]);
 
         return redirect()->route('dashboard');

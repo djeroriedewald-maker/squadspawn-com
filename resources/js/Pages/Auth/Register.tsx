@@ -4,29 +4,16 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { FormEventHandler, useState } from 'react';
+import { FormEventHandler } from 'react';
 
 export default function Register() {
-    const [showParentalConsent, setShowParentalConsent] = useState(false);
-
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
         email: '',
         password: '',
         password_confirmation: '',
         date_of_birth: '',
-        parental_consent: false as boolean,
     });
-
-    const checkAge = (dob: string) => {
-        setData('date_of_birth', dob);
-        if (dob) {
-            const age = Math.floor((Date.now() - new Date(dob).getTime()) / (365.25 * 24 * 60 * 60 * 1000));
-            setShowParentalConsent(age >= 13 && age < 16);
-        } else {
-            setShowParentalConsent(false);
-        }
-    };
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
@@ -147,29 +134,12 @@ export default function Register() {
                         name="date_of_birth"
                         value={data.date_of_birth}
                         className="mt-1 block w-full"
-                        onChange={(e) => checkAge(e.target.value)}
+                        onChange={(e) => setData('date_of_birth', e.target.value)}
                         required
                     />
                     <InputError message={errors.date_of_birth} className="mt-2" />
-                    <p className="mt-1 text-[10px] text-gray-500">You must be at least 13 years old to use SquadSpawn.</p>
+                    <p className="mt-1 text-[10px] text-gray-500">You must be at least 16 years old to sign up.</p>
                 </div>
-
-                {showParentalConsent && (
-                    <div className="mt-4 rounded-lg border border-yellow-500/20 bg-yellow-500/5 p-4">
-                        <label className="flex items-start gap-3">
-                            <input
-                                type="checkbox"
-                                checked={data.parental_consent}
-                                onChange={(e) => setData('parental_consent', e.target.checked)}
-                                className="mt-1 h-4 w-4 rounded border-ink-900/20 bg-bone-100 text-neon-red focus:ring-neon-red"
-                            />
-                            <span className="text-sm text-ink-700">
-                                <strong className="text-yellow-400">Parental Consent Required:</strong> I confirm that my parent or legal guardian has given consent for me to use this platform, in accordance with GDPR Article 8.
-                            </span>
-                        </label>
-                        <InputError message={errors.parental_consent} className="mt-2" />
-                    </div>
-                )}
 
                 <div className="mt-4 flex items-center justify-end">
                     <Link
