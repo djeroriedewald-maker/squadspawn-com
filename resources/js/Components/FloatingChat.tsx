@@ -494,23 +494,42 @@ export default function FloatingChat() {
                                 friends.length === 0 ? (
                                     <EmptyState icon="friends" text="No friends yet" action="Find Players" onAction={() => { setView('closed'); router.visit(route('discovery.index')); }} />
                                 ) : friends.map((friend) => (
-                                    <button key={friend.id} onClick={() => openFriendChat(friend)} className="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-bone-100 active:bg-bone-200">
-                                        <AvatarWithStatus avatar={friend.partner.avatar} name={friend.partner.username || friend.partner.name} online={friend.partner.online} />
-                                        <div className="min-w-0 flex-1">
-                                            <div className="flex items-center justify-between">
-                                                <span className={`truncate text-sm ${friend.unread_count > 0 ? 'font-bold text-ink-900' : 'font-medium text-ink-700'}`}>
-                                                    {friend.partner.username || friend.partner.name}
-                                                </span>
-                                                {friend.last_message && <span className="ml-2 shrink-0 text-[10px] text-gray-600">{friend.last_message.created_at}</span>}
+                                    <div key={friend.id} className="group/row relative flex w-full items-center gap-3 px-4 py-3 transition hover:bg-bone-100">
+                                        <button type="button" onClick={() => openFriendChat(friend)} className="flex flex-1 items-center gap-3 text-left">
+                                            <AvatarWithStatus avatar={friend.partner.avatar} name={friend.partner.username || friend.partner.name} online={friend.partner.online} />
+                                            <div className="min-w-0 flex-1">
+                                                <div className="flex items-center justify-between">
+                                                    <span className={`truncate text-sm ${friend.unread_count > 0 ? 'font-bold text-ink-900' : 'font-medium text-ink-700'}`}>
+                                                        {friend.partner.username || friend.partner.name}
+                                                    </span>
+                                                    {friend.last_message && <span className="ml-2 shrink-0 text-[10px] text-gray-600">{friend.last_message.created_at}</span>}
+                                                </div>
+                                                <div className="flex items-center justify-between">
+                                                    <p className={`truncate text-xs ${friend.unread_count > 0 ? 'text-ink-700' : 'text-gray-500'}`}>
+                                                        {friend.last_message ? (friend.last_message.sender_id === userId ? 'You: ' : '') + friend.last_message.body : 'Say hi!'}
+                                                    </p>
+                                                    {friend.unread_count > 0 && <UnreadBadge count={friend.unread_count} />}
+                                                </div>
                                             </div>
-                                            <div className="flex items-center justify-between">
-                                                <p className={`truncate text-xs ${friend.unread_count > 0 ? 'text-ink-700' : 'text-gray-500'}`}>
-                                                    {friend.last_message ? (friend.last_message.sender_id === userId ? 'You: ' : '') + friend.last_message.body : 'Say hi!'}
-                                                </p>
-                                                {friend.unread_count > 0 && <UnreadBadge count={friend.unread_count} />}
-                                            </div>
-                                        </div>
-                                    </button>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            aria-label="Hide chat"
+                                            title="Hide from your list — friendship stays, new messages un-hide automatically"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (!confirm(`Hide "${friend.partner.username || friend.partner.name}" from your chat list?\n\nYour friendship stays. A new message from them will automatically un-hide the chat.`)) return;
+                                                axios.delete(route('chat.hide', { playerMatch: friend.id }))
+                                                    .then(() => setFriends((prev) => prev.filter((f) => f.id !== friend.id)))
+                                                    .catch(() => alert('Could not hide chat.'));
+                                            }}
+                                            className="rounded-lg p-1.5 text-gray-400 opacity-0 transition hover:bg-red-500/10 hover:text-red-500 group-hover/row:opacity-100"
+                                        >
+                                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                            </svg>
+                                        </button>
+                                    </div>
                                 ))
                             )}
 

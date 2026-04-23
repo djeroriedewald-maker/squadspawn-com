@@ -24,7 +24,12 @@ class ChatController extends Controller
             ->orWhere('user_two_id', $user->id)
             ->with(['userOne.profile', 'userTwo.profile'])
             ->latest()
-            ->get();
+            ->get()
+            // Per-user "hidden" flag set via the widget trash icon. The
+            // match still exists (friendship intact, the other side can
+            // still message them) — they just don't see the row.
+            ->reject(fn (PlayerMatch $m) => \Illuminate\Support\Facades\Cache::has("chat_hidden:{$user->id}:{$m->id}"))
+            ->values();
 
         $matchIds = $matches->pluck('id');
 
@@ -194,6 +199,10 @@ class ChatController extends Controller
             : $playerMatch->userOne;
 
         \Cache::forget("user:{$partner->id}:unread");
+        // If either side had the chat hidden, a new message un-hides
+        // it so they don't miss the ping.
+        \Cache::forget("chat_hidden:{$user->id}:{$playerMatch->id}");
+        \Cache::forget("chat_hidden:{$partner->id}:{$playerMatch->id}");
 
         // XP for sending messages (max 10/day)
         try {
@@ -259,6 +268,22 @@ class ChatController extends Controller
             ->whereNull('read_at')
             ->update(['read_at' => now()]);
 
+        return response()->json(['ok' => true]);
+    }
+
+    /**
+     * Hide a chat from my own floating-widget list. The friendship,
+     * messages, and other side's view stay intact — it's purely a
+     * personal "I don't want to see this in my sidebar" toggle. Any
+     * new incoming message will un-hide automatically (see Store).
+     */
+    public function hide(PlayerMatch $playerMatch): JsonResponse
+    {
+        $user = auth()->user();
+        if ($playerMatch->user_one_id !== $user->id && $playerMatch->user_two_id !== $user->id) {
+            abort(HttpResponse::HTTP_FORBIDDEN);
+        }
+        \Illuminate\Support\Facades\Cache::put("chat_hidden:{$user->id}:{$playerMatch->id}", now()->toIso8601String(), 86400 * 365);
         return response()->json(['ok' => true]);
     }
 }

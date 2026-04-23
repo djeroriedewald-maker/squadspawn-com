@@ -390,6 +390,7 @@ Route::middleware('auth')->group(function () {
             Route::post('/friends/{playerMatch}/messages', [ChatController::class, 'store'])->middleware('throttle:60,1')->name('chat.store');
             Route::post('/friends/{playerMatch}/read', [ChatController::class, 'markRead'])->name('chat.markRead');
             Route::get('/friends/{playerMatch}/poll', [ChatController::class, 'poll'])->name('chat.poll');
+            Route::delete('/friends/{playerMatch}/hide', [ChatController::class, 'hide'])->name('chat.hide');
         });
 
         // LFG (all LFG endpoints behind the `lfg` flag)
