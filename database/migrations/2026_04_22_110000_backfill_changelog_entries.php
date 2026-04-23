@@ -47,11 +47,11 @@ return new class extends Migration {
         // Most recent first — the public timeline sorts by published_at
         // descending, so ordering here doesn't matter for display.
         return [
-            // ── v1.3.1 — OAuth + delete-account polish ─────────────
+            // ── v1.3.1 — Login + delete-account polish ─────────────
             [
                 'version' => '1.3.1',
                 'slug' => 'v1-3-1-google-login-and-delete-account',
-                'title' => 'Smoother Google login + safer account deletion',
+                'title' => 'Smoother Google login + cleaner account deletion',
                 'tag' => 'fix',
                 'is_highlight' => false,
                 'published_at' => '2026-04-22 14:30:00',
@@ -111,7 +111,7 @@ return new class extends Migration {
             [
                 'version' => '1.0.0',
                 'slug' => 'v1-0-0-security-and-performance',
-                'title' => 'Platform-wide security & performance sweep',
+                'title' => 'Under-the-hood security & speed pass',
                 'tag' => 'security',
                 'is_highlight' => false,
                 'published_at' => '2026-04-21 19:00:00',
@@ -124,10 +124,10 @@ return new class extends Migration {
     private function b131(): string
     {
         return <<<'HTML'
-<p>Two quick follow-ups that unblock a few of you this morning:</p>
+<p>Two small follow-ups:</p>
 <ul>
-  <li><strong>Google login no longer loops.</strong> Existing password accounts that signed in with Google were caught in a redirect loop after last night's takeover-prevention change. Google already proves you own the email, so we now auto-link on first sign-in and log it for the mod trail.</li>
-  <li><strong>Deleting a Google account works without a password.</strong> If you signed up via Google you never picked a SquadSpawn password — the delete flow now asks you to type <code>DELETE</code> in capitals instead.</li>
+  <li><strong>Google login runs smoothly again.</strong> Existing accounts linked via Google sign in without friction.</li>
+  <li><strong>Delete-account flow for Google accounts.</strong> Since you never picked a SquadSpawn password, the delete dialog now asks you to type <code>DELETE</code> in capitals to confirm instead.</li>
 </ul>
 HTML;
     }
@@ -181,24 +181,16 @@ HTML;
     private function b100(): string
     {
         return <<<'HTML'
-<p>No visible UI changes in this one — but a lot of defensive plumbing you'll appreciate knowing is in place.</p>
-<p><strong>Security hardening:</strong></p>
+<p>A batch of behind-the-scenes improvements focused on keeping the platform safe and fast. Nothing that changes how you use SquadSpawn — everything just runs a bit tighter.</p>
+<p>The highlights:</p>
 <ul>
-  <li>Google OAuth + Steam linking now refuse account-takeover / account-claim vectors.</li>
-  <li>Scheduled LFGs can no longer be back-dated via edit.</li>
-  <li>URL validation covers the full IPv4 + IPv6 private ranges now (including AWS/GCE metadata and link-local).</li>
-  <li>Clip URLs must match the declared platform host.</li>
-  <li>Redirects reject URLs with embedded user-info (<code>https://trusted.com@evil.com</code>).</li>
-  <li>Search and push-subscription endpoints now rate-limited.</li>
+  <li>Account sign-in and account-linking have been hardened.</li>
+  <li>User-submitted URLs go through stricter validation end-to-end.</li>
+  <li>Rate limits added on account-sensitive endpoints.</li>
+  <li>LFG group lists and notification polling are noticeably faster.</li>
+  <li>Rich-text editor now lazy-loads — most pages get a lighter bundle.</li>
 </ul>
-<p><strong>Performance wins:</strong></p>
-<ul>
-  <li>LFG group list no longer N+1's across unread counts — one query for all groups.</li>
-  <li>Sitemap now cached for 24h instead of rebuilt on every crawler hit.</li>
-  <li>Rich-text editor lives in its own lazy-loaded JS chunk — pages without it load ~120 KB lighter.</li>
-  <li>New composite index on notifications for the polling hot-path.</li>
-</ul>
-<p>Thanks to <a href="https://budgetpixels.nl" target="_blank" rel="noopener">BudgetPixels.nl</a> for keeping the bar high.</p>
+<p>Thanks to <a href="https://budgetpixels.nl" target="_blank" rel="noopener">BudgetPixels.nl</a> for the engineering help.</p>
 HTML;
     }
 };
