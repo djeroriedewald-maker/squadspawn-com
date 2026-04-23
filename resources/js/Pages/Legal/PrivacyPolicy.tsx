@@ -11,7 +11,7 @@ export default function PrivacyPolicy() {
                 <div className="mx-auto max-w-3xl px-6 py-12">
                     <h1 className="mb-8 text-3xl font-bold">Privacy Policy</h1>
                     <div className="space-y-6 text-sm leading-relaxed text-ink-700">
-                        <p className="text-ink-500">Last updated: April 19, 2026</p>
+                        <p className="text-ink-500">Last updated: April 23, 2026</p>
 
                         <p>
                             This Privacy Policy explains how SquadSpawn ("we," "us," or "our") collects, uses, shares,
@@ -160,12 +160,66 @@ export default function PrivacyPolicy() {
                             control certain visibility settings through your account settings.
                         </p>
 
-                        <h3 className="text-lg font-medium text-ink-900">5.2 Service Providers</h3>
+                        <h3 className="text-lg font-medium text-ink-900">5.2 Service Providers (Sub-processors)</h3>
                         <p>
-                            We share data with trusted third-party service providers who help us operate the platform,
-                            including hosting providers, email delivery services, and content delivery networks. These
-                            providers are contractually obligated to protect your data and process it only on our
-                            instructions.
+                            We use the following third-party processors to operate the platform. Each has a contractual
+                            obligation to protect your data and process it only on our instructions. Where a processor
+                            is based outside the EEA, transfers are covered by the European Commission's Standard
+                            Contractual Clauses or an adequacy decision.
+                        </p>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left text-ink-500">
+                                <thead>
+                                    <tr className="border-b border-ink-900/10">
+                                        <th className="py-2 pr-4 text-ink-700">Service</th>
+                                        <th className="py-2 pr-4 text-ink-700">What it does</th>
+                                        <th className="py-2 pr-4 text-ink-700">Data it sees</th>
+                                        <th className="py-2 text-ink-700">Region</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-ink-900/5">
+                                    <tr>
+                                        <td className="py-2 pr-4 align-top">Google (OAuth)</td>
+                                        <td className="py-2 pr-4 align-top">"Sign in with Google" flow</td>
+                                        <td className="py-2 pr-4 align-top">Google account ID, name, email</td>
+                                        <td className="py-2 align-top">US (SCCs)</td>
+                                    </tr>
+                                    <tr>
+                                        <td className="py-2 pr-4 align-top">Valve (Steam Web API)</td>
+                                        <td className="py-2 pr-4 align-top">Read public Steam profile + playtime for users who link Steam</td>
+                                        <td className="py-2 pr-4 align-top">Steam ID, public profile metadata</td>
+                                        <td className="py-2 align-top">US (SCCs)</td>
+                                    </tr>
+                                    <tr>
+                                        <td className="py-2 pr-4 align-top">RAWG</td>
+                                        <td className="py-2 pr-4 align-top">Game catalogue, cover art, metadata</td>
+                                        <td className="py-2 pr-4 align-top">None — server-to-server, no personal data</td>
+                                        <td className="py-2 align-top">US (no personal data transferred)</td>
+                                    </tr>
+                                    <tr>
+                                        <td className="py-2 pr-4 align-top">Plausible Analytics</td>
+                                        <td className="py-2 pr-4 align-top">Aggregate page-view statistics (cookie-less)</td>
+                                        <td className="py-2 pr-4 align-top">Anonymised hash of page + country, no cookies</td>
+                                        <td className="py-2 align-top">EU (Germany)</td>
+                                    </tr>
+                                    <tr>
+                                        <td className="py-2 pr-4 align-top">Web Push endpoints<br />(Mozilla, Google, Apple)</td>
+                                        <td className="py-2 pr-4 align-top">Delivers browser push notifications to opted-in users</td>
+                                        <td className="py-2 pr-4 align-top">Browser-generated push subscription (endpoint URL + keys)</td>
+                                        <td className="py-2 align-top">US/EU (SCCs where applicable)</td>
+                                    </tr>
+                                    <tr>
+                                        <td className="py-2 pr-4 align-top">Hosting &amp; storage</td>
+                                        <td className="py-2 pr-4 align-top">Application hosting, database, file storage, encrypted backups</td>
+                                        <td className="py-2 pr-4 align-top">All stored platform data</td>
+                                        <td className="py-2 align-top">EU</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p>
+                            We do not use advertising networks, marketing pixels, or data brokers. We never share your
+                            data with third parties for their own marketing purposes.
                         </p>
 
                         <h3 className="text-lg font-medium text-ink-900">5.3 Law Enforcement</h3>
@@ -271,17 +325,20 @@ export default function PrivacyPolicy() {
                         {/* 9. Children's Privacy */}
                         <h2 className="text-xl font-semibold text-ink-900">9. Children's Privacy</h2>
                         <p>
-                            SquadSpawn is intended for users aged 16 and older. Under GDPR Article 8 and the Dutch
+                            SquadSpawn is only available to users aged <strong>16 and older</strong>. Under the Dutch
                             implementation of the GDPR (UAVG), 16 is the age at which a person may validly consent to
-                            the processing of their own personal data by an online service provider. We do not knowingly
-                            collect personal data from anyone under 16 without verifiable consent from a parent or legal
-                            guardian. If we become aware that we have collected personal data from a user under 16
-                            without appropriate consent, we will take prompt steps to delete that data.
+                            the processing of their own personal data by an online service provider. Accounts younger
+                            than 16 are not accepted — both the email-signup form and the age-verification screen for
+                            Google OAuth signups reject any date of birth that makes the user under 16 and immediately
+                            log the account out.
                         </p>
                         <p>
-                            If you are a parent or guardian and believe your child has provided us with personal data
-                            without your consent, please contact us at{' '}
-                            <a href="mailto:info@squadspawn.com" className="text-neon-red hover:underline">info@squadspawn.com</a>.
+                            We do not knowingly collect personal data from anyone under 16. If we become aware that a
+                            user is under 16, we will delete their account and the associated personal data. If you are
+                            a parent or guardian and believe your child has created an account on SquadSpawn, please
+                            contact us at{' '}
+                            <a href="mailto:info@squadspawn.com" className="text-neon-red hover:underline">info@squadspawn.com</a>{' '}
+                            and we will act on your request promptly.
                         </p>
 
                         {/* 10. Data Security */}
@@ -339,9 +396,13 @@ export default function PrivacyPolicy() {
                             <a href="https://squadspawn.com" className="text-neon-red hover:underline">squadspawn.com</a>
                         </p>
                         <p>
-                            For data protection inquiries, you may also contact our Data Protection Officer (DPO) at{' '}
+                            For privacy-specific inquiries (GDPR requests, data exports, erasure, complaints), please
+                            email{' '}
                             <a href="mailto:info@squadspawn.com" className="text-neon-red hover:underline">info@squadspawn.com</a>{' '}
-                            with the subject line "DPO Request."
+                            with the subject line <strong>"Privacy Request"</strong> so your message is routed quickly.
+                            SquadSpawn is a small solo-operated platform and is not required to appoint a dedicated
+                            Data Protection Officer under AVG Art. 37, but the above contact is the single point of
+                            contact for all data-protection matters.
                         </p>
                     </div>
                 </div>

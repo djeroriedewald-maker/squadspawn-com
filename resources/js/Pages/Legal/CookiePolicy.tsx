@@ -11,7 +11,7 @@ export default function CookiePolicy() {
                 <div className="mx-auto max-w-3xl px-6 py-12">
                     <h1 className="mb-8 text-3xl font-bold">Cookie Policy</h1>
                     <div className="space-y-6 text-sm leading-relaxed text-ink-700">
-                        <p className="text-ink-500">Last updated: April 13, 2026</p>
+                        <p className="text-ink-500">Last updated: April 23, 2026</p>
 
                         <p>
                             This Cookie Policy explains how SquadSpawn ("we," "us," or "our"), operated by
@@ -99,42 +99,18 @@ export default function CookiePolicy() {
                             </table>
                         </div>
 
-                        {/* 2.3 Analytics Cookies */}
-                        <h3 className="text-lg font-medium text-ink-900">2.3 Analytics Cookies</h3>
+                        {/* 2.3 Analytics */}
+                        <h3 className="text-lg font-medium text-ink-900">2.3 Analytics</h3>
                         <p>
-                            We may use analytics cookies to understand how visitors interact with our platform. This
-                            helps us improve the user experience, identify popular features, and detect issues. Analytics
-                            data is anonymized and aggregated.
+                            We use <a href="https://plausible.io/privacy-focused-web-analytics" target="_blank" rel="noopener noreferrer" className="text-neon-red hover:underline">Plausible Analytics</a>,
+                            a privacy-first, <strong>cookie-less</strong> analytics service that does not
+                            identify individual visitors or track them across sites. No cookies or fingerprints
+                            are stored on your device for analytics purposes, so there is nothing to opt out of
+                            and no consent is required under ePrivacy / AVG.
                         </p>
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left text-ink-500">
-                                <thead>
-                                    <tr className="border-b border-gray-700">
-                                        <th className="py-2 pr-4 text-ink-700">Cookie</th>
-                                        <th className="py-2 pr-4 text-ink-700">Purpose</th>
-                                        <th className="py-2 text-ink-700">Duration</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-800">
-                                    <tr>
-                                        <td className="py-2 pr-4 font-mono text-xs">_ga</td>
-                                        <td className="py-2 pr-4">Google Analytics cookie used to distinguish unique users. IP addresses are anonymized.</td>
-                                        <td className="py-2">24 months</td>
-                                    </tr>
-                                    <tr>
-                                        <td className="py-2 pr-4 font-mono text-xs">_ga_*</td>
-                                        <td className="py-2 pr-4">Google Analytics cookie used to maintain session state.</td>
-                                        <td className="py-2">24 months</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
                         <p>
-                            Analytics cookies are only set with your consent. You can opt out of Google Analytics across
-                            all websites by installing the{' '}
-                            <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener noreferrer" className="text-neon-red hover:underline">
-                                Google Analytics Opt-out Browser Add-on
-                            </a>.
+                            SquadSpawn does <strong>not</strong> use Google Analytics, Facebook Pixel, or any
+                            cross-site tracking tool.
                         </p>
 
                         {/* 2.4 Third-Party Cookies */}
@@ -213,21 +189,6 @@ export default function CookiePolicy() {
                             <li>
                                 <a href="https://support.microsoft.com/en-us/microsoft-edge/delete-cookies-in-microsoft-edge-63947406-40ac-c3b8-57b9-2a946a29ae09" target="_blank" rel="noopener noreferrer" className="text-neon-red hover:underline">
                                     Microsoft Edge
-                                </a>
-                            </li>
-                        </ul>
-
-                        <h3 className="text-lg font-medium text-ink-900">3.3 Opt-Out Links</h3>
-                        <p>For specific third-party cookies, you can use these opt-out tools:</p>
-                        <ul className="ml-4 list-disc space-y-1 text-ink-500">
-                            <li>
-                                <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener noreferrer" className="text-neon-red hover:underline">
-                                    Google Analytics Opt-out
-                                </a>
-                            </li>
-                            <li>
-                                <a href="https://adssettings.google.com" target="_blank" rel="noopener noreferrer" className="text-neon-red hover:underline">
-                                    Google Ad Settings
                                 </a>
                             </li>
                         </ul>
