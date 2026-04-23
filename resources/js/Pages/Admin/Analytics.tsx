@@ -107,9 +107,9 @@ export default function Analytics({ headline, series, content, topGames, topRegi
             <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
                 <StatCard label="Total users" value={headline.total_users} tone="red" sublabel={`${headline.total_profiles.toLocaleString()} with profile`} />
                 <StatCard label="Online now" value={headline.online_now} tone="green" sublabel="last 15 min" />
-                <StatCard label="DAU" value={headline.dau} tone="cyan" sublabel="active last 24h" />
-                <StatCard label="WAU" value={headline.wau} sublabel="active last 7 days" />
-                <StatCard label="MAU" value={headline.mau} sublabel="active last 30 days" />
+                <StatCard label="Active today" value={headline.dau} tone="cyan" sublabel="last 24 hours (DAU)" />
+                <StatCard label="Active this week" value={headline.wau} sublabel="last 7 days (WAU)" />
+                <StatCard label="Active this month" value={headline.mau} sublabel="last 30 days (MAU)" />
             </div>
 
             {/* Headline — signups */}
