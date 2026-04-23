@@ -46,16 +46,25 @@ export default function PageHero({
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                     <div className="min-w-0 flex-1">
                         {eyebrow && (
-                            <p className="text-[11px] font-bold uppercase tracking-widest text-neon-red [text-shadow:_0_2px_8px_rgb(0_0_0_/_0.9)]">
+                            <p
+                                className="text-[11px] font-bold uppercase tracking-widest text-neon-red"
+                                style={{ textShadow: '0 2px 8px rgba(0,0,0,0.9)' }}
+                            >
                                 {eyebrow}
                             </p>
                         )}
                         {badges && <div className="mt-1 flex flex-wrap items-center gap-2">{badges}</div>}
-                        <h1 className="mt-1 text-2xl font-black text-white [text-shadow:_0_2px_12px_rgb(0_0_0_/_0.9)] sm:text-3xl lg:text-4xl">
+                        <h1
+                            className="mt-1 text-2xl font-black text-white sm:text-3xl lg:text-4xl"
+                            style={{ textShadow: '0 2px 12px rgba(0,0,0,0.9)' }}
+                        >
                             {title}
                         </h1>
                         {subtitle && (
-                            <p className="mt-2 max-w-2xl text-sm text-white [text-shadow:_0_2px_8px_rgb(0_0_0_/_0.9)] sm:text-base">
+                            <p
+                                className="mt-2 max-w-2xl text-sm text-white sm:text-base"
+                                style={{ textShadow: '0 2px 8px rgba(0,0,0,0.9)' }}
+                            >
                                 {subtitle}
                             </p>
                         )}

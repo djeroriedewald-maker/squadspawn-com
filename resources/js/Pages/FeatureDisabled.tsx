@@ -55,11 +55,17 @@ export default function FeatureDisabled({ feature }: { feature: string }) {
                         Temporarily offline
                     </span>
 
-                    <h1 className="text-3xl font-extrabold tracking-tight text-white [text-shadow:_0_2px_12px_rgb(0_0_0_/_0.9)] sm:text-4xl">
+                    <h1
+                        className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl"
+                        style={{ textShadow: '0 2px 12px rgba(0,0,0,0.9)' }}
+                    >
                         {copy.title}
                     </h1>
 
-                    <p className="mx-auto mt-3 max-w-md text-sm text-white [text-shadow:_0_2px_8px_rgb(0_0_0_/_0.9)] sm:text-base">
+                    <p
+                        className="mx-auto mt-3 max-w-md text-sm text-white sm:text-base"
+                        style={{ textShadow: '0 2px 8px rgba(0,0,0,0.9)' }}
+                    >
                         {copy.blurb}
                     </p>
 
