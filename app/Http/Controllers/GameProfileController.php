@@ -148,12 +148,14 @@ class GameProfileController extends Controller
 
         app(AchievementService::class)->check($user);
 
-        // If this was the first time setup, redirect to discovery
+        // On first setup, send the player to their dashboard so referred
+        // signups see their inviter's match straight away and everyone
+        // gets a proper orientation before the swipe feed.
         $isFirstSetup = !$user->profile()->where('created_at', '<', now()->subMinute())->exists();
 
         if ($isFirstSetup) {
-            return redirect()->route('discovery.index')
-                ->with('message', 'Profile created! Start discovering players.');
+            return redirect()->route('dashboard')
+                ->with('message', 'Profile created! Welcome to SquadSpawn.');
         }
 
         return redirect()->route('game-profile.show')
