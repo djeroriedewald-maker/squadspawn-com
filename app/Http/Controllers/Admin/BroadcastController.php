@@ -44,6 +44,50 @@ class BroadcastController extends Controller
     }
 
     /**
+     * Scheduler diagnostics — exposes the exact file paths admins need
+     * to copy into Forge's scheduled-job form, plus a live cron health
+     * read-out. Lets us debug cron setup from the browser without SSH.
+     */
+    public function diagnostics(): Response
+    {
+        $lastRun = \Illuminate\Support\Facades\Cache::get('broadcasts:scheduler_last_run');
+        $artisanPath = base_path('artisan');
+        $phpBinary = PHP_BINARY ?: 'php';
+
+        // "php /home/forge/.../artisan schedule:run" — the exact string
+        // that goes in Forge's Scheduler → Add Job → Command field.
+        $suggestedCommand = $phpBinary . ' ' . $artisanPath . ' schedule:run';
+
+        return Inertia::render('Admin/Broadcasts/Diagnostics', [
+            'paths' => [
+                'artisan' => $artisanPath,
+                'artisan_exists' => file_exists($artisanPath),
+                'php_binary' => $phpBinary,
+                'base_path' => base_path(),
+                'app_timezone' => config('app.timezone'),
+                'now_server' => now()->toIso8601String(),
+            ],
+            'suggested_cron' => $suggestedCommand,
+            'scheduler' => [
+                'last_run_at' => $lastRun,
+                'healthy' => $lastRun
+                    ? \Illuminate\Support\Carbon::parse($lastRun)->diffInMinutes(now()) < 3
+                    : false,
+            ],
+            'pending_scheduled' => Broadcast::whereNull('sent_at')
+                ->whereNotNull('scheduled_at')
+                ->orderBy('scheduled_at')
+                ->get()
+                ->map(fn ($b) => [
+                    'id' => $b->id,
+                    'title' => $b->title,
+                    'scheduled_at' => $b->scheduled_at?->toIso8601String(),
+                    'is_due' => $b->scheduled_at && $b->scheduled_at->isPast(),
+                ]),
+        ]);
+    }
+
+    /**
      * Dedicated analytics view — aggregate stats across every sent
      * broadcast + a per-broadcast breakdown sorted by engagement. Lets
      * you see reach and click-through at a glance without opening the

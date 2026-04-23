@@ -130,9 +130,12 @@ export default function BroadcastsIndex({ broadcasts, scheduler }: { broadcasts:
                             ? <>Last heartbeat at <strong className="text-ink-700">{new Date(scheduler.last_run_at).toLocaleString()}</strong>. Scheduled broadcasts fire within a minute of their planned time.</>
                             : <>No heartbeat recorded yet. Configure a cron on Forge: <code className="rounded bg-bone-100 px-1 py-0.5">php /home/forge/squadspawn.com/artisan schedule:run</code> — every minute.</>}
                     </p>
-                    {!scheduler.healthy && scheduler.last_run_at && (
+                    {!scheduler.healthy && (
                         <p className="mt-1 text-ink-500">
-                            The command hasn't run in &gt;3 minutes. Forge → server → <em>Scheduler</em> tab → verify the job is listed and hasn't errored.
+                            <Link href={route('admin.broadcasts.diagnostics')} className="font-semibold text-neon-red hover:underline">
+                                Open diagnostics →
+                            </Link>{' '}
+                            for the exact cron command + server paths.
                         </p>
                     )}
                 </div>

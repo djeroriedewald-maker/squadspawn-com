@@ -425,6 +425,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     // Broadcasts
     Route::get('/broadcasts', [\App\Http\Controllers\Admin\BroadcastController::class, 'index'])->name('admin.broadcasts.index');
     Route::get('/broadcasts/analytics', [\App\Http\Controllers\Admin\BroadcastController::class, 'analytics'])->name('admin.broadcasts.analytics');
+    Route::get('/broadcasts/diagnostics', [\App\Http\Controllers\Admin\BroadcastController::class, 'diagnostics'])->name('admin.broadcasts.diagnostics');
     Route::get('/broadcasts/create', [\App\Http\Controllers\Admin\BroadcastController::class, 'create'])->name('admin.broadcasts.create');
     Route::post('/broadcasts', [\App\Http\Controllers\Admin\BroadcastController::class, 'store'])->name('admin.broadcasts.store');
     Route::post('/broadcasts/preview', [\App\Http\Controllers\Admin\BroadcastController::class, 'preview'])->name('admin.broadcasts.preview');
