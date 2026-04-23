@@ -149,7 +149,7 @@ export default function AdminMessages({ messages, filters, counts, categories }:
                     href={route('admin.messages.index', filters.status === 'all' ? {} : { status: filters.status })}
                     preserveState
                     className={`rounded-full px-3 py-1 text-xs font-medium transition ${
-                        !filters.category ? 'bg-ink-900 text-white' : 'bg-ink-900/5 text-ink-700 hover:bg-ink-900/10'
+                        !filters.category ? 'bg-neon-red text-white' : 'bg-ink-900/5 text-ink-700 hover:bg-ink-900/10'
                     }`}
                 >
                     All
