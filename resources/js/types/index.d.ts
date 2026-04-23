@@ -28,6 +28,8 @@ export interface Profile {
     has_mic?: boolean;
     stream_url?: string;
     is_live?: boolean;
+    featured_until?: string | null;
+    is_featured_now?: boolean;
     reputation_score?: number;
     achievement_points?: number;
     xp?: number;
