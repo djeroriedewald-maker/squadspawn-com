@@ -2,6 +2,7 @@ import BroadcastPopup from '@/Components/BroadcastPopup';
 import Dropdown from '@/Components/Dropdown';
 import FlashBar from '@/Components/FlashBar';
 import FloatingChat from '@/Components/FloatingChat';
+import ImpersonationBar from '@/Components/ImpersonationBar';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import SearchBar from '@/Components/SearchBar';
@@ -24,6 +25,7 @@ export default function Authenticated({
 
     return (
         <div className="min-h-screen bg-bone-50">
+            <ImpersonationBar />
             <FlashBar />
             <nav className="relative z-50 border-b border-ink-900/5 bg-bone-50/80 backdrop-blur-xl">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

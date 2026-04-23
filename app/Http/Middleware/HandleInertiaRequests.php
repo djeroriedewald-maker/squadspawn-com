@@ -60,6 +60,18 @@ class HandleInertiaRequests extends Middleware
             $hasChangelogUpdate = $latestChangelogAt
                 && ($lastSeen === null || $latestChangelogAt > $lastSeen);
 
+            // Impersonation banner info — if the session carries an
+            // impersonator_id the current user is logged in as someone
+            // else and should see a red "stop impersonating" strip.
+            $impersonator = null;
+            $impId = $request->session()->get(\App\Http\Controllers\Admin\ImpersonationController::SESSION_KEY);
+            if ($impId) {
+                $admin = \App\Models\User::find($impId);
+                if ($admin) {
+                    $impersonator = ['id' => $admin->id, 'name' => $admin->name];
+                }
+            }
+
             $authData = [
                 'user' => $user,
                 'unreadCount' => $unreadCount,
@@ -68,6 +80,7 @@ class HandleInertiaRequests extends Middleware
                 'canModerate' => $user->canModerate(),
                 'isAdmin' => (bool) $user->is_admin,
                 'hasChangelogUpdate' => $hasChangelogUpdate,
+                'impersonator' => $impersonator,
             ];
         }
 

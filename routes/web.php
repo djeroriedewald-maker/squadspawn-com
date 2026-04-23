@@ -246,6 +246,10 @@ Route::get('/community/{communityPost}/edit', [CommunityController::class, 'edit
 Route::get('/community/{communityPost}', [CommunityController::class, 'show'])->name('community.show');
 
 Route::middleware('auth')->group(function () {
+    // Impersonation stop — the impersonated user holds the original
+    // admin id in their session and clicks the red return banner.
+    Route::post('/impersonate/stop', [\App\Http\Controllers\Admin\ImpersonationController::class, 'stop'])->name('impersonate.stop');
+
     // Notifications
     Route::get('/notifications/poll', [\App\Http\Controllers\NotificationController::class, 'poll'])->name('notifications.poll');
     Route::post('/notifications/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllRead'])->name('notifications.readAll');

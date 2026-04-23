@@ -6,6 +6,7 @@ export interface User {
     is_admin?: boolean;
     is_moderator?: boolean;
     is_owner?: boolean;
+    is_banned?: boolean;
     profile?: Profile;
     games?: Game[];
 }

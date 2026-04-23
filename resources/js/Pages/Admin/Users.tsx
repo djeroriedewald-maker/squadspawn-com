@@ -10,6 +10,7 @@ interface User {
     is_admin?: boolean;
     is_moderator?: boolean;
     is_owner?: boolean;
+    is_banned?: boolean;
     games_count: number;
     clips_count: number;
     created_at: string;
@@ -174,6 +175,17 @@ export default function Users({ users, filters }: Props) {
                                                     className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${user.is_admin ? 'bg-neon-red/10 text-neon-red hover:bg-neon-red/20' : 'bg-ink-900/5 text-ink-700 hover:bg-ink-900/10'}`}
                                                 >
                                                     {user.is_admin ? 'Revoke admin' : 'Make admin'}
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        if (!confirm(`Log in as "${user.profile?.username || user.name}"?\nUse the red banner at the top to return.`)) return;
+                                                        router.post(route('admin.impersonate', { user: user.id }));
+                                                    }}
+                                                    disabled={user.is_admin || user.is_banned}
+                                                    title={user.is_admin ? 'Admins can\'t be impersonated' : user.is_banned ? 'Unban first' : 'Debug as this user'}
+                                                    className="rounded-lg bg-gaming-cyan/10 px-3 py-1.5 text-xs font-medium text-gaming-cyan transition hover:bg-gaming-cyan/20 disabled:cursor-not-allowed disabled:opacity-40"
+                                                >
+                                                    Log in as
                                                 </button>
                                                 <button
                                                     onClick={() => handleBan(user)}
