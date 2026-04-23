@@ -9,7 +9,7 @@ const FEATURE_LABELS: Record<string, { label: string; blurb: string }> = {
     lfg: { label: 'LFG', blurb: 'Looking-for-group posts + chat.' },
     discovery: { label: 'Discovery', blurb: 'Swipe-to-match discovery queue.' },
     community: { label: 'Community', blurb: 'Community posts, comments, votes.' },
-    clips: { label: 'Clips', blurb: 'Player highlight clips feed.' },
+    clips: { label: 'Creators', blurb: 'Creators page + Spotlight on homepage/dashboard, plus clip sharing.' },
     chat: { label: 'Chat', blurb: 'Direct-friend + LFG group chat.' },
     registration: { label: 'Registration', blurb: 'New-user sign-ups.' },
 };
