@@ -41,6 +41,10 @@ class HandleInertiaRequests extends Middleware
             $user->makeVisible([
                 'email', 'date_of_birth', 'referral_code',
                 'notification_preferences', 'email_verified_at',
+                // google_id is needed by the frontend account-delete form
+                // to pick the 'type DELETE' path instead of asking OAuth
+                // users for a password they never set.
+                'google_id',
             ]);
 
             // Cache notification count for 10 seconds (polling refreshes this)
