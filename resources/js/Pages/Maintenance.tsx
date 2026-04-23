@@ -77,7 +77,7 @@ export default function Maintenance({ message, eta_at }: { message: string; eta_
                     )}
 
                     <p className="mt-10 text-xs text-white/40">
-                        Questions? Email <a href="mailto:info@squadspawn.com" className="text-white/70 hover:text-white">info@squadspawn.com</a>
+                        We&apos;ll be back shortly.
                     </p>
                 </div>
             </div>

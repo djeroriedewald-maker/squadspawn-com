@@ -30,8 +30,8 @@ export default function PrivacyPolicy() {
                         </p>
                         <p>
                             <strong className="text-ink-800">Data Controller:</strong> BudgetPixels.nl<br />
-                            <strong className="text-ink-800">Contact Email:</strong>{' '}
-                            <a href="mailto:info@squadspawn.com" className="text-neon-red hover:underline">info@squadspawn.com</a><br />
+                            <strong className="text-ink-800">Contact:</strong>{' '}
+                            <Link href="/contact" className="text-neon-red hover:underline">our contact form</Link><br />
                             <strong className="text-ink-800">Website:</strong>{' '}
                             <a href="https://squadspawn.com" className="text-neon-red hover:underline">squadspawn.com</a>
                         </p>
@@ -301,9 +301,9 @@ export default function PrivacyPolicy() {
                         <p>
                             You can exercise most of these rights directly through your account settings on SquadSpawn.
                             For any requests you cannot complete through the platform, or if you wish to file a formal
-                            request, please contact us at{' '}
-                            <a href="mailto:info@squadspawn.com" className="text-neon-red hover:underline">info@squadspawn.com</a>.
-                            We will respond to your request within 30 days as required by the GDPR.
+                            request, please reach us via our{' '}
+                            <Link href="/contact" className="text-neon-red hover:underline">contact form</Link>{' '}
+                            (pick the "Privacy / GDPR" category). We will respond to your request within 30 days as required by the GDPR.
                         </p>
                         <p>
                             You also have the right to lodge a complaint with a supervisory authority. In the Netherlands,
@@ -336,8 +336,8 @@ export default function PrivacyPolicy() {
                             We do not knowingly collect personal data from anyone under 16. If we become aware that a
                             user is under 16, we will delete their account and the associated personal data. If you are
                             a parent or guardian and believe your child has created an account on SquadSpawn, please
-                            contact us at{' '}
-                            <a href="mailto:info@squadspawn.com" className="text-neon-red hover:underline">info@squadspawn.com</a>{' '}
+                            reach us via our{' '}
+                            <Link href="/contact" className="text-neon-red hover:underline">contact form</Link>{' '}
                             and we will act on your request promptly.
                         </p>
 
@@ -390,19 +390,17 @@ export default function PrivacyPolicy() {
                         </p>
                         <p>
                             <strong className="text-ink-800">SquadSpawn</strong> — operated by BudgetPixels.nl<br />
-                            <strong className="text-ink-800">Email:</strong>{' '}
-                            <a href="mailto:info@squadspawn.com" className="text-neon-red hover:underline">info@squadspawn.com</a><br />
+                            <strong className="text-ink-800">Contact:</strong>{' '}
+                            <Link href="/contact" className="text-neon-red hover:underline">our contact form</Link><br />
                             <strong className="text-ink-800">Website:</strong>{' '}
                             <a href="https://squadspawn.com" className="text-neon-red hover:underline">squadspawn.com</a>
                         </p>
                         <p>
-                            For privacy-specific inquiries (GDPR requests, data exports, erasure, complaints), please
-                            email{' '}
-                            <a href="mailto:info@squadspawn.com" className="text-neon-red hover:underline">info@squadspawn.com</a>{' '}
-                            with the subject line <strong>"Privacy Request"</strong> so your message is routed quickly.
-                            SquadSpawn is a small solo-operated platform and is not required to appoint a dedicated
-                            Data Protection Officer under AVG Art. 37, but the above contact is the single point of
-                            contact for all data-protection matters.
+                            For privacy-specific inquiries (GDPR requests, data exports, erasure, complaints), use our{' '}
+                            <Link href="/contact" className="text-neon-red hover:underline">contact form</Link>{' '}
+                            and pick the <strong>Privacy / GDPR</strong> category so your message is routed quickly.
+                            SquadSpawn is not required to appoint a dedicated Data Protection Officer under AVG Art. 37,
+                            but the contact form is the single point of contact for all data-protection matters.
                         </p>
                     </div>
                 </div>

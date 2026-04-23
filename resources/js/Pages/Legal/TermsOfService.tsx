@@ -57,7 +57,7 @@ export default function TermsOfService() {
                             <li>Provide accurate, current, and complete information during registration and keep it updated.</li>
                             <li>Maintain only one account per person. Creating multiple accounts is prohibited.</li>
                             <li>Keep your password secure and confidential. Do not share your login credentials with anyone.</li>
-                            <li>Notify us immediately at <a href="mailto:info@squadspawn.com" className="text-neon-red hover:underline">info@squadspawn.com</a> if you suspect unauthorized access to your account.</li>
+                            <li>Notify us immediately via our <Link href="/contact" className="text-neon-red hover:underline">contact form</Link> if you suspect unauthorized access to your account.</li>
                             <li>Accept full responsibility for all activity that occurs under your account.</li>
                         </ul>
                         <p>
@@ -179,8 +179,8 @@ export default function TermsOfService() {
                             Game names, logos, and images displayed on the platform are the property of their respective
                             owners and are used for community identification purposes under fair use principles. If you
                             are a rights holder and believe your intellectual property is being used improperly, please
-                            contact us at{' '}
-                            <a href="mailto:info@squadspawn.com" className="text-neon-red hover:underline">info@squadspawn.com</a>.
+                            reach us via our{' '}
+                            <Link href="/contact" className="text-neon-red hover:underline">contact form</Link>.
                         </p>
 
                         {/* 11. Third-Party Links */}
@@ -254,8 +254,8 @@ export default function TermsOfService() {
                         {/* 15. Dispute Resolution */}
                         <h2 className="text-xl font-semibold text-ink-900">15. Dispute Resolution</h2>
                         <p>
-                            If a dispute arises between you and SquadSpawn, we encourage you to first contact us at{' '}
-                            <a href="mailto:info@squadspawn.com" className="text-neon-red hover:underline">info@squadspawn.com</a>{' '}
+                            If a dispute arises between you and SquadSpawn, we encourage you to first reach us via our{' '}
+                            <Link href="/contact" className="text-neon-red hover:underline">contact form</Link>{' '}
                             to seek an informal resolution. We will make reasonable efforts to resolve the matter
                             amicably.
                         </p>
@@ -293,8 +293,8 @@ export default function TermsOfService() {
                         <p>If you have any questions or concerns about these Terms of Service, please contact us:</p>
                         <p>
                             <strong className="text-ink-800">SquadSpawn</strong> — operated by BudgetPixels.nl<br />
-                            <strong className="text-ink-800">Email:</strong>{' '}
-                            <a href="mailto:info@squadspawn.com" className="text-neon-red hover:underline">info@squadspawn.com</a><br />
+                            <strong className="text-ink-800">Contact:</strong>{' '}
+                            <Link href="/contact" className="text-neon-red hover:underline">our contact form</Link><br />
                             <strong className="text-ink-800">Website:</strong>{' '}
                             <a href="https://squadspawn.com" className="text-neon-red hover:underline">squadspawn.com</a>
                         </p>

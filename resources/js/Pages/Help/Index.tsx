@@ -524,7 +524,7 @@ export default function HelpIndex() {
                             No answers match <strong className="text-ink-900">"{query}"</strong>.
                         </p>
                         <p className="mt-2 text-xs text-ink-500">
-                            Try a different word, or <a href="mailto:info@squadspawn.com" className="text-neon-red hover:underline">email us</a>.
+                            Try a different word, or <Link href="/contact" className="text-neon-red hover:underline">contact us</Link>.
                         </p>
                     </div>
                 ) : (
@@ -552,15 +552,15 @@ export default function HelpIndex() {
                             </p>
                         </div>
                         <div className="flex flex-wrap gap-3">
-                            <a
-                                href="mailto:info@squadspawn.com"
+                            <Link
+                                href="/contact"
                                 className="inline-flex items-center gap-2 rounded-xl bg-neon-red px-5 py-3 text-sm font-bold text-white shadow-glow-red transition hover:bg-neon-red/90"
                             >
                                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
                                 </svg>
-                                Email support
-                            </a>
+                                Send us a message
+                            </Link>
                             {isAuthed && (
                                 <Link
                                     href={route('community.guidelines')}

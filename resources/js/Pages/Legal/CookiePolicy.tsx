@@ -216,8 +216,8 @@ export default function CookiePolicy() {
                         </p>
                         <p>
                             <strong className="text-ink-800">SquadSpawn</strong> — operated by BudgetPixels.nl<br />
-                            <strong className="text-ink-800">Email:</strong>{' '}
-                            <a href="mailto:info@squadspawn.com" className="text-neon-red hover:underline">info@squadspawn.com</a><br />
+                            <strong className="text-ink-800">Contact:</strong>{' '}
+                            <Link href="/contact" className="text-neon-red hover:underline">our contact form</Link><br />
                             <strong className="text-ink-800">Website:</strong>{' '}
                             <a href="https://squadspawn.com" className="text-neon-red hover:underline">squadspawn.com</a>
                         </p>

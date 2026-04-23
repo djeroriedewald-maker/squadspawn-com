@@ -70,7 +70,7 @@ export default function ContactIndex({ prefillName, prefillEmail }: Props) {
     // get the minimal standalone chrome so they reach the form fast.
     const pageBody = (
         <>
-            <section className="relative h-56 overflow-hidden sm:h-64">
+            <section className="relative flex h-64 flex-col justify-end overflow-hidden sm:h-72">
                 <div className="absolute inset-0">
                     <img
                         src="/images/gamer6.jpg"
@@ -81,7 +81,7 @@ export default function ContactIndex({ prefillName, prefillEmail }: Props) {
                 </div>
 
                 {!isAuthed && (
-                    <nav className="relative flex items-center justify-between px-6 py-4 lg:px-12">
+                    <nav className="absolute inset-x-0 top-0 flex items-center justify-between px-6 py-4 lg:px-12">
                         <Link href="/" className="rounded-md bg-white/90 px-3 py-1 text-lg font-bold text-neon-red backdrop-blur">
                             SquadSpawn
                         </Link>
@@ -94,28 +94,28 @@ export default function ContactIndex({ prefillName, prefillEmail }: Props) {
                     </nav>
                 )}
 
-                <div className={`relative mx-auto ${isAuthed ? 'pt-10' : 'mt-4'} max-w-2xl px-6 text-center lg:px-12`}>
-                        <span
-                            className="inline-flex items-center gap-2 rounded-full bg-gaming-cyan/90 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-black shadow"
-                        >
-                            📬 We read every message
-                        </span>
-                        <h1
-                            className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl"
-                            style={{ textShadow: '0 2px 12px rgba(0,0,0,0.9)' }}
-                        >
-                            Get in touch
-                        </h1>
-                        <p
-                            className="mx-auto mt-2 max-w-lg text-sm text-white sm:text-base"
-                            style={{ textShadow: '0 2px 8px rgba(0,0,0,0.9)' }}
-                        >
-                            Feedback, bugs, partnerships, press &mdash; anything. Drop us a line and we&apos;ll get back to you.
-                        </p>
-                    </div>
+                <div className="relative mx-auto w-full max-w-2xl px-6 pb-8 text-center lg:px-12">
+                    <span
+                        className="inline-flex items-center gap-2 rounded-full bg-gaming-cyan/90 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-black shadow"
+                    >
+                        📬 We read every message
+                    </span>
+                    <h1
+                        className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl"
+                        style={{ textShadow: '0 2px 12px rgba(0,0,0,0.9)' }}
+                    >
+                        Get in touch
+                    </h1>
+                    <p
+                        className="mx-auto mt-2 max-w-lg text-sm text-white sm:text-base"
+                        style={{ textShadow: '0 2px 8px rgba(0,0,0,0.9)' }}
+                    >
+                        Feedback, bugs, partnerships, press &mdash; anything. Drop us a line and we&apos;ll get back to you.
+                    </p>
+                </div>
             </section>
 
-            <div className="mx-auto -mt-12 max-w-2xl px-6 pb-16 lg:px-12">
+            <div className="mx-auto max-w-2xl px-6 py-10 lg:px-12">
                     {authedUser && !sent && (
                         <div className="mb-4 flex items-center gap-3 rounded-xl border border-gaming-cyan/30 bg-gaming-cyan/10 px-4 py-3 text-sm">
                             <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gaming-cyan/30 text-xs font-bold text-gaming-cyan">
@@ -290,8 +290,7 @@ export default function ContactIndex({ prefillName, prefillEmail }: Props) {
                     </div>
 
                     <p className="mt-6 text-center text-xs text-ink-500">
-                        For urgent privacy / data-protection requests you can also email{' '}
-                        <a href="mailto:info@squadspawn.com" className="text-neon-red hover:underline">info@squadspawn.com</a>.
+                        Privacy or data-protection request? Pick the <strong>Privacy / GDPR</strong> category above so we can route it right.
                     </p>
                 </div>
         </>

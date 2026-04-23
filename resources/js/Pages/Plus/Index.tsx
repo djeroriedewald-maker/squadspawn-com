@@ -225,8 +225,8 @@ export default function PlusWaitlist({ prefillEmail, alreadyJoined, memberCount 
                     </div>
 
                     <p className="mt-8 text-center text-xs text-ink-500">
-                        Questions? Email{' '}
-                        <a href="mailto:info@squadspawn.com" className="text-neon-red hover:underline">info@squadspawn.com</a>.
+                        Questions? Use our{' '}
+                        <Link href="/contact" className="text-neon-red hover:underline">contact form</Link>.
                     </p>
                 </div>
             </div>
