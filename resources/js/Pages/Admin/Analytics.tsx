@@ -76,20 +76,22 @@ function StatCard({ label, value, sublabel, tone }: { label: string; value: numb
 }
 
 function BarChart({ labels, values, color = '#E5484D' }: { labels: string[]; values: number[]; color?: string }) {
-    const max = Math.max(1, ...values);
+    const safeValues = Array.isArray(values) ? values : [];
+    const safeLabels = Array.isArray(labels) ? labels : [];
+    const max = Math.max(1, ...safeValues);
     return (
         <div className="flex h-40 items-end gap-[2px]">
-            {values.map((v, i) => {
+            {safeValues.map((v, i) => {
                 const pct = (v / max) * 100;
                 return (
                     <div
                         key={i}
                         className="group relative flex-1 rounded-t transition hover:opacity-80"
                         style={{ height: `${pct}%`, minHeight: v > 0 ? '3px' : '1px', backgroundColor: color }}
-                        title={`${labels[i]}: ${v}`}
+                        title={`${safeLabels[i] ?? ''}: ${v}`}
                     >
                         <span className="pointer-events-none absolute -top-6 left-1/2 hidden -translate-x-1/2 whitespace-nowrap rounded bg-ink-900 px-1.5 py-0.5 text-[10px] font-bold text-white group-hover:block">
-                            {labels[i]}: {v}
+                            {safeLabels[i] ?? ''}: {v}
                         </span>
                     </div>
                 );
@@ -129,7 +131,11 @@ function TrafficRow({ label, block }: { label: string; block: TrafficBlock | nul
 }
 
 function BreakdownList({ title, rows }: { title: string; rows: BreakdownRow[] | null | undefined }) {
-    if (!rows || rows.length === 0) {
+    // Defensive: if the server somehow ships a non-array (should never
+    // happen after the PlausibleClient array_values fix, but the rendering
+    // layer shouldn't crash on a malformed payload either).
+    const safeRows: BreakdownRow[] = Array.isArray(rows) ? rows : [];
+    if (safeRows.length === 0) {
         return (
             <div className="rounded-xl border border-ink-900/10 bg-white dark:bg-bone-100 p-5">
                 <h3 className="mb-2 font-bold text-ink-900">{title}</h3>
@@ -137,12 +143,12 @@ function BreakdownList({ title, rows }: { title: string; rows: BreakdownRow[] | 
             </div>
         );
     }
-    const max = Math.max(1, ...rows.map((r) => r.visitors));
+    const max = Math.max(1, ...safeRows.map((r) => r.visitors));
     return (
         <div className="rounded-xl border border-ink-900/10 bg-white dark:bg-bone-100 p-5">
             <h3 className="mb-4 font-bold text-ink-900">{title}</h3>
             <div className="space-y-2">
-                {rows.map((r) => {
+                {safeRows.map((r) => {
                     const pct = (r.visitors / max) * 100;
                     return (
                         <div key={r.name} className="flex items-center gap-3">

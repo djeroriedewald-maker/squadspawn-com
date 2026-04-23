@@ -93,10 +93,18 @@ class PlausibleClient
                 return null;
             }
             $results = $r->json('results') ?? [];
-            return array_map(fn ($row) => [
-                'name' => (string) ($row[explode(':', $property, 2)[1] ?? 'name'] ?? 'Unknown'),
-                'visitors' => (int) ($row['visitors'] ?? 0),
-            ], $results);
+            // Force numeric-indexed array. Plausible's results *should*
+            // already be sequential, but a defensive array_values()
+            // means we never accidentally ship an assoc/object to the
+            // frontend where `.map` would then blow up.
+            if (!is_array($results)) {
+                return [];
+            }
+            $key = explode(':', $property, 2)[1] ?? 'name';
+            return array_values(array_map(fn ($row) => [
+                'name' => (string) (is_array($row) ? ($row[$key] ?? 'Unknown') : 'Unknown'),
+                'visitors' => (int) (is_array($row) ? ($row['visitors'] ?? 0) : 0),
+            ], $results));
         } catch (\Throwable $e) {
             Log::warning('Plausible breakdown call failed', ['error' => $e->getMessage(), 'property' => $property]);
             return null;
