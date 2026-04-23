@@ -180,7 +180,7 @@ export default function AdminSystemIndex({
                         type="submit"
                         disabled={maintForm.processing}
                         className={`mt-5 inline-flex w-full items-center justify-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-bold text-white transition disabled:opacity-50 ${
-                            maintForm.data.enabled ? 'bg-neon-red shadow-glow-red hover:bg-neon-red/90' : 'bg-ink-900/80 hover:bg-ink-900'
+                            maintForm.data.enabled ? 'bg-neon-red shadow-glow-red hover:bg-neon-red/90' : 'bg-[#14121A] hover:bg-[#0a080f]'
                         }`}
                     >
                         {maintForm.processing ? 'Saving…' : maintForm.data.enabled ? 'Save & lock down' : 'Save & keep live'}
@@ -241,7 +241,7 @@ export default function AdminSystemIndex({
                     <button
                         type="submit"
                         disabled={flashForm.processing}
-                        className="mt-5 inline-flex w-full items-center justify-center rounded-xl bg-ink-900/80 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-ink-900 disabled:opacity-50"
+                        className="mt-5 inline-flex w-full items-center justify-center rounded-xl bg-[#14121A] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#0a080f] disabled:opacity-50"
                     >
                         {flashForm.processing ? 'Saving…' : (flashForm.data.message ? 'Show flash bar' : 'Hide flash bar')}
                     </button>
