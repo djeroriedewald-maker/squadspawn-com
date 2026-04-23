@@ -289,6 +289,34 @@ export default function GameProfileEdit({
 
             <div className="py-8">
                 <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+                    {/* Creator Spotlight status — only renders when the creator
+                         is actively featured. Gives them lead time to request a
+                         renewal before their slot quietly expires. */}
+                    {profile?.featured_until && (() => {
+                        const ms = new Date(profile.featured_until).getTime() - Date.now();
+                        const days = Math.ceil(ms / 86_400_000);
+                        if (days <= 0) return null;
+                        const expiring = days <= 7;
+                        return (
+                            <div className={`mb-6 rounded-xl border p-4 ${expiring ? 'border-gaming-orange/30 bg-gaming-orange/10' : 'border-gaming-green/30 bg-gaming-green/10'}`}>
+                                <div className="flex items-start gap-3">
+                                    <span className="text-2xl">✨</span>
+                                    <div>
+                                        <p className={`text-sm font-semibold ${expiring ? 'text-gaming-orange' : 'text-gaming-green'}`}>
+                                            {expiring
+                                                ? `Your Creator Spotlight expires in ${days} day${days === 1 ? '' : 's'}`
+                                                : `You're in the Creator Spotlight — ${days} days to go`}
+                                        </p>
+                                        <p className="mt-1 text-xs text-ink-500">
+                                            {expiring
+                                                ? 'Ping the SquadSpawn team to renew your slot, or keep posting clips to stay visible even after it expires.'
+                                                : `Featured through ${new Date(profile.featured_until).toLocaleDateString()}. Your clips show up on the homepage, dashboard and Creators page.`}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })()}
                     <form onSubmit={submit} className="space-y-8">
                         {/* Avatar */}
                         <div className="rounded-xl border border-ink-900/10 bg-white p-6">
