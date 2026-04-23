@@ -38,8 +38,19 @@ export default function FeatureDisabled({ feature }: { feature: string }) {
         <>
             <Head title={copy.title} />
 
-            <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-bone-50 px-6 text-center">
-                <div aria-hidden className="pointer-events-none absolute -left-20 top-1/4 h-72 w-72 rounded-full bg-neon-red/20 blur-3xl" />
+            <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 text-center">
+                {/* Background: the portrait SquadSpawn banner covers the full
+                    viewport in both orientations. Dark gradient on top keeps
+                    text legible regardless of where the image focal point
+                    lands, and picks up the brand neon tint. */}
+                <img
+                    src="/images/Squadspawn_banner_mobile.jpg"
+                    alt=""
+                    aria-hidden
+                    className="absolute inset-0 h-full w-full object-cover"
+                />
+                <div aria-hidden className="absolute inset-0 bg-gradient-to-br from-ink-900/90 via-ink-900/80 to-neon-red/30" />
+                <div aria-hidden className="pointer-events-none absolute -left-20 top-1/4 h-72 w-72 rounded-full bg-neon-red/25 blur-3xl" />
                 <div aria-hidden className="pointer-events-none absolute -right-20 bottom-1/4 h-72 w-72 rounded-full bg-gaming-cyan/15 blur-3xl" />
 
                 <div className="relative z-10 max-w-lg">
@@ -49,15 +60,15 @@ export default function FeatureDisabled({ feature }: { feature: string }) {
                         className="mx-auto mb-6 h-20 w-20 rounded-2xl shadow-xl ring-1 ring-ink-900/5"
                     />
 
-                    <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-gaming-orange/40 bg-gaming-orange/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-gaming-orange">
+                    <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-gaming-orange/60 bg-gaming-orange/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-gaming-orange backdrop-blur-sm">
                         Temporarily offline
                     </span>
 
-                    <h1 className="text-3xl font-extrabold tracking-tight text-ink-900 sm:text-4xl">
+                    <h1 className="text-3xl font-extrabold tracking-tight text-white drop-shadow-lg sm:text-4xl">
                         {copy.title}
                     </h1>
 
-                    <p className="mx-auto mt-3 max-w-md text-sm text-ink-500 sm:text-base">
+                    <p className="mx-auto mt-3 max-w-md text-sm text-white/85 drop-shadow-md sm:text-base">
                         {copy.blurb}
                     </p>
 
@@ -71,7 +82,7 @@ export default function FeatureDisabled({ feature }: { feature: string }) {
                         {auth?.user && (
                             <Link
                                 href={route('help')}
-                                className="inline-flex items-center gap-1.5 rounded-xl border border-ink-900/10 bg-white px-5 py-2.5 text-sm font-semibold text-ink-700 transition hover:border-neon-red/30 hover:text-neon-red"
+                                className="inline-flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/10 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-sm transition hover:border-white/40 hover:bg-white/20"
                             >
                                 Help centre
                             </Link>
