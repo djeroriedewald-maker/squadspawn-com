@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\ReferralService;
 use Carbon\Carbon;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -50,17 +51,9 @@ class RegisteredUserController extends Controller
             ]);
         }
 
-        // Resolve a referral code from session if one was captured from a
-        // ?ref=CODE landing visit. Fall back to request input so the form can
-        // also forward it explicitly.
-        $referredByUserId = null;
+        // Referral code may come from the session (captured on the ?ref=CODE
+        // landing visit) or be forwarded explicitly by the form.
         $refCode = (string) ($request->session()->pull('referral_code', '') ?: $request->input('ref', ''));
-        if ($refCode !== '') {
-            $referrer = User::where('referral_code', strtoupper($refCode))->first();
-            if ($referrer) {
-                $referredByUserId = $referrer->id;
-            }
-        }
 
         $user = User::create([
             'name' => $request->name,
@@ -69,8 +62,9 @@ class RegisteredUserController extends Controller
             'date_of_birth' => $request->date_of_birth,
             'parental_consent' => $age < 16 ? true : false,
             'parental_consent_at' => $age < 16 ? now() : null,
-            'referred_by_user_id' => $referredByUserId,
         ]);
+
+        ReferralService::attributeSignup($user, $refCode ?: null);
 
         event(new Registered($user));
 

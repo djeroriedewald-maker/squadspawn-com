@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\ReferralService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
@@ -48,6 +49,9 @@ class GoogleController extends Controller
                 'password' => bcrypt(str()->random(32)),
                 'email_verified_at' => now(),
             ]);
+
+            $refCode = (string) request()->session()->pull('referral_code', '');
+            ReferralService::attributeSignup($user, $refCode ?: null);
         }
 
         Auth::login($user, remember: true);
