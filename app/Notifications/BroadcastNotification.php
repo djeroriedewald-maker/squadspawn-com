@@ -4,11 +4,16 @@ namespace App\Notifications;
 
 use App\Models\Broadcast;
 use App\Notifications\Channels\WebPushChannel;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Str;
 
-class BroadcastNotification extends Notification
+class BroadcastNotification extends Notification implements ShouldQueue
 {
+    use Queueable;
+
+
     public function __construct(
         public Broadcast $broadcast,
     ) {}

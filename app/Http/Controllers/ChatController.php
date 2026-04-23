@@ -140,13 +140,6 @@ class ChatController extends Controller
             ->orderBy('created_at')
             ->get();
 
-        \Log::info('Chat show', [
-            'match_id' => $playerMatch->id,
-            'user_id' => $user->id,
-            'message_count' => $messages->count(),
-            'message_ids' => $messages->pluck('id')->toArray(),
-        ]);
-
         // Mark all notifications for this match as read (both message and match notifications)
         $user->unreadNotifications()
             ->get()
@@ -183,12 +176,6 @@ class ChatController extends Controller
         $message = $playerMatch->messages()->create([
             'sender_id' => $user->id,
             'body' => $validated['body'],
-        ]);
-
-        \Log::info('Chat store', [
-            'match_id' => $playerMatch->id,
-            'message_id' => $message->id,
-            'sender_id' => $user->id,
         ]);
 
         $message->load('sender');

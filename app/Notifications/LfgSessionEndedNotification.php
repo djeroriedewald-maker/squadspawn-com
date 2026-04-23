@@ -3,10 +3,15 @@
 namespace App\Notifications;
 
 use App\Models\LfgPost;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 
-class LfgSessionEndedNotification extends Notification
+class LfgSessionEndedNotification extends Notification implements ShouldQueue
 {
+    use Queueable;
+
+
     public function __construct(
         public LfgPost $post,
     ) {}

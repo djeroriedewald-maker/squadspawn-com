@@ -4,10 +4,15 @@ namespace App\Notifications;
 
 use App\Models\User;
 use App\Notifications\Channels\WebPushChannel;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 
-class NewMatchNotification extends Notification
+class NewMatchNotification extends Notification implements ShouldQueue
 {
+    use Queueable;
+
+
     public function __construct(
         public User $matchedUser,
         public int $matchId,

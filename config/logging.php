@@ -54,7 +54,10 @@ return [
 
         'stack' => [
             'driver' => 'stack',
-            'channels' => explode(',', (string) env('LOG_STACK', 'single')),
+            // Default to `daily` so production can't accidentally fill the
+            // disk with a single unbounded laravel.log. Override with
+            // LOG_STACK=single if local dev prefers a flat file.
+            'channels' => explode(',', (string) env('LOG_STACK', 'daily')),
             'ignore_exceptions' => false,
         ],
 

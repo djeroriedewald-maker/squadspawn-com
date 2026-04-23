@@ -4,10 +4,15 @@ namespace App\Notifications;
 
 use App\Models\LfgPost;
 use App\Notifications\Channels\WebPushChannel;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 
-class FavoriteHostPostedLfgNotification extends Notification
+class FavoriteHostPostedLfgNotification extends Notification implements ShouldQueue
 {
+    use Queueable;
+
+
     public function __construct(
         public LfgPost $post,
     ) {}

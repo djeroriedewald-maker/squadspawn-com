@@ -3,10 +3,15 @@
 namespace App\Notifications;
 
 use App\Notifications\Channels\WebPushChannel;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 
-class RoleGrantedNotification extends Notification
+class RoleGrantedNotification extends Notification implements ShouldQueue
 {
+    use Queueable;
+
+
     public function __construct(
         public string $role, // 'moderator' | 'admin'
         public ?string $grantedBy = null,

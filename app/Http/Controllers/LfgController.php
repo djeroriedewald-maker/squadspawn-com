@@ -762,17 +762,8 @@ class LfgController extends Controller
     {
         $user = auth()->user();
 
-        \Log::info('LFG rate attempt', [
-            'user_id' => $user->id,
-            'post_id' => $lfgPost->id,
-            'post_slug' => $lfgPost->slug,
-            'is_host' => $lfgPost->user_id === $user->id,
-            'input' => $request->all(),
-        ]);
-
         // Verify rater is a member (host or accepted participant)
         if (!$this->isMember($lfgPost, $user->id)) {
-            \Log::warning('LFG rate: not a member', ['user_id' => $user->id, 'post_id' => $lfgPost->id]);
             return response()->json(['error' => 'Only group members can rate.'], 403);
         }
 
@@ -811,8 +802,6 @@ class LfgController extends Controller
                     'comment' => $validated['comment'] ?? null,
                 ]
             );
-
-            \Log::info('LFG rating saved', ['rating_id' => $rating->id, 'score' => $rating->score]);
 
             // XP for rating
             AchievementService::awardXp($user, 'rating_given');
