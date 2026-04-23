@@ -105,15 +105,24 @@ export default function SearchableSelect({
 
             {open && (
                 <>
-                    {/* Click-outside dismissal */}
+                    {/* Click-outside dismissal — dark backdrop on mobile so
+                        it reads as a modal, invisible on desktop so the page
+                        behind stays clickable as an outside-close hint. */}
                     <div
-                        className="fixed inset-0 z-40"
+                        className="fixed inset-0 z-40 bg-ink-900/60 sm:bg-transparent"
                         onClick={() => setOpen(false)}
                         aria-hidden
                     />
 
                     <div
-                        className={`absolute ${align === 'right' ? 'right-0' : 'left-0'} z-50 mt-2 w-72 overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-ink-900/10 dark:bg-bone-100`}
+                        className={[
+                            // Mobile: centered modal, full-width minus gutters.
+                            'fixed left-1/2 top-1/2 z-50 w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2',
+                            // Desktop: anchored popover next to the trigger.
+                            'sm:absolute sm:left-auto sm:top-full sm:mt-2 sm:w-72 sm:translate-x-0 sm:translate-y-0',
+                            align === 'right' ? 'sm:right-0' : 'sm:left-0',
+                            'overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-ink-900/10 dark:bg-bone-100',
+                        ].join(' ')}
                         role="listbox"
                     >
                         {/* Search */}
