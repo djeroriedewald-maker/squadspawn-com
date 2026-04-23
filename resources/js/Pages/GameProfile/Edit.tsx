@@ -3,7 +3,7 @@ import { BannerPresetThumb, ProfileBanner } from '@/Components/ProfileBanner';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Game, Profile } from '@/types';
 import { BANNER_PRESETS, DEFAULT_PRESET_ID } from '@/utils/bannerPresets';
-import { Head, router, useForm } from '@inertiajs/react';
+import { Head, useForm } from '@inertiajs/react';
 import axios from 'axios';
 import { ChangeEvent, FormEventHandler, useMemo, useRef, useState } from 'react';
 
@@ -164,7 +164,7 @@ export default function GameProfileEdit({
     const BANNER_MIN_LEVEL = 2;
     const canUploadBanner = userLevel >= BANNER_MIN_LEVEL;
 
-    const { data, setData, put, processing, errors } = useForm<{
+    const { data, setData, put, processing, errors, transform } = useForm<{
         username: string;
         bio: string;
         looking_for: string;
@@ -233,10 +233,13 @@ export default function GameProfileEdit({
             platform: g.platform,
         }));
 
-        router.put(route('game-profile.update'), {
-            ...data,
-            games: gamesArray,
-        }, {
+        // useForm.transform() lets us submit derived games-array while
+        // keeping the map-shaped data that the UI edits. Submitting via
+        // `put` (not `router.put`) is what binds validation errors back
+        // onto this form's `errors` object — otherwise a failed save
+        // looked like a silent no-op with no redirect and no feedback.
+        transform((current) => ({ ...current, games: gamesArray }));
+        put(route('game-profile.update'), {
             preserveScroll: true,
         });
     };
