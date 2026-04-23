@@ -82,7 +82,7 @@ class GameProfileController extends Controller
         $user = auth()->user();
 
         $validated = $request->validate([
-            'username' => ['required', 'string', 'max:50', 'unique:profiles,username,' . ($user->profile?->id ?? 'NULL')],
+            'username' => ['required', 'string', new \App\Rules\ValidUsername($user->profile?->id)],
             'bio' => ['nullable', 'string', 'max:500'],
             'looking_for' => ['nullable', 'in:casual,ranked,friends,any'],
             'region' => ['nullable', 'string', 'max:50'],
