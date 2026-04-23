@@ -20,6 +20,10 @@ export default function Authenticated({
     const canModerate = !!auth.canModerate;
     const hasRole = !!(user?.is_admin || user?.is_moderator || user?.is_owner);
     const hasChangelogUpdate = !!auth.hasChangelogUpdate;
+    // Server-shared feature toggles. Missing keys default to true so an
+    // older backend (pre-flags) still shows the full nav.
+    const features = (usePage().props as any).features ?? {};
+    const isOn = (k: string) => features[k] !== false;
 
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
 
@@ -41,21 +45,29 @@ export default function Authenticated({
                                 <NavLink href={route('dashboard')} active={route().current('dashboard')}>
                                     Dashboard
                                 </NavLink>
-                                <NavLink href={route('discovery.index')} active={route().current('discovery.*')}>
-                                    Discover
-                                </NavLink>
-                                <NavLink href={route('lfg.index')} active={route().current('lfg.*')}>
-                                    LFG
-                                </NavLink>
+                                {isOn('discovery') && (
+                                    <NavLink href={route('discovery.index')} active={route().current('discovery.*')}>
+                                        Discover
+                                    </NavLink>
+                                )}
+                                {isOn('lfg') && (
+                                    <NavLink href={route('lfg.index')} active={route().current('lfg.*')}>
+                                        LFG
+                                    </NavLink>
+                                )}
                                 <NavLink href={route('games.index')} active={route().current('games.*')}>
                                     Games
                                 </NavLink>
-                                <NavLink href={route('community.index')} active={route().current('community.*')}>
-                                    Community
-                                </NavLink>
-                                <NavLink href={route('clips.index')} active={route().current('clips.*')}>
-                                    Clips
-                                </NavLink>
+                                {isOn('community') && (
+                                    <NavLink href={route('community.index')} active={route().current('community.*')}>
+                                        Community
+                                    </NavLink>
+                                )}
+                                {isOn('clips') && (
+                                    <NavLink href={route('clips.index')} active={route().current('clips.*')}>
+                                        Clips
+                                    </NavLink>
+                                )}
                                 <NavLink href={route('game-profile.show')} active={route().current('game-profile.*')}>
                                     Profile
                                 </NavLink>
@@ -235,21 +247,29 @@ export default function Authenticated({
                         <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>
                             Dashboard
                         </ResponsiveNavLink>
-                        <ResponsiveNavLink href={route('discovery.index')} active={route().current('discovery.*')}>
-                            Discover
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink href={route('lfg.index')} active={route().current('lfg.*')}>
-                            LFG
-                        </ResponsiveNavLink>
+                        {isOn('discovery') && (
+                            <ResponsiveNavLink href={route('discovery.index')} active={route().current('discovery.*')}>
+                                Discover
+                            </ResponsiveNavLink>
+                        )}
+                        {isOn('lfg') && (
+                            <ResponsiveNavLink href={route('lfg.index')} active={route().current('lfg.*')}>
+                                LFG
+                            </ResponsiveNavLink>
+                        )}
                         <ResponsiveNavLink href={route('games.index')} active={route().current('games.*')}>
                             Games
                         </ResponsiveNavLink>
-                        <ResponsiveNavLink href={route('community.index')} active={route().current('community.*')}>
-                            Community
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink href={route('clips.index')} active={route().current('clips.*')}>
-                            Clips
-                        </ResponsiveNavLink>
+                        {isOn('community') && (
+                            <ResponsiveNavLink href={route('community.index')} active={route().current('community.*')}>
+                                Community
+                            </ResponsiveNavLink>
+                        )}
+                        {isOn('clips') && (
+                            <ResponsiveNavLink href={route('clips.index')} active={route().current('clips.*')}>
+                                Clips
+                            </ResponsiveNavLink>
+                        )}
                         <ResponsiveNavLink href={route('game-profile.show')} active={route().current('game-profile.*')}>
                             Profile
                         </ResponsiveNavLink>

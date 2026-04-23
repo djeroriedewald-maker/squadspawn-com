@@ -28,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'age.verified' => \App\Http\Middleware\EnsureAgeVerified::class,
             'admin' => \App\Http\Middleware\EnsureAdmin::class,
             'moderator' => \App\Http\Middleware\EnsureModerator::class,
+            'feature' => \App\Http\Middleware\CheckFeatureFlag::class,
         ]);
 
     })

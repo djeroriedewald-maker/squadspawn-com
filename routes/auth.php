@@ -16,10 +16,14 @@ Route::get('auth/google', [GoogleController::class, 'redirect'])->name('auth.goo
 Route::get('auth/google/callback', [GoogleController::class, 'callback']);
 
 Route::middleware('guest')->group(function () {
+    // Both registration endpoints gated by `feature.registration` — flip
+    // off in /admin/system → Feature flags to close sign-ups.
     Route::get('register', [RegisteredUserController::class, 'create'])
+        ->middleware('feature:registration')
         ->name('register');
 
-    Route::post('register', [RegisteredUserController::class, 'store']);
+    Route::post('register', [RegisteredUserController::class, 'store'])
+        ->middleware('feature:registration');
 
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
         ->name('login');

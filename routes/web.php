@@ -233,17 +233,19 @@ Route::get('/games/{slug}', [GamesController::class, 'show'])
     ->where('slug', '[a-z0-9\-]+')
     ->name('games.show');
 Route::get('/player/{username}', [PlayerController::class, 'show'])->name('player.show');
-Route::get('/clips', [ClipController::class, 'index'])->name('clips.index');
+Route::get('/clips', [ClipController::class, 'index'])->middleware('feature:clips')->name('clips.index');
 Route::get('/redirect', [\App\Http\Controllers\RedirectController::class, 'redirect'])->name('external.redirect');
 Route::get('/search', [SearchController::class, 'search'])->middleware(['auth', 'throttle:30,1'])->name('search');
 
-// Community (public viewing)
-Route::get('/community', [CommunityController::class, 'index'])->name('community.index');
-Route::get('/community/team', [CommunityController::class, 'team'])->name('community.team');
-Route::get('/community/guidelines', [CommunityController::class, 'guidelines'])->name('community.guidelines');
-Route::get('/community/create', [CommunityController::class, 'create'])->middleware('auth')->name('community.create');
-Route::get('/community/{communityPost}/edit', [CommunityController::class, 'edit'])->middleware('auth')->name('community.edit');
-Route::get('/community/{communityPost}', [CommunityController::class, 'show'])->name('community.show');
+// Community (public viewing) — gated by the `community` feature flag.
+Route::middleware('feature:community')->group(function () {
+    Route::get('/community', [CommunityController::class, 'index'])->name('community.index');
+    Route::get('/community/team', [CommunityController::class, 'team'])->name('community.team');
+    Route::get('/community/guidelines', [CommunityController::class, 'guidelines'])->name('community.guidelines');
+    Route::get('/community/create', [CommunityController::class, 'create'])->middleware('auth')->name('community.create');
+    Route::get('/community/{communityPost}/edit', [CommunityController::class, 'edit'])->middleware('auth')->name('community.edit');
+    Route::get('/community/{communityPost}', [CommunityController::class, 'show'])->name('community.show');
+});
 
 Route::middleware('auth')->group(function () {
     // Impersonation stop — the impersonated user holds the original
@@ -280,9 +282,11 @@ Route::middleware('auth')->group(function () {
         ->middleware('throttle:3,10')
         ->name('profile.dataExport');
 
-    // Clips
-    Route::post('/clips', [ClipController::class, 'store'])->middleware('throttle:10,1')->name('clips.store');
-    Route::delete('/clips/{clip}', [ClipController::class, 'destroy'])->name('clips.destroy');
+    // Clips (gated by the `clips` feature flag)
+    Route::middleware('feature:clips')->group(function () {
+        Route::post('/clips', [ClipController::class, 'store'])->middleware('throttle:10,1')->name('clips.store');
+        Route::delete('/clips/{clip}', [ClipController::class, 'destroy'])->name('clips.destroy');
+    });
 
     // Quick add/remove a game to/from my profile
     Route::post('/games/{game}/add', [GamesController::class, 'quickAdd'])->name('games.quickAdd');
@@ -322,13 +326,15 @@ Route::middleware('auth')->group(function () {
     // Achievements
     Route::get('/achievements', [AchievementController::class, 'index'])->name('achievements.index');
 
-    // Community (auth actions)
-    Route::post('/community', [CommunityController::class, 'store'])->middleware('throttle:10,1')->name('community.store');
-    Route::put('/community/{communityPost}', [CommunityController::class, 'update'])->middleware('throttle:30,1')->name('community.update');
-    Route::delete('/community/{communityPost}', [CommunityController::class, 'destroy'])->name('community.destroy');
-    Route::post('/community/{communityPost}/vote', [CommunityController::class, 'vote'])->name('community.vote');
-    Route::post('/community/{communityPost}/comment', [CommunityController::class, 'comment'])->name('community.comment');
-    Route::delete('/community/comment/{postComment}', [CommunityController::class, 'destroyComment'])->name('community.comment.destroy');
+    // Community (auth actions) — gated by `community` feature flag.
+    Route::middleware('feature:community')->group(function () {
+        Route::post('/community', [CommunityController::class, 'store'])->middleware('throttle:10,1')->name('community.store');
+        Route::put('/community/{communityPost}', [CommunityController::class, 'update'])->middleware('throttle:30,1')->name('community.update');
+        Route::delete('/community/{communityPost}', [CommunityController::class, 'destroy'])->name('community.destroy');
+        Route::post('/community/{communityPost}/vote', [CommunityController::class, 'vote'])->name('community.vote');
+        Route::post('/community/{communityPost}/comment', [CommunityController::class, 'comment'])->name('community.comment');
+        Route::delete('/community/comment/{postComment}', [CommunityController::class, 'destroyComment'])->name('community.comment.destroy');
+    });
 
     // Moderation — admins + moderators only. Explicit `:id` binding because
     // the community post model's default route key is the slug, but mod
@@ -357,28 +363,36 @@ Route::middleware('auth')->group(function () {
     Route::post('/report', [ReportController::class, 'store'])->middleware('throttle:5,1')->name('report.store');
     Route::get('/my-reports', [ReportController::class, 'mine'])->name('reports.mine');
 
-    // Floating chat widget endpoints
-    Route::get('/chat/friends', [ChatController::class, 'friends'])->name('chat.friends');
-    Route::get('/chat/{playerMatch}/messages', [ChatController::class, 'messages'])->name('chat.messages');
-    Route::get('/chat/lfg-groups', [LfgController::class, 'myGroups'])->name('chat.lfgGroups');
-    Route::get('/chat/lfg/{lfgPost}/messages', [LfgController::class, 'widgetMessages'])->name('chat.lfgMessages');
+    // Floating chat widget endpoints — gated by `chat` feature flag.
+    Route::middleware('feature:chat')->group(function () {
+        Route::get('/chat/friends', [ChatController::class, 'friends'])->name('chat.friends');
+        Route::get('/chat/{playerMatch}/messages', [ChatController::class, 'messages'])->name('chat.messages');
+        Route::get('/chat/lfg-groups', [LfgController::class, 'myGroups'])->name('chat.lfgGroups');
+        Route::get('/chat/lfg/{lfgPost}/messages', [LfgController::class, 'widgetMessages'])->name('chat.lfgMessages');
+    });
 
     // Discovery (requires complete profile)
     Route::middleware('profile.complete')->group(function () {
-        Route::get('/discover', [DiscoveryController::class, 'index'])->name('discovery.index');
-        Route::get('/discover/passed', [DiscoveryController::class, 'passed'])->name('discovery.passed');
-        Route::get('/discover/liked-you', [DiscoveryController::class, 'likedYou'])->name('discovery.likedYou');
-        Route::post('/discover/undo', [DiscoveryController::class, 'undo'])->name('discovery.undo');
-        Route::delete('/discover/pass/{user}', [DiscoveryController::class, 'removePass'])->name('discovery.removePass');
-        Route::post('/likes', [LikeController::class, 'store'])->middleware('throttle:30,1')->name('likes.store');
-        Route::post('/likes/pass', [LikeController::class, 'pass'])->middleware('throttle:30,1')->name('likes.pass');
+        // Discovery / likes gated by `discovery` feature flag.
+        Route::middleware('feature:discovery')->group(function () {
+            Route::get('/discover', [DiscoveryController::class, 'index'])->name('discovery.index');
+            Route::get('/discover/passed', [DiscoveryController::class, 'passed'])->name('discovery.passed');
+            Route::get('/discover/liked-you', [DiscoveryController::class, 'likedYou'])->name('discovery.likedYou');
+            Route::post('/discover/undo', [DiscoveryController::class, 'undo'])->name('discovery.undo');
+            Route::delete('/discover/pass/{user}', [DiscoveryController::class, 'removePass'])->name('discovery.removePass');
+            Route::post('/likes', [LikeController::class, 'store'])->middleware('throttle:30,1')->name('likes.store');
+            Route::post('/likes/pass', [LikeController::class, 'pass'])->middleware('throttle:30,1')->name('likes.pass');
+        });
         Route::get('/friends', [MatchController::class, 'index'])->name('friends.index');
-        Route::get('/friends/{playerMatch}/chat', [ChatController::class, 'show'])->name('chat.show');
-        Route::post('/friends/{playerMatch}/messages', [ChatController::class, 'store'])->middleware('throttle:60,1')->name('chat.store');
-        Route::post('/friends/{playerMatch}/read', [ChatController::class, 'markRead'])->name('chat.markRead');
-        Route::get('/friends/{playerMatch}/poll', [ChatController::class, 'poll'])->name('chat.poll');
+        Route::middleware('feature:chat')->group(function () {
+            Route::get('/friends/{playerMatch}/chat', [ChatController::class, 'show'])->name('chat.show');
+            Route::post('/friends/{playerMatch}/messages', [ChatController::class, 'store'])->middleware('throttle:60,1')->name('chat.store');
+            Route::post('/friends/{playerMatch}/read', [ChatController::class, 'markRead'])->name('chat.markRead');
+            Route::get('/friends/{playerMatch}/poll', [ChatController::class, 'poll'])->name('chat.poll');
+        });
 
-        // LFG
+        // LFG (all LFG endpoints behind the `lfg` flag)
+        Route::middleware('feature:lfg')->group(function () {
         Route::get('/lfg', [LfgController::class, 'index'])->name('lfg.index');
         Route::get('/lfg/create', [LfgController::class, 'create'])->name('lfg.create');
         Route::post('/lfg', [LfgController::class, 'store'])->middleware('throttle:3,1')->name('lfg.store');
@@ -399,6 +413,7 @@ Route::middleware('auth')->group(function () {
         // Favourite hosts — watch specific hosts and get pinged when they post.
         Route::post('/favorites/{user}', [\App\Http\Controllers\FavoriteHostController::class, 'store'])->middleware('throttle:30,1')->name('favorites.store');
         Route::delete('/favorites/{user}', [\App\Http\Controllers\FavoriteHostController::class, 'destroy'])->name('favorites.destroy');
+        }); // end feature:lfg
     });
 });
 
