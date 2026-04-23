@@ -91,6 +91,21 @@ class PruneRetention extends Command
             );
         }
 
+        // Pageview tracking rows older than 90 days. Aggregate metrics
+        // on the analytics page only look back 30 days, so the tail is
+        // pure storage cost with no value.
+        if (DB::getSchemaBuilder()->hasTable('page_views')) {
+            $stats['page_views_old'] = $this->prune(
+                fn () => DB::table('page_views')
+                    ->where('day', '<', $now->copy()->subDays(90)->toDateString())
+                    ->count(),
+                fn () => DB::table('page_views')
+                    ->where('day', '<', $now->copy()->subDays(90)->toDateString())
+                    ->delete(),
+                $dryRun,
+            );
+        }
+
         // Dismissed broadcast views older than 1 year. Undismissed stay.
         if (DB::getSchemaBuilder()->hasTable('broadcast_views')) {
             $stats['broadcast_views_old'] = $this->prune(
