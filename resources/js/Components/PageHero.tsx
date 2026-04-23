@@ -30,13 +30,18 @@ export default function PageHero({
     const heightClass = size === 'md' ? 'h-64 sm:h-72' : 'h-44 sm:h-48';
 
     return (
-        <section className={`relative overflow-hidden ${heightClass}`}>
-            <img
-                src={image}
-                alt=""
-                className="absolute inset-0 h-full w-full object-cover"
-                loading="eager"
-            />
+        <section className={`relative ${heightClass}`}>
+            {/* Image clipping is scoped to its own wrapper so popovers
+                (e.g. SearchableSelect) dropped from inside the content
+                aren't also clipped by an overflow-hidden on the section. */}
+            <div className="absolute inset-0 overflow-hidden">
+                <img
+                    src={image}
+                    alt=""
+                    className="h-full w-full object-cover"
+                    loading="eager"
+                />
+            </div>
             {/* No overlay — the image stays as-is in both light + dark mode.
                 Themed ink/bone tokens flip in dark theme and were making the
                 overlay go pale. Text carries its own CSS drop-shadow so it
