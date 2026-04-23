@@ -38,9 +38,9 @@ export default function PageHero({
                 loading="eager"
             />
             {/* No overlay — the image stays as-is in both light + dark mode.
-                Themed ink-*/bone-* tokens flip in dark theme and were making
-                the overlay go pale. Text carries its own CSS drop-shadow so
-                it stays legible directly on the image. */}
+                Themed ink/bone tokens flip in dark theme and were making the
+                overlay go pale. Text carries its own CSS drop-shadow so it
+                stays legible directly on the image. */}
 
             <div className="relative mx-auto flex h-full max-w-6xl flex-col justify-center gap-3 px-4 py-6 sm:px-6 lg:px-8">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
