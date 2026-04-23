@@ -92,6 +92,18 @@ export default function FloatingChat() {
     const [notifications, setNotifications] = useState<Notification[]>(auth.notifications || []);
     const [unreadCount, setUnreadCount] = useState(auth.unreadCount || 0);
 
+    // Bulk-select mode for the current tab. selectedFriends holds
+    // playerMatch ids, selectedGroups holds lfg post ids. Cleared
+    // whenever the user switches tabs or exits select mode.
+    const [selectMode, setSelectMode] = useState(false);
+    const [selectedFriends, setSelectedFriends] = useState<Set<number>>(new Set());
+    const [selectedGroups, setSelectedGroups] = useState<Set<number>>(new Set());
+    const clearSelection = () => {
+        setSelectMode(false);
+        setSelectedFriends(new Set());
+        setSelectedGroups(new Set());
+    };
+
     // Friend chat state
     const [activeChat, setActiveChat] = useState<FriendItem | null>(null);
     // LFG chat state
@@ -452,8 +464,23 @@ export default function FloatingChat() {
                 {(view === 'list') && (
                     <>
                         <div className="flex items-center justify-between border-b border-ink-900/10 px-4 py-3">
-                            <h2 className="text-base font-bold text-ink-900">Messages</h2>
-                            <div className="flex items-center gap-2">
+                            <h2 className="text-base font-bold text-ink-900">
+                                {selectMode ? `${selectedFriends.size + selectedGroups.size} selected` : 'Messages'}
+                            </h2>
+                            <div className="flex items-center gap-1">
+                                {/* Only show select-toggle on list tabs (chats/groups),
+                                    not on notifications/online where it makes no sense. */}
+                                {(tab === 'chats' || tab === 'groups') && (friends.length + lfgGroups.length > 0) && (
+                                    selectMode ? (
+                                        <button onClick={clearSelection} className="rounded-lg px-2 py-1 text-[11px] font-semibold text-ink-500 transition hover:text-neon-red">
+                                            Cancel
+                                        </button>
+                                    ) : (
+                                        <button onClick={() => setSelectMode(true)} className="rounded-lg px-2 py-1 text-[11px] font-semibold text-ink-500 transition hover:text-neon-red">
+                                            Select
+                                        </button>
+                                    )
+                                )}
                                 <button onClick={() => setView('closed')} className="rounded-lg p-1.5 text-ink-500 transition hover:bg-bone-100 hover:text-ink-900">
                                     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
@@ -472,7 +499,7 @@ export default function FloatingChat() {
                             ] as [Tab, string, number][]).map(([key, label, count]) => (
                                 <button
                                     key={key}
-                                    onClick={() => setTab(key)}
+                                    onClick={() => { setTab(key); clearSelection(); }}
                                     className={`flex-1 py-2.5 text-center text-[11px] font-semibold transition ${
                                         tab === key ? 'border-b-2 border-neon-red text-neon-red' : 'text-gray-500 hover:text-ink-700'
                                     }`}
@@ -494,8 +521,34 @@ export default function FloatingChat() {
                                 friends.length === 0 ? (
                                     <EmptyState icon="friends" text="No friends yet" action="Find Players" onAction={() => { setView('closed'); router.visit(route('discovery.index')); }} />
                                 ) : friends.map((friend) => (
-                                    <div key={friend.id} className="group/row relative flex w-full items-center gap-3 px-4 py-3 transition hover:bg-bone-100">
-                                        <button type="button" onClick={() => openFriendChat(friend)} className="flex flex-1 items-center gap-3 text-left">
+                                    <div key={friend.id} className={`group/row relative flex w-full items-center gap-3 px-4 py-3 transition hover:bg-bone-100 ${selectMode && selectedFriends.has(friend.id) ? 'bg-neon-red/5' : ''}`}>
+                                        {selectMode && (
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedFriends.has(friend.id)}
+                                                onChange={() => {
+                                                    const next = new Set(selectedFriends);
+                                                    if (next.has(friend.id)) next.delete(friend.id);
+                                                    else next.add(friend.id);
+                                                    setSelectedFriends(next);
+                                                }}
+                                                className="h-4 w-4 shrink-0 rounded border-ink-900/20 text-neon-red focus:ring-neon-red/30"
+                                            />
+                                        )}
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                if (selectMode) {
+                                                    const next = new Set(selectedFriends);
+                                                    if (next.has(friend.id)) next.delete(friend.id);
+                                                    else next.add(friend.id);
+                                                    setSelectedFriends(next);
+                                                } else {
+                                                    openFriendChat(friend);
+                                                }
+                                            }}
+                                            className="flex flex-1 items-center gap-3 text-left"
+                                        >
                                             <AvatarWithStatus avatar={friend.partner.avatar} name={friend.partner.username || friend.partner.name} online={friend.partner.online} />
                                             <div className="min-w-0 flex-1">
                                                 <div className="flex items-center justify-between">
@@ -512,23 +565,25 @@ export default function FloatingChat() {
                                                 </div>
                                             </div>
                                         </button>
-                                        <button
-                                            type="button"
-                                            aria-label="Hide chat"
-                                            title="Hide from your list — friendship stays, new messages un-hide automatically"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                if (!confirm(`Hide "${friend.partner.username || friend.partner.name}" from your chat list?\n\nYour friendship stays. A new message from them will automatically un-hide the chat.`)) return;
-                                                axios.delete(route('chat.hide', { playerMatch: friend.id }))
-                                                    .then(() => setFriends((prev) => prev.filter((f) => f.id !== friend.id)))
-                                                    .catch(() => alert('Could not hide chat.'));
-                                            }}
-                                            className="rounded-lg p-1.5 text-gray-400 opacity-0 transition hover:bg-red-500/10 hover:text-red-500 group-hover/row:opacity-100"
-                                        >
-                                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                                            </svg>
-                                        </button>
+                                        {!selectMode && (
+                                            <button
+                                                type="button"
+                                                aria-label="Hide chat"
+                                                title="Hide from your list — friendship stays, new messages un-hide automatically"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    if (!confirm(`Hide "${friend.partner.username || friend.partner.name}" from your chat list?\n\nYour friendship stays. A new message from them will automatically un-hide the chat.`)) return;
+                                                    axios.delete(route('chat.hide', { playerMatch: friend.id }))
+                                                        .then(() => setFriends((prev) => prev.filter((f) => f.id !== friend.id)))
+                                                        .catch(() => alert('Could not hide chat.'));
+                                                }}
+                                                className="rounded-lg p-1.5 text-gray-400 opacity-0 transition hover:bg-red-500/10 hover:text-red-500 group-hover/row:opacity-100"
+                                            >
+                                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                                </svg>
+                                            </button>
+                                        )}
                                     </div>
                                 ))
                             )}
@@ -538,8 +593,34 @@ export default function FloatingChat() {
                                 lfgGroups.length === 0 ? (
                                     <EmptyState icon="groups" text="No active groups" action="Browse LFG" onAction={() => { setView('closed'); router.visit(route('lfg.index')); }} />
                                 ) : lfgGroups.map((group) => (
-                                    <div key={group.id} className="group/row relative flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-bone-100">
-                                        <button type="button" onClick={() => openLfgChat(group)} className="flex flex-1 items-center gap-3 text-left">
+                                    <div key={group.id} className={`group/row relative flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-bone-100 ${selectMode && selectedGroups.has(group.id) ? 'bg-neon-red/5' : ''}`}>
+                                        {selectMode && (
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedGroups.has(group.id)}
+                                                onChange={() => {
+                                                    const next = new Set(selectedGroups);
+                                                    if (next.has(group.id)) next.delete(group.id);
+                                                    else next.add(group.id);
+                                                    setSelectedGroups(next);
+                                                }}
+                                                className="h-4 w-4 shrink-0 rounded border-ink-900/20 text-neon-red focus:ring-neon-red/30"
+                                            />
+                                        )}
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                if (selectMode) {
+                                                    const next = new Set(selectedGroups);
+                                                    if (next.has(group.id)) next.delete(group.id);
+                                                    else next.add(group.id);
+                                                    setSelectedGroups(next);
+                                                } else {
+                                                    openLfgChat(group);
+                                                }
+                                            }}
+                                            className="flex flex-1 items-center gap-3 text-left"
+                                        >
                                             <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-bone-100">
                                                 {group.game_cover ? (
                                                     <img src={group.game_cover} alt="" className="h-full w-full object-cover" />
@@ -577,23 +658,25 @@ export default function FloatingChat() {
                                                 </div>
                                             </div>
                                         </button>
-                                        <button
-                                            type="button"
-                                            aria-label="Remove from list"
-                                            title="Remove from your list"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                if (!confirm('Remove this group from your list? It won\'t delete the chat — you just won\'t see it here anymore.')) return;
-                                                axios.delete(route('chat.lfgLeave', { lfgPost: group.slug }))
-                                                    .then(() => setLfgGroups((prev) => prev.filter((g) => g.id !== group.id)))
-                                                    .catch(() => alert('Could not remove group.'));
-                                            }}
-                                            className="rounded-lg p-1.5 text-gray-400 opacity-0 transition hover:bg-red-500/10 hover:text-red-500 group-hover/row:opacity-100"
-                                        >
-                                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                                            </svg>
-                                        </button>
+                                        {!selectMode && (
+                                            <button
+                                                type="button"
+                                                aria-label="Remove from list"
+                                                title="Remove from your list"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    if (!confirm('Remove this group from your list? It won\'t delete the chat — you just won\'t see it here anymore.')) return;
+                                                    axios.delete(route('chat.lfgLeave', { lfgPost: group.slug }))
+                                                        .then(() => setLfgGroups((prev) => prev.filter((g) => g.id !== group.id)))
+                                                        .catch(() => alert('Could not remove group.'));
+                                                }}
+                                                className="rounded-lg p-1.5 text-gray-400 opacity-0 transition hover:bg-red-500/10 hover:text-red-500 group-hover/row:opacity-100"
+                                            >
+                                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                                </svg>
+                                            </button>
+                                        )}
                                     </div>
                                 ))
                             )}
@@ -643,6 +726,56 @@ export default function FloatingChat() {
                                 ))
                             )}
                         </div>
+
+                        {/* Bulk action bar — slides up from the bottom
+                            whenever the user has any rows checked in
+                            the current tab. */}
+                        {selectMode && (selectedFriends.size + selectedGroups.size > 0) && (
+                            <div className="flex items-center justify-between gap-3 border-t border-ink-900/10 bg-white/95 px-4 py-3 backdrop-blur-md">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        if (tab === 'chats') {
+                                            setSelectedFriends(new Set(friends.map((f) => f.id)));
+                                        } else if (tab === 'groups') {
+                                            setSelectedGroups(new Set(lfgGroups.map((g) => g.id)));
+                                        }
+                                    }}
+                                    className="text-[11px] font-semibold text-ink-500 transition hover:text-neon-red"
+                                >
+                                    Select all
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={async () => {
+                                        const friendIds = Array.from(selectedFriends);
+                                        const groupIds = Array.from(selectedGroups);
+                                        const total = friendIds.length + groupIds.length;
+                                        if (total === 0) return;
+                                        if (!confirm(`Hide ${total} chat${total === 1 ? '' : 's'} from your list?\n\nFriendships + group chats stay intact for everyone else. New messages un-hide them automatically.`)) return;
+                                        try {
+                                            if (friendIds.length > 0) {
+                                                await axios.post(route('chat.bulkHide'), { ids: friendIds });
+                                                setFriends((prev) => prev.filter((f) => !selectedFriends.has(f.id)));
+                                            }
+                                            if (groupIds.length > 0) {
+                                                await axios.post(route('chat.lfgBulkLeave'), { ids: groupIds });
+                                                setLfgGroups((prev) => prev.filter((g) => !selectedGroups.has(g.id)));
+                                            }
+                                            clearSelection();
+                                        } catch {
+                                            alert('Could not hide chats. Try again.');
+                                        }
+                                    }}
+                                    className="inline-flex items-center gap-1.5 rounded-xl bg-neon-red px-4 py-2 text-xs font-bold text-white shadow-glow-red transition hover:bg-neon-red/90"
+                                >
+                                    <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79" />
+                                    </svg>
+                                    Delete {selectedFriends.size + selectedGroups.size}
+                                </button>
+                            </div>
+                        )}
                     </>
                 )}
 

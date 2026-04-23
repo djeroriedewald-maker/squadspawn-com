@@ -714,6 +714,25 @@ class LfgController extends Controller
         return response()->json(['ok' => true]);
     }
 
+    /**
+     * Bulk-hide multiple LFG groups from the viewer's widget. Mirrors
+     * leaveGroup but for a list of ids — one request, N cache writes.
+     */
+    public function bulkLeaveGroups(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'ids' => 'required|array|max:100',
+            'ids.*' => 'integer',
+        ]);
+
+        $userId = auth()->id();
+        foreach ($data['ids'] as $postId) {
+            Cache::put("lfg_hidden:{$userId}:{$postId}", now()->toIso8601String(), 86400 * 365);
+        }
+
+        return response()->json(['ok' => true, 'hidden' => count($data['ids'])]);
+    }
+
     public function pollMessages(Request $request, LfgPost $lfgPost): JsonResponse
     {
         $user = auth()->user();

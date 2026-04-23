@@ -286,4 +286,33 @@ class ChatController extends Controller
         \Illuminate\Support\Facades\Cache::put("chat_hidden:{$user->id}:{$playerMatch->id}", now()->toIso8601String(), 86400 * 365);
         return response()->json(['ok' => true]);
     }
+
+    /**
+     * Bulk-hide multiple friend chats at once. Same guarantees as
+     * single hide: friendship + messages unaffected, new messages
+     * un-hide automatically. Only hides matches the caller actually
+     * participates in — silently skips any foreign ids in the list.
+     */
+    public function bulkHide(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'ids' => 'required|array|max:100',
+            'ids.*' => 'integer',
+        ]);
+
+        $user = $request->user();
+        $matches = PlayerMatch::whereIn('id', $data['ids'])
+            ->where(fn ($q) => $q->where('user_one_id', $user->id)->orWhere('user_two_id', $user->id))
+            ->pluck('id');
+
+        foreach ($matches as $matchId) {
+            \Illuminate\Support\Facades\Cache::put(
+                "chat_hidden:{$user->id}:{$matchId}",
+                now()->toIso8601String(),
+                86400 * 365,
+            );
+        }
+
+        return response()->json(['ok' => true, 'hidden' => $matches->count()]);
+    }
 }

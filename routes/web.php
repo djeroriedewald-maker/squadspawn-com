@@ -370,6 +370,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/chat/lfg-groups', [LfgController::class, 'myGroups'])->name('chat.lfgGroups');
         Route::get('/chat/lfg/{lfgPost}/messages', [LfgController::class, 'widgetMessages'])->name('chat.lfgMessages');
         Route::delete('/chat/lfg/{lfgPost}/leave', [LfgController::class, 'leaveGroup'])->name('chat.lfgLeave');
+        Route::post('/chat/lfg/bulk-leave', [LfgController::class, 'bulkLeaveGroups'])->name('chat.lfgBulkLeave');
+        Route::post('/chat/bulk-hide', [ChatController::class, 'bulkHide'])->name('chat.bulkHide');
     });
 
     // Discovery (requires complete profile)
