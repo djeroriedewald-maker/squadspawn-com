@@ -1,5 +1,6 @@
 import CreatorSpotlight, { FeaturedCreator } from '@/Components/CreatorSpotlight';
 import PageHero from '@/Components/PageHero';
+import SearchableSelect from '@/Components/SearchableSelect';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Clip, Game, PageProps } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
@@ -186,16 +187,19 @@ export default function ClipsIndex({
                 }
                 actions={
                     <>
-                        <select
+                        <SearchableSelect
+                            variant="on-image"
+                            align="right"
                             value={filters.game_id || ''}
-                            onChange={(e) => handleGameFilter(e.target.value)}
-                            className="rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm text-white backdrop-blur-sm focus:border-white/40 focus:outline-none"
-                        >
-                            <option value="" className="text-ink-900">All Games</option>
-                            {games.map((game) => (
-                                <option key={game.id} value={game.id} className="text-ink-900">{game.name}</option>
-                            ))}
-                        </select>
+                            emptyLabel="All games"
+                            searchPlaceholder="Search games…"
+                            onChange={handleGameFilter}
+                            options={games.map((g) => ({
+                                value: String(g.id),
+                                label: g.name,
+                                image: g.cover_image || `/images/games/${g.slug}.svg`,
+                            }))}
+                        />
                         {isLoggedIn ? (
                             <button
                                 onClick={() => setShowForm(!showForm)}
