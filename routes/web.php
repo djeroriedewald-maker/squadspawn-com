@@ -181,6 +181,12 @@ Route::get('/dashboard', function () {
 
     // Rating funnel — closed LFG sessions the user was in that still have
     // un-rated teammates. Drives the reputation system's data quality.
+    //
+    // The take(50) pre-filter + take(5) post-filter keep this bounded for
+    // power users: even someone with hundreds of closed sessions hits the
+    // same query cost, and the dashboard only ever shows a handful of
+    // cards. Picked 50 so fully-rated recent sessions can't crowd out a
+    // legitimate unrated one.
     $pendingRatings = \App\Models\LfgPost::where('status', 'closed')
         ->where(function ($q) use ($user) {
             $q->where('user_id', $user->id)
@@ -188,7 +194,7 @@ Route::get('/dashboard', function () {
         })
         ->with(['game', 'responses' => fn ($q) => $q->where('status', 'accepted')->with('user.profile'), 'user.profile', 'ratings'])
         ->latest()
-        ->take(10)
+        ->take(50)
         ->get()
         ->filter(function ($post) use ($user) {
             $teammates = collect([$post->user])
@@ -199,6 +205,7 @@ Route::get('/dashboard', function () {
             $myRated = $post->ratings->where('rater_id', $user->id)->pluck('rated_id');
             return $teammates->pluck('id')->diff($myRated)->isNotEmpty();
         })
+        ->take(5)
         ->values()
         ->map(fn ($p) => [
             'slug' => $p->slug,

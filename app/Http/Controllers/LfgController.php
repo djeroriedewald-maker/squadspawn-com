@@ -336,7 +336,10 @@ class LfgController extends Controller
             abort(404);
         }
 
-        $lfgPost->load(['user.profile', 'user.games', 'game', 'responses.user.profile', 'responses.user.games', 'messages.user.profile', 'ratings', 'hiddenBy.profile']);
+        // Don't eager-load messages here — we run a bounded query at the
+        // bottom of this method that fetches the last 50 with user.profile,
+        // so preloading the whole thread just duplicated work.
+        $lfgPost->load(['user.profile', 'user.games', 'game', 'responses.user.profile', 'responses.user.games', 'ratings', 'hiddenBy.profile']);
 
         // Sync spots_filled with actual accepted count + host
         $actualFilled = $lfgPost->responses()->where('status', 'accepted')->count() + 1;
