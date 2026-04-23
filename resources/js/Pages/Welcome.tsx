@@ -74,15 +74,9 @@ export default function Welcome({
                 {/* ── Hero ────────────────────────────────────────── */}
                 <section className="relative overflow-hidden">
                     <div className="absolute inset-0">
-                        {/* Object-position right: the banner's "SQUADSPAWN"
-                            neon text sits on the right half, where the hero
-                            copy isn't — so text on the left stays clear and
-                            the branded photo stays intact on desktop. On
-                            mobile the text falls beneath the banner anyway. */}
-                        <img src="/images/Squadspawn_banner.jpg" alt="" className="h-full w-full object-cover object-right" loading="eager" />
-                        <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/55 to-black/30 sm:from-black/75 sm:via-black/45 sm:to-transparent" />
-                        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-bone-50" />
-                        <div className="absolute inset-0 bg-grid opacity-20" />
+                        <img src="/images/hero.jpg" alt="" className="h-full w-full object-cover" loading="eager" />
+                        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-bone-50 dark:to-bone-50" />
+                        <div className="absolute inset-0 bg-grid opacity-30" />
                     </div>
 
                     <div className="relative mx-auto max-w-6xl px-6 py-20 lg:px-12 lg:py-32">
