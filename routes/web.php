@@ -442,7 +442,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::post('/users/{user}/admin', [\App\Http\Controllers\Admin\AdminController::class, 'setAdmin'])->name('admin.setAdmin');
     Route::get('/reports', [\App\Http\Controllers\Admin\AdminController::class, 'reports'])->name('admin.reports');
     Route::post('/reports/{report}/resolve', [\App\Http\Controllers\Admin\AdminController::class, 'resolveReport'])->name('admin.resolveReport');
-    Route::delete('/lfg-posts/{lfgPost}', [\App\Http\Controllers\Admin\AdminController::class, 'deleteLfgPost'])->name('admin.deleteLfgPost');
+    // LfgPost's model uses `slug` as its route key for public URLs. Admin
+    // tooling passes integer ids (from the reports table), so bind by id
+    // explicitly here to avoid a 404 on `/admin/lfg-posts/42`.
+    Route::delete('/lfg-posts/{lfgPost:id}', [\App\Http\Controllers\Admin\AdminController::class, 'deleteLfgPost'])->name('admin.deleteLfgPost');
     Route::get('/games', [\App\Http\Controllers\Admin\AdminController::class, 'games'])->name('admin.games');
     Route::post('/games', [\App\Http\Controllers\Admin\AdminController::class, 'storeGame'])->name('admin.storeGame');
     Route::delete('/games/{game}', [\App\Http\Controllers\Admin\AdminController::class, 'deleteGame'])->name('admin.deleteGame');
