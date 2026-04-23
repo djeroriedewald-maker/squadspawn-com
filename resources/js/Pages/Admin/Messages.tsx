@@ -1,7 +1,7 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link, router } from '@inertiajs/react';
 import axios from 'axios';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface Message {
     id: number;
@@ -65,10 +65,30 @@ const CATEGORY_TONE: Record<string, string> = {
 export default function AdminMessages({ messages, filters, counts, categories }: Props) {
     const [expanded, setExpanded] = useState<number | null>(null);
 
-    function changeStatus(m: Message, status: Message['status']) {
+    // Track per-row status overrides so the row stays visible while
+    // the admin is reading it, even when marking it read would cause
+    // it to drop out of the current `status=new` filter. Cleared when
+    // the server returns a fresh messages list (filter change, page nav).
+    const [statusOverrides, setStatusOverrides] = useState<Record<number, Message['status']>>({});
+    useEffect(() => setStatusOverrides({}), [messages]);
+
+    const resolveStatus = (m: Message): Message['status'] => statusOverrides[m.id] ?? m.status;
+
+    function changeStatus(m: Message, status: Message['status'], opts?: { reloadMessages?: boolean }) {
+        setStatusOverrides((prev) => ({ ...prev, [m.id]: status }));
         axios.post(route('admin.messages.updateStatus', { message: m.id }), { status })
-            .then(() => router.reload({ only: ['messages', 'counts'] }))
-            .catch(() => alert('Failed to update.'));
+            .then(() => {
+                const only = opts?.reloadMessages ? ['messages', 'counts'] : ['counts'];
+                router.reload({ only });
+            })
+            .catch(() => {
+                setStatusOverrides((prev) => {
+                    const next = { ...prev };
+                    delete next[m.id];
+                    return next;
+                });
+                alert('Failed to update.');
+            });
     }
 
     function remove(m: Message) {
@@ -80,7 +100,7 @@ export default function AdminMessages({ messages, filters, counts, categories }:
 
     function openAndMarkRead(m: Message) {
         setExpanded(expanded === m.id ? null : m.id);
-        if (m.status === 'new') {
+        if (resolveStatus(m) === 'new') {
             changeStatus(m, 'read');
         }
     }
@@ -159,11 +179,13 @@ export default function AdminMessages({ messages, filters, counts, categories }:
                 </div>
             ) : (
                 <div className="space-y-3">
-                    {messages.data.map((m) => (
+                    {messages.data.map((m) => {
+                        const status = resolveStatus(m);
+                        return (
                         <article
                             key={m.id}
                             className={`overflow-hidden rounded-xl border bg-white transition dark:bg-bone-100 ${
-                                m.status === 'new' ? 'border-neon-red/30 shadow-sm shadow-neon-red/5' : 'border-ink-900/10'
+                                status === 'new' ? 'border-neon-red/30 shadow-sm shadow-neon-red/5' : 'border-ink-900/10'
                             }`}
                         >
                             <button
@@ -172,8 +194,8 @@ export default function AdminMessages({ messages, filters, counts, categories }:
                                 className="w-full text-left"
                             >
                                 <div className="flex flex-wrap items-start gap-3 p-4 sm:flex-nowrap sm:items-center">
-                                    <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${STATUS_TONE[m.status]}`}>
-                                        {m.status}
+                                    <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${STATUS_TONE[status]}`}>
+                                        {status}
                                     </span>
                                     <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${CATEGORY_TONE[m.category] ?? CATEGORY_TONE.other}`}>
                                         {m.category_label}
@@ -209,33 +231,33 @@ export default function AdminMessages({ messages, filters, counts, categories }:
                                     <div className="mt-4 flex flex-wrap gap-2 border-t border-ink-900/5 pt-4">
                                         <a
                                             href={`mailto:${m.email}?subject=${encodeURIComponent('Re: ' + m.subject)}&body=${encodeURIComponent('\n\n\n-- Original message --\n' + m.body)}`}
-                                            onClick={() => changeStatus(m, 'replied')}
+                                            onClick={() => changeStatus(m, 'replied', { reloadMessages: true })}
                                             className="rounded-lg bg-gaming-green/10 px-3 py-1.5 text-xs font-medium text-gaming-green transition hover:bg-gaming-green/20"
                                         >
                                             Reply via email
                                         </a>
-                                        {m.status !== 'replied' && (
+                                        {status !== 'replied' && (
                                             <button
                                                 type="button"
-                                                onClick={() => changeStatus(m, 'replied')}
+                                                onClick={() => changeStatus(m, 'replied', { reloadMessages: true })}
                                                 className="rounded-lg bg-ink-900/5 px-3 py-1.5 text-xs font-medium text-ink-700 transition hover:bg-ink-900/10"
                                             >
                                                 Mark as replied
                                             </button>
                                         )}
-                                        {m.status !== 'archived' && (
+                                        {status !== 'archived' && (
                                             <button
                                                 type="button"
-                                                onClick={() => changeStatus(m, 'archived')}
+                                                onClick={() => changeStatus(m, 'archived', { reloadMessages: true })}
                                                 className="rounded-lg bg-ink-900/5 px-3 py-1.5 text-xs font-medium text-ink-700 transition hover:bg-ink-900/10"
                                             >
                                                 Archive
                                             </button>
                                         )}
-                                        {m.status === 'archived' && (
+                                        {status === 'archived' && (
                                             <button
                                                 type="button"
-                                                onClick={() => changeStatus(m, 'read')}
+                                                onClick={() => changeStatus(m, 'read', { reloadMessages: true })}
                                                 className="rounded-lg bg-ink-900/5 px-3 py-1.5 text-xs font-medium text-ink-700 transition hover:bg-ink-900/10"
                                             >
                                                 Unarchive
@@ -252,7 +274,8 @@ export default function AdminMessages({ messages, filters, counts, categories }:
                                 </div>
                             )}
                         </article>
-                    ))}
+                        );
+                    })}
                 </div>
             )}
 
