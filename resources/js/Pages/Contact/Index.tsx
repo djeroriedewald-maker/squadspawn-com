@@ -25,9 +25,12 @@ const CATEGORIES: { value: string; label: string; description: string }[] = [
 ];
 
 export default function ContactIndex({ prefillName, prefillEmail }: Props) {
-    const page = usePage<{ flash?: { message?: string }; auth?: { user?: AuthUser } }>();
-    const flash = page.props.flash;
-    const authedUser = page.props.auth?.user;
+    const pageProps = usePage().props as {
+        flash?: { message?: string };
+        auth?: { user?: AuthUser };
+    };
+    const flash = pageProps.flash;
+    const authedUser = pageProps.auth?.user;
     const [sent, setSent] = useState(false);
 
     const { data, setData, post, processing, errors, reset } = useForm<{
