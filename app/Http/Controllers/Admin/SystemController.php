@@ -123,6 +123,15 @@ class SystemController extends Controller
                 ->update(['status' => 'closed']);
         } catch (\Throwable) {}
 
+        // Evict all active sessions so the target is logged out across
+        // every device in the same breath — the kill-switch contract is
+        // "gone right now", not "gone on their next request".
+        try {
+            \Illuminate\Support\Facades\DB::table('sessions')
+                ->where('user_id', $user->id)
+                ->delete();
+        } catch (\Throwable) {}
+
         \App\Services\AdminAudit::log('user.killed', $user, ['reason' => $reason]);
         \Illuminate\Support\Facades\Log::warning('Admin kill-switch fired', [
             'admin_id' => $request->user()->id,

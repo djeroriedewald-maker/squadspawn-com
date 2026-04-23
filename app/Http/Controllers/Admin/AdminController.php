@@ -275,8 +275,18 @@ class AdminController extends Controller
             ->whereIn('status', ['open', 'full'])
             ->update(['status' => 'closed']);
 
-        // Invalidate all sessions by cycling the remember token
+        // Kill every active session AND the remember cookie. Before this
+        // we only wiped the remember token, which meant the user stayed
+        // logged in until their next request would trigger EnsureNotBanned.
+        // With database sessions we can evict them immediately.
         $user->update(['remember_token' => null]);
+        try {
+            \Illuminate\Support\Facades\DB::table('sessions')
+                ->where('user_id', $user->id)
+                ->delete();
+        } catch (\Throwable $e) {
+            \Log::warning('Failed to purge sessions on ban', ['user_id' => $user->id, 'error' => $e->getMessage()]);
+        }
 
         AdminAudit::log('user.banned', $user, ['reason' => $request->input('reason')]);
         \Log::info('User banned', ['user_id' => $user->id, 'admin_id' => auth()->id(), 'reason' => $request->input('reason')]);
