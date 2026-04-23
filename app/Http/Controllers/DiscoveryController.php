@@ -99,6 +99,18 @@ class DiscoveryController extends Controller
                 $score += 2;
             }
 
+            // Reputation: reward proven good teammates, demote the few
+            // that actually got flagged. Score 0 = no ratings yet, so
+            // treat it as neutral to avoid starving new players.
+            $reputation = (float) ($player->profile?->reputation_score ?? 0);
+            if ($reputation >= 4.5) {
+                $score += 4;
+            } elseif ($reputation >= 4.0) {
+                $score += 2;
+            } elseif ($reputation > 0 && $reputation < 3.0) {
+                $score -= 3;
+            }
+
             // Has avatar: +1 (completeness signal)
             if ($player->profile?->avatar) {
                 $score += 1;
