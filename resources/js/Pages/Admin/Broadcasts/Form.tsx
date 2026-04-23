@@ -245,7 +245,13 @@ export default function BroadcastForm({
                             {internalPages.length > 0 && (
                                 <div className="mb-2 flex flex-wrap gap-1.5">
                                     {internalPages.map((p) => {
-                                        const fullUrl = appUrl + p.path;
+                                        // Build the full URL from the live browser origin
+                                        // so it's always the correct https://… protocol,
+                                        // even if the server's APP_URL env var is wrong.
+                                        // Falls back to the server-side appUrl for SSR-
+                                        // initial render before window is available.
+                                        const origin = typeof window !== 'undefined' ? window.location.origin : appUrl;
+                                        const fullUrl = origin + p.path;
                                         const active = data.cta_url === fullUrl;
                                         return (
                                             <button
