@@ -2,17 +2,17 @@ import { Head, Link } from '@inertiajs/react';
 
 export default function Error({ status }: { status: number }) {
     const titles: Record<number, string> = {
-        403: 'Access Denied',
-        404: 'Page Not Found',
-        500: 'Server Error',
-        503: 'Service Unavailable',
+        403: 'Access denied',
+        404: 'Page not found',
+        500: 'Something broke on our end',
+        503: 'We\'re doing some work',
     };
 
     const descriptions: Record<number, string> = {
-        403: "You don't have permission to access this page.",
-        404: "The page you're looking for doesn't exist or has been moved.",
-        500: 'Something went wrong on our end. Please try again later.',
-        503: "We're doing some maintenance. Be right back!",
+        403: "You don't have permission to view that page. If you think that's a mistake, try signing in again.",
+        404: "That URL didn't match anything on SquadSpawn. It might have moved, or the link was typo'd.",
+        500: "Our server hit an unexpected bump. We've been notified — please try again in a minute.",
+        503: "SquadSpawn is briefly in maintenance mode. Hang tight — we'll be back shortly.",
     };
 
     const title = titles[status] || 'Error';
@@ -20,50 +20,44 @@ export default function Error({ status }: { status: number }) {
 
     return (
         <>
-            <Head title={`${status} - ${title}`} />
+            <Head title={`${status} · ${title}`} />
 
-            <div className="min-h-screen bg-[#0F172A] flex items-center justify-center px-4">
-                <div className="text-center max-w-lg">
-                    {/* Large status code */}
-                    <p className="text-[8rem] sm:text-[10rem] font-extrabold leading-none text-[#7C3AED] opacity-80 select-none">
+            <div className="flex min-h-screen items-center justify-center bg-bone-50 px-4">
+                <div className="max-w-lg text-center">
+                    {/* Status code */}
+                    <p className="select-none text-[8rem] font-extrabold leading-none text-neon-red sm:text-[10rem]">
                         {status}
                     </p>
 
-                    {/* Title */}
-                    <h1 className="mt-2 text-3xl sm:text-4xl font-bold text-ink-900">
+                    <h1 className="mt-2 text-3xl font-bold text-ink-900 sm:text-4xl">
                         {title}
                     </h1>
 
-                    {/* Description */}
-                    <p className="mt-4 text-lg text-slate-400">
+                    <p className="mt-4 text-base text-ink-500">
                         {description}
                     </p>
 
-                    {/* Divider */}
-                    <div className="mt-8 mb-8 mx-auto w-24 h-1 rounded bg-gradient-to-r from-[#7C3AED] to-[#22C55E]" />
+                    <div className="mx-auto mt-8 mb-8 h-1 w-24 rounded bg-gradient-to-r from-neon-red to-gaming-green" />
 
-                    {/* Back to home */}
-                    <Link
-                        href="/"
-                        className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-[#7C3AED] hover:bg-[#6D28D9] text-ink-900 font-semibold transition-colors duration-200"
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
+                    <div className="flex flex-wrap items-center justify-center gap-3">
+                        <Link
+                            href="/"
+                            className="inline-flex items-center gap-2 rounded-lg bg-neon-red px-6 py-3 font-semibold text-white shadow-lg shadow-neon-red/25 transition hover:bg-neon-red/90"
                         >
-                            <path
-                                fillRule="evenodd"
-                                d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z"
-                                clipRule="evenodd"
-                            />
-                        </svg>
-                        Back to Home
-                    </Link>
+                            <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z" clipRule="evenodd" />
+                            </svg>
+                            Back home
+                        </Link>
+                        <Link
+                            href="/help"
+                            className="inline-flex items-center gap-2 rounded-lg border border-ink-900/10 bg-white px-6 py-3 font-semibold text-ink-900 transition hover:border-neon-red/30 hover:text-neon-red"
+                        >
+                            Help centre
+                        </Link>
+                    </div>
 
-                    {/* Branding */}
-                    <p className="mt-12 text-sm text-slate-600">
+                    <p className="mt-12 text-xs text-gray-500">
                         SquadSpawn
                     </p>
                 </div>
