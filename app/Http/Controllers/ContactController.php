@@ -19,7 +19,7 @@ class ContactController extends Controller
             'prefillEmail' => $user?->email ?? '',
             'seo' => [
                 'title' => 'Contact — SquadSpawn',
-                'description' => 'Send us a message. Every note lands directly in the founder\'s admin inbox — no customer-support chain, no ticket queue.',
+                'description' => 'Send us a message. We read every one and get back to you personally.',
             ],
         ]);
     }

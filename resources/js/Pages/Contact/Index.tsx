@@ -110,7 +110,7 @@ export default function ContactIndex({ prefillName, prefillEmail }: Props) {
                             className="mx-auto mt-2 max-w-lg text-sm text-white sm:text-base"
                             style={{ textShadow: '0 2px 8px rgba(0,0,0,0.9)' }}
                         >
-                            Feedback, bugs, partnerships, press &mdash; anything. Messages land directly in the SquadSpawn admin inbox. No ticket queue.
+                            Feedback, bugs, partnerships, press &mdash; anything. Drop us a line and we&apos;ll get back to you.
                         </p>
                     </div>
             </section>
