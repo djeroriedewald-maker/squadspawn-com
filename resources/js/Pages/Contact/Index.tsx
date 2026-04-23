@@ -1,5 +1,6 @@
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
-import { FormEventHandler, useState } from 'react';
+import { FormEventHandler, ReactNode, useState } from 'react';
 
 interface AuthUser {
     id: number;
@@ -62,23 +63,24 @@ export default function ContactIndex({ prefillName, prefillEmail }: Props) {
     };
 
     const selectedCat = CATEGORIES.find((c) => c.value === data.category);
+    const isAuthed = !!authedUser;
 
-    return (
+    // When signed in, wrap in AuthenticatedLayout so the user keeps the
+    // site nav + floating chat + notification bell. Logged-out visitors
+    // get the minimal standalone chrome so they reach the form fast.
+    const pageBody = (
         <>
-            <Head title="Contact — SquadSpawn" />
+            <section className="relative h-56 overflow-hidden sm:h-64">
+                <div className="absolute inset-0">
+                    <img
+                        src="/images/gamer6.jpg"
+                        alt=""
+                        className="h-full w-full object-cover"
+                        loading="eager"
+                    />
+                </div>
 
-            <div className="min-h-screen bg-bone-50 text-ink-900">
-                {/* Hero with banner image */}
-                <section className="relative h-56 overflow-hidden sm:h-64">
-                    <div className="absolute inset-0">
-                        <img
-                            src="/images/gamer6.jpg"
-                            alt=""
-                            className="h-full w-full object-cover"
-                            loading="eager"
-                        />
-                    </div>
-
+                {!isAuthed && (
                     <nav className="relative flex items-center justify-between px-6 py-4 lg:px-12">
                         <Link href="/" className="rounded-md bg-white/90 px-3 py-1 text-lg font-bold text-neon-red backdrop-blur">
                             SquadSpawn
@@ -90,8 +92,9 @@ export default function ContactIndex({ prefillName, prefillEmail }: Props) {
                             ← Back
                         </Link>
                     </nav>
+                )}
 
-                    <div className="relative mx-auto mt-4 max-w-2xl px-6 text-center lg:px-12">
+                <div className={`relative mx-auto ${isAuthed ? 'pt-10' : 'mt-4'} max-w-2xl px-6 text-center lg:px-12`}>
                         <span
                             className="inline-flex items-center gap-2 rounded-full bg-gaming-cyan/90 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-black shadow"
                         >
@@ -110,9 +113,9 @@ export default function ContactIndex({ prefillName, prefillEmail }: Props) {
                             Feedback, bugs, partnerships, press &mdash; anything. Messages land directly in the SquadSpawn admin inbox. No ticket queue.
                         </p>
                     </div>
-                </section>
+            </section>
 
-                <div className="mx-auto -mt-12 max-w-2xl px-6 pb-16 lg:px-12">
+            <div className="mx-auto -mt-12 max-w-2xl px-6 pb-16 lg:px-12">
                     {authedUser && !sent && (
                         <div className="mb-4 flex items-center gap-3 rounded-xl border border-gaming-cyan/30 bg-gaming-cyan/10 px-4 py-3 text-sm">
                             <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gaming-cyan/30 text-xs font-bold text-gaming-cyan">
@@ -291,7 +294,17 @@ export default function ContactIndex({ prefillName, prefillEmail }: Props) {
                         <a href="mailto:info@squadspawn.com" className="text-neon-red hover:underline">info@squadspawn.com</a>.
                     </p>
                 </div>
-            </div>
+        </>
+    );
+
+    return (
+        <>
+            <Head title="Contact — SquadSpawn" />
+            {isAuthed ? (
+                <AuthenticatedLayout>{pageBody as ReactNode}</AuthenticatedLayout>
+            ) : (
+                <div className="min-h-screen bg-bone-50 text-ink-900">{pageBody}</div>
+            )}
         </>
     );
 }
