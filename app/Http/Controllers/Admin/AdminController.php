@@ -538,12 +538,33 @@ class AdminController extends Controller
                 ->map(fn ($r) => ['region' => $r->region, 'count' => (int) $r->c]);
         });
 
+        // Website traffic from Plausible — cached 5 min so we don't hit
+        // the external API on every admin reload. Returns null inside
+        // when the PLAUSIBLE_API_KEY env var isn't set; the UI then
+        // shows a friendly "configure your API key" card.
+        $traffic = \Illuminate\Support\Facades\Cache::remember('analytics:traffic', 300, function () {
+            $p = new \App\Services\PlausibleClient();
+            if (!$p->isConfigured()) {
+                return ['configured' => false];
+            }
+            return [
+                'configured' => true,
+                'today' => $p->aggregate('day'),
+                'week' => $p->aggregate('7d'),
+                'month' => $p->aggregate('30d'),
+                'sources' => $p->topBreakdown('visit:source', '30d', 8),
+                'pages' => $p->topBreakdown('event:page', '30d', 8),
+                'countries' => $p->topBreakdown('visit:country', '30d', 8),
+            ];
+        });
+
         return Inertia::render('Admin/Analytics', [
             'headline' => $headline,
             'series' => $series,
             'content' => $content,
             'topGames' => $topGames,
             'topRegions' => $topRegions,
+            'traffic' => $traffic,
             'plausibleDomain' => env('VITE_PLAUSIBLE_DOMAIN', 'squadspawn.com'),
         ]);
     }
