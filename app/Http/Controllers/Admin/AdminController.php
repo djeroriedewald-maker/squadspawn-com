@@ -71,6 +71,122 @@ class AdminController extends Controller
         ]);
     }
 
+    /**
+     * Single-user detail page for moderation decisions. Bundles every
+     * signal a mod or admin would want before banning/killing: ratings,
+     * reports, referrals, LFGs, and the audit trail of previous admin
+     * actions on this account.
+     */
+    public function showUser(User $user): Response
+    {
+        $user->load([
+            'profile',
+            'games',
+            'referredBy:id,name',
+            'referredBy.profile:user_id,username',
+        ]);
+
+        $friendsCount = \App\Models\PlayerMatch::where('user_one_id', $user->id)
+            ->orWhere('user_two_id', $user->id)
+            ->count();
+
+        $invitees = User::where('referred_by_user_id', $user->id)
+            ->with('profile:user_id,username')
+            ->latest()
+            ->take(25)
+            ->get(['id', 'name', 'created_at', 'is_banned']);
+
+        $recentLfg = \App\Models\LfgPost::where('user_id', $user->id)
+            ->with('game:id,name,slug,cover_image')
+            ->latest()
+            ->take(10)
+            ->get(['id', 'slug', 'title', 'status', 'game_id', 'created_at']);
+
+        $reportsAgainst = \App\Models\Report::where('reported_id', $user->id)
+            ->with(['reporter:id,name', 'reporter.profile:user_id,username'])
+            ->latest()
+            ->take(20)
+            ->get(['id', 'reporter_id', 'reason', 'details', 'status', 'created_at']);
+
+        $reportsFiled = \App\Models\Report::where('reporter_id', $user->id)
+            ->with(['reported:id,name', 'reported.profile:user_id,username'])
+            ->latest()
+            ->take(20)
+            ->get(['id', 'reported_id', 'reason', 'details', 'status', 'created_at']);
+
+        $auditTrail = \App\Models\AdminAction::where('target_user_id', $user->id)
+            ->with(['actor:id,name,is_owner', 'actor.profile:user_id,username'])
+            ->latest('created_at')
+            ->take(30)
+            ->get()
+            ->map(fn ($a) => [
+                'id' => $a->id,
+                'action' => $a->action,
+                'metadata' => $a->metadata,
+                'created_at_human' => $a->created_at?->diffForHumans(),
+                'created_at' => $a->created_at?->toDateTimeString(),
+                'actor' => $a->actor ? [
+                    'id' => $a->actor->id,
+                    'name' => $a->actor->profile?->username ?? $a->actor->name,
+                    'is_owner' => (bool) $a->actor->is_owner,
+                ] : null,
+            ]);
+
+        $ratingCount = \App\Models\LfgRating::where('rated_id', $user->id)->count()
+            + \App\Models\PlayerRating::where('rated_id', $user->id)->count();
+
+        $lfgHosted = \App\Models\LfgPost::where('user_id', $user->id)->count();
+
+        return Inertia::render('Admin/Users/Show', [
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'created_at' => $user->created_at?->toDateTimeString(),
+                'last_active' => $user->updated_at?->diffForHumans(),
+                'is_admin' => (bool) $user->is_admin,
+                'is_moderator' => (bool) $user->is_moderator,
+                'is_owner' => (bool) $user->is_owner,
+                'is_banned' => (bool) $user->is_banned,
+                'banned_at' => $user->banned_at?->toDateTimeString(),
+                'ban_reason' => $user->ban_reason,
+                'referral_code' => $user->referral_code,
+                'profile' => $user->profile ? [
+                    'username' => $user->profile->username,
+                    'avatar' => $user->profile->avatar,
+                    'bio' => $user->profile->bio,
+                    'region' => $user->profile->region,
+                    'looking_for' => $user->profile->looking_for,
+                    'reputation_score' => $user->profile->reputation_score,
+                    'level' => $user->profile->level ?? null,
+                ] : null,
+                'games' => $user->games->map(fn ($g) => [
+                    'id' => $g->id,
+                    'name' => $g->name,
+                    'rank' => $g->pivot->rank,
+                    'platform' => $g->pivot->platform,
+                ]),
+                'referred_by' => $user->referredBy ? [
+                    'id' => $user->referredBy->id,
+                    'name' => $user->referredBy->profile?->username ?? $user->referredBy->name,
+                ] : null,
+            ],
+            'stats' => [
+                'friends' => $friendsCount,
+                'lfg_hosted' => $lfgHosted,
+                'invitees' => $invitees->count(),
+                'rating_count' => $ratingCount,
+                'reports_against' => $reportsAgainst->count(),
+                'reports_filed' => $reportsFiled->count(),
+            ],
+            'invitees' => $invitees,
+            'recentLfg' => $recentLfg,
+            'reportsAgainst' => $reportsAgainst,
+            'reportsFiled' => $reportsFiled,
+            'auditTrail' => $auditTrail,
+        ]);
+    }
+
     /** Toggle a user's moderator role. Admin-only. */
     public function setModerator(Request $request, User $user): JsonResponse
     {

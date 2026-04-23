@@ -140,7 +140,11 @@ export default function Users({ users, filters }: Props) {
                                 <tr key={user.id} className="text-ink-700 transition hover:bg-white/[0.02]">
                                     <td className="px-5 py-3 text-gray-500">#{user.id}</td>
                                     <td className="px-5 py-3">
-                                        <div className="flex items-center gap-3">
+                                        <Link
+                                            href={route('admin.users.show', { user: user.id })}
+                                            className="flex items-center gap-3 transition hover:text-neon-red"
+                                            title="Open user detail"
+                                        >
                                             <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-neon-red/20 text-xs font-bold text-neon-red">
                                                 {user.profile?.avatar ? (
                                                     <img src={user.profile.avatar} alt="" className="h-full w-full object-cover" />
@@ -158,7 +162,10 @@ export default function Users({ users, filters }: Props) {
                                             {!user.is_admin && user.is_moderator && (
                                                 <span className="rounded-full bg-gaming-cyan/20 px-2 py-0.5 text-[10px] font-bold text-gaming-cyan">MOD</span>
                                             )}
-                                        </div>
+                                            {user.is_banned && (
+                                                <span className="rounded-full bg-red-500/20 px-2 py-0.5 text-[10px] font-bold text-red-400">BANNED</span>
+                                            )}
+                                        </Link>
                                     </td>
                                     <td className="px-5 py-3 text-ink-500">{user.email}</td>
                                     <td className="px-5 py-3 text-neon-red">{user.profile?.username || '--'}</td>

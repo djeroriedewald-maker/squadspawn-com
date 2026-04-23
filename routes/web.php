@@ -427,6 +427,7 @@ Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap')
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/', [\App\Http\Controllers\Admin\AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/users', [\App\Http\Controllers\Admin\AdminController::class, 'users'])->name('admin.users');
+    Route::get('/users/{user}', [\App\Http\Controllers\Admin\AdminController::class, 'showUser'])->name('admin.users.show');
     Route::post('/users/{user}/ban', [\App\Http\Controllers\Admin\AdminController::class, 'banUser'])->name('admin.ban');
     Route::post('/users/{user}/unban', [\App\Http\Controllers\Admin\AdminController::class, 'unbanUser'])->name('admin.unban');
     Route::post('/users/{user}/moderator', [\App\Http\Controllers\Admin\AdminController::class, 'setModerator'])->name('admin.setModerator');
