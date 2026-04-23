@@ -1,3 +1,4 @@
+import CreatorSpotlight, { FeaturedCreator } from '@/Components/CreatorSpotlight';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Clip, Game, PageProps } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
@@ -97,10 +98,12 @@ export default function ClipsIndex({
     clips,
     games,
     filters,
+    featuredCreators,
 }: {
     clips: { data: Clip[]; links: any[]; current_page: number; last_page: number };
     games: Game[];
     filters: { game_id?: string };
+    featuredCreators?: FeaturedCreator[];
 }) {
     const { auth } = usePage<PageProps>().props;
     const isLoggedIn = !!auth?.user;
@@ -174,8 +177,10 @@ export default function ClipsIndex({
                     {/* Header */}
                     <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                            <h1 className="text-2xl font-bold text-ink-900">Clips & Highlights</h1>
-                            <p className="mt-1 text-sm text-ink-500">Share your best gaming moments</p>
+                            <h1 className="text-2xl font-bold text-ink-900">Clips &amp; Creators</h1>
+                            <p className="mt-1 max-w-2xl text-sm text-ink-500">
+                                Discover streamers + content creators in the SquadSpawn community — and share your own best moments from YouTube, Twitch or TikTok.
+                            </p>
                         </div>
                         <div className="flex items-center gap-3">
                             {/* Game filter */}
@@ -310,6 +315,19 @@ export default function ClipsIndex({
                             >
                                 Sign Up Free
                             </Link>
+                        </div>
+                    )}
+
+                    {/* Creator Spotlight — hand-curated featured creators at the top,
+                         so visitors land on the people doing the most with SquadSpawn before
+                         scrolling into the full clip feed. */}
+                    {featuredCreators && featuredCreators.length > 0 && (
+                        <div className="mb-8">
+                            <CreatorSpotlight
+                                creators={featuredCreators}
+                                heading="Featured creators"
+                                subheading="Hand-picked streamers + content creators building their audience on SquadSpawn."
+                            />
                         </div>
                     )}
 

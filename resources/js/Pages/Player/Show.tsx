@@ -194,6 +194,11 @@ export default function PlayerShow({ player, clips = [], reputationData, friends
                                             Creator
                                         </span>
                                     )}
+                                    {player.profile?.is_featured_now && (
+                                        <span className="rounded-full bg-gaming-orange/15 px-3 py-0.5 text-xs font-bold text-gaming-orange">
+                                            ✨ Featured
+                                        </span>
+                                    )}
                                     {player.profile?.is_live && (
                                         <span className="flex items-center gap-1.5 rounded-full bg-red-500/10 px-3 py-0.5 text-xs font-bold text-red-400">
                                             <span className="relative flex h-2 w-2">

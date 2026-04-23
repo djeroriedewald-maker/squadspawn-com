@@ -79,6 +79,11 @@ class PlayerController extends Controller
             ? app(SteamStatsClient::class)->cachedStats($player->profile->steam_id)
             : null;
 
+        $profileArr = $player->profile ? $player->profile->toArray() : null;
+        if ($profileArr !== null) {
+            $profileArr['is_featured_now'] = $player->profile->isFeatured();
+        }
+
         return Inertia::render('Player/Show', [
             'player' => [
                 'id' => $player->id,
@@ -88,7 +93,7 @@ class PlayerController extends Controller
                 'is_moderator' => (bool) $player->is_moderator,
                 'is_owner' => (bool) $player->is_owner,
                 'is_banned' => (bool) $player->is_banned,
-                'profile' => $player->profile,
+                'profile' => $profileArr,
                 'games' => $player->games,
             ],
             'clips' => $clips,
