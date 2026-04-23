@@ -10,7 +10,7 @@
  * Bump CACHE_VERSION to invalidate caches on deploy.
  */
 
-const CACHE_VERSION = 'v8';
+const CACHE_VERSION = 'v9';
 const STATIC_CACHE = `squadspawn-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `squadspawn-runtime-${CACHE_VERSION}`;
 
@@ -21,8 +21,8 @@ self.addEventListener('install', (event) => {
         caches.open(STATIC_CACHE).then((cache) =>
             cache.addAll([
                 '/favicon.svg',
-                '/icons/icon-192.png',
-                '/icons/icon-512.png',
+                '/icons/web-app-manifest-192x192.png',
+                '/icons/web-app-manifest-512x512.png',
             ]).catch(() => {})
         )
     );

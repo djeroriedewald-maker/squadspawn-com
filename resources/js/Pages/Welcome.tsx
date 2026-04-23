@@ -53,7 +53,7 @@ export default function Welcome({
                 {/* ── Nav ─────────────────────────────────────────── */}
                 <nav className="relative z-20 flex items-center justify-between px-6 py-4 lg:px-12">
                     <Link href="/" className="flex items-center gap-2" aria-label="SquadSpawn home">
-                        <img src="/images/SquadSpawn_logo.jpg" alt="SquadSpawn" className="h-10 w-10 rounded-lg object-cover shadow-md ring-1 ring-white/10 sm:h-11 sm:w-11" />
+                        <img src="/images/SquadspawnLOGO.png" alt="SquadSpawn" className="h-10 w-10 rounded-lg object-cover shadow-md ring-1 ring-white/10 sm:h-11 sm:w-11" />
                         <span className="text-xl font-bold text-neon-red sm:text-2xl">SquadSpawn</span>
                     </Link>
                     <div className="flex items-center gap-3">
@@ -84,7 +84,7 @@ export default function Welcome({
                             {/* Brand mark front and centre — sets the tone
                                 before the user reads a word. */}
                             <img
-                                src="/images/SquadSpawn_logo.jpg"
+                                src="/images/SquadspawnLOGO.png"
                                 alt="SquadSpawn"
                                 className="mb-6 h-24 w-24 rounded-2xl object-cover shadow-2xl ring-1 ring-white/10 sm:h-28 sm:w-28"
                                 loading="eager"
