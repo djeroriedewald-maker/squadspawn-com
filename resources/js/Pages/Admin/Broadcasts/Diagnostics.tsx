@@ -1,5 +1,6 @@
 import AdminLayout from '@/Layouts/AdminLayout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
+import axios from 'axios';
 import { useState } from 'react';
 
 interface PathInfo {
@@ -37,6 +38,8 @@ export default function Diagnostics({
     pending_scheduled: Pending[];
 }) {
     const [copied, setCopied] = useState(false);
+    const [running, setRunning] = useState(false);
+    const [runResult, setRunResult] = useState<{ ok: boolean; message: string } | null>(null);
 
     const copyCommand = async () => {
         try {
@@ -44,6 +47,22 @@ export default function Diagnostics({
             setCopied(true);
             setTimeout(() => setCopied(false), 1500);
         } catch {}
+    };
+
+    const runSchedulerNow = async () => {
+        if (!confirm('Run the scheduler command right now? Any overdue scheduled broadcasts will fire immediately.')) return;
+        setRunning(true);
+        setRunResult(null);
+        try {
+            const res = await axios.post(route('admin.broadcasts.diagnostics.run'));
+            setRunResult({ ok: true, message: res.data.output ?? 'Done.' });
+            // Reload the page to refresh heartbeat + pending list.
+            setTimeout(() => router.reload(), 900);
+        } catch (err: any) {
+            setRunResult({ ok: false, message: err?.response?.data?.error ?? 'Run failed.' });
+        } finally {
+            setRunning(false);
+        }
     };
 
     return (
@@ -96,6 +115,33 @@ export default function Diagnostics({
                             : 'No heartbeat recorded yet. Set up the cron below and it should turn green within 60 seconds.'}
                     </p>
                 </div>
+            </div>
+
+            {/* ── Run scheduler now (manual trigger) ────────── */}
+            <div className="mb-6 rounded-2xl border border-gaming-cyan/30 bg-gaming-cyan/5 p-6">
+                <h2 className="text-sm font-bold text-ink-900">Run scheduler manually</h2>
+                <p className="mt-1 text-xs text-ink-500">
+                    Invoke the <code className="rounded bg-white px-1 py-0.5">broadcasts:dispatch-scheduled</code> artisan command from here, so you can tell "the code works, Forge cron isn't firing" apart from "the code itself is broken". If the heartbeat flips to green after this, the problem is 100% the cron setup.
+                </p>
+                <div className="mt-3 flex flex-wrap items-center gap-3">
+                    <button
+                        type="button"
+                        onClick={runSchedulerNow}
+                        disabled={running}
+                        className="inline-flex items-center gap-1.5 rounded-xl bg-gaming-cyan px-4 py-2 text-sm font-bold text-white transition hover:bg-gaming-cyan/90 disabled:opacity-50"
+                    >
+                        {running ? 'Running…' : '▶ Run scheduler now'}
+                    </button>
+                </div>
+                {runResult && (
+                    <pre className={`mt-4 max-h-48 overflow-auto whitespace-pre-wrap rounded-lg border p-3 text-xs ${
+                        runResult.ok
+                            ? 'border-gaming-green/30 bg-gaming-green/5 text-gaming-green'
+                            : 'border-red-500/40 bg-red-500/5 text-red-600'
+                    }`}>
+                        {runResult.message}
+                    </pre>
+                )}
             </div>
 
             {/* ── Exact cron command ─────────────────────────── */}

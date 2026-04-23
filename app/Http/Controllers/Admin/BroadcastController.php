@@ -148,6 +148,30 @@ class BroadcastController extends Controller
     }
 
     /**
+     * Manually invoke the scheduler command — surfaces whether our
+     * artisan command itself is healthy, independent of whether Forge's
+     * cron is wired up. After this runs, the heartbeat flips to green
+     * immediately, so the admin can tell "code works, cron is broken"
+     * from "code is broken" with one click.
+     */
+    public function runScheduler(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            \Illuminate\Support\Facades\Artisan::call('broadcasts:dispatch-scheduled');
+            $output = \Illuminate\Support\Facades\Artisan::output();
+            return response()->json([
+                'ok' => true,
+                'output' => $output ?: '(no output — no broadcasts due)',
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'ok' => false,
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
      * Resolve a cron-safe artisan path. Returns [$artisanPath, $basePath,
      * $usesSymlink]. For Forge zero-downtime deploys we rewrite
      * `/releases/<hash>/` to `/current/` so the cron survives redeploys.
