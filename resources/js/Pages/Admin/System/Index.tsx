@@ -3,6 +3,7 @@ import { Head, useForm, usePage } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
 
 interface Maint { enabled: boolean; message: string; eta_at: string | null; }
+interface HealthCheck { key: string; ok: boolean; label: string; detail: string; }
 
 const FEATURE_LABELS: Record<string, { label: string; blurb: string }> = {
     lfg: { label: 'LFG', blurb: 'Looking-for-group posts + chat.' },
@@ -23,10 +24,12 @@ export default function AdminSystemIndex({
     maintenance,
     features,
     flash: flashState,
+    health,
 }: {
     maintenance: Maint;
     features: Record<string, boolean>;
     flash: { message: string | null; tone: 'info' | 'warning' | 'danger' };
+    health: HealthCheck[];
 }) {
     const { flash } = usePage().props as any;
 
@@ -75,6 +78,54 @@ export default function AdminSystemIndex({
                     {flash.message}
                 </div>
             )}
+
+            {/* ── Health checks ─────────────────────────────────── */}
+            <div className="mb-6 rounded-2xl border border-ink-900/10 bg-white p-6">
+                <div className="mb-4 flex items-center justify-between">
+                    <div>
+                        <h2 className="text-base font-bold text-ink-900">Live health</h2>
+                        <p className="mt-1 text-xs text-ink-500">Refreshed every time you load this page.</p>
+                    </div>
+                    <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-widest ${
+                        health.every((h) => h.ok)
+                            ? 'bg-gaming-green/15 text-gaming-green'
+                            : 'bg-gaming-orange/15 text-gaming-orange'
+                    }`}>
+                        <span className={`h-1.5 w-1.5 rounded-full ${health.every((h) => h.ok) ? 'bg-gaming-green' : 'bg-gaming-orange'}`} />
+                        {health.every((h) => h.ok) ? 'All systems go' : `${health.filter((h) => !h.ok).length} issue(s)`}
+                    </span>
+                </div>
+                <ul className="grid gap-2 sm:grid-cols-2">
+                    {health.map((h) => (
+                        <li
+                            key={h.key}
+                            className={`flex items-start gap-3 rounded-xl border p-3 ${
+                                h.ok
+                                    ? 'border-ink-900/10 bg-bone-50'
+                                    : 'border-gaming-orange/40 bg-gaming-orange/5'
+                            }`}
+                        >
+                            <span className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${
+                                h.ok ? 'bg-gaming-green/20 text-gaming-green' : 'bg-gaming-orange/20 text-gaming-orange'
+                            }`}>
+                                {h.ok ? (
+                                    <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.4}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                    </svg>
+                                ) : (
+                                    <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m0 3.75h.008M5.07 19.5h13.86a2.25 2.25 0 0 0 1.95-3.375L13.95 3.375a2.25 2.25 0 0 0-3.9 0L3.12 16.125A2.25 2.25 0 0 0 5.07 19.5Z" />
+                                    </svg>
+                                )}
+                            </span>
+                            <div className="min-w-0 flex-1 text-xs">
+                                <p className="font-semibold text-ink-900">{h.label}</p>
+                                <p className="mt-0.5 truncate text-ink-500">{h.detail}</p>
+                            </div>
+                        </li>
+                    ))}
+                </ul>
+            </div>
 
             <div className="grid gap-6 lg:grid-cols-2">
                 {/* ── Maintenance mode ───────────────────────── */}

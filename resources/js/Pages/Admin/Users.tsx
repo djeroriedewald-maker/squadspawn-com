@@ -193,6 +193,19 @@ export default function Users({ users, filters }: Props) {
                                                 >
                                                     Ban
                                                 </button>
+                                                <button
+                                                    onClick={() => {
+                                                        const name = user.profile?.username || user.name;
+                                                        if (!confirm(`⚠️ KILL-SWITCH: "${name}"?\n\nThis is the emergency hammer:\n· Ban immediately\n· Invalidate remember-me across every device\n· Close all their active LFG groups\n· Log the event\n\nUse only for spam/abuse accounts that need to be gone right now.`)) return;
+                                                        const reason = prompt('Reason (optional, shown to the user):') ?? '';
+                                                        router.post(route('admin.system.kill', { user: user.id }), { reason }, { preserveScroll: true });
+                                                    }}
+                                                    disabled={user.is_admin || user.is_owner}
+                                                    title={user.is_admin || user.is_owner ? 'Strip role first' : 'Emergency kill — ban + logout + close LFGs'}
+                                                    className="rounded-lg bg-neon-red/10 px-3 py-1.5 text-xs font-medium text-neon-red transition hover:bg-neon-red/20 disabled:cursor-not-allowed disabled:opacity-40"
+                                                >
+                                                    Kill
+                                                </button>
                                             </div>
                                         )}
                                     </td>

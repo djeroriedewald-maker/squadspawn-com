@@ -431,6 +431,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::post('/system/maintenance', [\App\Http\Controllers\Admin\SystemController::class, 'toggleMaintenance'])->name('admin.system.maintenance');
     Route::post('/system/features', [\App\Http\Controllers\Admin\SystemController::class, 'updateFeatures'])->name('admin.system.features');
     Route::post('/system/flash', [\App\Http\Controllers\Admin\SystemController::class, 'updateFlash'])->name('admin.system.flash');
+    Route::post('/users/{user}/kill', [\App\Http\Controllers\Admin\SystemController::class, 'killUser'])->name('admin.system.kill');
 
     // Broadcasts
     Route::get('/broadcasts', [\App\Http\Controllers\Admin\BroadcastController::class, 'index'])->name('admin.broadcasts.index');
