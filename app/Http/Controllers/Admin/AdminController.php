@@ -308,6 +308,7 @@ class AdminController extends Controller
     {
         $data = $request->validate([
             'duration_days' => ['nullable', 'integer', 'min:0', 'max:90'],
+            'tier' => ['nullable', 'in:free,promoted'],
         ]);
 
         if (!$user->profile) {
@@ -318,25 +319,34 @@ class AdminController extends Controller
         }
 
         $days = (int) ($data['duration_days'] ?? 7);
+        $tier = $data['tier'] ?? \App\Models\Profile::SPOTLIGHT_TIER_FREE;
         $previous = $user->profile->featured_until;
 
         if ($days === 0) {
-            $user->profile->update(['featured_until' => null]);
+            $user->profile->update([
+                'featured_until' => null,
+                'spotlight_tier' => \App\Models\Profile::SPOTLIGHT_TIER_FREE,
+            ]);
             AdminAudit::log('creator.spotlight_removed', $user);
-            return response()->json(['featured_until' => null]);
+            return response()->json(['featured_until' => null, 'spotlight_tier' => 'free']);
         }
 
         $until = now()->addDays($days);
-        $user->profile->update(['featured_until' => $until]);
+        $user->profile->update([
+            'featured_until' => $until,
+            'spotlight_tier' => $tier,
+        ]);
 
         AdminAudit::log('creator.spotlight_set', $user, [
             'until' => $until->toDateTimeString(),
             'duration_days' => $days,
+            'tier' => $tier,
             'was_already_featured' => $previous !== null && $previous->isFuture(),
         ]);
 
         return response()->json([
             'featured_until' => $until->toDateTimeString(),
+            'spotlight_tier' => $tier,
         ]);
     }
 

@@ -7,13 +7,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Profile extends Model
 {
+    public const SPOTLIGHT_TIER_FREE = 'free';
+    public const SPOTLIGHT_TIER_PROMOTED = 'promoted';
+    public const SPOTLIGHT_TIERS = [self::SPOTLIGHT_TIER_FREE, self::SPOTLIGHT_TIER_PROMOTED];
+
     protected $fillable = [
         'user_id', 'username', 'avatar',
         'banner_style', 'banner_preset', 'banner_upload_path',
         'bio', 'looking_for',
         'region', 'timezone', 'available_times', 'socials',
         'is_creator', 'stream_url', 'is_live', 'has_mic',
-        'featured_until',
+        'featured_until', 'spotlight_tier',
         'reputation_score', 'achievement_points',
         'theme_preference',
     ];
@@ -36,6 +40,12 @@ class Profile extends Model
         return (bool) $this->is_creator
             && $this->featured_until !== null
             && $this->featured_until->isFuture();
+    }
+
+    /** True iff this profile is in a paid-promoted slot (not just free spotlight). */
+    public function isPromoted(): bool
+    {
+        return $this->isFeatured() && $this->spotlight_tier === self::SPOTLIGHT_TIER_PROMOTED;
     }
 
     public function user(): BelongsTo

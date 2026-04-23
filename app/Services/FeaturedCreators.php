@@ -51,6 +51,9 @@ class FeaturedCreators
             'reputation_score' => $user->profile?->reputation_score,
             'is_live' => (bool) $user->profile?->is_live,
             'socials' => $user->profile?->socials ?? null,
+            // Future-proof: 'free' today, 'promoted' once paid slots ship.
+            // CreatorSpotlight.tsx can switch on this without a migration.
+            'spotlight_tier' => $user->profile?->spotlight_tier ?? 'free',
             'games' => $user->games->take(3)->map(fn ($g) => [
                 'id' => $g->id,
                 'name' => $g->name,
