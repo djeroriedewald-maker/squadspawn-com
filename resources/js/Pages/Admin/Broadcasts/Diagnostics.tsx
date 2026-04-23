@@ -5,6 +5,8 @@ import { useState } from 'react';
 interface PathInfo {
     artisan: string;
     artisan_exists: boolean;
+    artisan_raw: string;
+    uses_symlink: boolean;
     php_binary: string;
     base_path: string;
     app_timezone: string;
@@ -114,9 +116,15 @@ export default function Diagnostics({
                     </button>
                 </div>
 
+                {paths.uses_symlink && (
+                    <p className="mt-3 rounded-lg border border-gaming-cyan/30 bg-gaming-cyan/5 px-3 py-2 text-xs text-gaming-cyan">
+                        <strong>Note:</strong> detected zero-downtime deploys — the cron points at <code>/current/artisan</code> (the stable symlink). This survives every redeploy.
+                    </p>
+                )}
+
                 {!paths.artisan_exists && (
                     <p className="mt-3 rounded-lg border border-red-500/40 bg-red-500/5 px-3 py-2 text-xs text-red-600">
-                        <strong>Warning:</strong> this server cannot find <code>{paths.artisan}</code>. That shouldn't happen — this page loads from the same Laravel app, so the file must exist. Contact support if you see this.
+                        <strong>Warning:</strong> this server cannot find <code>{paths.artisan}</code>. Double-check the symlink setup in Forge — the `current` symlink may not be created yet.
                     </p>
                 )}
             </div>

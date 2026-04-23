@@ -51,19 +51,32 @@ class BroadcastController extends Controller
     public function diagnostics(): Response
     {
         $lastRun = \Illuminate\Support\Facades\Cache::get('broadcasts:scheduler_last_run');
-        $artisanPath = base_path('artisan');
-        $phpBinary = PHP_BINARY ?: 'php';
+        $baseRaw = base_path();
+        $artisanRaw = base_path('artisan');
 
-        // "php /home/forge/.../artisan schedule:run" — the exact string
-        // that goes in Forge's Scheduler → Add Job → Command field.
-        $suggestedCommand = $phpBinary . ' ' . $artisanPath . ' schedule:run';
+        // Forge uses zero-downtime releases: base_path() ends up pointing
+        // at /home/forge/site/releases/<hash>, which changes on every
+        // deploy. A cron job hard-coded to that path breaks as soon as
+        // the next deploy runs. Use the `current` symlink when we detect
+        // a releases-style layout — that stays stable across deploys.
+        [$stableArtisan, $stableBase, $usesSymlink] = $this->stableArtisanPath($baseRaw);
+
+        // Likewise: PHP_BINARY inside a web request is the FPM binary
+        // (e.g. php-fpm8.3), which is NOT invokable from cron. Fall back
+        // to the CLI binary next to it when we detect FPM, and otherwise
+        // just use `php` (the server's PATH picks the CLI build).
+        $phpBinary = $this->cliPhpBinary();
+
+        $suggestedCommand = $phpBinary . ' ' . $stableArtisan . ' schedule:run';
 
         return Inertia::render('Admin/Broadcasts/Diagnostics', [
             'paths' => [
-                'artisan' => $artisanPath,
-                'artisan_exists' => file_exists($artisanPath),
+                'artisan' => $stableArtisan,
+                'artisan_exists' => file_exists($stableArtisan),
+                'artisan_raw' => $artisanRaw,
+                'uses_symlink' => $usesSymlink,
                 'php_binary' => $phpBinary,
-                'base_path' => base_path(),
+                'base_path' => $stableBase,
                 'app_timezone' => config('app.timezone'),
                 'now_server' => now()->toIso8601String(),
             ],
@@ -132,6 +145,39 @@ class BroadcastController extends Controller
             'broadcasts' => $broadcasts->values(),
             'totals' => $totals,
         ]);
+    }
+
+    /**
+     * Resolve a cron-safe artisan path. Returns [$artisanPath, $basePath,
+     * $usesSymlink]. For Forge zero-downtime deploys we rewrite
+     * `/releases/<hash>/` to `/current/` so the cron survives redeploys.
+     */
+    private function stableArtisanPath(string $baseRaw): array
+    {
+        $normalised = str_replace('\\', '/', $baseRaw);
+        if (preg_match('#^(.*)/releases/[^/]+(/.*)?$#', $normalised, $m)) {
+            $stableBase = $m[1] . '/current';
+            return [$stableBase . '/artisan', $stableBase, true];
+        }
+        return [$baseRaw . DIRECTORY_SEPARATOR . 'artisan', $baseRaw, false];
+    }
+
+    /**
+     * Guess a cron-usable PHP binary. In FPM requests PHP_BINARY is the
+     * FPM binary, which can't run artisan. Strip the `-fpm` suffix when
+     * present; otherwise fall back to `php` and rely on PATH.
+     */
+    private function cliPhpBinary(): string
+    {
+        $binary = PHP_BINARY ?: 'php';
+        if (str_contains($binary, 'fpm')) {
+            $candidate = str_replace(['-fpm8.3', '-fpm8.2', '-fpm8.1', '-fpm'], ['8.3', '8.2', '8.1', ''], $binary);
+            if ($candidate !== $binary && file_exists($candidate)) {
+                return $candidate;
+            }
+            return 'php'; // safest universal fallback
+        }
+        return $binary;
     }
 
     private function analyticsRowFor(Broadcast $b): array
