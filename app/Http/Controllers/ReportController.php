@@ -62,14 +62,39 @@ class ReportController extends Controller
         ]);
 
         $userId = auth()->id();
+        $reportedId = (int) $request->reported_id;
 
-        if ($request->reported_id == $userId) {
+        if ($reportedId === $userId) {
             return response()->json(['message' => 'You cannot report yourself.'], 422);
+        }
+
+        // Per-target cooldown (24h): one open report against the same
+        // user is enough — a second report during the window gets
+        // swallowed with a soft success so a troll can't spam-report
+        // to overload moderation, but a genuine reporter doesn't see
+        // a confusing error. Admin still sees the first report.
+        $existingAgainstTarget = Report::where('reporter_id', $userId)
+            ->where('reported_id', $reportedId)
+            ->where('created_at', '>=', now()->subDay())
+            ->exists();
+        if ($existingAgainstTarget) {
+            return response()->json(['message' => 'Report already on file — thanks for letting us know.']);
+        }
+
+        // Daily cap per reporter. Genuine users never hit this; a
+        // report-bot tops out at 20/day from a single account.
+        $today = Report::where('reporter_id', $userId)
+            ->where('created_at', '>=', now()->startOfDay())
+            ->count();
+        if ($today >= 20) {
+            return response()->json([
+                'message' => 'You have reached the daily report limit. Contact support if you have more to flag.',
+            ], 429);
         }
 
         Report::create([
             'reporter_id' => $userId,
-            'reported_id' => $request->reported_id,
+            'reported_id' => $reportedId,
             'lfg_post_id' => $request->lfg_post_id,
             'community_post_id' => $request->community_post_id,
             'post_comment_id' => $request->post_comment_id,
