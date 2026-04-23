@@ -7,7 +7,7 @@
             $seo = $page['props']['seo'] ?? [];
             $seoTitle = $seo['title'] ?? 'SquadSpawn - Find, Play, Rate. Build Your Gaming Reputation.';
             $seoDescription = $seo['description'] ?? 'Find your gaming squad, play together, and rate teammates. Build your reputation on the trusted platform for gamers worldwide.';
-            $seoImage = $seo['image'] ?? url('/images/gamer3.jpg');
+            $seoImage = $seo['image'] ?? url('/images/Squadspawn_banner.jpg');
             $seoType = $seo['type'] ?? 'website';
             $jsonLd = $page['props']['jsonLd'] ?? null;
             $serverTheme = $page['props']['theme']['preference'] ?? 'auto';
