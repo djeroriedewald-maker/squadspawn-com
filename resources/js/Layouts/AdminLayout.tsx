@@ -83,7 +83,7 @@ export default function AdminLayout({ children }: PropsWithChildren) {
     }, [open]);
 
     return (
-        <div className="flex min-h-screen bg-bone-50">
+        <div className="min-h-screen bg-bone-50">
             {/* ── Mobile top bar ─────────────────────────────── */}
             <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-ink-900/10 bg-white/90 px-4 backdrop-blur-md sm:hidden">
                 <button
@@ -199,7 +199,7 @@ export default function AdminLayout({ children }: PropsWithChildren) {
             {/* ── Main Content ───────────────────────────────── */}
             {/* sm:ml-60 compensates for the fixed desktop sidebar; on
                 mobile the sidebar lives off-canvas so we take full width. */}
-            <main className="min-w-0 flex-1 p-4 sm:ml-60 sm:p-8">
+            <main className="p-4 sm:ml-60 sm:p-8">
                 {children}
             </main>
         </div>
