@@ -5,10 +5,15 @@ import { PropsWithChildren } from 'react';
 export default function Guest({ children }: PropsWithChildren) {
     return (
         <div className="relative flex min-h-screen flex-col items-center bg-[#14121A] pt-6 sm:justify-center sm:pt-0">
-            {/* Background image */}
+            {/* Background image — art-directed: the portrait banner fills
+                a phone screen naturally, the landscape version covers
+                tablets/desktop without stretching. */}
             <div className="pointer-events-none absolute inset-0">
-                <img src="/images/Squadspawn_banner.jpg" alt="" className="h-full w-full object-cover opacity-55" />
-                <div className="absolute inset-0 bg-gradient-to-b from-[#14121A]/40 via-[#14121A]/70 to-[#14121A]" />
+                <picture>
+                    <source media="(max-width: 639px)" srcSet="/images/Squadspawn_banner_mobile.jpg" />
+                    <img src="/images/Squadspawn_banner_2.jpg" alt="" className="h-full w-full object-cover opacity-70" />
+                </picture>
+                <div className="absolute inset-0 bg-gradient-to-b from-[#14121A]/35 via-[#14121A]/60 to-[#14121A]/90" />
             </div>
 
             <div className="absolute right-4 top-4 z-20">

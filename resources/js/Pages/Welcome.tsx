@@ -74,9 +74,15 @@ export default function Welcome({
                 {/* ── Hero ────────────────────────────────────────── */}
                 <section className="relative overflow-hidden">
                     <div className="absolute inset-0">
-                        <img src="/images/hero.jpg" alt="" className="h-full w-full object-cover" loading="eager" />
-                        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-bone-50 dark:to-bone-50" />
-                        <div className="absolute inset-0 bg-grid opacity-30" />
+                        {/* Responsive art direction: portrait for phones,
+                            landscape from tablet up. Both are text-free
+                            so the hero copy owns the wordmark duty. */}
+                        <picture>
+                            <source media="(max-width: 639px)" srcSet="/images/Squadspawn_banner_mobile.jpg" />
+                            <img src="/images/Squadspawn_banner_2.jpg" alt="" className="h-full w-full object-cover" loading="eager" />
+                        </picture>
+                        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-bone-50" />
+                        <div className="absolute inset-0 bg-grid opacity-20" />
                     </div>
 
                     <div className="relative mx-auto max-w-6xl px-6 py-20 lg:px-12 lg:py-32">

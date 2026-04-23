@@ -71,6 +71,10 @@
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
         <meta name="apple-mobile-web-app-title" content="SquadSpawn">
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+        {{-- iOS standalone-launch splash screen. One generic 9:16 image
+             covers every modern iPhone; iOS scales and letterboxes as
+             needed. Without this iOS shows a white flash on cold start. --}}
+        <link rel="apple-touch-startup-image" href="/images/Squadspawn_banner_mobile.jpg">
 
         <!-- Favicon -->
         <link rel="icon" type="image/svg+xml" href="/favicon.svg">
