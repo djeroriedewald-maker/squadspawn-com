@@ -23,8 +23,11 @@ class BannerController extends Controller
     {
         $user = $request->user();
 
+        // Admins / owners / moderators bypass the level gate — their roles
+        // already imply the trust we were trying to filter for with levels.
         $level = (int) ($user->profile?->level ?? 1);
-        if ($level < self::MIN_LEVEL) {
+        $privileged = (bool) ($user->is_admin || $user->is_owner || $user->is_moderator);
+        if (!$privileged && $level < self::MIN_LEVEL) {
             throw ValidationException::withMessages([
                 'banner' => 'Custom banners unlock at level ' . self::MIN_LEVEL . '. Host an LFG or rate teammates to level up.',
             ]);

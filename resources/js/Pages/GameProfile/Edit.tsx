@@ -3,7 +3,7 @@ import { BannerPresetThumb, ProfileBanner } from '@/Components/ProfileBanner';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Game, Profile } from '@/types';
 import { BANNER_PRESETS, DEFAULT_PRESET_ID } from '@/utils/bannerPresets';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, useForm, usePage } from '@inertiajs/react';
 import axios from 'axios';
 import { ChangeEvent, FormEventHandler, useMemo, useRef, useState } from 'react';
 
@@ -162,7 +162,11 @@ export default function GameProfileEdit({
     const bannerInputRef = useRef<HTMLInputElement>(null);
     const userLevel = (profile as any)?.level ?? 1;
     const BANNER_MIN_LEVEL = 2;
-    const canUploadBanner = userLevel >= BANNER_MIN_LEVEL;
+    // Admins / owners / moderators get the unlock immediately — their
+    // role already implies the trust level we were gating for.
+    const authUser = (usePage<any>().props.auth?.user) as { is_admin?: boolean; is_owner?: boolean; is_moderator?: boolean } | undefined;
+    const isPrivileged = !!(authUser?.is_admin || authUser?.is_owner || authUser?.is_moderator);
+    const canUploadBanner = isPrivileged || userLevel >= BANNER_MIN_LEVEL;
 
     const { data, setData, put, processing, errors, transform } = useForm<{
         username: string;
