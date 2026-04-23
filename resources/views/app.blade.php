@@ -7,7 +7,10 @@
             $seo = $page['props']['seo'] ?? [];
             $seoTitle = $seo['title'] ?? 'SquadSpawn - Find, Play, Rate. Build Your Gaming Reputation.';
             $seoDescription = $seo['description'] ?? 'Find your gaming squad, play together, and rate teammates. Build your reputation on the trusted platform for gamers worldwide.';
-            $seoImage = $seo['image'] ?? url('/images/Squadspawn_banner.jpg');
+            // Default OG/Twitter card image. Kept at the exact 1200x630
+            // Facebook/Reddit/Twitter expect so the preview card crops
+            // correctly. Per-page overrides can still pass `seo.image`.
+            $seoImage = $seo['image'] ?? url('/images/og-card.jpg');
             $seoType = $seo['type'] ?? 'website';
             $jsonLd = $page['props']['jsonLd'] ?? null;
             $serverTheme = $page['props']['theme']['preference'] ?? 'auto';
@@ -39,7 +42,8 @@
              background. Dark in both themes so the splash matches the
              SquadSpawn logo's navy backdrop instead of flashing a white
              frame before the app paints. --}}
-        <meta name="theme-color" content="#14121A">
+        <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F5F4EF">
+        <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#14121A">
         <meta name="keywords" content="gaming, LFG, looking for group, find teammates, gaming squad, esports, multiplayer, reputation, player rating">
         <meta name="robots" content="index, follow">
 

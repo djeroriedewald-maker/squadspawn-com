@@ -49,7 +49,7 @@
             "name": "Discover players",
             "short_name": "Discover",
             "description": "Swipe through gamer profiles",
-            "url": "/discovery",
+            "url": "/discover",
             "icons": [{ "src": "/icons/web-app-manifest-192x192.png", "sizes": "192x192" }]
         }
     ]
