@@ -354,31 +354,9 @@ export default function BroadcastForm({
                     <div className="rounded-2xl border border-ink-900/10 bg-white p-6">
                         <h3 className="mb-4 text-sm font-bold text-ink-900">Delivery</h3>
 
-                        <label className="mb-1.5 block text-xs font-semibold uppercase tracking-widest text-ink-500">Style</label>
-                        <div className="mb-5 grid grid-cols-2 gap-2">
-                            <button
-                                type="button"
-                                onClick={() => setData('style', 'popup')}
-                                disabled={isSent}
-                                className={`rounded-lg border px-3 py-2 text-xs font-semibold transition ${
-                                    data.style === 'popup' ? 'border-neon-red/40 bg-neon-red/10 text-neon-red' : 'border-ink-900/10 bg-bone-100 text-ink-700'
-                                }`}
-                            >
-                                Popup modal
-                                <span className="mt-0.5 block text-[10px] font-normal opacity-70">Blocks the page once</span>
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setData('style', 'banner')}
-                                disabled={isSent}
-                                className={`rounded-lg border px-3 py-2 text-xs font-semibold transition ${
-                                    data.style === 'banner' ? 'border-gaming-cyan/40 bg-gaming-cyan/10 text-gaming-cyan' : 'border-ink-900/10 bg-bone-100 text-ink-700'
-                                }`}
-                            >
-                                Announcements only
-                                <span className="mt-0.5 block text-[10px] font-normal opacity-70">No popup — lives on /announcements</span>
-                            </button>
-                        </div>
+                        {/* Popup is the only delivery surface now. Users can
+                            always re-read a dismissed popup in the
+                            /announcements archive. */}
 
                         <label className="mb-2 flex cursor-pointer items-start gap-3">
                             <input
