@@ -466,6 +466,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/creators', [\App\Http\Controllers\Admin\AdminController::class, 'creators'])
         ->middleware('feature:clips')
         ->name('admin.creators');
+    Route::get('/analytics', [\App\Http\Controllers\Admin\AdminController::class, 'analytics'])->name('admin.analytics');
     Route::get('/games', [\App\Http\Controllers\Admin\AdminController::class, 'games'])->name('admin.games');
     Route::post('/games', [\App\Http\Controllers\Admin\AdminController::class, 'storeGame'])->name('admin.storeGame');
     Route::delete('/games/{game}', [\App\Http\Controllers\Admin\AdminController::class, 'deleteGame'])->name('admin.deleteGame');

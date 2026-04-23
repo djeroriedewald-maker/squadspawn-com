@@ -430,6 +430,124 @@ class AdminController extends Controller
      * state + days remaining. Drives the per-user detail page for the
      * actual toggle action so we keep one source of truth on that.
      */
+    /**
+     * Admin analytics hub: internal platform stats (signups, activity,
+     * content, top games/regions) from the DB, plus a link out to
+     * Plausible for visitor-side data (pageviews, sources, countries).
+     */
+    public function analytics(): Response
+    {
+        $now = now();
+        $startOfToday = $now->copy()->startOfDay();
+        $day30Ago = $now->copy()->subDays(30)->startOfDay();
+
+        // Headline counters
+        $headline = \Illuminate\Support\Facades\Cache::remember('analytics:headline', 120, function () use ($now, $startOfToday) {
+            return [
+                'total_users' => \App\Models\User::count(),
+                'total_profiles' => \App\Models\Profile::count(),
+                'signups_today' => \App\Models\User::where('created_at', '>=', $startOfToday)->count(),
+                'signups_7d' => \App\Models\User::where('created_at', '>=', $now->copy()->subDays(7))->count(),
+                'signups_30d' => \App\Models\User::where('created_at', '>=', $now->copy()->subDays(30))->count(),
+                // "Active" = the user model's updated_at (TrackLastActivity middleware
+                // bumps this on every authenticated request).
+                'dau' => \App\Models\User::where('updated_at', '>=', $now->copy()->subDay())->count(),
+                'wau' => \App\Models\User::where('updated_at', '>=', $now->copy()->subWeek())->count(),
+                'mau' => \App\Models\User::where('updated_at', '>=', $now->copy()->subMonth())->count(),
+                'online_now' => \App\Models\User::where('updated_at', '>=', $now->copy()->subMinutes(15))->count(),
+            ];
+        });
+
+        // Daily series for last 30 days — signups / LFGs / matches
+        $series = \Illuminate\Support\Facades\Cache::remember('analytics:series', 300, function () use ($day30Ago) {
+            $labels = [];
+            $days = [];
+            for ($i = 29; $i >= 0; $i--) {
+                $d = now()->copy()->subDays($i)->startOfDay();
+                $labels[] = $d->format('M d');
+                $days[$d->toDateString()] = ['signups' => 0, 'lfgs' => 0, 'matches' => 0, 'messages' => 0];
+            }
+
+            foreach (\App\Models\User::where('created_at', '>=', $day30Ago)
+                ->selectRaw('DATE(created_at) as d, count(*) as c')
+                ->groupBy('d')->get() as $row) {
+                if (isset($days[$row->d])) $days[$row->d]['signups'] = (int) $row->c;
+            }
+            foreach (\App\Models\LfgPost::where('created_at', '>=', $day30Ago)
+                ->selectRaw('DATE(created_at) as d, count(*) as c')
+                ->groupBy('d')->get() as $row) {
+                if (isset($days[$row->d])) $days[$row->d]['lfgs'] = (int) $row->c;
+            }
+            foreach (\App\Models\PlayerMatch::where('created_at', '>=', $day30Ago)
+                ->selectRaw('DATE(created_at) as d, count(*) as c')
+                ->groupBy('d')->get() as $row) {
+                if (isset($days[$row->d])) $days[$row->d]['matches'] = (int) $row->c;
+            }
+            foreach (\App\Models\Message::where('created_at', '>=', $day30Ago)
+                ->selectRaw('DATE(created_at) as d, count(*) as c')
+                ->groupBy('d')->get() as $row) {
+                if (isset($days[$row->d])) $days[$row->d]['messages'] = (int) $row->c;
+            }
+
+            return [
+                'labels' => $labels,
+                'signups' => array_values(array_column($days, 'signups')),
+                'lfgs' => array_values(array_column($days, 'lfgs')),
+                'matches' => array_values(array_column($days, 'matches')),
+                'messages' => array_values(array_column($days, 'messages')),
+            ];
+        });
+
+        // Content totals
+        $content = \Illuminate\Support\Facades\Cache::remember('analytics:content', 300, function () {
+            return [
+                'lfgs_total' => \App\Models\LfgPost::count(),
+                'lfgs_open' => \App\Models\LfgPost::where('status', 'open')->count(),
+                'matches_total' => \App\Models\PlayerMatch::count(),
+                'messages_total' => \App\Models\Message::count(),
+                'community_posts_total' => \App\Models\CommunityPost::count(),
+                'clips_total' => \App\Models\Clip::count(),
+                'ratings_total' => \App\Models\PlayerRating::count() + \App\Models\LfgRating::count(),
+            ];
+        });
+
+        // Top games + regions
+        $topGames = \Illuminate\Support\Facades\Cache::remember('analytics:topgames', 600, function () {
+            return \App\Models\Game::withCount('users')
+                ->orderByDesc('users_count')
+                ->take(10)
+                ->get(['id', 'name', 'slug', 'cover_image'])
+                ->map(fn ($g) => [
+                    'id' => $g->id,
+                    'name' => $g->name,
+                    'slug' => $g->slug,
+                    'cover_image' => $g->cover_image,
+                    'users_count' => $g->users_count,
+                ]);
+        });
+
+        $topRegions = \Illuminate\Support\Facades\Cache::remember('analytics:topregions', 600, function () {
+            return \Illuminate\Support\Facades\DB::table('profiles')
+                ->select('region', \Illuminate\Support\Facades\DB::raw('count(*) as c'))
+                ->whereNotNull('region')
+                ->where('region', '!=', '')
+                ->groupBy('region')
+                ->orderByDesc('c')
+                ->limit(10)
+                ->get()
+                ->map(fn ($r) => ['region' => $r->region, 'count' => (int) $r->c]);
+        });
+
+        return Inertia::render('Admin/Analytics', [
+            'headline' => $headline,
+            'series' => $series,
+            'content' => $content,
+            'topGames' => $topGames,
+            'topRegions' => $topRegions,
+            'plausibleDomain' => env('VITE_PLAUSIBLE_DOMAIN', 'squadspawn.com'),
+        ]);
+    }
+
     public function creators(Request $request): Response
     {
         $filter = $request->input('filter', 'all'); // all | featured | idle
