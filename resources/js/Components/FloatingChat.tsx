@@ -30,6 +30,7 @@ interface LfgGroupItem {
     slug: string;
     title: string;
     status: 'open' | 'full' | 'closed';
+    is_closed?: boolean;
     game_name?: string;
     game_cover?: string;
     member_count: number;
@@ -395,6 +396,50 @@ export default function FloatingChat() {
     const getNotifAvatar = (notif: Notification) => notif.data.sender_avatar || notif.data.partner_avatar || notif.data.host_avatar || notif.data.applicant_avatar;
     const getNotifName = (notif: Notification) => notif.data.sender_name || notif.data.partner_name || notif.data.host_name || notif.data.applicant_name || '?';
 
+    // Fallback icon + tint per notification type — replaces the
+    // "?" initial that showed up for any type without an attached
+    // avatar (announcements, lfg_ended, role_change, etc.).
+    const renderNotifIcon = (notif: Notification) => {
+        const avatar = getNotifAvatar(notif);
+        if (avatar) return <img src={avatar} alt="" className="h-full w-full object-cover" />;
+
+        const t = notif.data.type;
+        // Return an svg + tint pair based on type. Text icons like 📢
+        // keep it recognisable without depending on Unicode emoji font.
+        const map: Record<string, { bg: string; fg: string; node: JSX.Element }> = {
+            announcement: {
+                bg: 'bg-neon-red/15', fg: 'text-neon-red',
+                node: <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M10.34 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.17 1.023a2.25 2.25 0 0 1-.223 1.534l-.53 1.06a5.25 5.25 0 0 1-3.06 3.06l-1.06.53a2.25 2.25 0 0 1-1.534.223l-1.023-.17c-.542-.09-.94-.56-.94-1.11V9.04c0-.55.398-1.02.94-1.11l1.023-.17ZM7.5 12h2.25M12 15l3-3m0 0 3 3m-3-3v9" /></svg>,
+            },
+            new_match: {
+                bg: 'bg-gaming-green/15', fg: 'text-gaming-green',
+                node: <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>,
+            },
+            lfg_accepted: {
+                bg: 'bg-gaming-green/15', fg: 'text-gaming-green',
+                node: <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>,
+            },
+            lfg_request: {
+                bg: 'bg-gaming-orange/15', fg: 'text-gaming-orange',
+                node: <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" /></svg>,
+            },
+            lfg_ended: {
+                bg: 'bg-gaming-orange/15', fg: 'text-gaming-orange',
+                node: <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M3 3v1.5M3 21v-6m0 0 2.77-.693a9 9 0 0 1 6.208.682l.108.054a9 9 0 0 0 6.086.71l3.114-.732a48.524 48.524 0 0 1-.005-10.499l-3.11.732a9 9 0 0 1-6.085-.711l-.108-.054a9 9 0 0 0-6.208-.682L3 4.5" /></svg>,
+            },
+            role_change: {
+                bg: 'bg-gaming-cyan/15', fg: 'text-gaming-cyan',
+                node: <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" /></svg>,
+            },
+        };
+        const fallback = {
+            bg: 'bg-ink-900/10', fg: 'text-ink-700',
+            node: <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" /></svg>,
+        };
+        const pick = t ? (map[t] ?? fallback) : fallback;
+        return <div className={`flex h-full w-full items-center justify-center ${pick.bg} ${pick.fg}`}>{pick.node}</div>;
+    };
+
     return (
         <>
             {/* Backdrop on mobile */}
@@ -474,39 +519,63 @@ export default function FloatingChat() {
                                 lfgGroups.length === 0 ? (
                                     <EmptyState icon="groups" text="No active groups" action="Browse LFG" onAction={() => { setView('closed'); router.visit(route('lfg.index')); }} />
                                 ) : lfgGroups.map((group) => (
-                                    <button key={group.id} onClick={() => openLfgChat(group)} className="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-bone-100 active:bg-bone-200">
-                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-bone-100">
-                                            {group.game_cover ? (
-                                                <img src={group.game_cover} alt="" className="h-full w-full object-cover" />
-                                            ) : (
-                                                <span className="text-[10px] font-bold text-neon-red">{(group.game_name || 'LFG')[0]}</span>
-                                            )}
-                                        </div>
-                                        <div className="min-w-0 flex-1">
-                                            <div className="flex items-center justify-between">
-                                                <span className={`truncate text-sm ${group.unread_count > 0 ? 'font-bold text-ink-900' : 'font-medium text-ink-700'}`}>
-                                                    {group.title}
-                                                </span>
-                                                <span className={`ml-2 h-2 w-2 shrink-0 rounded-full ${statusColor(group.status)}`} title={group.status} />
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-[10px] text-gray-600">{group.game_name}</span>
-                                                <span className="text-[10px] text-gray-700">·</span>
-                                                <span className="text-[10px] text-gray-600">{group.member_count}/{group.spots_needed}</span>
-                                                {group.pending_requests && group.pending_requests.length > 0 && (
-                                                    <span className="rounded-full bg-yellow-400/20 px-1.5 py-0.5 text-[9px] font-bold text-yellow-400">
-                                                        {group.pending_requests.length} pending
-                                                    </span>
+                                    <div key={group.id} className="group/row relative flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-bone-100">
+                                        <button type="button" onClick={() => openLfgChat(group)} className="flex flex-1 items-center gap-3 text-left">
+                                            <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-bone-100">
+                                                {group.game_cover ? (
+                                                    <img src={group.game_cover} alt="" className="h-full w-full object-cover" />
+                                                ) : (
+                                                    <span className="text-[10px] font-bold text-neon-red">{(group.game_name || 'LFG')[0]}</span>
                                                 )}
                                             </div>
-                                            <div className="flex items-center justify-between">
-                                                <p className={`truncate text-xs ${group.unread_count > 0 ? 'text-ink-700' : 'text-gray-500'}`}>
-                                                    {group.last_message ? `${group.last_message.user_name}: ${group.last_message.body}` : 'No messages yet'}
-                                                </p>
-                                                {group.unread_count > 0 && <UnreadBadge count={group.unread_count} />}
+                                            <div className="min-w-0 flex-1">
+                                                <div className="flex items-center justify-between">
+                                                    <span className={`truncate text-sm ${group.unread_count > 0 ? 'font-bold text-ink-900' : 'font-medium text-ink-700'}`}>
+                                                        {group.title}
+                                                    </span>
+                                                    <span className={`ml-2 h-2 w-2 shrink-0 rounded-full ${statusColor(group.status)}`} title={group.status} />
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-[10px] text-gray-600">{group.game_name}</span>
+                                                    <span className="text-[10px] text-gray-700">·</span>
+                                                    <span className="text-[10px] text-gray-600">{group.member_count}/{group.spots_needed}</span>
+                                                    {group.is_closed && (
+                                                        <span className="rounded-full bg-gray-500/20 px-1.5 py-0.5 text-[9px] font-bold text-gray-600">
+                                                            closed · read-only
+                                                        </span>
+                                                    )}
+                                                    {group.pending_requests && group.pending_requests.length > 0 && (
+                                                        <span className="rounded-full bg-yellow-400/20 px-1.5 py-0.5 text-[9px] font-bold text-yellow-400">
+                                                            {group.pending_requests.length} pending
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <div className="flex items-center justify-between">
+                                                    <p className={`truncate text-xs ${group.unread_count > 0 ? 'text-ink-700' : 'text-gray-500'}`}>
+                                                        {group.last_message ? `${group.last_message.user_name}: ${group.last_message.body}` : 'No messages yet'}
+                                                    </p>
+                                                    {group.unread_count > 0 && <UnreadBadge count={group.unread_count} />}
+                                                </div>
                                             </div>
-                                        </div>
-                                    </button>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            aria-label="Remove from list"
+                                            title="Remove from your list"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (!confirm('Remove this group from your list? It won\'t delete the chat — you just won\'t see it here anymore.')) return;
+                                                axios.delete(route('chat.lfgLeave', { lfgPost: group.slug }))
+                                                    .then(() => setLfgGroups((prev) => prev.filter((g) => g.id !== group.id)))
+                                                    .catch(() => alert('Could not remove group.'));
+                                            }}
+                                            className="rounded-lg p-1.5 text-gray-400 opacity-0 transition hover:bg-red-500/10 hover:text-red-500 group-hover/row:opacity-100"
+                                        >
+                                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                            </svg>
+                                        </button>
+                                    </div>
                                 ))
                             )}
 
@@ -525,12 +594,8 @@ export default function FloatingChat() {
                                         </div>
                                         {notifications.map((notif) => (
                                             <button key={notif.id} onClick={() => handleNotificationClick(notif)} className="flex w-full items-center gap-3 border-b border-ink-900/5 px-4 py-3 text-left transition hover:bg-bone-100 active:bg-bone-200">
-                                                <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-neon-red/20">
-                                                    {getNotifAvatar(notif) ? (
-                                                        <img src={getNotifAvatar(notif)!} alt="" className="h-full w-full object-cover" />
-                                                    ) : (
-                                                        <span className="text-xs font-bold text-neon-red">{getNotifName(notif)[0].toUpperCase()}</span>
-                                                    )}
+                                                <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full">
+                                                    {renderNotifIcon(notif)}
                                                 </div>
                                                 <div className="min-w-0 flex-1">
                                                     <p className="text-sm text-ink-900">{renderNotifContent(notif)}</p>
@@ -634,7 +699,13 @@ export default function FloatingChat() {
                         )}
 
                         <MessageList messages={messages} loading={loadingMessages} userId={userId} isGroup={true} endRef={messagesEndRef} formatTime={formatTime} getMsgSender={getMsgSender} getMsgSenderId={getMsgSenderId} />
-                        <ChatInput textareaRef={textareaRef} onSubmit={handleSend} onKeyDown={handleKeyDown} sending={sending} />
+                        {activeLfgChat.is_closed ? (
+                            <div className="border-t border-ink-900/10 bg-bone-100/70 px-4 py-3 text-center text-[11px] text-ink-500">
+                                This session is <strong className="text-ink-700">closed</strong> — chat is read-only. Host can repost to start a fresh group.
+                            </div>
+                        ) : (
+                            <ChatInput textareaRef={textareaRef} onSubmit={handleSend} onKeyDown={handleKeyDown} sending={sending} />
+                        )}
                     </>
                 )}
             </div>

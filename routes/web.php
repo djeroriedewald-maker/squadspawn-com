@@ -369,6 +369,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/chat/{playerMatch}/messages', [ChatController::class, 'messages'])->name('chat.messages');
         Route::get('/chat/lfg-groups', [LfgController::class, 'myGroups'])->name('chat.lfgGroups');
         Route::get('/chat/lfg/{lfgPost}/messages', [LfgController::class, 'widgetMessages'])->name('chat.lfgMessages');
+        Route::delete('/chat/lfg/{lfgPost}/leave', [LfgController::class, 'leaveGroup'])->name('chat.lfgLeave');
     });
 
     // Discovery (requires complete profile)

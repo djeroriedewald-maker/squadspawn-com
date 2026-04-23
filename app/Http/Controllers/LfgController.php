@@ -680,6 +680,13 @@ class LfgController extends Controller
             return response()->json(['error' => 'Only group members can chat.'], 403);
         }
 
+        // Once a session is closed the chat freezes — ratings + history
+        // still visible but no new noise. Host can repost for a fresh
+        // group chat; this one becomes a read-only record.
+        if ($lfgPost->status === 'closed') {
+            return response()->json(['error' => 'This session is closed. Chat is read-only — host can repost for a new group.'], 403);
+        }
+
         $validated = $request->validate(['body' => 'required|string|max:1000']);
 
         $message = $lfgPost->messages()->create([
@@ -692,6 +699,19 @@ class LfgController extends Controller
         Cache::put("lfg_read:{$user->id}:{$lfgPost->id}", now()->toISOString(), 86400 * 30);
 
         return response()->json($message, 201);
+    }
+
+    /**
+     * Remove an LFG group chat from the viewer's widget list. Doesn't
+     * destroy the chat for other members — just stamps a "hidden" flag
+     * in the user's cache so myGroups skips it. The host leaving still
+     * works through the regular destroy flow.
+     */
+    public function leaveGroup(LfgPost $lfgPost): JsonResponse
+    {
+        $userId = auth()->id();
+        Cache::put("lfg_hidden:{$userId}:{$lfgPost->id}", now()->toIso8601String(), 86400 * 365);
+        return response()->json(['ok' => true]);
     }
 
     public function pollMessages(Request $request, LfgPost $lfgPost): JsonResponse
@@ -971,8 +991,11 @@ class LfgController extends Controller
             ])
             ->withCount(['responses as member_count' => fn ($q) => $q->where('status', 'accepted')])
             ->latest()
-            ->take(20)
-            ->get();
+            ->take(30)
+            ->get()
+            // Drop groups the user explicitly left/hid via the widget.
+            ->reject(fn (LfgPost $p) => Cache::has("lfg_hidden:{$userId}:{$p->id}"))
+            ->values();
 
         $postIds = $posts->pluck('id')->all();
 
@@ -1019,6 +1042,7 @@ class LfgController extends Controller
                 'slug' => $post->slug,
                 'title' => $post->title,
                 'status' => $post->status,
+                'is_closed' => $post->status === 'closed',
                 'game_name' => $post->game?->name,
                 'game_cover' => $post->game?->cover_image,
                 'member_count' => $post->member_count + 1,
