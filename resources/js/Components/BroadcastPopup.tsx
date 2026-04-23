@@ -209,7 +209,7 @@ export default function BroadcastPopup() {
 
                     {broadcast.body_html && (
                         <div
-                            className="prose prose-sm mt-4 max-w-none text-ink-700"
+                            className="broadcast-body prose prose-sm mt-4 max-w-none text-ink-700"
                             dangerouslySetInnerHTML={{ __html: broadcast.body_html }}
                         />
                     )}

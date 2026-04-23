@@ -252,6 +252,8 @@ class BroadcastController extends Controller
             'allGames' => \App\Models\Game::select('id', 'name')->orderBy('name')->get(),
             'allRegions' => \App\Models\Profile::query()->whereNotNull('region')->distinct()->orderBy('region')->pluck('region'),
             'totalUsers' => \App\Models\User::where('is_banned', false)->count(),
+            'internalPages' => $this->internalPages(),
+            'appUrl' => rtrim(config('app.url'), '/'),
         ]);
     }
 
@@ -311,6 +313,8 @@ class BroadcastController extends Controller
             'allGames' => \App\Models\Game::select('id', 'name')->orderBy('name')->get(),
             'allRegions' => \App\Models\Profile::query()->whereNotNull('region')->distinct()->orderBy('region')->pluck('region'),
             'totalUsers' => \App\Models\User::where('is_banned', false)->count(),
+            'internalPages' => $this->internalPages(),
+            'appUrl' => rtrim(config('app.url'), '/'),
         ]);
     }
 
@@ -455,6 +459,26 @@ class BroadcastController extends Controller
         $file = $request->file('image');
         $name = 'broadcast_' . time() . '_' . \Illuminate\Support\Str::random(8) . '.' . $file->getClientOriginalExtension();
         return $file->storeAs('broadcasts', $name, 'public');
+    }
+
+    /**
+     * The in-app pages an admin is most likely to link to from a
+     * broadcast CTA. Rendered as quick-pick chips in the form.
+     */
+    private function internalPages(): array
+    {
+        return [
+            ['label' => 'Dashboard',      'path' => '/dashboard'],
+            ['label' => 'LFG',            'path' => '/lfg'],
+            ['label' => 'Discover',       'path' => '/discover'],
+            ['label' => 'Games',          'path' => '/games'],
+            ['label' => 'Community',      'path' => '/community'],
+            ['label' => 'Clips',          'path' => '/clips'],
+            ['label' => 'Announcements',  'path' => '/announcements'],
+            ['label' => "What's new",     'path' => '/changelog'],
+            ['label' => 'Profile setup',  'path' => '/profile/setup'],
+            ['label' => 'Help centre',    'path' => '/help'],
+        ];
     }
 
     private function rowFor(Broadcast $b): array

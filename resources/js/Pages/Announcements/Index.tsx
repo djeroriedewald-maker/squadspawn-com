@@ -116,7 +116,7 @@ export default function AnnouncementsIndex({ views }: { views: View[] }) {
                                     </div>
                                     <h3 className="mt-2 text-xl font-bold text-ink-900">{v.title}</h3>
                                     {v.body_html && (
-                                        <div className="prose prose-sm mt-2 max-w-none text-ink-700" dangerouslySetInnerHTML={{ __html: v.body_html }} />
+                                        <div className="broadcast-body prose prose-sm mt-2 max-w-none text-ink-700" dangerouslySetInnerHTML={{ __html: v.body_html }} />
                                     )}
                                     {v.cta_url && v.cta_label && <AnnouncementCta href={v.cta_url} label={v.cta_label} />}
                                 </div>

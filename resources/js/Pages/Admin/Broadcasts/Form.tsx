@@ -22,17 +22,22 @@ interface Broadcast {
 }
 
 interface Game { id: number; name: string; }
+interface InternalPage { label: string; path: string; }
 
 export default function BroadcastForm({
     broadcast,
     allGames,
     allRegions,
     totalUsers,
+    internalPages = [],
+    appUrl = '',
 }: {
     broadcast: Broadcast | null;
     allGames: Game[];
     allRegions: string[];
     totalUsers: number;
+    internalPages?: InternalPage[];
+    appUrl?: string;
 }) {
     const isEditing = !!broadcast;
     const isSent = !!broadcast?.sent_at;
@@ -236,12 +241,47 @@ export default function BroadcastForm({
                         </div>
                         <div>
                             <label className="mb-1.5 block text-xs font-semibold uppercase tracking-widest text-ink-500">CTA URL</label>
+
+                            {internalPages.length > 0 && (
+                                <div className="mb-2 flex flex-wrap gap-1.5">
+                                    {internalPages.map((p) => {
+                                        const fullUrl = appUrl + p.path;
+                                        const active = data.cta_url === fullUrl;
+                                        return (
+                                            <button
+                                                key={p.path}
+                                                type="button"
+                                                onClick={() => setData('cta_url', fullUrl)}
+                                                disabled={isSent}
+                                                className={`rounded-full border px-3 py-1 text-[11px] font-semibold transition ${
+                                                    active
+                                                        ? 'border-neon-red/60 bg-neon-red/10 text-neon-red'
+                                                        : 'border-ink-900/10 bg-bone-100 text-ink-700 hover:border-neon-red/30 hover:text-neon-red'
+                                                }`}
+                                            >
+                                                {p.label}
+                                            </button>
+                                        );
+                                    })}
+                                    {data.cta_url && (
+                                        <button
+                                            type="button"
+                                            onClick={() => setData('cta_url', '')}
+                                            disabled={isSent}
+                                            className="rounded-full border border-ink-900/10 bg-white px-3 py-1 text-[11px] font-semibold text-ink-500 transition hover:border-red-500/30 hover:text-red-500"
+                                        >
+                                            Clear
+                                        </button>
+                                    )}
+                                </div>
+                            )}
+
                             <input
                                 type="url"
                                 value={data.cta_url}
                                 onChange={(e) => setData('cta_url', e.target.value)}
                                 disabled={isSent}
-                                placeholder="https://squadspawn.com/..."
+                                placeholder="Pick a page above or type a full https:// URL"
                                 className={`w-full rounded-lg border bg-bone-100 px-3 py-2 text-sm text-ink-900 outline-none transition focus:ring-2 ${
                                     data.cta_url && !data.cta_url.startsWith('https://')
                                         ? 'border-red-500/60 focus:border-red-500 focus:ring-red-500/20'
@@ -252,7 +292,7 @@ export default function BroadcastForm({
                                 <p className="mt-1.5 text-xs text-red-500">Must start with <code>https://</code> — <code>http://</code> links are rejected for user safety.</p>
                             )}
                             {errors.cta_url && <p className="mt-1.5 text-xs text-red-500">{errors.cta_url}</p>}
-                            <p className="mt-1 text-[10px] text-ink-500">Must be an https:// URL. Internal paths like <code>/lfg</code> aren't supported here — use a full URL.</p>
+                            <p className="mt-1 text-[10px] text-ink-500">Use the chips for internal pages (they stay in the PWA), or paste any external https:// URL.</p>
                         </div>
 
                         <div className="sm:col-span-2">

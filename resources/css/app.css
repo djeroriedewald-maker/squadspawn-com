@@ -447,3 +447,26 @@ body {
     box-shadow: 0 0 10px rgba(255, 0, 62, 0.55), 0 0 20px rgba(255, 0, 62, 0.55);
     animation: flicker 2s infinite;
 }
+
+/* Broadcast body content — Tiptap renders <img> and <iframe>
+   (YouTube embed) with hard-coded dimensions that overflow a phone.
+   Force both to fit the container width while keeping their aspect
+   ratio. Same rules apply on the popup and on /announcements. */
+.broadcast-body img,
+.broadcast-body video {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+    display: block;
+    margin: 0.75em auto;
+}
+.broadcast-body iframe {
+    width: 100% !important;
+    max-width: 100%;
+    aspect-ratio: 16 / 9;
+    height: auto !important;
+    border: 0;
+    border-radius: 0.5rem;
+    display: block;
+    margin: 0.75em auto;
+}
