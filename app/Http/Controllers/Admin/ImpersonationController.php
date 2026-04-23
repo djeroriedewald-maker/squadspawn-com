@@ -39,6 +39,7 @@ class ImpersonationController extends Controller
         }
 
         // Log the switch so moderation has a paper trail of who-did-what.
+        \App\Services\AdminAudit::log('impersonation.started', $user);
         Log::info('Admin impersonation started', [
             'admin_id' => $admin->id,
             'admin_email' => $admin->email,
@@ -66,9 +67,13 @@ class ImpersonationController extends Controller
             return redirect()->route('login');
         }
 
+        $impersonated = $request->user();
+        // Attribute the stop to the original admin (actor), targeting
+        // the user they were debugging as.
+        \App\Services\AdminAudit::log('impersonation.stopped', $impersonated, [], $original->id);
         Log::info('Admin impersonation ended', [
             'admin_id' => $original->id,
-            'target_id' => $request->user()?->id,
+            'target_id' => $impersonated?->id,
         ]);
 
         Auth::login($original);

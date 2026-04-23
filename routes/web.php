@@ -446,6 +446,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::put('/changelog/{entry}', [\App\Http\Controllers\Admin\ChangelogController::class, 'update'])->name('admin.changelog.update');
     Route::delete('/changelog/{entry}', [\App\Http\Controllers\Admin\ChangelogController::class, 'destroy'])->name('admin.changelog.destroy');
 
+    // Audit log (immutable record of admin actions touching user accounts)
+    Route::get('/audit', [\App\Http\Controllers\Admin\AuditController::class, 'index'])->name('admin.audit');
+
     // System (maintenance, feature flags, flash bar)
     Route::get('/system', [\App\Http\Controllers\Admin\SystemController::class, 'show'])->name('admin.system');
     Route::post('/system/maintenance', [\App\Http\Controllers\Admin\SystemController::class, 'toggleMaintenance'])->name('admin.system.maintenance');

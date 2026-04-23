@@ -123,6 +123,7 @@ class SystemController extends Controller
                 ->update(['status' => 'closed']);
         } catch (\Throwable) {}
 
+        \App\Services\AdminAudit::log('user.killed', $user, ['reason' => $reason]);
         \Illuminate\Support\Facades\Log::warning('Admin kill-switch fired', [
             'admin_id' => $request->user()->id,
             'target_id' => $user->id,

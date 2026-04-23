@@ -9,6 +9,7 @@ use App\Models\LfgPost;
 use App\Models\PlayerMatch;
 use App\Models\Report;
 use App\Models\User;
+use App\Services\AdminAudit;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -83,6 +84,13 @@ class AdminController extends Controller
         $previouslyMod = (bool) $user->is_moderator;
         $user->update(['is_moderator' => $data['is_moderator']]);
 
+        if ($data['is_moderator'] !== $previouslyMod) {
+            AdminAudit::log(
+                $data['is_moderator'] ? 'user.role.moderator_granted' : 'user.role.moderator_revoked',
+                $user,
+            );
+        }
+
         if ($data['is_moderator'] && !$previouslyMod) {
             try {
                 $user->notify(new \App\Notifications\RoleGrantedNotification('moderator', auth()->user()?->name));
@@ -107,6 +115,13 @@ class AdminController extends Controller
         }
         $previouslyAdmin = (bool) $user->is_admin;
         $user->update(['is_admin' => $data['is_admin']]);
+
+        if ($data['is_admin'] !== $previouslyAdmin) {
+            AdminAudit::log(
+                $data['is_admin'] ? 'user.role.admin_granted' : 'user.role.admin_revoked',
+                $user,
+            );
+        }
 
         if ($data['is_admin'] && !$previouslyAdmin) {
             try {
@@ -144,6 +159,7 @@ class AdminController extends Controller
         // Invalidate all sessions by cycling the remember token
         $user->update(['remember_token' => null]);
 
+        AdminAudit::log('user.banned', $user, ['reason' => $request->input('reason')]);
         \Log::info('User banned', ['user_id' => $user->id, 'admin_id' => auth()->id(), 'reason' => $request->input('reason')]);
 
         return response()->json(['success' => true]);
@@ -161,6 +177,7 @@ class AdminController extends Controller
             'ban_reason' => null,
         ]);
 
+        AdminAudit::log('user.unbanned', $user);
         \Log::info('User unbanned', ['user_id' => $user->id, 'admin_id' => auth()->id()]);
 
         return response()->json(['success' => true]);
