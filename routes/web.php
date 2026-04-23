@@ -422,6 +422,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::put('/changelog/{entry}', [\App\Http\Controllers\Admin\ChangelogController::class, 'update'])->name('admin.changelog.update');
     Route::delete('/changelog/{entry}', [\App\Http\Controllers\Admin\ChangelogController::class, 'destroy'])->name('admin.changelog.destroy');
 
+    // System (maintenance, feature flags, flash bar)
+    Route::get('/system', [\App\Http\Controllers\Admin\SystemController::class, 'show'])->name('admin.system');
+    Route::post('/system/maintenance', [\App\Http\Controllers\Admin\SystemController::class, 'toggleMaintenance'])->name('admin.system.maintenance');
+    Route::post('/system/features', [\App\Http\Controllers\Admin\SystemController::class, 'updateFeatures'])->name('admin.system.features');
+    Route::post('/system/flash', [\App\Http\Controllers\Admin\SystemController::class, 'updateFlash'])->name('admin.system.flash');
+
     // Broadcasts
     Route::get('/broadcasts', [\App\Http\Controllers\Admin\BroadcastController::class, 'index'])->name('admin.broadcasts.index');
     Route::get('/broadcasts/analytics', [\App\Http\Controllers\Admin\BroadcastController::class, 'analytics'])->name('admin.broadcasts.analytics');

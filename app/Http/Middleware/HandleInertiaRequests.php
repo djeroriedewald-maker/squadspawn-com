@@ -95,6 +95,11 @@ class HandleInertiaRequests extends Middleware
                 'authed' => $user !== null,
             ],
             'activeBroadcast' => $activeBroadcast,
+            // System-wide feature toggles + admin flash bar. Resolved
+            // eagerly — Settings::all() is cached, so the cost is a
+            // single in-memory lookup per request.
+            'features' => \App\Services\Settings::features(),
+            'flashBar' => \App\Services\Settings::flashBar(),
         ];
     }
 
