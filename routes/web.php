@@ -52,6 +52,10 @@ Route::get('/', function () {
     $topGames = Cache::remember('home:topgames', 300, fn () => \App\Models\Game::withCount('users')->orderByDesc('users_count')->take(24)->get()->toArray());
     $recentPlayers = Cache::remember('home:recent', 300, fn () => \App\Models\Profile::with('user')->latest()->take(8)->get()->toArray());
     $onlineNow = Cache::remember('home:online', 120, fn () => \App\Models\User::where('updated_at', '>=', now()->subMinutes(15))->count());
+    // Creator Spotlight — cached 5 min so the roster feels fresh without
+    // hammering the DB on every homepage hit. Low cost if empty (query
+    // short-circuits on the whereHas before the with-loads).
+    $featuredCreators = Cache::remember('home:featuredcreators', 300, fn () => \App\Services\FeaturedCreators::list(5)->toArray());
 
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
@@ -62,6 +66,7 @@ Route::get('/', function () {
         'topGames' => $topGames,
         'recentPlayers' => $recentPlayers,
         'onlineNow' => $onlineNow,
+        'featuredCreators' => $featuredCreators,
         'seo' => [
             'title' => 'SquadSpawn · Find Your Gaming Squad',
             'description' => $totalPlayers < 500
@@ -95,6 +100,7 @@ Route::get('/dashboard', function () {
         });
 
     $allGames = Cache::remember('dash:allgames', 300, fn () => \App\Models\Game::withCount('users')->get()->toArray());
+    $featuredCreators = Cache::remember('dash:featuredcreators', 300, fn () => \App\Services\FeaturedCreators::list(5)->toArray());
 
     // How many people liked this user (motivation to swipe)
     $likedByCount = $user->likedByUsers()->count();
@@ -231,6 +237,7 @@ Route::get('/dashboard', function () {
         'lfgHosted' => $lfgHosted,
         'messagesCount' => $messagesCount,
         'pendingRatings' => $pendingRatings,
+        'featuredCreators' => $featuredCreators,
     ]);
 })->middleware(['auth', 'verified', 'age.verified', 'profile.complete'])->name('dashboard');
 

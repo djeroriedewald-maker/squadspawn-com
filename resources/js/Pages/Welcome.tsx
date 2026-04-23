@@ -1,3 +1,4 @@
+import CreatorSpotlight, { FeaturedCreator } from '@/Components/CreatorSpotlight';
 import ThemeToggle from '@/Components/ThemeToggle';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { Game } from '@/types';
@@ -15,6 +16,7 @@ interface WelcomeProps {
     topGames: GameWithCount[];
     recentPlayers: { id: number; username: string; avatar?: string; created_at: string }[];
     onlineNow: number;
+    featuredCreators: FeaturedCreator[];
 }
 
 const onCoverError = (e: React.SyntheticEvent<HTMLImageElement>) => {
@@ -35,6 +37,7 @@ export default function Welcome({
     topGames,
     recentPlayers,
     onlineNow,
+    featuredCreators,
 }: WelcomeProps) {
     const user = usePage().props.auth?.user;
 
@@ -160,6 +163,17 @@ export default function Welcome({
                         <div className="pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-bone-50 to-transparent" />
                         <div className="pointer-events-none absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-bone-50 to-transparent" />
                     </div>
+                )}
+
+                {/* ── Creator Spotlight ───────────────────────────── */}
+                {featuredCreators && featuredCreators.length > 0 && (
+                    <section className="mx-auto max-w-6xl px-6 py-16 lg:px-12">
+                        <CreatorSpotlight
+                            creators={featuredCreators}
+                            heading="Creators worth following"
+                            subheading="Streamers and content creators already building their audience on SquadSpawn."
+                        />
+                    </section>
                 )}
 
                 {/* ── Why we're different ─────────────────────────── */}

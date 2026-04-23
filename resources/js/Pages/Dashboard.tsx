@@ -1,3 +1,4 @@
+import CreatorSpotlight, { FeaturedCreator } from '@/Components/CreatorSpotlight';
 import { ProfileBanner } from '@/Components/ProfileBanner';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Achievement, Game, PageProps, User } from '@/types';
@@ -60,12 +61,14 @@ export default function Dashboard({
     matchCount, recentMatches, allGames, likedByCount, suggestedPlayers,
     totalPlayers, newPlayersToday, onlineRecent, trendingGames, activityFeed,
     relevantLfg, recentAchievements, totalAchievementPoints, lfgHosted, messagesCount, pendingRatings,
+    featuredCreators,
 }: PageProps<{
     matchCount: number; recentMatches: FriendItem[]; allGames: GameWithCount[];
     likedByCount: number; suggestedPlayers: User[]; totalPlayers: number;
     newPlayersToday: number; onlineRecent: number; trendingGames: GameWithCount[];
     activityFeed: ActivityItem[];
     relevantLfg?: LfgPostItem[];
+    featuredCreators?: FeaturedCreator[];
     recentAchievements?: Achievement[];
     totalAchievementPoints?: number;
     lfgHosted?: number;
@@ -378,6 +381,11 @@ export default function Dashboard({
                                 })}
                             </div>
                         </div>
+                    )}
+
+                    {/* Creator Spotlight — only shows when admin has actively curated creators */}
+                    {featuredCreators && featuredCreators.length > 0 && (
+                        <CreatorSpotlight creators={featuredCreators} />
                     )}
 
                     {/* Trending Games + Activity Feed row */}
