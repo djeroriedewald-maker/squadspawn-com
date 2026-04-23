@@ -50,6 +50,33 @@ function actionTone(action: string): string {
     return ACTION_TONE[action] || 'bg-ink-900/10 text-ink-700';
 }
 
+function formatMetaValue(value: unknown): string {
+    if (value === null || value === undefined || value === '') return '—';
+    if (typeof value === 'boolean') return value ? 'yes' : 'no';
+    if (typeof value === 'object') return JSON.stringify(value);
+    return String(value);
+}
+
+function humaniseKey(key: string): string {
+    return key.replace(/_/g, ' ');
+}
+
+function MetadataCell({ metadata }: { metadata: Record<string, unknown> | null }) {
+    if (!metadata || Object.keys(metadata).length === 0) {
+        return <span className="text-gray-500">—</span>;
+    }
+    return (
+        <dl className="flex flex-col gap-0.5 text-xs text-ink-500">
+            {Object.entries(metadata).map(([key, value]) => (
+                <div key={key} className="flex gap-2">
+                    <dt className="shrink-0 text-[10px] uppercase tracking-wide text-gray-500">{humaniseKey(key)}</dt>
+                    <dd className="min-w-0 break-words font-medium text-ink-700">{formatMetaValue(value)}</dd>
+                </div>
+            ))}
+        </dl>
+    );
+}
+
 export default function AuditIndex({ actions, filters, actionTypes }: Props) {
     const [action, setAction] = useState(filters.action || '');
     const [actor, setActor] = useState(filters.actor || '');
@@ -192,14 +219,8 @@ export default function AuditIndex({ actions, filters, actionTypes }: Props) {
                                             <span className="text-gray-500">—</span>
                                         )}
                                     </td>
-                                    <td className="px-5 py-3 align-top text-xs text-ink-500">
-                                        {row.metadata ? (
-                                            <pre className="max-w-md whitespace-pre-wrap break-words font-mono text-[10px] text-ink-500">
-                                                {JSON.stringify(row.metadata, null, 2)}
-                                            </pre>
-                                        ) : (
-                                            <span className="text-gray-500">—</span>
-                                        )}
+                                    <td className="px-5 py-3 align-top">
+                                        <MetadataCell metadata={row.metadata} />
                                     </td>
                                 </tr>
                             ))}

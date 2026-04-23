@@ -354,9 +354,20 @@ export default function UserShow({ user, stats, invitees, recentLfg, reportsAgai
                                     )}
                                 </p>
                                 {a.metadata && Object.keys(a.metadata).length > 0 && (
-                                    <pre className="mt-1 whitespace-pre-wrap break-words font-mono text-[10px] text-ink-500">
-                                        {JSON.stringify(a.metadata, null, 0)}
-                                    </pre>
+                                    <dl className="mt-1 flex flex-col gap-0.5">
+                                        {Object.entries(a.metadata).map(([key, value]) => (
+                                            <div key={key} className="flex gap-2">
+                                                <dt className="shrink-0 text-[10px] uppercase tracking-wide text-gray-500">{key.replace(/_/g, ' ')}</dt>
+                                                <dd className="min-w-0 break-words font-medium text-ink-700">
+                                                    {value === null || value === undefined || value === ''
+                                                        ? '—'
+                                                        : typeof value === 'object'
+                                                          ? JSON.stringify(value)
+                                                          : String(value)}
+                                                </dd>
+                                            </div>
+                                        ))}
+                                    </dl>
                                 )}
                             </div>
                         ))}
