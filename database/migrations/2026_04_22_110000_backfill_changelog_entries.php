@@ -59,11 +59,11 @@ return new class extends Migration {
                 'body_html' => $this->b131(),
             ],
 
-            // ── v1.3.0 — Changelog + broadcasts ────────────────────
+            // ── v1.3.0 — Changelog + in-app announcements ──────────
             [
                 'version' => '1.3.0',
                 'slug' => 'v1-3-0-changelog-and-announcements',
-                'title' => 'Changelog is live + platform announcements',
+                'title' => 'Changelog is live + in-app announcements',
                 'tag' => 'feature',
                 'is_highlight' => true,
                 'published_at' => '2026-04-22 14:00:00',
@@ -135,9 +135,9 @@ HTML;
     private function b130(): string
     {
         return <<<'HTML'
-<p>Two overdue features at once. Both are designed to keep you in the loop without feeling like spam.</p>
-<p><strong>Changelog</strong> — the page you're reading. Every release we ship lands here as a timeline entry, tagged Feature / Improvement / Fix / Security. There's a little red dot on the new changelog icon in the top-right whenever something's shipped since your last visit. Entries are public too (shareable URLs, SEO-friendly) so you can drop a link in Discord.</p>
-<p><strong>Platform announcements</strong> — admins can now push news, drops, and updates straight into the app as a popup with optional push notification. You control it from <em>Notification preferences → Platform announcements</em>. Past announcements live at <a href="/announcements">/announcements</a> so nothing gets lost if you dismiss the popup too quickly. Segmenting support included — we can target specific games, regions, or level thresholds when it's relevant.</p>
+<p>Two overdue features at once. Both designed to keep you in the loop without feeling like spam.</p>
+<p><strong>Changelog</strong> — the page you're reading. Every release we ship lands here as a timeline entry, tagged Feature / Improvement / Fix / Security. A small red dot on the changelog icon in the top-right shows up whenever something's shipped since your last visit. Entries are shareable URLs too, so you can drop a link in Discord.</p>
+<p><strong>In-app announcements</strong> — important platform news now surfaces as a popup with an optional call-to-action. Nothing you need to configure; you'll just see them when they're relevant. Miss one? Everything you've received lives at <a href="/announcements">/announcements</a> so nothing gets lost if you dismiss a popup too quickly. You can fine-tune push delivery for these under <a href="/profile">your profile settings → Push notifications → Platform announcements</a>.</p>
 <p>Expect this page to get busier as we roll out the next few drops.</p>
 HTML;
     }
