@@ -130,8 +130,11 @@ export default function Dashboard({
                 {/* Hero Banner */}
                 <div className="relative overflow-hidden">
                     <div className="absolute inset-0">
-                        <img src="/images/gamer8.jpg" alt="" className="h-full w-full object-cover opacity-15" />
-                        <div className="absolute inset-0 bg-gradient-to-b from-bone-50/40 via-bone-50/80 to-bone-50" />
+                        <img src="/images/gamer8.jpg" alt="" className="h-full w-full object-cover opacity-55" />
+                        {/* Softer scrim so the hero photo shines through
+                            but the content on top stays readable in both
+                            themes. Bottom fade blends into the page. */}
+                        <div className="absolute inset-0 bg-gradient-to-b from-bone-50/10 via-bone-50/60 to-bone-50" />
                     </div>
 
                     <div className="relative mx-auto max-w-7xl px-4 pb-6 pt-6 sm:px-6 lg:px-8">
@@ -286,8 +289,8 @@ export default function Dashboard({
                     <div className="-mt-1 mb-8 grid gap-3 sm:grid-cols-3">
                         <Link href={route('discovery.index')} className="group relative overflow-hidden rounded-xl border border-ink-900/10 transition hover:border-neon-red/40 hover:shadow-lg hover:shadow-neon-red/10">
                             <div className="absolute inset-0">
-                                <img src="/images/gamer6.jpg" alt="" className="h-full w-full object-cover opacity-30 transition group-hover:scale-105 group-hover:opacity-40" />
-                                <div className="absolute inset-0 bg-gradient-to-t from-bone-50 via-bone-50/70 to-transparent" />
+                                <img src="/images/gamer6.jpg" alt="" className="h-full w-full object-cover opacity-55 transition group-hover:scale-105 group-hover:opacity-70" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-bone-50 via-bone-50/60 to-transparent" />
                             </div>
                             <div className="relative flex items-center gap-4 p-5">
                                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-neon-red/20 backdrop-blur-sm">
@@ -303,8 +306,8 @@ export default function Dashboard({
 
                         <Link href={route('lfg.create')} className="group relative overflow-hidden rounded-xl border border-ink-900/10 transition hover:border-gaming-green/40 hover:shadow-lg hover:shadow-gaming-green/10">
                             <div className="absolute inset-0">
-                                <img src="/images/gamer5.jpg" alt="" className="h-full w-full object-cover opacity-30 transition group-hover:scale-105 group-hover:opacity-40" />
-                                <div className="absolute inset-0 bg-gradient-to-t from-bone-50 via-bone-50/70 to-transparent" />
+                                <img src="/images/gamer5.jpg" alt="" className="h-full w-full object-cover opacity-55 transition group-hover:scale-105 group-hover:opacity-70" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-bone-50 via-bone-50/60 to-transparent" />
                             </div>
                             <div className="relative flex items-center gap-4 p-5">
                                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gaming-green/20 backdrop-blur-sm">
@@ -320,8 +323,8 @@ export default function Dashboard({
 
                         <Link href={route('community.index')} className="group relative overflow-hidden rounded-xl border border-ink-900/10 transition hover:border-gaming-pink/40 hover:shadow-lg hover:shadow-gaming-pink/10">
                             <div className="absolute inset-0">
-                                <img src="/images/gamer7.jpg" alt="" className="h-full w-full object-cover opacity-30 transition group-hover:scale-105 group-hover:opacity-40" />
-                                <div className="absolute inset-0 bg-gradient-to-t from-bone-50 via-bone-50/70 to-transparent" />
+                                <img src="/images/gamer7.jpg" alt="" className="h-full w-full object-cover opacity-55 transition group-hover:scale-105 group-hover:opacity-70" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-bone-50 via-bone-50/60 to-transparent" />
                             </div>
                             <div className="relative flex items-center gap-4 p-5">
                                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gaming-pink/20 backdrop-blur-sm">

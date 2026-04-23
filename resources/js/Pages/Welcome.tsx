@@ -280,8 +280,8 @@ export default function Welcome({
                 {/* ── Community highlight ─────────────────────────── */}
                 <section className="relative overflow-hidden py-20">
                     <div className="absolute inset-0 -z-10">
-                        <img src="/images/gamer5.jpg" alt="" className="h-full w-full object-cover opacity-20" loading="lazy" />
-                        <div className="absolute inset-0 bg-gradient-to-b from-bone-50 via-bone-50/70 to-bone-50" />
+                        <img src="/images/gamer5.jpg" alt="" className="h-full w-full object-cover opacity-45" loading="lazy" />
+                        <div className="absolute inset-0 bg-gradient-to-b from-bone-50 via-bone-50/60 to-bone-50" />
                     </div>
 
                     <div className="mx-auto max-w-6xl px-6 lg:px-12">

@@ -19,8 +19,8 @@ export default function Index({ matches }: PageProps<{ matches: FriendItem[] }>)
 
             {/* Hero banner */}
             <div className="relative h-32 overflow-hidden sm:h-40">
-                <img src="/images/gamer7.jpg" alt="" className="h-full w-full object-cover opacity-25" />
-                <div className="absolute inset-0 bg-gradient-to-b from-bone-50/30 via-bone-50/60 to-bone-50" />
+                <img src="/images/gamer7.jpg" alt="" className="h-full w-full object-cover opacity-60" />
+                <div className="absolute inset-0 bg-gradient-to-b from-bone-50/10 via-bone-50/50 to-bone-50" />
                 <div className="absolute inset-0 flex items-end px-4 pb-5 sm:px-6 lg:px-8">
                     <div className="mx-auto flex w-full max-w-4xl items-end justify-between">
                         <div>
