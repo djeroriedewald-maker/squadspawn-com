@@ -38,6 +38,13 @@ Route::post('/plus', [\App\Http\Controllers\PlusWaitlistController::class, 'stor
     ->middleware('throttle:5,1')
     ->name('plus.store');
 
+// Contact form — messages land in /admin/messages for the admin
+// to triage. Public so logged-out visitors can reach us too.
+Route::get('/contact', [\App\Http\Controllers\ContactController::class, 'show'])->name('contact');
+Route::post('/contact', [\App\Http\Controllers\ContactController::class, 'store'])
+    ->middleware('throttle:3,1')
+    ->name('contact.store');
+
 // Changelog — public for SEO + shareability.
 Route::get('/changelog', [\App\Http\Controllers\ChangelogController::class, 'index'])->name('changelog.index');
 Route::get('/changelog/{slug}', [\App\Http\Controllers\ChangelogController::class, 'show'])
@@ -474,6 +481,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
         ->middleware('feature:clips')
         ->name('admin.creators');
     Route::get('/analytics', [\App\Http\Controllers\Admin\AdminController::class, 'analytics'])->name('admin.analytics');
+
+    // Contact-form inbox (messages submitted via public /contact)
+    Route::get('/messages', [\App\Http\Controllers\Admin\MessagesController::class, 'index'])->name('admin.messages.index');
+    Route::post('/messages/{message}/status', [\App\Http\Controllers\Admin\MessagesController::class, 'updateStatus'])->name('admin.messages.updateStatus');
+    Route::delete('/messages/{message}', [\App\Http\Controllers\Admin\MessagesController::class, 'destroy'])->name('admin.messages.destroy');
+
     Route::get('/games', [\App\Http\Controllers\Admin\AdminController::class, 'games'])->name('admin.games');
     Route::post('/games', [\App\Http\Controllers\Admin\AdminController::class, 'storeGame'])->name('admin.storeGame');
     Route::delete('/games/{game}', [\App\Http\Controllers\Admin\AdminController::class, 'deleteGame'])->name('admin.deleteGame');
