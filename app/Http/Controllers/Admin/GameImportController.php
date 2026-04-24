@@ -132,10 +132,13 @@ class GameImportController extends Controller
             'hasRunningJob' => GameImport::whereIn('status', ['queued', 'running'])->exists(),
             'rawgBudget' => [
                 'monthlyLimit' => 20000,
-                // Approximate usage this month — adding imports's "detail" calls only.
-                // Every non-skipped game == 1 call; list-pagination overhead ignored.
-                'approxUsedThisMonth' => GameImport::where('created_at', '>=', now()->startOfMonth())
-                    ->sum(\Illuminate\Support\Facades\DB::raw('added + updated + failed')),
+                // Count games actually written this month (≈ detail calls spent)
+                // + ~5% for list-pagination overhead. Self-healing: doesn't rely
+                // on GameImport.added which was buggy pre-67a2a8c. A game row
+                // existing in the DB is proof a detail call was made to fetch it.
+                'approxUsedThisMonth' => (int) round(
+                    Game::where('created_at', '>=', now()->startOfMonth())->count() * 1.05
+                ),
             ],
         ]);
     }
@@ -185,6 +188,41 @@ class GameImportController extends Controller
             'output_tail' => $gameImport->output ? mb_substr($gameImport->output, -2000) : null,
             'error' => $gameImport->error,
             'finished_at_human' => $gameImport->finished_at?->diffForHumans(),
+        ]);
+    }
+
+    /**
+     * Lazy-load drill-down: which games actually got written to the DB
+     * during this run's window? Queried by created_at between started_at
+     * and finished_at (with a small fudge before started_at so games
+     * inserted in the first upsert batch still land in the window).
+     */
+    public function gamesAdded(GameImport $gameImport): JsonResponse
+    {
+        if (!$gameImport->started_at) {
+            return response()->json(['games' => [], 'total' => 0]);
+        }
+
+        $from = $gameImport->started_at->copy()->subSeconds(5);
+        $to = $gameImport->finished_at ?? now();
+
+        $query = Game::query()
+            ->whereBetween('created_at', [$from, $to])
+            ->orderByDesc('created_at');
+
+        $total = (clone $query)->count();
+        $games = $query->limit(200)->get(['id', 'name', 'slug', 'cover_image', 'genre', 'created_at']);
+
+        return response()->json([
+            'total' => $total,
+            'games' => $games->map(fn (Game $g) => [
+                'id' => $g->id,
+                'name' => $g->name,
+                'slug' => $g->slug,
+                'cover_image' => $g->cover_image,
+                'genre' => $g->genre,
+                'created_at_human' => $g->created_at?->diffForHumans(),
+            ]),
         ]);
     }
 

@@ -57,10 +57,47 @@ function formatDuration(s: number | null): string {
     return r > 0 ? `${m}m ${r}s` : `${m}m`;
 }
 
+interface AddedGame {
+    id: number;
+    name: string;
+    slug: string;
+    cover_image: string | null;
+    genre: string | null;
+    created_at_human: string;
+}
+
+interface RunDetails {
+    loading: boolean;
+    total: number;
+    games: AddedGame[];
+}
+
 export default function GameImport({ stats, topGenres, recent, presets, hasRunningJob, rawgBudget }: Props) {
     const flash = (usePage().props as { flash?: { message?: string; error?: string } }).flash;
     const [triggeringKey, setTriggeringKey] = useState<string | null>(null);
     const [runs, setRuns] = useState<Run[]>(recent);
+    const [expandedRunId, setExpandedRunId] = useState<number | null>(null);
+    const [runDetails, setRunDetails] = useState<Record<number, RunDetails>>({});
+
+    async function toggleRunDetails(run: Run) {
+        if (expandedRunId === run.id) {
+            setExpandedRunId(null);
+            return;
+        }
+        setExpandedRunId(run.id);
+        if (runDetails[run.id]) return; // already fetched
+        setRunDetails((prev) => ({ ...prev, [run.id]: { loading: true, total: 0, games: [] } }));
+        try {
+            const res = await fetch(route('admin.games.import.games', { gameImport: run.id }));
+            const data = await res.json();
+            setRunDetails((prev) => ({
+                ...prev,
+                [run.id]: { loading: false, total: data.total ?? 0, games: data.games ?? [] },
+            }));
+        } catch {
+            setRunDetails((prev) => ({ ...prev, [run.id]: { loading: false, total: 0, games: [] } }));
+        }
+    }
 
     // Poll for live updates while any queued/running job is in flight.
     const anyLive = runs.some((r) => r.status === 'queued' || r.status === 'running');
@@ -276,6 +313,65 @@ export default function GameImport({ stats, topGenres, recent, presets, hasRunni
 
                                     {run.error && (
                                         <pre className="mt-3 whitespace-pre-wrap rounded-lg bg-red-500/5 p-3 text-xs text-red-500">{run.error}</pre>
+                                    )}
+
+                                    {/* Drill-down: show which games were actually added during this run.
+                                        Works even for old runs with +0 counts — queried from games.created_at. */}
+                                    {run.status === 'completed' && (
+                                        <div className="mt-3 border-t border-ink-900/10 pt-3">
+                                            <button
+                                                type="button"
+                                                onClick={() => toggleRunDetails(run)}
+                                                className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-ink-500 hover:text-neon-red"
+                                            >
+                                                <span>{expandedRunId === run.id ? '▼' : '▶'}</span>
+                                                <span>Show games added in this run</span>
+                                            </button>
+
+                                            {expandedRunId === run.id && (
+                                                <div className="mt-3">
+                                                    {runDetails[run.id]?.loading && (
+                                                        <p className="text-xs text-ink-500">Loading…</p>
+                                                    )}
+                                                    {runDetails[run.id] && !runDetails[run.id].loading && runDetails[run.id].total === 0 && (
+                                                        <p className="text-xs text-ink-500">
+                                                            No games were created in this run's time window.
+                                                        </p>
+                                                    )}
+                                                    {runDetails[run.id] && !runDetails[run.id].loading && runDetails[run.id].total > 0 && (
+                                                        <>
+                                                            <p className="mb-2 text-xs text-ink-500">
+                                                                <span className="font-bold text-gaming-green">{runDetails[run.id].total.toLocaleString()}</span> games added
+                                                                {runDetails[run.id].total > runDetails[run.id].games.length && (
+                                                                    <span className="text-ink-500"> · showing first {runDetails[run.id].games.length}</span>
+                                                                )}
+                                                            </p>
+                                                            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                                                                {runDetails[run.id].games.map((g) => (
+                                                                    <div key={g.id} className="flex items-center gap-2 rounded-lg bg-ink-900/5 p-1.5">
+                                                                        {g.cover_image ? (
+                                                                            <img
+                                                                                src={g.cover_image}
+                                                                                alt=""
+                                                                                loading="lazy"
+                                                                                className="h-10 w-10 shrink-0 rounded object-cover"
+                                                                                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                                                                            />
+                                                                        ) : (
+                                                                            <div className="h-10 w-10 shrink-0 rounded bg-ink-900/10" />
+                                                                        )}
+                                                                        <div className="min-w-0 flex-1">
+                                                                            <p className="truncate text-xs font-semibold text-ink-900">{g.name}</p>
+                                                                            {g.genre && <p className="truncate text-[10px] text-ink-500">{g.genre}</p>}
+                                                                        </div>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
                                     )}
                                 </article>
                             );

@@ -620,6 +620,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/games/import', [\App\Http\Controllers\Admin\GameImportController::class, 'show'])->name('admin.games.import');
     Route::post('/games/import', [\App\Http\Controllers\Admin\GameImportController::class, 'trigger'])->name('admin.games.import.trigger');
     Route::get('/games/import/{gameImport}/status', [\App\Http\Controllers\Admin\GameImportController::class, 'pollStatus'])->name('admin.games.import.status');
+    Route::get('/games/import/{gameImport}/games', [\App\Http\Controllers\Admin\GameImportController::class, 'gamesAdded'])->name('admin.games.import.games');
 
     // Changelog
     Route::get('/changelog', [\App\Http\Controllers\Admin\ChangelogController::class, 'index'])->name('admin.changelog.index');
