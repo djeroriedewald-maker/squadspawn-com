@@ -25,6 +25,7 @@ class ImportGames extends Command
         {--only= : Restrict preset import to one source (steam or rawg)}
         {--local-images : Download covers to public/images/games/ instead of keeping CDN URLs (default is CDN)}
         {--no-images : Deprecated alias — CDN URLs are now the default. Kept for backwards compat.}
+        {--skip-existing : Skip detail API calls for games whose slug already exists (saves RAWG quota on incremental top-ups)}
         {--force : Overwrite existing fields (default fills only blanks)}';
 
     protected $description = 'Import games from RAWG or Steam (covers, descriptions, release dates)';
@@ -82,14 +83,33 @@ class ImportGames extends Command
         } elseif ($top) {
             $genre = $this->option('genre');
             $ordering = $this->option('ordering') ?: '-added';
+            $skipExisting = (bool) $this->option('skip-existing');
             $label = $genre ? "top {$top} {$genre} games" : "top {$top} games";
             $this->info("Fetching {$label} from RAWG (ordering={$ordering})…");
             $hits = $genre
                 ? $rawg->byGenre($genre, (int) $top, $ordering)
                 : $rawg->top((int) $top, $ordering);
+
+            // When --skip-existing, bulk-check which slugs we already have
+            // and skip their detail calls entirely. This saves ~1 API call
+            // per dupe, which matters a lot on rerun-of-same-top lists.
+            $existingSlugs = [];
+            if ($skipExisting && $hits) {
+                $existingSlugs = Game::whereIn('slug', array_column($hits, 'slug'))
+                    ->pluck('slug')
+                    ->flip()
+                    ->toArray();
+            }
+
             $bar = $this->output->createProgressBar(count($hits));
             $bar->start();
+            $skippedExisting = 0;
             foreach ($hits as $hit) {
+                if ($skipExisting && isset($existingSlugs[$hit['slug']])) {
+                    $skippedExisting++;
+                    $bar->advance();
+                    continue;
+                }
                 try {
                     $candidates[] = $rawg->detail($hit['slug']);
                 } catch (Throwable $e) {
@@ -99,6 +119,9 @@ class ImportGames extends Command
             }
             $bar->finish();
             $this->newLine(2);
+            if ($skippedExisting > 0) {
+                $this->line("  Skipped {$skippedExisting} games already in DB (saved {$skippedExisting} API calls)");
+            }
         }
 
         $this->upsertMany($candidates, fn ($d) => $this->normalizeRawg($d));
