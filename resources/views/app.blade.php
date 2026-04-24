@@ -168,6 +168,7 @@
             },
             "sameAs": [
                 "https://instagram.com/squadspawnhq",
+                "https://www.facebook.com/squadspawnhq",
                 "https://www.reddit.com/user/Squadspawn/"
             ]
         }
