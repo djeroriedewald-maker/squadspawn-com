@@ -194,7 +194,7 @@ Route::get('/', function () {
                             'name' => 'Is there a SquadSpawn app?',
                             'acceptedAnswer' => [
                                 '@type' => 'Answer',
-                                'text' => 'SquadSpawn is a Progressive Web App (PWA) — install it from your browser to your home screen and it behaves like a native app with push notifications for requests, accepts and chat.',
+                                'text' => 'You can install SquadSpawn straight to your phone\'s home screen from any browser — it runs like a native app with push notifications for squad invites, accepts and chat.',
                             ],
                         ],
                     ],

@@ -114,7 +114,7 @@ export default function Welcome({
                                 Not randoms.
                             </h1>
                             <p className="mt-6 max-w-2xl text-lg leading-relaxed text-white/80 sm:text-xl">
-                                The reputation-first LFG platform. Verified Steam stats, real teammate ratings, zero tolerance for toxicity. Play with people who actually want to play with <em>you</em>.
+                                The LFG where teammates actually show up. Real Steam stats, ratings you can trust, zero patience for toxic randoms. Play with people who want to play <em>with</em> you — not through you.
                             </p>
 
                             <div className="mt-8 flex flex-wrap gap-3">
@@ -166,7 +166,10 @@ export default function Welcome({
                 )}
 
                 {/* ── Billboard: Before vs After ──────────────────── */}
-                <section className="relative overflow-hidden bg-ink-900">
+                {/* bg hardcoded to stay dark in both themes — the tile
+                    image and white copy are designed for a dark frame.
+                    (ink-900 token flips to near-white in dark mode.) */}
+                <section className="relative overflow-hidden bg-[#14121A]">
                     <div className="mx-auto grid max-w-6xl items-center gap-8 px-6 py-14 lg:grid-cols-5 lg:gap-12 lg:px-12 lg:py-20">
                         <div className="lg:col-span-3">
                             <div className="overflow-hidden rounded-2xl ring-1 ring-white/10 shadow-2xl">
@@ -223,20 +226,20 @@ export default function Welcome({
                     <div className="grid gap-6 md:grid-cols-3">
                         <FeatureCard
                             iconClass="text-gaming-orange"
-                            title="Reputation-first"
-                            body="Every session ends with teammate ratings. Toxic players drop to 1 star and get filtered out. Nice players get a visible ★ score hosts see before they accept you."
+                            title="Ratings after every session"
+                            body="Play a match, rate your teammates. Toxic players drop fast and stop showing up in your feed. Solid teammates get a ★ score — and the host sees it before they accept you."
                             icon={<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.3h7.6l-6.2 4.5 2.4 7.3L12 16.6l-6.2 4.5 2.4-7.3L2 9.3h7.6L12 2z" /></svg>}
                         />
                         <FeatureCard
                             iconClass="text-gaming-cyan"
-                            title="Steam-verified"
-                            body="Link your Steam and your real playtime + owned games + recent activity show on your profile. No more faking rank, no more smurfs pretending to be new."
+                            title="Steam-verified gamers"
+                            body="Link your Steam and your actual playtime, game library, and recent matches show up on your profile. No faked ranks. No smurfs pretending they're new."
                             icon={<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm2.9 13.5a2.1 2.1 0 01-2.08-1.56l-2.04-.85a1.8 1.8 0 10.1-1.4l1.9.78a2.1 2.1 0 11.02 3zm-3.6-2.37l-.83-.34a2.6 2.6 0 113.37-2.9l-2.07.87zm5.05 1.2a1.42 1.42 0 11-.01-2.84 1.42 1.42 0 010 2.84z" /></svg>}
                         />
                         <FeatureCard
                             iconClass="text-gaming-green"
-                            title="Anti-toxic by design"
-                            body="Moderator team, community guidelines, one-click reports, blocks that work both ways. Ban evasion gets you out fast. This is the community we'd want to play in."
+                            title="No toxic randoms"
+                            body="Real moderators, clear rules, one-tap reports, blocks that actually stick. Griefers and ban-evaders don't last long. This is the lobby you actually want to load into."
                             icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" /></svg>}
                         />
                     </div>
@@ -255,9 +258,9 @@ export default function Welcome({
                         </div>
 
                         <div className="grid gap-6 md:grid-cols-3">
-                            <StepCard n="1" image="/images/gamer2.jpg" title="Build your gamer profile" body="Add the games you play, your ranks, and link your Steam. Your profile instantly shows your real playtime, owned library, and recent activity." />
-                            <StepCard n="2" image="/images/gamer3.jpg" title="Find or host an LFG" body="Browse live squads filtered by game, region, rank, mic preference. Or post your own — hosts with a track record get higher visibility." />
-                            <StepCard n="3" image="/images/gamer4.jpg" title="Rate teammates, build rep" body="After each session, rate who you played with. Your score stays visible. Good teammates get favourited. Bad ones filter out of future LFGs." />
+                            <StepCard n="1" image="/images/gamer2.jpg" title="Set up your gamer profile" body="Add the games you play, your ranks, and link your Steam if you want to flex the receipts. Your real playtime, game library and recent matches show up instantly." />
+                            <StepCard n="2" image="/images/gamer3.jpg" title="Find or post an LFG" body="Scroll live squads by game, region, rank, mic on/off. Or drop your own LFG — solid hosts rise to the top, first-timers get a tag so nobody's guessing." />
+                            <StepCard n="3" image="/images/gamer4.jpg" title="Rate your teammates" body="After every session, tap a rating. Legends climb, toxic randoms vanish from your feed. Good teammates get favourited so you can squad up again in one tap." />
                         </div>
 
                         {canRegister && !user && (
@@ -287,14 +290,14 @@ export default function Welcome({
                             <p className="text-xs font-bold uppercase tracking-widest text-neon-red">Trust signals</p>
                             <h2 className="mt-2 text-3xl font-black text-ink-900 sm:text-4xl">See who you're joining — before you join.</h2>
                             <p className="mt-4 text-ink-500">
-                                Every LFG card shows the host's reputation score, sessions hosted, region, and whether they're online <em>right now</em>. A first-time host is flagged. A friend you've played with gets a "played before" badge. You'll never join blind.
+                                Every LFG shows the host's rep score, how many squads they've run, their region, and a green dot if they're online <em>right now</em>. First-time host? You'll know. Played with them before? There's a badge for that too. Never queue blind again.
                             </p>
                             <ul className="mt-6 space-y-2 text-sm text-ink-700">
-                                <Bullet>★ Reputation score from rated teammates</Bullet>
-                                <Bullet>N sessions hosted — or "First-time host"</Bullet>
-                                <Bullet>Green dot when the host is online now</Bullet>
-                                <Bullet>Shared games surfaced at a glance</Bullet>
-                                <Bullet>Auto-accept for instant join, or manual approval</Bullet>
+                                <Bullet>★ Rep score from real teammates who played with them</Bullet>
+                                <Bullet>Squads run count — or "First-time host" tag</Bullet>
+                                <Bullet>Green dot = online right now</Bullet>
+                                <Bullet>Games you both play, highlighted</Bullet>
+                                <Bullet>Auto-accept to jump in, or host-approved if you prefer</Bullet>
                             </ul>
                         </div>
 
@@ -314,26 +317,26 @@ export default function Welcome({
                             <IntegrationCard
                                 name="Steam"
                                 status="Live"
-                                description="Link your SteamID and your real playtime, owned games, and recent activity show on your profile."
+                                description="Link your Steam and your real playtime, game library, and recent matches show up on your profile. No more faking ranks."
                                 color="border-[#66c0f4]/40 bg-[#66c0f4]/5 text-[#66c0f4]"
                             />
                             <IntegrationCard
                                 name="Discord"
                                 status="Live"
-                                description="Attach a Discord voice channel to any LFG post — your squad jumps in and talks with one click. Full OAuth login on the roadmap."
+                                description="Drop your Discord voice channel on any LFG — your squad one-clicks in and starts talking. Full Discord sign-in coming soon."
                                 color="border-[#5865F2]/40 bg-[#5865F2]/5 text-[#5865F2]"
                             />
                             <IntegrationCard
-                                name="RAWG"
+                                name="Clips"
                                 status="Live"
-                                description="Catalogue of 600k+ games with cover art and platform metadata — added automatically."
-                                color="border-gaming-orange/40 bg-gaming-orange/5 text-gaming-orange"
+                                description="Post your best plays straight to your profile from YouTube, Twitch or TikTok. Let your clips do the talking before anyone accepts."
+                                color="border-gaming-pink/40 bg-gaming-pink/5 text-gaming-pink"
                             />
                             <IntegrationCard
                                 name="Riot / Faceit"
-                                status="On the roadmap"
-                                description="Rank sync for Valorant, League, CS2 match history — so you don't have to take anyone's word for it."
-                                color="border-gaming-pink/40 bg-gaming-pink/5 text-gaming-pink"
+                                status="Coming soon"
+                                description="Soon: your Valorant, League, and CS2 rank + match history pulled straight to your profile. No more rank-lying randoms."
+                                color="border-gaming-orange/40 bg-gaming-orange/5 text-gaming-orange"
                             />
                         </div>
                     </div>
@@ -349,7 +352,7 @@ export default function Welcome({
                             <p className="text-xs font-bold uppercase tracking-widest text-neon-red">Reputation</p>
                             <h2 className="mt-2 text-3xl font-black text-ink-900 sm:text-4xl">Your word, backed by receipts.</h2>
                             <p className="mt-4 text-ink-500">
-                                Your reputation score is computed from teammate ratings across every session. We weight it so one bad rating won't torch you, but a pattern will. Honest players rise; toxic ones sink.
+                                Your rep score comes from the teammates you actually played with, after actual sessions. One salty rating won't sink you — a pattern will. Play well, climb the board. Play toxic, disappear from feeds.
                             </p>
                             <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
                                 <RepChip label="★ 4.5+" sub="All-star" color="text-gaming-orange" />
@@ -361,7 +364,9 @@ export default function Welcome({
                 </section>
 
                 {/* ── Billboard pair: Legends + No More Solo ──────── */}
-                <section className="relative overflow-hidden bg-ink-900">
+                {/* Always-dark frame so the neon/black tiles breathe in
+                    both themes. */}
+                <section className="relative overflow-hidden bg-[#14121A]">
                     <div className="mx-auto grid max-w-6xl gap-4 px-6 py-12 sm:grid-cols-2 sm:gap-6 sm:py-16 lg:px-12">
                         <a
                             href={canRegister && !user ? route('register') : '#'}
@@ -416,13 +421,13 @@ export default function Welcome({
                                 <p className="text-xs font-bold uppercase tracking-widest text-neon-red">Community</p>
                                 <h2 className="mt-2 text-3xl font-black text-ink-900 sm:text-4xl">More than a matchmaker.</h2>
                                 <p className="mt-4 text-ink-500">
-                                    Rich-text posts with images and YouTube embeds. Volunteer moderators keep the feed clean. Community guidelines are public, reports are actioned, decisions are audited.
+                                    Drop clips, screenshots, guides, strats, rants. Gamers running the feed — not bots. Clear rules, fair reports, mod decisions you can actually see.
                                 </p>
                                 <ul className="mt-5 space-y-2 text-sm text-ink-700">
-                                    <Bullet>📝 Rich-text posts — images, video, headings, lists</Bullet>
-                                    <Bullet>🛡 Moderator team + transparent audit log</Bullet>
-                                    <Bullet>🎯 Filter by game, type, pinned posts first</Bullet>
-                                    <Bullet>📢 Community guidelines — no guessing what's allowed</Bullet>
+                                    <Bullet>📝 Clips, screenshots, guides, rants — format how you want</Bullet>
+                                    <Bullet>🛡 Real mods, public decisions, no shadow-bans</Bullet>
+                                    <Bullet>🎯 Filter by game, sort hot or new, pinned posts up top</Bullet>
+                                    <Bullet>📢 Clear rules — no guessing what flies and what doesn't</Bullet>
                                 </ul>
                             </div>
 
@@ -513,12 +518,12 @@ export default function Welcome({
                         <h2 className="mt-2 text-3xl font-black text-ink-900 sm:text-4xl">Quick answers.</h2>
                     </div>
                     <div className="space-y-3">
-                        <Faq q="Is it free?">Yes, fully free. No ads, no premium tier, no paywall on any core feature.</Faq>
-                        <Faq q="Do I need Steam?">No. Steam linking is optional but recommended — it's the fastest way to prove your playtime and rank legitimacy to potential teammates.</Faq>
-                        <Faq q="Do I need a mic?">Nope. LFG posts can require mics or not. Filter the feed by "🎤 Mic required" if that's what you're after.</Faq>
-                        <Faq q="What happens to toxic players?">Rated teammates contribute to a visible reputation score. Repeat toxicity or policy violations get posts hidden, threads locked, or accounts banned. Moderator actions are logged.</Faq>
-                        <Faq q="Is there an app?">It's a PWA — install from your browser to your home screen and it behaves like a native app, with push notifications for requests, accepts, and chat.</Faq>
-                        <Faq q="How does the reputation system weight ratings?">One rating is 70% real + 30% neutral. Three or more ratings use 100% real. Tags (like "toxic" or "great teammate") nudge the score up or down.</Faq>
+                        <Faq q="Is it free?">Fully free. No ads, no premium tier, no paywall. Every core feature is open to everyone.</Faq>
+                        <Faq q="Do I need Steam?">Nope. Steam linking is optional — but it's the fastest way to prove you actually play what you say you play. No faked ranks, no smurfs.</Faq>
+                        <Faq q="Do I need a mic?">Nah. LFG hosts decide if mic is required. Filter the feed by 🎤 Mic required if that's your vibe, or skip it if you're chill either way.</Faq>
+                        <Faq q="What happens to toxic players?">Teammate ratings build your public rep score. Repeat toxicity or breaking the rules gets posts hidden, threads locked, or accounts banned. Mod calls are public — no shadow-bans.</Faq>
+                        <Faq q="Is there an app?">Install SquadSpawn straight to your phone's home screen from any browser — it runs like a native app with push notifications for squad invites, accepts, and chat.</Faq>
+                        <Faq q="How does the rep score actually work?">It's based on real teammate ratings after real sessions. One bad rating won't torch you — a pattern will. Solid players climb; toxic ones fade from feeds fast.</Faq>
                     </div>
                 </section>
 
@@ -604,7 +609,7 @@ export default function Welcome({
 
                 {/* ── Sticky mobile CTA — signed-out only ────────── */}
                 {canRegister && !user && (
-                    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-neon-red/30 bg-ink-900/95 px-4 py-3 backdrop-blur-sm shadow-[0_-8px_24px_rgba(0,0,0,0.3)] sm:hidden">
+                    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-neon-red/30 bg-[#14121A]/95 px-4 py-3 backdrop-blur-sm shadow-[0_-8px_24px_rgba(0,0,0,0.3)] sm:hidden">
                         <Link
                             href={route('register')}
                             className="flex items-center justify-between gap-3 rounded-xl bg-neon-red px-4 py-3 text-sm font-bold text-white shadow-glow-red transition active:bg-neon-red/80"
