@@ -488,7 +488,7 @@ class BroadcastController extends Controller
             ['label' => 'Discover',       'path' => '/discover'],
             ['label' => 'Games',          'path' => '/games'],
             ['label' => 'Community',      'path' => '/community'],
-            ['label' => 'Clips',          'path' => '/clips'],
+            ['label' => 'Creators',       'path' => '/clips'],
             ['label' => 'Announcements',  'path' => '/announcements'],
             ['label' => "What's new",     'path' => '/changelog'],
             ['label' => 'Profile setup',  'path' => '/profile/setup'],

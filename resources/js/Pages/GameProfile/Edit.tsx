@@ -636,7 +636,7 @@ export default function GameProfileEdit({
                             <p className="mb-3 text-sm text-ink-500">Link your socials so friends can connect with you outside SquadSpawn.</p>
                             {data.is_creator && (
                                 <div className="mb-4 rounded-lg border border-gaming-orange/30 bg-gaming-orange/5 p-3 text-xs text-ink-700">
-                                    <strong className="text-gaming-orange">✨ Creator tip:</strong> linking your YouTube/Twitch here puts a chip on your profile — but to land in <em>Creators &amp; Clips</em> (and get considered for the Spotlight) you also need to share individual clips via the{' '}
+                                    <strong className="text-gaming-orange">✨ Creator tip:</strong> linking your YouTube/Twitch here puts a chip on your profile — but to land on the <em>Creators</em> page (and get considered for the Spotlight) you also need to post individual clips via the{' '}
                                     <a href={route('clips.index')} className="font-semibold text-neon-red hover:underline">Creators page</a>.
                                 </div>
                             )}

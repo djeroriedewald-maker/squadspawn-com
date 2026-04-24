@@ -172,7 +172,7 @@ export default function ClipsIndex({
 
     const pageContent = (
         <>
-            <Head title="Creators & Clips" />
+            <Head title="Creators · SquadSpawn" />
 
             <PageHero
                 image="/images/gamer7.jpg"
