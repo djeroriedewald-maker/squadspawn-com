@@ -165,6 +165,42 @@ export default function Welcome({
                     </div>
                 )}
 
+                {/* ── Billboard: Before vs After ──────────────────── */}
+                <section className="relative overflow-hidden bg-ink-900">
+                    <div className="mx-auto grid max-w-6xl items-center gap-8 px-6 py-14 lg:grid-cols-5 lg:gap-12 lg:px-12 lg:py-20">
+                        <div className="lg:col-span-3">
+                            <div className="overflow-hidden rounded-2xl ring-1 ring-white/10 shadow-2xl">
+                                <img
+                                    src="/images/before and after.jpg"
+                                    alt="Before vs after SquadSpawn — solo versus playing with your squad"
+                                    className="w-full"
+                                    loading="lazy"
+                                />
+                            </div>
+                        </div>
+                        <div className="lg:col-span-2">
+                            <p className="text-xs font-bold uppercase tracking-widest text-neon-red">Before vs after</p>
+                            <h2 className="mt-2 text-3xl font-black leading-tight text-white sm:text-4xl">
+                                Stop playing alone <span className="whitespace-nowrap">with strangers.</span>
+                            </h2>
+                            <p className="mt-4 text-white/70">
+                                Same game, completely different night. Your squad is the difference between a queue and a story worth telling tomorrow.
+                            </p>
+                            {canRegister && !user && (
+                                <Link
+                                    href={route('register')}
+                                    className="mt-6 inline-flex items-center gap-2 rounded-xl bg-neon-red px-6 py-3 text-sm font-bold text-white shadow-glow-red transition hover:bg-neon-red/90"
+                                >
+                                    Find your squad — free
+                                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5-5 5M6 12h12" />
+                                    </svg>
+                                </Link>
+                            )}
+                        </div>
+                    </div>
+                </section>
+
                 {/* ── Creator Spotlight ───────────────────────────── */}
                 {featuredCreators && featuredCreators.length > 0 && (
                     <section className="mx-auto max-w-6xl px-6 py-16 lg:px-12">
@@ -223,6 +259,24 @@ export default function Welcome({
                             <StepCard n="2" image="/images/gamer3.jpg" title="Find or host an LFG" body="Browse live squads filtered by game, region, rank, mic preference. Or post your own — hosts with a track record get higher visibility." />
                             <StepCard n="3" image="/images/gamer4.jpg" title="Rate teammates, build rep" body="After each session, rate who you played with. Your score stays visible. Good teammates get favourited. Bad ones filter out of future LFGs." />
                         </div>
+
+                        {canRegister && !user && (
+                            <div className="mt-12 flex flex-col items-center justify-between gap-4 rounded-2xl border border-neon-red/25 bg-white p-6 shadow-sm shadow-neon-red/5 sm:flex-row sm:gap-6 sm:p-8">
+                                <div className="text-center sm:text-left">
+                                    <p className="text-sm font-bold uppercase tracking-wider text-neon-red">Three minutes. Free forever.</p>
+                                    <p className="mt-1 text-lg font-bold text-ink-900">Your squad is three clicks away.</p>
+                                </div>
+                                <Link
+                                    href={route('register')}
+                                    className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-neon-red px-6 py-3 text-sm font-bold text-white shadow-glow-red transition hover:bg-neon-red/90"
+                                >
+                                    {isFounderPhase ? 'Claim founder spot' : 'Sign up free'}
+                                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5-5 5M6 12h12" />
+                                    </svg>
+                                </Link>
+                            </div>
+                        )}
                     </div>
                 </section>
 
@@ -306,6 +360,49 @@ export default function Welcome({
                     </div>
                 </section>
 
+                {/* ── Billboard pair: Legends + No More Solo ──────── */}
+                <section className="relative overflow-hidden bg-ink-900">
+                    <div className="mx-auto grid max-w-6xl gap-4 px-6 py-12 sm:grid-cols-2 sm:gap-6 sm:py-16 lg:px-12">
+                        <a
+                            href={canRegister && !user ? route('register') : '#'}
+                            className="group relative overflow-hidden rounded-2xl ring-1 ring-white/10 transition hover:ring-neon-red/50 hover:-translate-y-0.5"
+                            aria-label="Sign up — legends don't solo queue"
+                        >
+                            <img
+                                src="/images/legends dont.jpg"
+                                alt="Legends don't solo queue"
+                                className="aspect-square w-full object-cover transition duration-500 group-hover:scale-[1.02]"
+                                loading="lazy"
+                            />
+                        </a>
+                        <a
+                            href={canRegister && !user ? route('register') : '#'}
+                            className="group relative overflow-hidden rounded-2xl ring-1 ring-white/10 transition hover:ring-neon-red/50 hover:-translate-y-0.5"
+                            aria-label="Sign up — no more solo"
+                        >
+                            <img
+                                src="/images/no more solo.jpg"
+                                alt="No more solo"
+                                className="aspect-square w-full object-cover transition duration-500 group-hover:scale-[1.02]"
+                                loading="lazy"
+                            />
+                        </a>
+                    </div>
+                    {canRegister && !user && (
+                        <div className="mx-auto max-w-6xl px-6 pb-12 text-center lg:px-12 sm:pb-16">
+                            <Link
+                                href={route('register')}
+                                className="inline-flex items-center gap-2 rounded-xl bg-neon-red px-7 py-3 text-sm font-bold text-white shadow-glow-red transition hover:bg-neon-red/90"
+                            >
+                                Stop solo-queueing — sign up free
+                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5-5 5M6 12h12" />
+                                </svg>
+                            </Link>
+                        </div>
+                    )}
+                </section>
+
                 {/* ── Community highlight ─────────────────────────── */}
                 <section className="relative overflow-hidden py-20">
                     <div className="absolute inset-0 -z-10">
@@ -336,9 +433,59 @@ export default function Welcome({
                     </div>
                 </section>
 
+                {/* ── Inline CTA — social proof ───────────────────── */}
+                {canRegister && !user && totalPlayers > 0 && (
+                    <section className="mx-auto max-w-6xl px-6 lg:px-12">
+                        <div className="flex flex-col items-center justify-between gap-4 rounded-2xl border border-ink-900/10 bg-white p-6 shadow-sm sm:flex-row sm:gap-6 sm:p-8">
+                            <div className="flex items-center gap-4">
+                                <div className="flex -space-x-2">
+                                    {recentPlayers.slice(0, 4).map((p) => (
+                                        <div key={p.id} className="h-10 w-10 shrink-0 overflow-hidden rounded-full border-2 border-white bg-bone-100 ring-1 ring-ink-900/10">
+                                            {p.avatar ? (
+                                                <img src={p.avatar} alt="" className="h-full w-full object-cover" loading="lazy" />
+                                            ) : (
+                                                <div className="flex h-full w-full items-center justify-center text-xs font-bold text-ink-500">
+                                                    {p.username.charAt(0).toUpperCase()}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="text-center sm:text-left">
+                                    <p className="text-sm font-bold text-ink-900">
+                                        Joined by {totalPlayers.toLocaleString()} gamers who read the scoreboard.
+                                    </p>
+                                    <p className="text-xs text-ink-500">
+                                        <span className="text-gaming-green">●</span> {onlineNow.toLocaleString()} online now · zero randoms
+                                    </p>
+                                </div>
+                            </div>
+                            <Link
+                                href={route('register')}
+                                className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-neon-red px-6 py-3 text-sm font-bold text-white shadow-glow-red transition hover:bg-neon-red/90"
+                            >
+                                Join them
+                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5-5 5M6 12h12" />
+                                </svg>
+                            </Link>
+                        </div>
+                    </section>
+                )}
+
                 {/* ── Founder CTA ────────────────────────────────── */}
                 {isFounderPhase && (
-                    <section className="border-y border-neon-red/20 bg-gradient-to-br from-neon-red/10 via-neon-red/5 to-transparent py-16">
+                    <section className="relative overflow-hidden border-y border-neon-red/20 py-16">
+                        <div className="absolute inset-0 -z-10">
+                            <img
+                                src="/images/we spawned.jpg"
+                                alt=""
+                                className="h-full w-full object-cover opacity-25"
+                                loading="lazy"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-br from-neon-red/15 via-transparent to-transparent" />
+                            <div className="absolute inset-0 bg-bone-50/70 dark:bg-ink-900/70" />
+                        </div>
                         <div className="mx-auto max-w-4xl px-6 text-center lg:px-12">
                             <p className="text-xs font-bold uppercase tracking-widest text-neon-red">Founder Phase</p>
                             <h2 className="mt-2 text-3xl font-black text-ink-900 sm:text-4xl">
@@ -400,7 +547,7 @@ export default function Welcome({
                     </div>
                 </section>
 
-                <footer className="border-t border-ink-900/10 bg-bone-50 px-6 py-8 lg:px-12">
+                <footer className="border-t border-ink-900/10 bg-bone-50 px-6 py-8 pb-24 lg:px-12 sm:pb-8">
                     <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 text-xs text-ink-500 sm:flex-row">
                         <div className="flex flex-wrap items-center gap-4">
                             <Link href={route('help')} className="hover:text-ink-900">Help</Link>
@@ -444,6 +591,33 @@ export default function Welcome({
                         </div>
                     </div>
                 </footer>
+
+                {/* ── Sticky mobile CTA — signed-out only ────────── */}
+                {canRegister && !user && (
+                    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-neon-red/30 bg-ink-900/95 px-4 py-3 backdrop-blur-sm shadow-[0_-8px_24px_rgba(0,0,0,0.3)] sm:hidden">
+                        <Link
+                            href={route('register')}
+                            className="flex items-center justify-between gap-3 rounded-xl bg-neon-red px-4 py-3 text-sm font-bold text-white shadow-glow-red transition active:bg-neon-red/80"
+                        >
+                            <span className="flex items-center gap-2">
+                                {isFounderPhase ? (
+                                    <>
+                                        <span className="relative flex h-2 w-2">
+                                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white/70" />
+                                            <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
+                                        </span>
+                                        Claim founder spot · {founderSpotsLeft} left
+                                    </>
+                                ) : (
+                                    <>Sign up free · find your squad</>
+                                )}
+                            </span>
+                            <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5-5 5M6 12h12" />
+                            </svg>
+                        </Link>
+                    </div>
+                )}
             </div>
         </>
     );
