@@ -62,6 +62,9 @@
         <meta name="format-detection" content="telephone=no">
         <meta name="author" content="SquadSpawn">
 
+        <!-- Search engine verification -->
+        <meta name="google-site-verification" content="VHIS-S1IDy1xafXXdZSvWLBDv5aHZn1-BH2A2RBmN8Q">
+
         <!-- Open Graph / Social -->
         <meta property="og:type" content="{{ $seoType }}">
         <meta property="og:site_name" content="SquadSpawn">
