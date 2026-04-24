@@ -171,7 +171,7 @@ export default function Welcome({
                         <div className="lg:col-span-3">
                             <div className="overflow-hidden rounded-2xl ring-1 ring-white/10 shadow-2xl">
                                 <img
-                                    src="/images/before and after.jpg"
+                                    src="/images/before-and-after.jpg"
                                     alt="Before vs after SquadSpawn — solo versus playing with your squad"
                                     className="w-full"
                                     loading="lazy"
@@ -369,7 +369,7 @@ export default function Welcome({
                             aria-label="Sign up — legends don't solo queue"
                         >
                             <img
-                                src="/images/legends dont.jpg"
+                                src="/images/legends-dont.jpg"
                                 alt="Legends don't solo queue"
                                 className="aspect-square w-full object-cover transition duration-500 group-hover:scale-[1.02]"
                                 loading="lazy"
@@ -381,7 +381,7 @@ export default function Welcome({
                             aria-label="Sign up — no more solo"
                         >
                             <img
-                                src="/images/no more solo.jpg"
+                                src="/images/no-more-solo.jpg"
                                 alt="No more solo"
                                 className="aspect-square w-full object-cover transition duration-500 group-hover:scale-[1.02]"
                                 loading="lazy"
@@ -478,7 +478,7 @@ export default function Welcome({
                     <section className="relative overflow-hidden border-y border-neon-red/20 py-16">
                         <div className="absolute inset-0 -z-10">
                             <img
-                                src="/images/we spawned.jpg"
+                                src="/images/we-spawned.jpg"
                                 alt=""
                                 className="h-full w-full object-cover opacity-25"
                                 loading="lazy"
