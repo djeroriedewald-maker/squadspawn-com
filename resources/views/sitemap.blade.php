@@ -1,6 +1,6 @@
 {!! '<?xml version="1.0" encoding="UTF-8"?>' !!}
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemaps-image/0.9">
+        xmlns:image="http://www.google.com/schemas/sitemap-image/0.9">
     {{-- Static pages — homepage is the highest-priority entry. --}}
     <url>
         <loc>{{ url('/') }}</loc>
