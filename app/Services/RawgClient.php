@@ -108,6 +108,20 @@ class RawgClient
         return $this->get("/games/{$slugOrId}")->json() ?? [];
     }
 
+    /**
+     * Fetch one raw page of the /games endpoint. Callers handle pagination
+     * themselves (used by the "add N new games" incremental importer that
+     * needs to peek at list results before deciding whether to spend a
+     * detail call on each row).
+     *
+     * @param  array<string, mixed>  $filters  e.g. ['ordering' => '-added', 'page_size' => 40, 'page' => 3]
+     * @return array<string, mixed>
+     */
+    public function listGames(array $filters): array
+    {
+        return $this->get('/games', $filters)->json() ?? [];
+    }
+
     private function get(string $path, array $query = []): Response
     {
         $this->ensureKey();

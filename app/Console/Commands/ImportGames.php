@@ -26,6 +26,8 @@ class ImportGames extends Command
         {--local-images : Download covers to public/images/games/ instead of keeping CDN URLs (default is CDN)}
         {--no-images : Deprecated alias — CDN URLs are now the default. Kept for backwards compat.}
         {--skip-existing : Skip detail API calls for games whose slug already exists (saves RAWG quota on incremental top-ups)}
+        {--new= : Keep paginating RAWG until N net-new games have been added (dupes are skipped cheaply via bulk slug lookup)}
+        {--max-calls= : Safety cap on total RAWG API calls when using --new (default: --new * 2 + 100)}
         {--force : Overwrite existing fields (default fills only blanks)}';
 
     protected $description = 'Import games from RAWG or Steam (covers, descriptions, release dates)';
@@ -34,6 +36,18 @@ class ImportGames extends Command
     {
         if ($this->option('preset') || $this->option('preset-file')) {
             return $this->importFromPreset($rawg, $steam);
+        }
+
+        // --new=N runs a paginated "top up" against RAWG: keep pulling
+        // list pages, skip slugs we already have, fetch detail for the
+        // rest, stop when we've added N new games or hit the call cap.
+        if ($this->option('new')) {
+            try {
+                return $this->importNewFromRawg($rawg) ? self::SUCCESS : self::FAILURE;
+            } catch (Throwable $e) {
+                $this->error($e->getMessage());
+                return self::FAILURE;
+            }
         }
 
         $source = strtolower($this->option('source'));
@@ -123,6 +137,113 @@ class ImportGames extends Command
                 $this->line("  Skipped {$skippedExisting} games already in DB (saved {$skippedExisting} API calls)");
             }
         }
+
+        $this->upsertMany($candidates, fn ($d) => $this->normalizeRawg($d));
+        return true;
+    }
+
+    // --- "Add N new games" incremental path ---------------------------------
+
+    /**
+     * Paginate through RAWG's /games list until we've queued N detail
+     * fetches for slugs we don't already have. Each list page costs 1
+     * API call and returns 40 slugs; we bulk-check them against the DB
+     * first, so dupes never burn a detail call. Breaks on either the
+     * target hit, a hard call-cap, RAWG's pagination ending, or two
+     * empty pages in a row.
+     */
+    private function importNewFromRawg(RawgClient $rawg): bool
+    {
+        $targetNew = (int) $this->option('new');
+        if ($targetNew <= 0) {
+            $this->error('--new must be a positive integer.');
+            return false;
+        }
+        $maxCalls = (int) ($this->option('max-calls') ?: ($targetNew * 2 + 100));
+        $ordering = $this->option('ordering') ?: '-added';
+        $genre = $this->option('genre');
+
+        $scope = $genre ? "{$genre} games" : 'games';
+        $this->info("Adding up to {$targetNew} new {$scope} (ordering={$ordering}, call cap={$maxCalls})…");
+
+        $candidates = [];
+        $totalCalls = 0;
+        $listPages = 0;
+        $dupesSkipped = 0;
+        $page = 1;
+
+        while (count($candidates) < $targetNew && $totalCalls < $maxCalls) {
+            $filters = [
+                'ordering' => $ordering,
+                'page_size' => 40,
+                'page' => $page,
+            ];
+            if ($genre) {
+                $filters['genres'] = $genre;
+            }
+
+            try {
+                $data = $rawg->listGames($filters);
+            } catch (Throwable $e) {
+                $this->warn("  list page {$page} failed: {$e->getMessage()}");
+                break;
+            }
+            $totalCalls++;
+            $listPages++;
+            $batch = $data['results'] ?? [];
+            if (!$batch) {
+                break;
+            }
+
+            $slugs = array_column($batch, 'slug');
+            $existing = Game::whereIn('slug', $slugs)
+                ->pluck('slug')
+                ->flip()
+                ->toArray();
+
+            foreach ($batch as $hit) {
+                if (empty($hit['slug'])) continue;
+                if (isset($existing[$hit['slug']])) {
+                    $dupesSkipped++;
+                    continue;
+                }
+                if (count($candidates) >= $targetNew || $totalCalls >= $maxCalls) {
+                    break 2;
+                }
+                try {
+                    $candidates[] = $rawg->detail($hit['slug']);
+                } catch (Throwable $e) {
+                    $this->warn("  detail failed for {$hit['slug']}: {$e->getMessage()}");
+                }
+                $totalCalls++;
+            }
+
+            // Lightweight heartbeat so long runs show progress in the output tail.
+            if ($listPages % 5 === 0) {
+                $this->line(sprintf(
+                    '  progress: %d new queued · %d dupes skipped · %d API calls · page %d',
+                    count($candidates),
+                    $dupesSkipped,
+                    $totalCalls,
+                    $page,
+                ));
+            }
+
+            if (empty($data['next'])) {
+                $this->line("  reached end of RAWG results at page {$page}.");
+                break;
+            }
+            $page++;
+        }
+
+        $this->newLine();
+        $this->line(sprintf(
+            '  Scanned %d list pages, %d total API calls, %d dupes skipped, %d new queued for upsert.',
+            $listPages,
+            $totalCalls,
+            $dupesSkipped,
+            count($candidates),
+        ));
 
         $this->upsertMany($candidates, fn ($d) => $this->normalizeRawg($d));
         return true;

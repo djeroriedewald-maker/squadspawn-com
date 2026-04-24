@@ -38,6 +38,12 @@ class GameImportController extends Controller
         'alltime-1000' => ['label' => 'All-time top 1000', 'args' => ['--top' => 1000, '--skip-existing' => true]],
         'recent-300' => ['label' => 'Top 300 recent releases', 'args' => ['--top' => 300, '--ordering' => '-released', '--skip-existing' => true]],
         'metacritic-300' => ['label' => 'Top 300 by Metacritic', 'args' => ['--top' => 300, '--ordering' => '-metacritic', '--skip-existing' => true]],
+        // Incremental "top-up" presets — paginate RAWG until N genuinely new
+        // games have been added to the DB. Safe to re-click: each run picks
+        // up where the catalogue left off because duplicates are short-circuited.
+        'add-new-1000' => ['label' => 'Add 1,000 new games', 'args' => ['--new' => 1000]],
+        'add-new-5000' => ['label' => 'Add 5,000 new games', 'args' => ['--new' => 5000]],
+        'add-new-10000' => ['label' => 'Add 10,000 new games', 'args' => ['--new' => 10000]],
         'preset' => ['label' => 'Curated preset (games.json)', 'args' => ['--preset' => true]],
     ];
 
@@ -159,12 +165,19 @@ class GameImportController extends Controller
 
     /**
      * Rough API-call estimate — one per game we'll actually fetch.
-     * --preset pulls ~30 games; --top=N bounds at N.
+     * --preset pulls ~30 games; --top=N bounds at N; --new=N fetches
+     * N detail calls plus list-pagination overhead (1 list call per 40
+     * slugs scanned, and we'll scan some dupes on top of the N we keep).
      */
     private function estimateCalls(array $args): int
     {
         if (!empty($args['--preset'])) return 40;
         if (!empty($args['--top'])) return (int) $args['--top'] + 5;
+        if (!empty($args['--new'])) {
+            $n = (int) $args['--new'];
+            // N detail calls + list pages for N new + ~20% dupe headroom.
+            return $n + (int) ceil(($n * 1.2) / 40);
+        }
         return 2;
     }
 }
