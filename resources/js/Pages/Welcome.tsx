@@ -1,6 +1,6 @@
 import CreatorSpotlight, { FeaturedCreator } from '@/Components/CreatorSpotlight';
 import ThemeToggle from '@/Components/ThemeToggle';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { Game } from '@/types';
 
 interface GameWithCount extends Game {
@@ -48,9 +48,9 @@ export default function Welcome({
 
     return (
         <>
-            <Head title="Find your squad. Not randoms.">
-                <meta name="description" content="SquadSpawn is the reputation-first LFG platform for gamers. Verified teammates, real Steam stats, zero tolerance for toxicity. Find your squad." />
-            </Head>
+            {/* Head tags come from the server via the seo + jsonLd props
+                in routes/web.php — single source of truth, keyword-rich
+                title + description + SoftwareApplication + FAQPage JSON-LD. */}
 
             <div className="min-h-screen bg-bone-50 text-ink-900">
                 {/* ── Nav ─────────────────────────────────────────── */}

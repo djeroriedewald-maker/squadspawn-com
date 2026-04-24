@@ -24,8 +24,9 @@ class PlusWaitlistController extends Controller
             'alreadyJoined' => $alreadyJoined,
             'memberCount' => PlusWaitlistEntry::count(),
             'seo' => [
-                'title' => 'SquadSpawn Plus — Join the waitlist',
-                'description' => 'A premium tier for SquadSpawn power users. Tell us what you\'d pay for; we\'ll build it when enough of you say yes.',
+                'title' => 'SquadSpawn Plus · Premium Gamer Waitlist',
+                'description' => 'Get early access to SquadSpawn Plus — profile analytics, priority matching, Ghost mode, verified badge, power-user filters and more. Founding members get a permanent discount.',
+                'keywords' => 'SquadSpawn Plus, gaming premium, gamer subscription, LFG premium, reputation analytics, priority matching, verified gamer badge',
             ],
         ]);
     }

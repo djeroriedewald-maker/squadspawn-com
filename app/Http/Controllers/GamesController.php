@@ -78,8 +78,9 @@ class GamesController extends Controller
             ],
             'myGameIds' => $myGameIds,
             'seo' => [
-                'title' => 'All Games · SquadSpawn',
-                'description' => "Browse games and find teammates for your favourites on SquadSpawn. Filter by genre, platform, and more.",
+                'title' => 'All Games · Find Teammates · SquadSpawn',
+                'description' => "Browse every game on SquadSpawn and find verified teammates. Filter by genre, platform, and region across CS2, Valorant, Apex, League of Legends, Fortnite, Warzone, Overwatch, Rocket League and more.",
+                'keywords' => 'game library, find teammates, LFG games, CS2 teammates, Valorant teammates, Apex Legends teammates, League of Legends duo, Fortnite squad',
             ],
         ]);
     }
@@ -104,22 +105,40 @@ class GamesController extends Controller
             'relatedGames' => $relatedGames,
             'isInMyProfile' => $isInMyProfile,
             'seo' => [
-                'title' => "{$game->name} · Find Teammates on SquadSpawn",
+                'title' => "{$game->name} LFG · Find Teammates · SquadSpawn",
                 'description' => \Illuminate\Support\Str::limit(
-                    $game->description ?? "Find teammates for {$game->name} on SquadSpawn. Create LFG, swipe through players, and rate teammates after every session.",
+                    "Find verified {$game->name} teammates on SquadSpawn. "
+                    . ($game->users_count > 0
+                        ? "{$game->users_count} players already on board — "
+                        : '')
+                    . "create an LFG, rate players, and build your reputation across NA, EU and Asia. Free forever.",
                     160,
                 ),
                 'image' => $game->cover_image ? url($game->cover_image) : null,
+                'keywords' => "{$game->name} LFG, {$game->name} teammates, {$game->name} squad finder, {$game->name} looking for group, find {$game->name} players, {$game->name} verified gamers",
             ],
             'jsonLd' => [
                 '@context' => 'https://schema.org',
-                '@type' => 'VideoGame',
-                'name' => $game->name,
-                'description' => $game->description,
-                'image' => $game->cover_image ? url($game->cover_image) : null,
-                'genre' => $game->genre,
-                'gamePlatform' => $game->platforms,
-                'datePublished' => optional($game->released_at)->toDateString(),
+                '@graph' => [
+                    array_filter([
+                        '@type' => 'VideoGame',
+                        'name' => $game->name,
+                        'description' => $game->description,
+                        'image' => $game->cover_image ? url($game->cover_image) : null,
+                        'genre' => $game->genre,
+                        'gamePlatform' => $game->platforms,
+                        'datePublished' => optional($game->released_at)->toDateString(),
+                        'url' => url("/games/{$game->slug}"),
+                    ]),
+                    [
+                        '@type' => 'BreadcrumbList',
+                        'itemListElement' => [
+                            ['@type' => 'ListItem', 'position' => 1, 'name' => 'Home', 'item' => url('/')],
+                            ['@type' => 'ListItem', 'position' => 2, 'name' => 'Games', 'item' => url('/games')],
+                            ['@type' => 'ListItem', 'position' => 3, 'name' => $game->name, 'item' => url("/games/{$game->slug}")],
+                        ],
+                    ],
+                ],
             ],
         ]);
     }

@@ -42,8 +42,8 @@ class ChangelogController extends Controller
             'entries' => $entries->values(),
             'latestVersion' => $latest['version'] ?? null,
             'seo' => [
-                'title' => 'Changelog · SquadSpawn',
-                'description' => 'Everything new on SquadSpawn — feature drops, improvements, fixes, and security updates. Stay in the loop with every release.',
+                'title' => 'Changelog · New Features & Updates · SquadSpawn',
+                'description' => 'Every release on SquadSpawn — new features, improvements, fixes and security updates. The reputation-first LFG platform for gamers keeps shipping.',
             ],
         ]);
     }
@@ -55,11 +55,48 @@ class ChangelogController extends Controller
             ->where('slug', $slug)
             ->firstOrFail();
 
+        $desc = \Illuminate\Support\Str::limit(strip_tags($entry->body_html ?? $entry->body ?? ''), 160);
+
         return Inertia::render('Changelog/Show', [
             'entry' => $this->present($entry),
             'seo' => [
                 'title' => $entry->title . ' · Changelog · SquadSpawn',
-                'description' => \Illuminate\Support\Str::limit(strip_tags($entry->body_html ?? $entry->body ?? ''), 160),
+                'description' => $desc,
+                'type' => 'article',
+            ],
+            'jsonLd' => [
+                '@context' => 'https://schema.org',
+                '@graph' => [
+                    [
+                        '@type' => 'TechArticle',
+                        'headline' => $entry->title,
+                        'description' => $desc,
+                        'datePublished' => $entry->published_at?->toAtomString(),
+                        'dateModified' => ($entry->updated_at ?? $entry->published_at)?->toAtomString(),
+                        'author' => [
+                            '@type' => 'Organization',
+                            'name' => 'SquadSpawn',
+                            'url' => url('/'),
+                        ],
+                        'publisher' => [
+                            '@type' => 'Organization',
+                            'name' => 'SquadSpawn',
+                            'logo' => [
+                                '@type' => 'ImageObject',
+                                'url' => url('/icons/icon-512.png'),
+                            ],
+                        ],
+                        'mainEntityOfPage' => url("/changelog/{$entry->slug}"),
+                    ],
+                    [
+                        '@type' => 'BreadcrumbList',
+                        'itemListElement' => [
+                            ['@type' => 'ListItem', 'position' => 1, 'name' => 'Home', 'item' => url('/')],
+                            ['@type' => 'ListItem', 'position' => 2, 'name' => 'Changelog', 'item' => url('/changelog')],
+                            ['@type' => 'ListItem', 'position' => 3, 'name' => $entry->title, 'item' => url("/changelog/{$entry->slug}")],
+                        ],
+                    ],
+                ],
             ],
         ]);
     }

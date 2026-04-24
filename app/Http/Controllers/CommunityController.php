@@ -55,6 +55,11 @@ class CommunityController extends Controller
             'filters' => $request->only(['game_id', 'type', 'sort']),
             'userVotes' => $userVotes,
             'canModerate' => $viewer ? $viewer->canModerate() : false,
+            'seo' => [
+                'title' => 'Gaming Community · Discussions, Guides, Highlights · SquadSpawn',
+                'description' => 'Join the SquadSpawn gaming community — guides, discussions, and highlights from gamers across CS2, Valorant, Apex, League of Legends, Fortnite and more. Moderated, non-toxic, English-first.',
+                'keywords' => 'gaming community, gaming forum, esports discussion, CS2 community, Valorant community, gamer discussions, gaming guides, gaming highlights, non-toxic gaming community',
+            ],
         ]);
     }
 
@@ -92,23 +97,53 @@ class CommunityController extends Controller
 
         $author = $communityPost->user->profile->username ?? $communityPost->user->name;
         $snippet = \Illuminate\Support\Str::limit(strip_tags($communityPost->body ?? ''), 160);
+        $gameTag = $communityPost->game?->name ? " · {$communityPost->game->name}" : '';
 
         return Inertia::render('Community/Show', [
             'post' => $communityPost,
             'userVote' => $userVote,
             'canModerate' => $viewer ? $viewer->canModerate() : false,
             'seo' => [
-                'title' => "{$communityPost->title} · SquadSpawn Community",
-                'description' => $snippet ?: "Community post by {$author} on SquadSpawn.",
+                'title' => "{$communityPost->title}{$gameTag} · SquadSpawn Community",
+                'description' => $snippet ?: "Community post by {$author}{$gameTag} on SquadSpawn — join the discussion.",
                 'type' => 'article',
             ],
             'jsonLd' => [
                 '@context' => 'https://schema.org',
-                '@type' => 'DiscussionForumPosting',
-                'headline' => $communityPost->title,
-                'author' => ['@type' => 'Person', 'name' => $author],
-                'datePublished' => $communityPost->created_at?->toAtomString(),
-                'url' => url("/community/{$communityPost->id}"),
+                '@graph' => [
+                    [
+                        '@type' => 'DiscussionForumPosting',
+                        'headline' => $communityPost->title,
+                        'articleBody' => $snippet,
+                        'author' => [
+                            '@type' => 'Person',
+                            'name' => $author,
+                            'url' => url("/player/{$author}"),
+                        ],
+                        'datePublished' => $communityPost->created_at?->toAtomString(),
+                        'dateModified' => $communityPost->updated_at?->toAtomString(),
+                        'url' => url("/community/{$communityPost->id}"),
+                        'interactionStatistic' => [
+                            [
+                                '@type' => 'InteractionCounter',
+                                'interactionType' => 'https://schema.org/CommentAction',
+                                'userInteractionCount' => (int) ($communityPost->comments_count ?? 0),
+                            ],
+                        ],
+                        'about' => $communityPost->game ? [
+                            '@type' => 'VideoGame',
+                            'name' => $communityPost->game->name,
+                        ] : null,
+                    ],
+                    [
+                        '@type' => 'BreadcrumbList',
+                        'itemListElement' => [
+                            ['@type' => 'ListItem', 'position' => 1, 'name' => 'Home', 'item' => url('/')],
+                            ['@type' => 'ListItem', 'position' => 2, 'name' => 'Community', 'item' => url('/community')],
+                            ['@type' => 'ListItem', 'position' => 3, 'name' => $communityPost->title, 'item' => url("/community/{$communityPost->id}")],
+                        ],
+                    ],
+                ],
             ],
         ]);
     }

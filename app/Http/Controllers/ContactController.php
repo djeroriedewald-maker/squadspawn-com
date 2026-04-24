@@ -18,8 +18,8 @@ class ContactController extends Controller
             'prefillName' => $user?->profile?->username ?? $user?->name ?? '',
             'prefillEmail' => $user?->email ?? '',
             'seo' => [
-                'title' => 'Contact — SquadSpawn',
-                'description' => 'Send us a message. We read every one and get back to you personally.',
+                'title' => 'Contact SquadSpawn · Gaming Platform Support',
+                'description' => 'Get in touch with SquadSpawn — feedback, bug reports, partnerships, press or privacy requests. We read every message and reply personally.',
             ],
         ]);
     }

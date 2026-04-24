@@ -1,3 +1,7 @@
+# SquadSpawn robots policy
+# Public marketing + content pages are crawlable; authed-only
+# surfaces (dashboard, chat, matches, admin, API) are blocked.
+
 User-agent: *
 Allow: /
 Disallow: /dashboard
@@ -6,5 +10,44 @@ Disallow: /chat
 Disallow: /matches
 Disallow: /admin
 Disallow: /api
+Disallow: /push
+Disallow: /notifications
+Disallow: /settings
+Disallow: /login
+Disallow: /register
+Disallow: /password
+Disallow: /email
+Disallow: /verify-email
+Disallow: /two-factor
+Disallow: /force-two-factor
+# Block search-result URLs with query strings so we don't dilute
+# the canonical game-library / community-index rankings with every
+# permutation of filter state.
+Disallow: /*?*sort=
+Disallow: /*?*filter=
+
+# Slow-roll noisy crawlers that don't send useful traffic. Googlebot,
+# Bingbot, and DuckDuckBot get no restrictions.
+User-agent: SemrushBot
+Crawl-delay: 10
+User-agent: AhrefsBot
+Crawl-delay: 10
+User-agent: MJ12bot
+Crawl-delay: 10
+
+# LLM / AI scraper policy — allow for now (exposure value > scrape
+# cost for a growing platform). Revisit if content volume explodes.
+User-agent: GPTBot
+Allow: /
+User-agent: Google-Extended
+Allow: /
+User-agent: anthropic-ai
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: CCBot
+Allow: /
+User-agent: PerplexityBot
+Allow: /
 
 Sitemap: https://squadspawn.com/sitemap.xml

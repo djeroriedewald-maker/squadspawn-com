@@ -107,20 +107,33 @@ class PlayerController extends Controller
                 'tag' => $myRating->tag,
             ] : null,
             'seo' => [
-                'title' => "{$username} · Gamer Profile on SquadSpawn",
-                'description' => "{$username}. {$playsLine}{$repLine}. View game profile, clips, and reputation on SquadSpawn.",
+                'title' => "{$username} · Gamer Profile · SquadSpawn",
+                'description' => "{$username} on SquadSpawn. {$playsLine}{$repLine}. See their games, reputation score, clips, and recent activity — then add them to your squad.",
                 'image' => $avatarUrl,
                 'type' => 'profile',
+                'keywords' => "{$username}, {$username} gamer profile, find teammates, gaming reputation, SquadSpawn player",
             ],
             'jsonLd' => [
                 '@context' => 'https://schema.org',
-                '@type' => 'ProfilePage',
-                'mainEntity' => [
-                    '@type' => 'Person',
-                    'name' => $username,
-                    'url' => url("/player/{$username}"),
-                    'image' => $avatarUrl,
-                    'description' => $playsLine,
+                '@graph' => [
+                    [
+                        '@type' => 'ProfilePage',
+                        'mainEntity' => [
+                            '@type' => 'Person',
+                            'name' => $username,
+                            'url' => url("/player/{$username}"),
+                            'image' => $avatarUrl,
+                            'description' => $playsLine,
+                        ],
+                    ],
+                    [
+                        '@type' => 'BreadcrumbList',
+                        'itemListElement' => [
+                            ['@type' => 'ListItem', 'position' => 1, 'name' => 'Home', 'item' => url('/')],
+                            ['@type' => 'ListItem', 'position' => 2, 'name' => 'Players', 'item' => url('/players')],
+                            ['@type' => 'ListItem', 'position' => 3, 'name' => $username, 'item' => url("/player/{$username}")],
+                        ],
+                    ],
                 ],
             ],
         ]);

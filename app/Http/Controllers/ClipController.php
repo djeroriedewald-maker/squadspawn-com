@@ -34,6 +34,11 @@ class ClipController extends Controller
             'clips' => $clips,
             'games' => Game::all(),
             'filters' => $request->only('game_id'),
+            'seo' => [
+                'title' => 'Gaming Clips & Highlights · SquadSpawn',
+                'description' => 'Watch clutch plays, funny moments, and highlights from the SquadSpawn community. YouTube, Twitch, and TikTok clips from gamers across CS2, Valorant, Apex, League of Legends and more.',
+                'keywords' => 'gaming clips, gaming highlights, esports clips, CS2 clips, Valorant highlights, Apex Legends plays, twitch clips, YouTube gaming, tiktok gaming, clutch plays, squadspawn clips',
+            ],
         ]);
     }
 

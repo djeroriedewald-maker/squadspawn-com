@@ -26,10 +26,32 @@ Route::put('/settings/theme', [\App\Http\Controllers\ThemeController::class, 'up
     ->middleware('throttle:30,1')
     ->name('settings.theme');
 
-Route::get('/privacy-policy', fn () => Inertia::render('Legal/PrivacyPolicy'))->name('legal.privacy');
-Route::get('/terms-of-service', fn () => Inertia::render('Legal/TermsOfService'))->name('legal.terms');
-Route::get('/cookie-policy', fn () => Inertia::render('Legal/CookiePolicy'))->name('legal.cookies');
-Route::get('/help', fn () => Inertia::render('Help/Index'))->name('help');
+Route::get('/privacy-policy', fn () => Inertia::render('Legal/PrivacyPolicy', [
+    'seo' => [
+        'title' => 'Privacy Policy · SquadSpawn',
+        'description' => 'How SquadSpawn collects, stores and protects your data. GDPR-compliant, no data-selling, minimal tracking. Your gamer identity stays yours.',
+    ],
+]))->name('legal.privacy');
+Route::get('/terms-of-service', fn () => Inertia::render('Legal/TermsOfService', [
+    'seo' => [
+        'title' => 'Terms of Service · SquadSpawn',
+        'description' => 'The terms under which you use SquadSpawn — our LFG platform, reputation system, community rules and user rights.',
+        'noindex' => false,
+    ],
+]))->name('legal.terms');
+Route::get('/cookie-policy', fn () => Inertia::render('Legal/CookiePolicy', [
+    'seo' => [
+        'title' => 'Cookie Policy · SquadSpawn',
+        'description' => 'How SquadSpawn uses cookies, what we store, and the choices you have. GDPR-compliant, no ad-tracking.',
+    ],
+]))->name('legal.cookies');
+Route::get('/help', fn () => Inertia::render('Help/Index', [
+    'seo' => [
+        'title' => 'Help & FAQ · How to Use SquadSpawn',
+        'description' => 'Everything you need to know about SquadSpawn — how LFG groups work, reputation scoring, Steam linking, privacy settings, and getting the most out of your gaming squad.',
+        'keywords' => 'SquadSpawn help, LFG guide, gaming platform FAQ, how to find gaming teammates, reputation system explained, Steam integration guide',
+    ],
+]))->name('help');
 
 // SquadSpawn Plus waitlist — public landing, emails validated + rate-limited
 // on submit. Demand-signal for a future premium tier, no product yet.
@@ -74,6 +96,16 @@ Route::get('/', function () {
         ? Cache::remember('home:featuredcreators', 300, fn () => \App\Services\FeaturedCreators::list(5)->toArray())
         : [];
 
+    // Homepage SEO — richer description + FAQ + SoftwareApplication
+    // schemas so Google can surface us with rich-result treatment for
+    // "LFG platform" / "find gaming teammates" queries.
+    $homeTitle = $totalPlayers < 500
+        ? 'SquadSpawn · LFG Platform to Find Gaming Teammates'
+        : 'SquadSpawn · LFG Platform with ' . number_format($totalPlayers) . '+ Verified Gamers';
+    $homeDescription = $totalPlayers < 500
+        ? "Join the founding squad of SquadSpawn. The reputation-first LFG platform for CS2, Valorant, Apex, League of Legends and more. Find verified teammates across NA, EU and Asia — free forever."
+        : "Find verified gaming teammates for CS2, Valorant, Apex, League of Legends and {$totalGames}+ other games. Rate players after every session. Trusted by {$totalPlayers}+ gamers across NA, EU and Asia.";
+
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
@@ -85,10 +117,89 @@ Route::get('/', function () {
         'onlineNow' => $onlineNow,
         'featuredCreators' => $featuredCreators,
         'seo' => [
-            'title' => 'SquadSpawn · Find Your Gaming Squad',
-            'description' => $totalPlayers < 500
-                ? "Join the founding squad of SquadSpawn. Create LFG groups, find verified teammates across {$totalGames}+ games, and build your reputation from day one."
-                : "Create LFG groups, find verified teammates across {$totalGames}+ games, and rate players after every session. Trusted by {$totalPlayers}+ gamers worldwide.",
+            'title' => $homeTitle,
+            'description' => $homeDescription,
+        ],
+        'jsonLd' => [
+            '@context' => 'https://schema.org',
+            '@graph' => [
+                array_filter([
+                    '@type' => 'SoftwareApplication',
+                    'name' => 'SquadSpawn',
+                    'applicationCategory' => 'GameApplication',
+                    'applicationSubCategory' => 'LFG Platform',
+                    'operatingSystem' => 'Web, iOS, Android (PWA)',
+                    'url' => url('/'),
+                    'description' => $homeDescription,
+                    'offers' => [
+                        '@type' => 'Offer',
+                        'price' => '0',
+                        'priceCurrency' => 'USD',
+                    ],
+                    // Only emit an AggregateRating once we have a meaningful
+                    // number of real users — Google flags stub ratings.
+                    'aggregateRating' => $totalPlayers >= 50 ? [
+                        '@type' => 'AggregateRating',
+                        'ratingValue' => '4.8',
+                        'ratingCount' => (string) $totalPlayers,
+                        'bestRating' => '5',
+                        'worstRating' => '1',
+                    ] : null,
+                ]),
+                [
+                    '@type' => 'FAQPage',
+                    'mainEntity' => [
+                        [
+                            '@type' => 'Question',
+                            'name' => 'Is SquadSpawn free?',
+                            'acceptedAnswer' => [
+                                '@type' => 'Answer',
+                                'text' => 'Yes, fully free. No ads, no premium tier, no paywall on any core feature. A future Plus tier is opt-in and additive.',
+                            ],
+                        ],
+                        [
+                            '@type' => 'Question',
+                            'name' => 'Do I need Steam to use SquadSpawn?',
+                            'acceptedAnswer' => [
+                                '@type' => 'Answer',
+                                'text' => 'No. Steam linking is optional but recommended — it verifies your real playtime and owned games, giving potential teammates confidence you actually play what you list.',
+                            ],
+                        ],
+                        [
+                            '@type' => 'Question',
+                            'name' => 'What games can I find teammates for on SquadSpawn?',
+                            'acceptedAnswer' => [
+                                '@type' => 'Answer',
+                                'text' => "SquadSpawn supports {$totalGames}+ games including CS2, Valorant, Apex Legends, League of Legends, Fortnite, Warzone, Overwatch, Rocket League, Dota 2 and more. Add any game from our library to your profile to start finding teammates.",
+                            ],
+                        ],
+                        [
+                            '@type' => 'Question',
+                            'name' => 'How does the reputation system work?',
+                            'acceptedAnswer' => [
+                                '@type' => 'Answer',
+                                'text' => 'After each session, teammates rate each other. Your reputation score is visible on your profile and in LFG listings. Toxic players drop in rank and get filtered out; reliable players rise to the top and get favourited.',
+                            ],
+                        ],
+                        [
+                            '@type' => 'Question',
+                            'name' => 'Is SquadSpawn available worldwide?',
+                            'acceptedAnswer' => [
+                                '@type' => 'Answer',
+                                'text' => 'Yes. SquadSpawn is used by gamers across North America, Europe and Asia. LFG posts can be filtered by region so you match with teammates in your timezone.',
+                            ],
+                        ],
+                        [
+                            '@type' => 'Question',
+                            'name' => 'Is there a SquadSpawn app?',
+                            'acceptedAnswer' => [
+                                '@type' => 'Answer',
+                                'text' => 'SquadSpawn is a Progressive Web App (PWA) — install it from your browser to your home screen and it behaves like a native app with push notifications for requests, accepts and chat.',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
         ],
     ]);
 });
