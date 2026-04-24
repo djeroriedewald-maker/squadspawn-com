@@ -565,21 +565,16 @@ Route::middleware(['auth', 'age.verified'])->group(function () {
     });
 });
 
-// Sitemap response is plain XML for crawlers — strip the middleware
-// that opens a session, tracks page-views, and runs Inertia prop
-// pipelines so the response is clean, cacheable, and cookie-free.
+// Sitemap response is plain XML for crawlers — strip the page-level
+// tracking + referral middleware so we don't log a "page view" per
+// bot hit, but keep StartSession + Inertia in place so the error
+// handler can still render a valid response if something throws.
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])
     ->name('sitemap')
     ->withoutMiddleware([
-        \Illuminate\Session\Middleware\StartSession::class,
-        \Illuminate\View\Middleware\ShareErrorsFromSession::class,
-        \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
-        \App\Http\Middleware\HandleInertiaRequests::class,
         \App\Http\Middleware\TrackPageView::class,
         \App\Http\Middleware\TrackLastActivity::class,
         \App\Http\Middleware\CaptureReferralCode::class,
-        \App\Http\Middleware\CheckMaintenanceMode::class,
-        \App\Http\Middleware\EnsureNotBanned::class,
     ]);
 
 // Admin Panel
