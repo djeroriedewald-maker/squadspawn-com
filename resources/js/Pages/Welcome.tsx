@@ -55,6 +55,12 @@ export default function Welcome({
     const SHOW_ONLINE_COUNT = onlineNow >= 20;
     const SHOW_LFG_COUNT = activeLfg >= 10;
     const SHOW_SOCIAL_PROOF_STRIP = totalPlayers >= 100;
+    // Founder-phase counts cut both ways: "Be #103 of 500" is great
+    // momentum-framing, but "Be #3 of 500" (and its mirror "497 spots
+    // left") gives away the empty lobby. Only show the raw position /
+    // remaining-spots numbers once we've filled at least 50 of 500 —
+    // before that, lean on generic "Founder phase · Early access" copy.
+    const SHOW_FOUNDER_COUNTS = totalPlayers >= 50;
 
     return (
         <>
@@ -114,7 +120,9 @@ export default function Welcome({
                                         <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-neon-red opacity-75" />
                                         <span className="relative inline-flex h-2 w-2 rounded-full bg-neon-red" />
                                     </span>
-                                    Founder phase · {founderSpotsLeft} spots left
+                                    {SHOW_FOUNDER_COUNTS
+                                        ? <>Founder phase · {founderSpotsLeft} spots left</>
+                                        : <>Founder phase · Early access</>}
                                 </div>
                             )}
 
@@ -522,7 +530,9 @@ export default function Welcome({
                         <div className="mx-auto max-w-4xl px-6 text-center lg:px-12">
                             <p className="text-xs font-bold uppercase tracking-widest text-neon-red">Founder Phase</p>
                             <h2 className="mt-2 text-3xl font-black text-ink-900 sm:text-4xl">
-                                Be #{founderNumber.toLocaleString()} of {FOUNDER_CAP}.
+                                {SHOW_FOUNDER_COUNTS
+                                    ? <>Be #{founderNumber.toLocaleString()} of {FOUNDER_CAP}.</>
+                                    : <>Join the first {FOUNDER_CAP} gamers.</>}
                             </h2>
                             <p className="mx-auto mt-4 max-w-xl text-ink-500">
                                 The first {FOUNDER_CAP} members get a permanent Founder badge on their profile. It'll mean something when the community is 10,000 strong.
@@ -657,7 +667,9 @@ export default function Welcome({
                                             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white/70" />
                                             <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
                                         </span>
-                                        Claim founder spot · {founderSpotsLeft} left
+                                        {SHOW_FOUNDER_COUNTS
+                                            ? `Claim founder spot · ${founderSpotsLeft} left`
+                                            : 'Claim your founder spot'}
                                     </>
                                 ) : (
                                     <>Sign up free · find your squad</>
