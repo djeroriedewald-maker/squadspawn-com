@@ -3,15 +3,23 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ChangelogEntry;
+use App\Models\Clip;
 use App\Models\CommunityPost;
+use App\Models\ContactMessage;
 use App\Models\Game;
 use App\Models\LfgPost;
+use App\Models\LfgRating;
+use App\Models\PageView;
 use App\Models\PlayerMatch;
+use App\Models\PlayerRating;
+use App\Models\PlusWaitlistEntry;
 use App\Models\Report;
 use App\Models\User;
 use App\Services\AdminAudit;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -19,36 +27,149 @@ class AdminController extends Controller
 {
     public function dashboard(): Response
     {
-        $stats = [
+        $now = now();
+        $startOfWeek = $now->copy()->subDays(7);
+        $startOfLastWeek = $now->copy()->subDays(14);
+        $startOfDay = $now->copy()->startOfDay();
+
+        // ── Attention counts — things that need action today
+        $newMessages = ContactMessage::where('status', 'new')->count();
+        $pendingReports = Report::where('status', 'pending')->count();
+        $plusSignupsWeek = PlusWaitlistEntry::where('created_at', '>=', $startOfWeek)->count();
+        $creatorsWithoutClips = User::whereHas('profile', fn ($q) => $q->where('is_creator', true))
+            ->doesntHave('clips')
+            ->count();
+
+        // ── Activity pulse — this-week vs last-week deltas
+        $activity = [
+            'signupsWeek' => User::where('created_at', '>=', $startOfWeek)->count(),
+            'signupsPrevWeek' => User::whereBetween('created_at', [$startOfLastWeek, $startOfWeek])->count(),
+            'lfgWeek' => LfgPost::where('created_at', '>=', $startOfWeek)->count(),
+            'lfgPrevWeek' => LfgPost::whereBetween('created_at', [$startOfLastWeek, $startOfWeek])->count(),
+            'postsWeek' => CommunityPost::where('created_at', '>=', $startOfWeek)->count(),
+            'postsPrevWeek' => CommunityPost::whereBetween('created_at', [$startOfLastWeek, $startOfWeek])->count(),
+            'ratingsWeek' => PlayerRating::where('created_at', '>=', $startOfWeek)->count()
+                + LfgRating::where('created_at', '>=', $startOfWeek)->count(),
+            'ratingsPrevWeek' => PlayerRating::whereBetween('created_at', [$startOfLastWeek, $startOfWeek])->count()
+                + LfgRating::whereBetween('created_at', [$startOfLastWeek, $startOfWeek])->count(),
+            'pageViewsWeek' => PageView::where('day', '>=', $startOfWeek->toDateString())->count(),
+            'pageViewsPrevWeek' => PageView::whereBetween('day', [
+                $startOfLastWeek->toDateString(),
+                $startOfWeek->copy()->subDay()->toDateString(),
+            ])->count(),
+        ];
+
+        // Sparkline series for the last 14 days — one value per day.
+        $signupSeries = $this->dailySeries(14, fn ($day) =>
+            User::whereDate('created_at', $day)->count()
+        );
+        $pageViewSeries = $this->dailySeries(14, fn ($day) =>
+            PageView::where('day', $day->toDateString())->count()
+        );
+
+        // ── Current state — raw counts, less urgent
+        $state = [
             'totalUsers' => User::count(),
             'usersWithProfile' => User::whereHas('profile')->count(),
-            'usersToday' => User::whereDate('created_at', today())->count(),
-            'usersThisWeek' => User::where('created_at', '>=', now()->subWeek())->count(),
             'totalFriends' => PlayerMatch::count(),
             'totalGames' => Game::count(),
             'activeLfg' => LfgPost::where('status', 'open')->count(),
             'totalPosts' => CommunityPost::count(),
-            'pendingReports' => Report::where('status', 'pending')->count(),
-            'onlineNow' => User::where('updated_at', '>=', now()->subMinutes(15))->count(),
+            'totalClips' => Clip::count(),
+            'totalRatings' => PlayerRating::count() + LfgRating::count(),
+            'onlineNow' => User::where('updated_at', '>=', $now->copy()->subMinutes(15))->count(),
+            'plusWaitlistTotal' => PlusWaitlistEntry::count(),
+            // Featured creators: profiles with an un-expired featured_until window.
+            'featuredCreators' => \App\Models\Profile::whereNotNull('featured_until')
+                ->where('featured_until', '>=', $now)
+                ->count(),
         ];
+
+        // ── Previews
+        $recentMessages = ContactMessage::with(['user:id,name', 'user.profile:user_id,username'])
+            ->latest()
+            ->take(5)
+            ->get()
+            ->map(fn (ContactMessage $m) => [
+                'id' => $m->id,
+                'subject' => $m->subject,
+                'name' => $m->name,
+                'category' => $m->category ?? 'other',
+                'status' => $m->status,
+                'created_at_human' => $m->created_at?->diffForHumans(),
+            ]);
 
         $recentReports = Report::with(['reporter.profile', 'reported.profile', 'lfgPost.game'])
             ->where('status', 'pending')
             ->latest()
-            ->take(10)
+            ->take(5)
             ->get();
 
         $recentUsers = User::with('profile')
             ->latest()
-            ->take(10)
+            ->take(5)
             ->get()
             ->each->makeVisible(['email']);
 
+        $recentPosts = CommunityPost::with(['user.profile', 'game'])
+            ->whereNull('hidden_at')
+            ->latest()
+            ->take(5)
+            ->get()
+            ->map(fn (CommunityPost $p) => [
+                'id' => $p->id,
+                'title' => $p->title,
+                'author' => $p->user?->profile?->username ?? $p->user?->name,
+                'game' => $p->game?->name,
+                'created_at_human' => $p->created_at?->diffForHumans(),
+            ]);
+
+        // ── Platform meta
+        $latestChangelog = ChangelogEntry::published()
+            ->latest('published_at')
+            ->first(['version', 'title', 'slug', 'published_at']);
+
         return Inertia::render('Admin/Dashboard', [
-            'stats' => $stats,
+            'attention' => [
+                'newMessages' => $newMessages,
+                'pendingReports' => $pendingReports,
+                'plusSignupsWeek' => $plusSignupsWeek,
+                'creatorsWithoutClips' => $creatorsWithoutClips,
+            ],
+            'activity' => $activity,
+            'sparklines' => [
+                'signups' => $signupSeries,
+                'pageViews' => $pageViewSeries,
+            ],
+            'state' => $state,
+            'recentMessages' => $recentMessages,
             'recentReports' => $recentReports,
             'recentUsers' => $recentUsers,
+            'recentPosts' => $recentPosts,
+            'latestChangelog' => $latestChangelog ? [
+                'version' => $latestChangelog->version,
+                'title' => $latestChangelog->title,
+                'slug' => $latestChangelog->slug,
+                'published_at_human' => $latestChangelog->published_at?->diffForHumans(),
+            ] : null,
         ]);
+    }
+
+    /**
+     * Build a [{date, value}] array for the last $days days, oldest first.
+     * Used to power the small sparklines on the attention/activity cards.
+     */
+    private function dailySeries(int $days, \Closure $counter): array
+    {
+        $series = [];
+        for ($i = $days - 1; $i >= 0; $i--) {
+            $day = now()->copy()->subDays($i)->startOfDay();
+            $series[] = [
+                'date' => $day->toDateString(),
+                'value' => (int) $counter($day),
+            ];
+        }
+        return $series;
     }
 
     public function users(Request $request): Response
