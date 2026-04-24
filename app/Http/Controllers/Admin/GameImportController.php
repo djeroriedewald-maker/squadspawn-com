@@ -132,7 +132,7 @@ class GameImportController extends Controller
 
         RunGameImportJob::dispatch($import->id);
 
-        app(AdminAudit::class)->record('games.import.trigger', [
+        AdminAudit::log('games.import.trigger', null, [
             'import_id' => $import->id,
             'preset' => $data['preset'],
             'label' => $preset['label'],
