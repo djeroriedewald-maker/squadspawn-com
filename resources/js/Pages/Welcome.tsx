@@ -46,6 +46,16 @@ export default function Welcome({
     const founderNumber = totalPlayers + 1;
     const founderSpotsLeft = Math.max(FOUNDER_CAP - totalPlayers, 0);
 
+    // Thresholds below which raw counts are *negative* social proof —
+    // "3 members" reads as dead, not early. Under these thresholds we
+    // switch from crowd-framing ("N gamers online") to scarcity-framing
+    // ("Early access · Founder phase"). Flips over automatically as
+    // the platform grows, no manual milestones to chase.
+    const SHOW_PLAYER_COUNT = totalPlayers >= 100;
+    const SHOW_ONLINE_COUNT = onlineNow >= 20;
+    const SHOW_LFG_COUNT = activeLfg >= 10;
+    const SHOW_SOCIAL_PROOF_STRIP = totalPlayers >= 100;
+
     return (
         <>
             {/* Head tags come from the server via the seo + jsonLd props
@@ -131,15 +141,31 @@ export default function Welcome({
                                 </a>
                             </div>
 
-                            {/* Live stats chips */}
+                            {/* Live stats chips — each is gated individually.
+                                Below threshold we'd rather show nothing than
+                                show a number that reads as "dead platform". */}
                             <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-white/70">
-                                <span className="flex items-center gap-2">
-                                    <span className="h-2 w-2 animate-pulse rounded-full bg-gaming-green" />
-                                    <strong className="text-gaming-green">{onlineNow.toLocaleString()}</strong> online now
-                                </span>
-                                <span><strong className="text-white">{totalPlayers.toLocaleString()}</strong> gamers</span>
+                                {SHOW_ONLINE_COUNT && (
+                                    <span className="flex items-center gap-2">
+                                        <span className="h-2 w-2 animate-pulse rounded-full bg-gaming-green" />
+                                        <strong className="text-gaming-green">{onlineNow.toLocaleString()}</strong> online now
+                                    </span>
+                                )}
+                                {SHOW_PLAYER_COUNT && (
+                                    <span><strong className="text-white">{totalPlayers.toLocaleString()}</strong> gamers</span>
+                                )}
                                 <span><strong className="text-white">{totalGames.toLocaleString()}</strong> games</span>
-                                <span><strong className="text-white">{activeLfg.toLocaleString()}</strong> active LFGs</span>
+                                {SHOW_LFG_COUNT && (
+                                    <span><strong className="text-white">{activeLfg.toLocaleString()}</strong> active LFGs</span>
+                                )}
+                                {/* Fallback chip so the row doesn't feel empty
+                                    while counts are still ramping. */}
+                                {!SHOW_PLAYER_COUNT && (
+                                    <span className="flex items-center gap-2 rounded-full border border-neon-red/30 bg-neon-red/10 px-3 py-0.5 text-xs font-bold uppercase tracking-wider text-neon-red">
+                                        <span className="h-1.5 w-1.5 rounded-full bg-neon-red" />
+                                        Early access · Free forever
+                                    </span>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -438,8 +464,8 @@ export default function Welcome({
                     </div>
                 </section>
 
-                {/* ── Inline CTA — social proof ───────────────────── */}
-                {canRegister && !user && totalPlayers > 0 && (
+                {/* ── Inline CTA — social proof (only once we have crowd) ── */}
+                {canRegister && !user && SHOW_SOCIAL_PROOF_STRIP && (
                     <section className="mx-auto max-w-6xl px-6 lg:px-12">
                         <div className="flex flex-col items-center justify-between gap-4 rounded-2xl border border-ink-900/10 bg-white p-6 shadow-sm sm:flex-row sm:gap-6 sm:p-8">
                             <div className="flex items-center gap-4">
@@ -460,9 +486,11 @@ export default function Welcome({
                                     <p className="text-sm font-bold text-ink-900">
                                         Joined by {totalPlayers.toLocaleString()} gamers who read the scoreboard.
                                     </p>
-                                    <p className="text-xs text-ink-500">
-                                        <span className="text-gaming-green">●</span> {onlineNow.toLocaleString()} online now · zero randoms
-                                    </p>
+                                    {SHOW_ONLINE_COUNT && (
+                                        <p className="text-xs text-ink-500">
+                                            <span className="text-gaming-green">●</span> {onlineNow.toLocaleString()} online now · zero randoms
+                                        </p>
+                                    )}
                                 </div>
                             </div>
                             <Link
@@ -536,10 +564,18 @@ export default function Welcome({
 
                     <div className="relative mx-auto max-w-4xl px-6 text-center lg:px-12">
                         <h2 className="text-3xl font-black text-white sm:text-4xl dark:text-ink-900">
-                            Your next squad is already online.
+                            {SHOW_ONLINE_COUNT ? 'Your next squad is already online.' : 'Your founder squad is forming.'}
                         </h2>
                         <p className="mx-auto mt-4 max-w-xl text-white/70 dark:text-ink-500">
-                            <strong className="text-gaming-green">{onlineNow.toLocaleString()}</strong> gamers are active right now across {totalGames.toLocaleString()}+ games. Jump in.
+                            {SHOW_ONLINE_COUNT ? (
+                                <>
+                                    <strong className="text-gaming-green">{onlineNow.toLocaleString()}</strong> gamers are active right now across {totalGames.toLocaleString()}+ games. Jump in.
+                                </>
+                            ) : (
+                                <>
+                                    Claim one of the first {FOUNDER_CAP} founder spots. {totalGames.toLocaleString()}+ games already in the library, waiting for your squad.
+                                </>
+                            )}
                         </p>
                         {canRegister && (
                             <Link href={route('register')} className="mt-8 inline-flex items-center gap-2 rounded-xl bg-neon-red px-8 py-3.5 text-base font-bold text-white shadow-glow-red transition hover:bg-neon-red/90">
