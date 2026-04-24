@@ -319,8 +319,8 @@ export default function Welcome({
                             />
                             <IntegrationCard
                                 name="Discord"
-                                status="Coming soon"
-                                description="One-click Discord OAuth + per-squad voice channels linked straight to your LFG chat."
+                                status="Live"
+                                description="Attach a Discord voice channel to any LFG post — your squad jumps in and talks with one click. Full OAuth login on the roadmap."
                                 color="border-[#5865F2]/40 bg-[#5865F2]/5 text-[#5865F2]"
                             />
                             <IntegrationCard
