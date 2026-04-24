@@ -33,6 +33,13 @@ class SitemapController extends Controller
             return view('sitemap', compact('profiles', 'games', 'communityPosts', 'changelog'))->render();
         });
 
-        return response($xml)->header('Content-Type', 'application/xml; charset=utf-8');
+        return response($xml)
+            ->header('Content-Type', 'application/xml; charset=utf-8')
+            // Public cache so crawlers + CDNs can hold onto the XML
+            // instead of hammering the app. 1h matches our backing
+            // app-cache window, max-stale lets them serve stale
+            // briefly if our origin blips.
+            ->header('Cache-Control', 'public, max-age=3600, stale-while-revalidate=600')
+            ->header('X-Robots-Tag', 'noindex');
     }
 }
