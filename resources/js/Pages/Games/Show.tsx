@@ -1,5 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Game, PageProps } from '@/types';
+import { gameCoverUrl } from '@/utils/gameImage';
 import { Link, router, usePage } from '@inertiajs/react';
 
 interface GameWithCount extends Game {
@@ -57,8 +58,10 @@ export default function GamesShow({ game, relatedGames, isInMyProfile }: Props) 
             {/* Hero */}
             <div className="relative h-64 overflow-hidden bg-ink-900 dark:bg-bone-50 sm:h-80 lg:h-96">
                 <img
-                    src={game.cover_image || `/images/games/${game.slug}.svg`}
+                    src={gameCoverUrl(game.cover_image, 'hero') || `/images/games/${game.slug}.svg`}
                     alt={game.name}
+                    decoding="async"
+                    fetchPriority="high"
                     className="h-full w-full object-cover opacity-70"
                     onError={(e) => {
                         const img = e.currentTarget;
@@ -84,8 +87,9 @@ export default function GamesShow({ game, relatedGames, isInMyProfile }: Props) 
                     <div className="overflow-hidden rounded-2xl border border-ink-900/10 bg-white shadow-xl">
                         <div className="aspect-[3/4] overflow-hidden bg-ink-900 dark:bg-bone-50">
                             <img
-                                src={game.cover_image || `/images/games/${game.slug}.svg`}
+                                src={gameCoverUrl(game.cover_image, 'card') || `/images/games/${game.slug}.svg`}
                                 alt={game.name}
+                                decoding="async"
                                 className="h-full w-full object-cover"
                                 onError={(e) => {
                                     const img = e.currentTarget;
@@ -205,9 +209,10 @@ export default function GamesShow({ game, relatedGames, isInMyProfile }: Props) 
                                 >
                                     <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-ink-900 dark:bg-bone-50">
                                         <img
-                                            src={rg.cover_image || `/images/games/${rg.slug}.svg`}
+                                            src={gameCoverUrl(rg.cover_image, 'thumb') || `/images/games/${rg.slug}.svg`}
                                             alt={rg.name}
                                             loading="lazy"
+                                            decoding="async"
                                             onError={(e) => {
                                                 const img = e.currentTarget;
                                                 if (!img.dataset.fallback) {

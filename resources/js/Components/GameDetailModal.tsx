@@ -1,4 +1,5 @@
 import { Game } from '@/types';
+import { gameCoverUrl } from '@/utils/gameImage';
 import { Link, router } from '@inertiajs/react';
 import { useEffect } from 'react';
 
@@ -77,10 +78,11 @@ export default function GameDetailModal({ game, open, onClose, inMyProfile, isAu
                 {/* Cover */}
                 <div className="relative aspect-[21/9] overflow-hidden rounded-t-2xl bg-ink-900 dark:bg-bone-50">
                     <img
-                        src={game.cover_image || `/images/games/${game.slug}.svg`}
+                        src={gameCoverUrl(game.cover_image, 'card') || `/images/games/${game.slug}.svg`}
                         alt={game.name}
                         className="h-full w-full object-cover"
                         loading="lazy"
+                        decoding="async"
                         onError={(e) => {
                             const img = e.currentTarget;
                             if (!img.dataset.fallback) {

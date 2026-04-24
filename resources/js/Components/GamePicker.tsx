@@ -1,4 +1,5 @@
 import { Game } from '@/types';
+import { gameCoverUrl } from '@/utils/gameImage';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 interface Props {
@@ -109,8 +110,10 @@ export default function GamePicker({
             >
                 {showCover && selected && (
                     <img
-                        src={selected.cover_image || `/images/games/${selected.slug}.svg`}
+                        src={gameCoverUrl(selected.cover_image, 'thumb') || `/images/games/${selected.slug}.svg`}
                         alt=""
+                        loading="lazy"
+                        decoding="async"
                         onError={onCoverError}
                         className="h-8 w-12 shrink-0 rounded-md object-cover"
                     />
@@ -192,10 +195,11 @@ export default function GamePicker({
                                     >
                                         {showCover && (
                                             <img
-                                                src={game.cover_image || `/images/games/${game.slug}.svg`}
+                                                src={gameCoverUrl(game.cover_image, 'thumb') || `/images/games/${game.slug}.svg`}
                                                 alt=""
                                                 onError={onCoverError}
                                                 loading="lazy"
+                                                decoding="async"
                                                 className="h-9 w-14 shrink-0 rounded-md object-cover"
                                             />
                                         )}

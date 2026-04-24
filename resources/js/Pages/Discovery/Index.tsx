@@ -1,5 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Game, PageProps, User } from '@/types';
+import { gameCoverUrl } from '@/utils/gameImage';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import axios from 'axios';
 import { useState, useCallback, useEffect } from 'react';
@@ -212,7 +213,7 @@ export default function DiscoveryIndex({
                                 {/* Game banner */}
                                 {currentPlayer.games && currentPlayer.games.length > 0 && (
                                     <div className="relative h-36 overflow-hidden">
-                                        <img src={currentPlayer.games[0].cover_image || `/images/games/${currentPlayer.games[0].slug}.svg`} alt="" className="h-full w-full object-cover" />
+                                        <img src={gameCoverUrl(currentPlayer.games[0].cover_image, 'card') || `/images/games/${currentPlayer.games[0].slug}.svg`} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
                                         <div className="absolute inset-0 bg-gradient-to-t from-white via-bone-100/60 to-transparent" />
 
                                         {/* Compatibility badge */}
@@ -278,7 +279,7 @@ export default function DiscoveryIndex({
                                                     return (
                                                         <div key={game.id} className={`overflow-hidden rounded-lg border ${isCommon ? 'border-gaming-green/30 bg-gaming-green/5' : 'border-ink-900/5 bg-bone-100'}`}>
                                                             <div className="relative h-14 overflow-hidden">
-                                                                <img src={game.cover_image || `/images/games/${game.slug}.svg`} alt={game.name} className="h-full w-full object-cover" />
+                                                                <img src={gameCoverUrl(game.cover_image, 'thumb') || `/images/games/${game.slug}.svg`} alt={game.name} loading="lazy" decoding="async" className="h-full w-full object-cover" />
                                                                 <div className="absolute inset-0 bg-gradient-to-t from-bone-100 to-transparent" />
                                                                 {isCommon && <div className="absolute right-1 top-1 rounded-full bg-gaming-green px-1.5 py-0.5 text-[8px] font-bold text-white">COMMON</div>}
                                                             </div>

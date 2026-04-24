@@ -1,4 +1,5 @@
 import AdminLayout from '@/Layouts/AdminLayout';
+import { gameCoverUrl } from '@/utils/gameImage';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 
@@ -351,9 +352,10 @@ export default function GameImport({ stats, topGenres, recent, presets, hasRunni
                                                                     <div key={g.id} className="flex items-center gap-2 rounded-lg bg-ink-900/5 p-1.5">
                                                                         {g.cover_image ? (
                                                                             <img
-                                                                                src={g.cover_image}
+                                                                                src={gameCoverUrl(g.cover_image, 'thumb') ?? undefined}
                                                                                 alt=""
                                                                                 loading="lazy"
+                                                                                decoding="async"
                                                                                 className="h-10 w-10 shrink-0 rounded object-cover"
                                                                                 onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
                                                                             />

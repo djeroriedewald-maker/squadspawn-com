@@ -1,6 +1,7 @@
 import GameDetailModal from '@/Components/GameDetailModal';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Game, PageProps } from '@/types';
+import { gameCoverUrl } from '@/utils/gameImage';
 import { Link, router, usePage } from '@inertiajs/react';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -278,9 +279,10 @@ function GameCard({ game, inMyProfile, onOpen }: { game: GameWithCount; inMyProf
         >
             <div className="relative aspect-[16/10] overflow-hidden bg-ink-900 dark:bg-bone-50">
                 <img
-                    src={game.cover_image || `/images/games/${game.slug}.svg`}
+                    src={gameCoverUrl(game.cover_image, 'card') || `/images/games/${game.slug}.svg`}
                     alt={game.name}
                     loading="lazy"
+                    decoding="async"
                     onError={(e) => {
                         const img = e.currentTarget;
                         if (!img.dataset.fallback) {

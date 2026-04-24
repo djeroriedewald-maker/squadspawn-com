@@ -3,6 +3,7 @@ import { ProfileBanner } from '@/Components/ProfileBanner';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Achievement, Game, PageProps, User } from '@/types';
 import { getAchievementColors, getAchievementIcon } from '@/utils/achievements';
+import { gameCoverUrl } from '@/utils/gameImage';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 
@@ -401,7 +402,7 @@ export default function Dashboard({
                                         {trendingGames.map((game, i) => (
                                             <Link key={game.id} href={route('discovery.index', { game_id: game.id })} className="flex items-center gap-3 rounded-lg p-2 transition hover:bg-bone-100">
                                                 <span className="w-5 text-center text-xs font-bold text-gray-500">#{i + 1}</span>
-                                                <img src={game.cover_image || `/images/games/${game.slug}.svg`} alt="" className="h-8 w-12 rounded object-cover" />
+                                                <img src={gameCoverUrl(game.cover_image, 'thumb') || `/images/games/${game.slug}.svg`} alt="" loading="lazy" decoding="async" className="h-8 w-12 rounded object-cover" />
                                                 <div className="min-w-0 flex-1">
                                                     <p className="truncate text-sm font-medium text-ink-900">{game.name}</p>
                                                     <p className="text-[10px] text-gray-500">{game.users_count} players</p>
@@ -460,7 +461,7 @@ export default function Dashboard({
                                         <Link key={lfg.id} href={route('lfg.show', { lfgPost: lfg.slug })} className="overflow-hidden rounded-xl border border-ink-900/10 bg-white transition hover:border-gaming-green/30">
                                             {lfg.game && (
                                                 <div className="relative aspect-[16/9] overflow-hidden bg-ink-900 dark:bg-bone-50">
-                                                    <img src={lfg.game.cover_image || `/images/games/${lfg.game.slug}.svg`} alt={lfg.game.name} loading="lazy" className="h-full w-full object-cover" />
+                                                    <img src={gameCoverUrl(lfg.game.cover_image, 'card') || `/images/games/${lfg.game.slug}.svg`} alt={lfg.game.name} loading="lazy" decoding="async" className="h-full w-full object-cover" />
                                                     <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
                                                     <span className="absolute bottom-2 left-3 text-xs font-bold text-white drop-shadow-md">{lfg.game.name}</span>
                                                 </div>
@@ -493,7 +494,7 @@ export default function Dashboard({
                                 {userGames.map((game) => (
                                     <div key={game.id} className="group overflow-hidden rounded-xl border border-ink-900/10 bg-white transition hover:border-neon-red/40 hover:shadow-lg hover:shadow-neon-red/5">
                                         <div className="relative h-28 overflow-hidden">
-                                            <img src={game.cover_image || `/images/games/${game.slug}.svg`} alt={game.name} className="h-full w-full object-cover transition group-hover:scale-105" />
+                                            <img src={gameCoverUrl(game.cover_image, 'card') || `/images/games/${game.slug}.svg`} alt={game.name} loading="lazy" decoding="async" className="h-full w-full object-cover transition group-hover:scale-105" />
                                             <div className="absolute inset-0 bg-gradient-to-t from-bone-50/90 to-transparent" />
                                             <div className="absolute bottom-0 left-0 right-0 p-3">
                                                 <p className="font-bold text-ink-900">{game.name}</p>
@@ -601,7 +602,7 @@ export default function Dashboard({
                             <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
                                 {allGames.filter((g) => !userGames.find((ug) => ug.id === g.id)).slice(0, 6).map((game) => (
                                     <Link key={game.id} href={route('discovery.index', { game_id: game.id })} className="group relative overflow-hidden rounded-lg">
-                                        <img src={game.cover_image || `/images/games/${game.slug}.svg`} alt={game.name} className="aspect-[3/2] w-full object-cover transition group-hover:scale-110" />
+                                        <img src={gameCoverUrl(game.cover_image, 'card') || `/images/games/${game.slug}.svg`} alt={game.name} loading="lazy" decoding="async" className="aspect-[3/2] w-full object-cover transition group-hover:scale-110" />
                                         <div className="absolute inset-0 bg-black/40 transition group-hover:bg-black/20" />
                                         <div className="absolute inset-0 flex flex-col items-center justify-center px-1 text-center">
                                             <span className="text-xs font-bold text-ink-900 drop-shadow">{game.name.split(':')[0]}</span>

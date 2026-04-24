@@ -2,6 +2,7 @@ import CreatorSpotlight, { FeaturedCreator } from '@/Components/CreatorSpotlight
 import ThemeToggle from '@/Components/ThemeToggle';
 import { Link, usePage } from '@inertiajs/react';
 import { Game } from '@/types';
+import { gameCoverUrl } from '@/utils/gameImage';
 
 interface GameWithCount extends Game {
     users_count: number;
@@ -186,9 +187,10 @@ export default function Welcome({
                             {[...topGames, ...topGames, ...topGames].map((game, i) => (
                                 <img
                                     key={i}
-                                    src={game.cover_image || `/images/games/${game.slug}.svg`}
+                                    src={gameCoverUrl(game.cover_image, 'thumb') || `/images/games/${game.slug}.svg`}
                                     alt={game.name}
                                     loading="lazy"
+                                    decoding="async"
                                     onError={onCoverError}
                                     className="h-16 w-28 flex-shrink-0 rounded-lg object-cover opacity-70 transition hover:opacity-100 sm:h-20 sm:w-36"
                                 />

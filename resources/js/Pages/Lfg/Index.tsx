@@ -2,6 +2,7 @@ import GamePicker from '@/Components/GamePicker';
 import HostTrustRow from '@/Components/HostTrustRow';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Game, PageProps, User } from '@/types';
+import { gameCoverUrl } from '@/utils/gameImage';
 import { relativeTimeShort } from '@/utils/time';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import axios from 'axios';
@@ -473,9 +474,10 @@ export default function LfgIndex({
                                         {mp.game && (
                                             <div className="relative aspect-[16/9] overflow-hidden bg-ink-900 dark:bg-bone-50">
                                                 <img
-                                                    src={mp.game.cover_image || `/images/games/${mp.game.slug}.svg`}
+                                                    src={gameCoverUrl(mp.game.cover_image, 'card') || `/images/games/${mp.game.slug}.svg`}
                                                     alt={mp.game.name}
                                                     loading="lazy"
+                                                    decoding="async"
                                                     className="h-full w-full object-cover"
                                                 />
                                                 <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
@@ -616,10 +618,12 @@ export default function LfgIndex({
                                             <div className="relative aspect-[16/9] overflow-hidden bg-ink-900 dark:bg-bone-50">
                                                 <img
                                                     src={
-                                                        post.game.cover_image ||
+                                                        gameCoverUrl(post.game.cover_image, 'card') ||
                                                         `/images/games/${post.game.slug}.svg`
                                                     }
                                                     alt={post.game.name}
+                                                    loading="lazy"
+                                                    decoding="async"
                                                     loading="lazy"
                                                     className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
                                                 />
