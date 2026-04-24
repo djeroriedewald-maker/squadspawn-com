@@ -624,7 +624,6 @@ export default function LfgIndex({
                                                     alt={post.game.name}
                                                     loading="lazy"
                                                     decoding="async"
-                                                    loading="lazy"
                                                     className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
                                                 />
                                                 <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/85 via-black/40 to-transparent" />
