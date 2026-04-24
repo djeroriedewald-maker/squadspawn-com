@@ -79,8 +79,10 @@ class GameImportController extends Controller
                 'created_at_human' => $i->created_at?->diffForHumans(),
                 'started_at_human' => $i->started_at?->diffForHumans(),
                 'finished_at_human' => $i->finished_at?->diffForHumans(),
+                // Carbon 3 made diffIn* signed; subject is the earlier date so
+                // the "other" date (finished_at) is in the future relative to it.
                 'duration_seconds' => ($i->started_at && $i->finished_at)
-                    ? $i->finished_at->diffInSeconds($i->started_at)
+                    ? (int) $i->started_at->diffInSeconds($i->finished_at)
                     : null,
                 'error' => $i->error,
             ]);
