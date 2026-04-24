@@ -23,6 +23,8 @@ interface Run {
     updated: number;
     skipped: number;
     failed: number;
+    target: number | null;
+    recently_added: string[];
     triggered_by: string | null;
     created_at_human: string;
     started_at_human: string | null;
@@ -203,6 +205,10 @@ export default function GameImport({ stats, topGenres, recent, presets, hasRunni
                     <div className="space-y-2">
                         {runs.map((run) => {
                             const live = run.status === 'queued' || run.status === 'running';
+                            const showCounts = run.status === 'completed' || run.status === 'running';
+                            const pct = run.target && run.target > 0
+                                ? Math.min(100, Math.round((run.added / run.target) * 100))
+                                : null;
                             return (
                                 <article
                                     key={run.id}
@@ -222,7 +228,7 @@ export default function GameImport({ stats, topGenres, recent, presets, hasRunni
                                                 {run.duration_seconds !== null && <> · ran {formatDuration(run.duration_seconds)}</>}
                                             </p>
                                         </div>
-                                        {run.status === 'completed' && (
+                                        {showCounts && (
                                             <div className="flex flex-wrap gap-2 text-[11px]">
                                                 <span className="rounded bg-gaming-green/10 px-2 py-0.5 font-bold text-gaming-green">+{run.added} added</span>
                                                 {run.updated > 0 && <span className="rounded bg-gaming-cyan/10 px-2 py-0.5 font-bold text-gaming-cyan">{run.updated} updated</span>}
@@ -231,6 +237,43 @@ export default function GameImport({ stats, topGenres, recent, presets, hasRunni
                                             </div>
                                         )}
                                     </div>
+
+                                    {/* Live progress bar — only while the job is running and we know a target */}
+                                    {run.status === 'running' && pct !== null && (
+                                        <div className="mt-3">
+                                            <div className="mb-1 flex items-center justify-between text-[11px]">
+                                                <span className="font-medium text-ink-500">
+                                                    {run.added.toLocaleString()} / {run.target!.toLocaleString()} games added
+                                                </span>
+                                                <span className="font-bold text-gaming-cyan">{pct}%</span>
+                                            </div>
+                                            <div className="h-1.5 overflow-hidden rounded-full bg-ink-900/10">
+                                                <div
+                                                    className="h-full bg-gradient-to-r from-gaming-cyan to-gaming-green transition-[width] duration-500 ease-out"
+                                                    style={{ width: `${pct}%` }}
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Live "just added" feed — helps admins see concrete progress, not just a number */}
+                                    {run.status === 'running' && run.recently_added.length > 0 && (
+                                        <div className="mt-3 rounded-lg bg-ink-900/5 p-3">
+                                            <p className="mb-1.5 text-[10px] font-bold uppercase tracking-widest text-ink-500">Just added</p>
+                                            <ul className="space-y-0.5 text-xs text-ink-700">
+                                                {run.recently_added.slice(0, 5).map((name, idx) => (
+                                                    <li key={`${run.id}-${idx}-${name}`} className="flex items-center gap-1.5 truncate">
+                                                        <span className="text-gaming-green">+</span>
+                                                        <span className="truncate">{name}</span>
+                                                    </li>
+                                                ))}
+                                                {run.recently_added.length > 5 && (
+                                                    <li className="text-[11px] text-ink-500">…and {run.recently_added.length - 5} more</li>
+                                                )}
+                                            </ul>
+                                        </div>
+                                    )}
+
                                     {run.error && (
                                         <pre className="mt-3 whitespace-pre-wrap rounded-lg bg-red-500/5 p-3 text-xs text-red-500">{run.error}</pre>
                                     )}

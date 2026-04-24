@@ -42,24 +42,47 @@ class RunGameImportJob implements ShouldQueue
             'started_at' => now(),
         ])->save();
 
+        // Pass the row id so the command can write per-page progress to
+        // it. Non-destructive for commands that don't know the flag
+        // (Artisan ignores unknown options silently is NOT true — but our
+        // games:import *does* know it now).
+        $args = array_merge($import->args ?? [], ['--import-id' => $import->id]);
+
         try {
-            $exitCode = Artisan::call('games:import', $import->args);
+            $exitCode = Artisan::call('games:import', $args);
             $output = Artisan::output();
 
             // Pull the final "Done — added: X, updated: Y, kept: Z,
             // failed: W" line out of the output so the UI has numbers
-            // instead of a wall of text.
+            // instead of a wall of text. When the command wrote live
+            // progress to the row directly (--import-id path), those
+            // counts are already correct; fall back to parsed counts
+            // only when regex actually matched, to avoid zeroing live
+            // progress on a missed summary line.
             $counts = $this->parseCounts($output);
 
-            $import->forceFill([
+            // Re-fetch so we read back whatever the command wrote.
+            $import->refresh();
+
+            // At completion, replace the live "recently added" output the
+            // command was writing with the full artisan output tail. The
+            // controller only exposes output as a live feed while status is
+            // 'running' — once 'completed'/'failed' it's an audit log only.
+            $update = [
                 'status' => $exitCode === 0 ? 'completed' : 'failed',
-                'output' => mb_substr($output, -10000), // last 10KB — enough for scrolling back
-                'added' => $counts['added'] ?? 0,
-                'updated' => $counts['updated'] ?? 0,
-                'skipped' => $counts['skipped'] ?? 0,
-                'failed' => $counts['failed'] ?? 0,
+                'output' => mb_substr($output, -10000),
                 'finished_at' => now(),
-            ])->save();
+            ];
+            // Only apply parsed counts if the regex actually matched. If
+            // parsing failed but the command wrote live counts via the
+            // --import-id path, trust those over zeros.
+            if (!empty($counts)) {
+                $update['added'] = $counts['added'];
+                $update['updated'] = $counts['updated'];
+                $update['skipped'] = $counts['skipped'];
+                $update['failed'] = $counts['failed'];
+            }
+            $import->forceFill($update)->save();
         } catch (Throwable $e) {
             $import->forceFill([
                 'status' => 'failed',

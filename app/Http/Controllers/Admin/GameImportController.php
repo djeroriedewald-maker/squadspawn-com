@@ -67,25 +67,48 @@ class GameImportController extends Controller
             ->latest()
             ->take(25)
             ->get()
-            ->map(fn (GameImport $i) => [
-                'id' => $i->id,
-                'label' => $i->label,
-                'status' => $i->status,
-                'added' => $i->added,
-                'updated' => $i->updated,
-                'skipped' => $i->skipped,
-                'failed' => $i->failed,
-                'triggered_by' => $i->triggeredBy?->name,
-                'created_at_human' => $i->created_at?->diffForHumans(),
-                'started_at_human' => $i->started_at?->diffForHumans(),
-                'finished_at_human' => $i->finished_at?->diffForHumans(),
-                // Carbon 3 made diffIn* signed; subject is the earlier date so
-                // the "other" date (finished_at) is in the future relative to it.
-                'duration_seconds' => ($i->started_at && $i->finished_at)
-                    ? (int) $i->started_at->diffInSeconds($i->finished_at)
-                    : null,
-                'error' => $i->error,
-            ]);
+            ->map(function (GameImport $i) {
+                // Target = the number the user clicked on ("Add 1,000 new games"
+                // → 1000, "Top 500 shooters" → 500). Drives the progress bar
+                // denominator. Null for open-ended runs (no --top / --new arg).
+                $target = null;
+                $args = $i->args ?? [];
+                if (!empty($args['--new'])) $target = (int) $args['--new'];
+                elseif (!empty($args['--top'])) $target = (int) $args['--top'];
+
+                // "Just added" feed — the --new path writes the last N game
+                // names to the output column, newest first, one per line.
+                $recentlyAdded = [];
+                if ($i->status === 'running' && $i->output) {
+                    $recentlyAdded = array_slice(
+                        array_values(array_filter(explode("\n", $i->output), fn ($l) => trim($l) !== '')),
+                        0,
+                        10,
+                    );
+                }
+
+                return [
+                    'id' => $i->id,
+                    'label' => $i->label,
+                    'status' => $i->status,
+                    'added' => $i->added,
+                    'updated' => $i->updated,
+                    'skipped' => $i->skipped,
+                    'failed' => $i->failed,
+                    'target' => $target,
+                    'recently_added' => $recentlyAdded,
+                    'triggered_by' => $i->triggeredBy?->name,
+                    'created_at_human' => $i->created_at?->diffForHumans(),
+                    'started_at_human' => $i->started_at?->diffForHumans(),
+                    'finished_at_human' => $i->finished_at?->diffForHumans(),
+                    // Carbon 3 made diffIn* signed; subject is the earlier date
+                    // so the "other" date (finished_at) is in the future.
+                    'duration_seconds' => ($i->started_at && $i->finished_at)
+                        ? (int) $i->started_at->diffInSeconds($i->finished_at)
+                        : null,
+                    'error' => $i->error,
+                ];
+            });
 
         $presets = collect(self::PRESETS)->map(fn ($p, $key) => [
             'key' => $key,

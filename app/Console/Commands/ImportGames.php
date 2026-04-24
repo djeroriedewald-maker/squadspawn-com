@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Game;
+use App\Models\GameImport;
 use App\Services\RawgClient;
 use App\Services\SteamClient;
 use Illuminate\Console\Command;
@@ -28,6 +29,7 @@ class ImportGames extends Command
         {--skip-existing : Skip detail API calls for games whose slug already exists (saves RAWG quota on incremental top-ups)}
         {--new= : Keep paginating RAWG until N net-new games have been added (dupes are skipped cheaply via bulk slug lookup)}
         {--max-calls= : Safety cap on total RAWG API calls when using --new (default: --new * 2 + 100)}
+        {--import-id= : Internal — when triggered from the admin UI, write per-page progress to this GameImport row so the progress bar can update live}
         {--force : Overwrite existing fields (default fills only blanks)}';
 
     protected $description = 'Import games from RAWG or Steam (covers, descriptions, release dates)';
@@ -163,16 +165,29 @@ class ImportGames extends Command
         $ordering = $this->option('ordering') ?: '-added';
         $genre = $this->option('genre');
 
+        // When called from the admin UI the job passes the row id so we
+        // can write per-page progress to it. Poller on the frontend picks
+        // that up every 4s and renders a real progress bar.
+        $importRow = null;
+        if ($importId = $this->option('import-id')) {
+            $importRow = GameImport::find((int) $importId);
+        }
+
         $scope = $genre ? "{$genre} games" : 'games';
         $this->info("Adding up to {$targetNew} new {$scope} (ordering={$ordering}, call cap={$maxCalls})…");
 
-        $candidates = [];
+        $totalAdded = 0;
+        $totalUpdated = 0;
+        $totalKept = 0;   // same-in-DB dupes we avoided detail-calling
+        $totalFailed = 0;
         $totalCalls = 0;
         $listPages = 0;
-        $dupesSkipped = 0;
         $page = 1;
+        // Rolling log of the last ~30 game names we've written to the DB,
+        // so the progress UI can show "just added: Cyberpunk 2077, Witcher 3, …"
+        $recentlyAdded = [];
 
-        while (count($candidates) < $targetNew && $totalCalls < $maxCalls) {
+        while ($totalAdded < $targetNew && $totalCalls < $maxCalls) {
             $filters = [
                 'ordering' => $ordering,
                 'page_size' => 40,
@@ -201,33 +216,69 @@ class ImportGames extends Command
                 ->flip()
                 ->toArray();
 
+            // Gather detail payloads for this page only; we'll upsert them
+            // right after, so progress writes reflect the real DB state.
+            $pageCandidates = [];
             foreach ($batch as $hit) {
                 if (empty($hit['slug'])) continue;
                 if (isset($existing[$hit['slug']])) {
-                    $dupesSkipped++;
+                    $totalKept++;
                     continue;
                 }
-                if (count($candidates) >= $targetNew || $totalCalls >= $maxCalls) {
+                // Headroom check: still room under both caps?
+                $projectedAdded = $totalAdded + count($pageCandidates);
+                if ($projectedAdded >= $targetNew || $totalCalls >= $maxCalls) {
                     break 2;
                 }
                 try {
-                    $candidates[] = $rawg->detail($hit['slug']);
+                    $pageCandidates[] = $rawg->detail($hit['slug']);
                 } catch (Throwable $e) {
                     $this->warn("  detail failed for {$hit['slug']}: {$e->getMessage()}");
                 }
                 $totalCalls++;
             }
 
-            // Lightweight heartbeat so long runs show progress in the output tail.
-            if ($listPages % 5 === 0) {
-                $this->line(sprintf(
-                    '  progress: %d new queued · %d dupes skipped · %d API calls · page %d',
-                    count($candidates),
-                    $dupesSkipped,
-                    $totalCalls,
-                    $page,
-                ));
+            if ($pageCandidates) {
+                $pageCounts = $this->upsertBatch($pageCandidates, fn ($d) => $this->normalizeRawg($d));
+                $totalAdded += $pageCounts['added'];
+                $totalUpdated += $pageCounts['updated'];
+                $totalKept += $pageCounts['kept'];
+                $totalFailed += $pageCounts['failed'];
+
+                // Keep a rolling window of the latest names, newest first,
+                // capped so the DB column doesn't balloon on large runs.
+                if (!empty($pageCounts['added_names'])) {
+                    $recentlyAdded = array_slice(
+                        array_merge(array_reverse($pageCounts['added_names']), $recentlyAdded),
+                        0,
+                        30,
+                    );
+                }
             }
+
+            // Write-back to the progress row so the admin UI sees live counts.
+            // `output` doubles as the "recently added" feed — newest at top,
+            // capped at 30 names, readable as a plain text tail on pollStatus.
+            if ($importRow) {
+                $importRow->forceFill([
+                    'added' => $totalAdded,
+                    'updated' => $totalUpdated,
+                    'skipped' => $totalKept,
+                    'failed' => $totalFailed,
+                    'output' => $recentlyAdded ? implode("\n", $recentlyAdded) : null,
+                ])->save();
+            }
+
+            // Heartbeat line for the tail-of-output viewer.
+            $this->line(sprintf(
+                '  page %d · added=%d · updated=%d · kept=%d · failed=%d · api_calls=%d',
+                $page,
+                $totalAdded,
+                $totalUpdated,
+                $totalKept,
+                $totalFailed,
+                $totalCalls,
+            ));
 
             if (empty($data['next'])) {
                 $this->line("  reached end of RAWG results at page {$page}.");
@@ -238,14 +289,12 @@ class ImportGames extends Command
 
         $this->newLine();
         $this->line(sprintf(
-            '  Scanned %d list pages, %d total API calls, %d dupes skipped, %d new queued for upsert.',
+            '  Scanned %d list pages, %d total API calls.',
             $listPages,
             $totalCalls,
-            $dupesSkipped,
-            count($candidates),
         ));
-
-        $this->upsertMany($candidates, fn ($d) => $this->normalizeRawg($d));
+        // Final summary line — same shape as upsertMany so the job parser works.
+        $this->info("Done — added: {$totalAdded}, updated: {$totalUpdated}, kept: {$totalKept}, failed: {$totalFailed}");
         return true;
     }
 
@@ -436,16 +485,35 @@ class ImportGames extends Command
 
     private function upsertMany(array $items, callable $normalize): void
     {
-        $imported = 0;
+        $counts = $this->upsertBatch($items, $normalize);
+        $this->line('');
+        $this->info("Done — added: {$counts['added']}, updated: {$counts['updated']}, kept: {$counts['kept']}, failed: {$counts['failed']}");
+    }
+
+    /**
+     * Core upsert loop. Returns per-category counts so callers that run
+     * multiple batches (see importNewFromRawg) can aggregate the totals
+     * themselves and write the single final "Done —" summary line that
+     * RunGameImportJob::parseCounts() looks for. Also returns the names
+     * of games actually added this batch so the admin UI can render a
+     * live "recently added" feed.
+     *
+     * @return array{added:int, updated:int, kept:int, failed:int, added_names:array<int,string>}
+     */
+    private function upsertBatch(array $items, callable $normalize): array
+    {
+        $added = 0;
         $updated = 0;
-        $skipped = 0;
+        $kept = 0;
         $failed = 0;
+        $added_names = [];
 
         foreach ($items as $raw) {
+            $attrs = null;
             try {
-                if (!$raw) { $skipped++; continue; }
+                if (!$raw) { $kept++; continue; }
                 $attrs = $normalize($raw);
-                if (!$attrs || empty($attrs['slug'])) { $skipped++; continue; }
+                if (!$attrs || empty($attrs['slug'])) { $kept++; continue; }
 
                 // Last-chance defensive normalization. The main normalizers
                 // already produce clean data, but upstream API shapes change
@@ -465,10 +533,6 @@ class ImportGames extends Command
                 $filtered = array_filter($attrs, fn ($v) => filled($v));
 
                 if ($existing) {
-                    // fill() respects $fillable so any stray keys (e.g. from
-                    // a raw API payload that slipped past the normalizer) are
-                    // silently dropped instead of tripping unknown-column
-                    // errors at save time.
                     if ($this->option('force')) {
                         $existing->fill($filtered);
                     } else {
@@ -487,25 +551,24 @@ class ImportGames extends Command
                         $updated++;
                         $this->line("  updated  {$attrs['name']}");
                     } else {
-                        $skipped++;
+                        $kept++;
                         $this->line("  kept     {$attrs['name']}");
                     }
                 } else {
                     $filtered['genre'] ??= 'Other';
                     Game::create($filtered);
-                    $imported++;
+                    $added++;
+                    $added_names[] = $attrs['name'];
                     $this->info("  added    {$attrs['name']}");
                 }
             } catch (Throwable $e) {
-                // One bad record shouldn't kill the batch — log and move on.
                 $failed++;
                 $name = $attrs['name'] ?? ($raw['name'] ?? 'unknown');
                 $this->warn("  failed   {$name}: {$e->getMessage()}");
             }
         }
 
-        $this->line('');
-        $this->info("Done — added: {$imported}, updated: {$updated}, kept: {$skipped}, failed: {$failed}");
+        return compact('added', 'updated', 'kept', 'failed', 'added_names');
     }
 
     /**
