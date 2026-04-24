@@ -327,9 +327,9 @@ export default function Welcome({
                                 color="border-[#5865F2]/40 bg-[#5865F2]/5 text-[#5865F2]"
                             />
                             <IntegrationCard
-                                name="Clips"
+                                name="Creator"
                                 status="Live"
-                                description="Post your best plays straight to your profile from YouTube, Twitch or TikTok. Let your clips do the talking before anyone accepts."
+                                description="Stream on Twitch, post on YouTube, clip on TikTok? Link it all to your profile and get featured in the Creator Spotlight. Let your plays speak before anyone accepts."
                                 color="border-gaming-pink/40 bg-gaming-pink/5 text-gaming-pink"
                             />
                             <IntegrationCard
