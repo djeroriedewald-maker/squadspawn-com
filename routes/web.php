@@ -616,6 +616,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::post('/games', [\App\Http\Controllers\Admin\AdminController::class, 'storeGame'])->name('admin.storeGame');
     Route::delete('/games/{game}', [\App\Http\Controllers\Admin\AdminController::class, 'deleteGame'])->name('admin.deleteGame');
 
+    // Games catalogue growth — one-click batch imports via queue
+    Route::get('/games/import', [\App\Http\Controllers\Admin\GameImportController::class, 'show'])->name('admin.games.import');
+    Route::post('/games/import', [\App\Http\Controllers\Admin\GameImportController::class, 'trigger'])->name('admin.games.import.trigger');
+    Route::get('/games/import/{gameImport}/status', [\App\Http\Controllers\Admin\GameImportController::class, 'pollStatus'])->name('admin.games.import.status');
+
     // Changelog
     Route::get('/changelog', [\App\Http\Controllers\Admin\ChangelogController::class, 'index'])->name('admin.changelog.index');
     Route::get('/changelog/create', [\App\Http\Controllers\Admin\ChangelogController::class, 'create'])->name('admin.changelog.create');
