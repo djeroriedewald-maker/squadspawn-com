@@ -391,14 +391,23 @@ export default function CommunityIndex({
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
                                 </svg>
                             </div>
-                            <h3 className="mb-2 text-xl font-bold text-ink-900">No posts yet</h3>
-                            <p className="mb-6 text-ink-500">Be the first to start a discussion!</p>
-                            {isLoggedIn && (
+                            <h3 className="mb-2 text-xl font-bold text-ink-900">Start the first thread</h3>
+                            <p className="mb-6 text-ink-500">
+                                Founders steer the conversation here. Drop a clip, call out a game-night, ask a balance question — whatever you'd want to read first.
+                            </p>
+                            {isLoggedIn ? (
                                 <Link
                                     href={route('community.create')}
+                                    className="inline-flex rounded-xl bg-neon-red px-6 py-3 font-semibold text-white shadow-sm shadow-neon-red/20 hover:bg-neon-red/80"
+                                >
+                                    Create the first post →
+                                </Link>
+                            ) : (
+                                <Link
+                                    href={route('login')}
                                     className="inline-flex rounded-xl bg-neon-red px-6 py-3 font-semibold text-white hover:bg-neon-red/80"
                                 >
-                                    Create Post
+                                    Sign in to post
                                 </Link>
                             )}
                         </div>

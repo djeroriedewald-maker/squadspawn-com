@@ -364,14 +364,18 @@ export default function DiscoveryIndex({
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
                                 </svg>
                             </div>
-                            <h3 className="mb-2 text-xl font-bold text-ink-900">You've seen everyone!</h3>
-                            <p className="mb-6 text-ink-500">No more players to discover right now. New gamers join every day!</p>
+                            <h3 className="mb-2 text-xl font-bold text-ink-900">That's everyone — for now</h3>
+                            <p className="mb-6 text-ink-500">
+                                You've worked through the squad. Bring a friend in to expand the pool — early founders grow the platform faster than anyone after.
+                            </p>
                             <div className="flex flex-col items-center gap-3">
-                                <Link href={route('discovery.passed')} className="rounded-xl bg-gaming-green/10 px-6 py-3 font-semibold text-gaming-green transition hover:bg-gaming-green/20">
-                                    Review Passed Players
+                                <Link href={route('invite.index')} className="rounded-xl bg-neon-red px-6 py-3 font-semibold text-white shadow-sm shadow-neon-red/20 hover:bg-neon-red/80">
+                                    Invite a friend →
                                 </Link>
-                                <Link href={route('friends.index')} className="rounded-xl bg-neon-red px-6 py-3 font-semibold text-white hover:bg-neon-red/80">Chat With Friends</Link>
-                                <button onClick={() => router.visit(route('discovery.index'))} className="text-sm text-ink-500 hover:text-ink-900">Refresh</button>
+                                <Link href={route('discovery.passed')} className="rounded-xl bg-gaming-green/10 px-6 py-3 font-semibold text-gaming-green transition hover:bg-gaming-green/20">
+                                    Review passed players
+                                </Link>
+                                <Link href={route('friends.index')} className="text-sm text-ink-500 hover:text-ink-900">Or chat with existing friends →</Link>
                             </div>
                         </div>
                     )}

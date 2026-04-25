@@ -856,16 +856,24 @@ export default function LfgIndex({
                                 </>
                             ) : (
                                 <>
-                                    <h3 className="mb-2 text-xl font-bold text-ink-900">No LFG posts yet</h3>
+                                    <h3 className="mb-2 text-xl font-bold text-ink-900">Spawn the first squad</h3>
                                     <p className="mb-6 text-ink-500">
-                                        Be the first to create a Looking for Group post!
+                                        No LFGs live right now — that means founders shape what this looks like. Drop a post for any game in the catalogue, and we'll surface it everywhere a player loads the feed.
                                     </p>
-                                    <Link
-                                        href={route('lfg.create')}
-                                        className="inline-flex rounded-xl bg-neon-red px-6 py-3 font-semibold text-white hover:bg-neon-red/80"
-                                    >
-                                        Create Post
-                                    </Link>
+                                    <div className="flex flex-wrap justify-center gap-2">
+                                        <Link
+                                            href={route('lfg.create')}
+                                            className="rounded-xl bg-neon-red px-6 py-3 font-semibold text-white shadow-sm shadow-neon-red/20 hover:bg-neon-red/80"
+                                        >
+                                            Post your LFG →
+                                        </Link>
+                                        <Link
+                                            href={route('games.index')}
+                                            className="rounded-xl border border-ink-900/10 bg-white px-6 py-3 font-semibold text-ink-700 hover:border-neon-red/30 hover:text-neon-red"
+                                        >
+                                            Browse games
+                                        </Link>
+                                    </div>
                                 </>
                             )}
                         </div>
