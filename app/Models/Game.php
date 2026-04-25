@@ -9,7 +9,7 @@ class Game extends Model
 {
     protected $fillable = [
         'name', 'slug', 'genre', 'platforms', 'cover_image', 'rank_system', 'roles',
-        'description', 'rawg_id', 'released_at',
+        'description', 'rawg_id', 'released_at', 'popularity_score',
     ];
 
     protected function casts(): array
@@ -19,6 +19,7 @@ class Game extends Model
             'rank_system' => 'array',
             'roles' => 'array',
             'released_at' => 'date',
+            'popularity_score' => 'integer',
         ];
     }
 

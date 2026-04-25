@@ -37,7 +37,14 @@ class GamesController extends Controller
             'alphabetical' => $query->orderBy('name'),
             'newest' => $query->orderByDesc('created_at'),
             'released' => $query->orderByDesc('released_at'),
-            default => $query->orderByDesc('users_count')->orderBy('name'),
+            // Default "popular": RAWG's global popularity first (so well-known
+            // titles like GTA V / Witcher land on page 1 even when the platform
+            // has few in-app players), then in-app users_count as a tiebreaker
+            // boost for games SquadSpawn members actually play, then name.
+            default => $query
+                ->orderByDesc('popularity_score')
+                ->orderByDesc('users_count')
+                ->orderBy('name'),
         };
 
         $games = $query->paginate(20)->withQueryString();

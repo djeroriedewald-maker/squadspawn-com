@@ -414,6 +414,10 @@ class ImportGames extends Command
             ),
             'genre' => $data['genres'][0]['name'] ?? null,
             'platforms' => $this->rawgPlatformSlugs($data),
+            // RAWG's `added` is the global count of users who've added this
+            // game to their RAWG profile — the best popularity signal we get
+            // out of their API. Drives the default sort on /games.
+            'popularity_score' => isset($data['added']) ? (int) $data['added'] : 0,
         ];
     }
 
