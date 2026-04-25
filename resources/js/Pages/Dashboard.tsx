@@ -214,7 +214,7 @@ export default function Dashboard({
                                     <div className="flex-1 pb-1">
                                         <div className="flex flex-wrap items-center gap-2">
                                             <h1 className="text-xl font-bold text-ink-900 sm:text-2xl">{user.profile?.username || user.name}</h1>
-                                            <FounderBadge number={user.founder_number} size="md" />
+                                            <FounderBadge number={user.founder_number} isOgFounder={user.is_og_founder} size="md" />
                                             {user.profile?.level && user.profile.level > 1 && (
                                                 <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
                                                     user.profile.level >= 6 ? 'bg-yellow-400/20 text-yellow-400' :
@@ -292,9 +292,21 @@ export default function Dashboard({
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
                     {/* ── FOUNDER STATUS — early adopters get pride of place ── */}
-                    {user.founder_number && (
-                        <div className="mb-6">
-                            <FounderBadge number={user.founder_number} size="lg" />
+                    {(user.founder_number || user.is_og_founder) && (
+                        <div className="mb-6 space-y-3">
+                            <FounderBadge number={user.founder_number} isOgFounder={user.is_og_founder} size="lg" />
+                            <div className="flex flex-wrap gap-2 text-xs">
+                                <Link
+                                    href={route('founder.show', { number: user.id })}
+                                    className="inline-flex items-center gap-1.5 rounded-full border border-neon-red/30 bg-neon-red/5 px-3 py-1.5 font-bold text-neon-red transition hover:bg-neon-red hover:text-white"
+                                >
+                                    <span>★</span>
+                                    View your founder card
+                                </Link>
+                                <span className="rounded-full bg-ink-900/5 px-3 py-1.5 text-ink-500">
+                                    Sharable on Twitter, Discord, Reddit — they'll preview a personalised card.
+                                </span>
+                            </div>
                         </div>
                     )}
 

@@ -347,6 +347,45 @@ class AdminController extends Controller
     }
 
     /** Toggle a user's admin role. Admin-only. Self-demotion + owner protected. */
+    /**
+     * Grant / revoke OG Founder status. Hand-picked seed users get this —
+     * separate from the auto-numbered Founding Member tier (id ≤ 500).
+     * Comes with lifetime Plus, which doesn't gate anything yet but will
+     * apply automatically once Plus actually ships.
+     */
+    public function setOgFounder(Request $request, User $user): JsonResponse
+    {
+        $data = $request->validate([
+            'is_og_founder' => ['required', 'boolean'],
+            'plus_lifetime' => ['nullable', 'boolean'],
+        ]);
+
+        $previouslyOg = (bool) $user->is_og_founder;
+        $grantPlus = $data['plus_lifetime'] ?? $data['is_og_founder']; // OG implies Plus by default
+
+        $user->update([
+            'is_og_founder' => $data['is_og_founder'],
+            'og_founder_granted_at' => $data['is_og_founder']
+                ? ($user->og_founder_granted_at ?? now())
+                : null,
+            'plus_lifetime' => $data['is_og_founder'] ? $grantPlus : false,
+        ]);
+
+        if ($data['is_og_founder'] !== $previouslyOg) {
+            AdminAudit::log(
+                $data['is_og_founder'] ? 'user.og_founder_granted' : 'user.og_founder_revoked',
+                $user,
+                ['plus_lifetime' => (bool) $user->plus_lifetime],
+            );
+        }
+
+        return response()->json([
+            'is_og_founder' => $user->is_og_founder,
+            'og_founder_granted_at' => $user->og_founder_granted_at?->toIso8601String(),
+            'plus_lifetime' => $user->plus_lifetime,
+        ]);
+    }
+
     public function setAdmin(Request $request, User $user): JsonResponse
     {
         if ($user->isOwner()) {

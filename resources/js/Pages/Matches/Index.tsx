@@ -1,3 +1,4 @@
+import FounderBadge from '@/Components/FounderBadge';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Game, PageProps, User } from '@/types';
 import { Head, Link } from '@inertiajs/react';
@@ -122,6 +123,7 @@ export default function Index({ matches }: PageProps<{ matches: FriendItem[] }>)
                                                     <span className="truncate font-bold text-ink-900">
                                                         {match.partner.profile?.username || match.partner.name}
                                                     </span>
+                                                    <FounderBadge number={match.partner.founder_number} isOgFounder={match.partner.is_og_founder} size="sm" />
                                                 {match.partner.profile?.looking_for && (
                                                     <span className="shrink-0 rounded-full bg-neon-red/10 px-2 py-0.5 text-[10px] font-medium text-neon-red">
                                                         {match.partner.profile.looking_for}

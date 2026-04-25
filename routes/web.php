@@ -53,6 +53,12 @@ Route::get('/help', fn () => Inertia::render('Help/Index', [
     ],
 ]))->name('help');
 
+// Founder share-card — public, no auth. Visible card for "Founding Member
+// #N" brag screenshots. Returns 404 if the id doesn't map to a real founder.
+Route::get('/founder/{number}', [\App\Http\Controllers\FounderShareController::class, 'show'])
+    ->where('number', '[0-9]+')
+    ->name('founder.show');
+
 // SquadSpawn Plus waitlist — public landing, emails validated + rate-limited
 // on submit. Demand-signal for a future premium tier, no product yet.
 Route::get('/plus', [\App\Http\Controllers\PlusWaitlistController::class, 'show'])->name('plus');
@@ -592,6 +598,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
         ->name('admin.setFeatured');
     Route::post('/users/{user}/moderator', [\App\Http\Controllers\Admin\AdminController::class, 'setModerator'])->name('admin.setModerator');
     Route::post('/users/{user}/admin', [\App\Http\Controllers\Admin\AdminController::class, 'setAdmin'])->name('admin.setAdmin');
+    Route::post('/users/{user}/og-founder', [\App\Http\Controllers\Admin\AdminController::class, 'setOgFounder'])->name('admin.setOgFounder');
     Route::get('/reports', [\App\Http\Controllers\Admin\AdminController::class, 'reports'])->name('admin.reports');
     Route::post('/reports/{report}/resolve', [\App\Http\Controllers\Admin\AdminController::class, 'resolveReport'])->name('admin.resolveReport');
     // LfgPost's model uses `slug` as its route key for public URLs. Admin

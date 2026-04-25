@@ -1,3 +1,4 @@
+import FounderBadge from '@/Components/FounderBadge';
 import type { User } from '@/types';
 
 export interface HostStats {
@@ -50,6 +51,7 @@ export default function HostTrustRow({ host, stats, size = 'sm', showRelationshi
             <div className="min-w-0 flex-1">
                 <div className={`flex flex-wrap items-center gap-1.5 ${size === 'md' ? 'text-base' : 'text-sm'} font-medium text-ink-900`}>
                     <span className="truncate">{username}</span>
+                    <FounderBadge number={host?.founder_number} isOgFounder={host?.is_og_founder} size="sm" />
                     {isOwner && (
                         <span className="rounded-full bg-gaming-orange/20 px-1.5 py-0 text-[9px] font-bold text-gaming-orange" title="Platform owner">👑 OWNER</span>
                     )}

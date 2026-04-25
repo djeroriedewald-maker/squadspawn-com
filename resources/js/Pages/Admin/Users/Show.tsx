@@ -19,6 +19,9 @@ interface UserDetail {
     is_moderator: boolean;
     is_owner: boolean;
     is_banned: boolean;
+    is_og_founder?: boolean;
+    plus_lifetime?: boolean;
+    founder_number?: number | null;
     banned_at: string | null;
     ban_reason: string | null;
     referral_code: string | null;
@@ -149,6 +152,17 @@ export default function UserShow({ user, stats, invitees, recentLfg, reportsAgai
             .catch((err) => alert(err.response?.data?.error || 'Failed to update admin status.'));
     }
 
+    function toggleOgFounder() {
+        const grant = !user.is_og_founder;
+        const msg = grant
+            ? `Mark "${name}" as OG FOUNDER?\n\nThey'll get the gold founder badge across the site + lifetime Plus access (auto-applies when Plus ships). Reserved for hand-picked seed users — friends, early supporters, the squad you personally brought in.`
+            : `Revoke OG Founder from "${name}"? They lose the badge + lifetime Plus.`;
+        if (!confirm(msg)) return;
+        axios.post(route('admin.setOgFounder', { user: user.id }), { is_og_founder: grant })
+            .then(() => router.reload())
+            .catch((err) => alert(err.response?.data?.error || 'Failed to update OG founder status.'));
+    }
+
     function impersonate() {
         if (!confirm(`Log in as "${name}"?\nUse the red banner at the top to return.`)) return;
         router.post(route('admin.impersonate', { user: user.id }));
@@ -249,6 +263,13 @@ export default function UserShow({ user, stats, invitees, recentLfg, reportsAgai
                             className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${user.is_admin ? 'bg-neon-red/10 text-neon-red hover:bg-neon-red/20' : 'bg-ink-900/5 text-ink-700 hover:bg-ink-900/10'}`}
                         >
                             {user.is_admin ? 'Revoke admin' : 'Make admin'}
+                        </button>
+                        <button
+                            onClick={toggleOgFounder}
+                            title={user.is_og_founder ? 'Revoke OG Founder + lifetime Plus' : 'Grant OG Founder badge + lifetime Plus access'}
+                            className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${user.is_og_founder ? 'bg-yellow-400/10 text-amber-600 hover:bg-yellow-400/20' : 'bg-ink-900/5 text-ink-700 hover:bg-ink-900/10'}`}
+                        >
+                            {user.is_og_founder ? '♛ Revoke OG' : '♛ Make OG Founder'}
                         </button>
                         <button
                             onClick={impersonate}

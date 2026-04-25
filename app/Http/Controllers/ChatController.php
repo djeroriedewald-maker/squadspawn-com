@@ -62,6 +62,8 @@ class ChatController extends Controller
                     'username' => $partner->profile?->username,
                     'avatar' => $partner->profile?->avatar,
                     'online' => $partner->updated_at >= now()->subMinutes(15),
+                    'founder_number' => $partner->founder_number,
+                    'is_og_founder' => (bool) $partner->is_og_founder,
                 ],
                 'last_message' => $lastMessage ? [
                     'body' => $lastMessage->body,

@@ -1,3 +1,4 @@
+import FounderBadge from '@/Components/FounderBadge';
 import PushNotificationPrompt from '@/Components/PushNotificationPrompt';
 import { router, usePage } from '@inertiajs/react';
 import axios from 'axios';
@@ -12,6 +13,8 @@ interface FriendItem {
         username?: string;
         avatar?: string;
         online: boolean;
+        founder_number?: number | null;
+        is_og_founder?: boolean;
     };
     last_message: { body: string; sender_id: number; created_at: string } | null;
     unread_count: number;
@@ -583,8 +586,9 @@ export default function FloatingChat() {
                                             <AvatarWithStatus avatar={friend.partner.avatar} name={friend.partner.username || friend.partner.name} online={friend.partner.online} />
                                             <div className="min-w-0 flex-1">
                                                 <div className="flex items-center justify-between">
-                                                    <span className={`truncate text-sm ${friend.unread_count > 0 ? 'font-bold text-ink-900' : 'font-medium text-ink-700'}`}>
-                                                        {friend.partner.username || friend.partner.name}
+                                                    <span className={`flex min-w-0 items-center gap-1 truncate text-sm ${friend.unread_count > 0 ? 'font-bold text-ink-900' : 'font-medium text-ink-700'}`}>
+                                                        <span className="truncate">{friend.partner.username || friend.partner.name}</span>
+                                                        <FounderBadge number={friend.partner.founder_number} isOgFounder={friend.partner.is_og_founder} size="sm" />
                                                     </span>
                                                     {friend.last_message && <span className="ml-2 shrink-0 text-[10px] text-gray-600">{friend.last_message.created_at}</span>}
                                                 </div>

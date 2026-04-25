@@ -7,6 +7,8 @@ export interface User {
     is_moderator?: boolean;
     is_owner?: boolean;
     is_banned?: boolean;
+    is_og_founder?: boolean;
+    plus_lifetime?: boolean;
     founder_number?: number | null;
     profile?: Profile;
     games?: Game[];

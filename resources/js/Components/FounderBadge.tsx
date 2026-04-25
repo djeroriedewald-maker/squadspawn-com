@@ -1,32 +1,56 @@
 /**
- * Cold-start social proof: a chip-style badge worn by the first 500 users.
+ * Cold-start social proof. Two distinct tiers, rendered through one
+ * component so callers don't have to branch:
+ *
+ *   - OG Founder (handpicked seed)  → gold gradient, 👑 icon, top tier
+ *   - Founding Member #N (id ≤ 500) → red/pink gradient, ★ icon
+ *
+ * If `isOgFounder` is true the OG visual wins regardless of `number`.
+ *
  * Three sizes:
  *   - sm: 16px chip for chat avatars / inline use
- *   - md: pill with "#N" for profile cards (default)
- *   - lg: full "Founding Member #N of 500" callout for the dashboard
+ *   - md: pill with label for profile cards (default)
+ *   - lg: full callout card for the dashboard
  *
- * Pass `cap` to override the displayed total (defaults to 500, mirrors
- * User::FOUNDER_CAP server-side). Renders nothing if `number` is nullish
- * so callers can safely scatter it without conditional wrapping.
+ * Renders nothing if neither status applies, so callers can safely
+ * scatter it without conditional wrapping.
  */
 
 interface Props {
     number: number | null | undefined;
+    isOgFounder?: boolean;
     size?: 'sm' | 'md' | 'lg';
     cap?: number;
     className?: string;
 }
 
-export default function FounderBadge({ number, size = 'md', cap = 500, className = '' }: Props) {
-    if (!number) return null;
+export default function FounderBadge({
+    number,
+    isOgFounder = false,
+    size = 'md',
+    cap = 500,
+    className = '',
+}: Props) {
+    if (!isOgFounder && !number) return null;
+
+    const og = isOgFounder;
+    const tooltip = og
+        ? 'OG Founder — handpicked early supporter'
+        : `Founding member #${number} of ${cap}`;
+    const icon = og ? '♛' : '★';
+    const label = og ? 'OG Founder' : `Founder #${number}`;
 
     if (size === 'sm') {
         return (
             <span
-                title={`Founding member #${number} of ${cap}`}
-                className={`inline-flex h-4 w-4 items-center justify-center rounded-full bg-gradient-to-br from-neon-red to-gaming-pink text-[8px] font-black text-white shadow-sm ${className}`}
+                title={tooltip}
+                className={`inline-flex h-4 w-4 items-center justify-center rounded-full text-[8px] font-black text-white shadow-sm ${
+                    og
+                        ? 'bg-gradient-to-br from-yellow-400 to-amber-600'
+                        : 'bg-gradient-to-br from-neon-red to-gaming-pink'
+                } ${className}`}
             >
-                ★
+                {icon}
             </span>
         );
     }
@@ -34,20 +58,34 @@ export default function FounderBadge({ number, size = 'md', cap = 500, className
     if (size === 'lg') {
         return (
             <div
-                className={`flex items-center gap-3 rounded-2xl border border-neon-red/30 bg-gradient-to-br from-neon-red/10 via-gaming-pink/5 to-transparent p-4 ${className}`}
+                className={`flex items-center gap-3 rounded-2xl border p-4 ${
+                    og
+                        ? 'border-yellow-400/40 bg-gradient-to-br from-yellow-400/10 via-amber-500/5 to-transparent'
+                        : 'border-neon-red/30 bg-gradient-to-br from-neon-red/10 via-gaming-pink/5 to-transparent'
+                } ${className}`}
             >
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-neon-red to-gaming-pink text-xl font-black text-white shadow-md shadow-neon-red/30">
-                    ★
+                <div
+                    className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-xl font-black text-white shadow-md ${
+                        og
+                            ? 'bg-gradient-to-br from-yellow-400 to-amber-600 shadow-amber-500/30'
+                            : 'bg-gradient-to-br from-neon-red to-gaming-pink shadow-neon-red/30'
+                    }`}
+                >
+                    {icon}
                 </div>
                 <div className="min-w-0 flex-1">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-neon-red">
-                        Founding member
+                    <p className={`text-[10px] font-bold uppercase tracking-widest ${og ? 'text-amber-600' : 'text-neon-red'}`}>
+                        {og ? 'OG Founder' : 'Founding member'}
                     </p>
-                    <p className="text-lg font-black text-ink-900">
-                        #{number} <span className="text-sm font-bold text-ink-500">of {cap}</span>
-                    </p>
+                    {og ? (
+                        <p className="text-lg font-black text-ink-900">Day-zero squad</p>
+                    ) : (
+                        <p className="text-lg font-black text-ink-900">
+                            #{number} <span className="text-sm font-bold text-ink-500">of {cap}</span>
+                        </p>
+                    )}
                     <p className="mt-0.5 text-[11px] text-ink-500">
-                        Permanent badge · day-one squad
+                        {og ? 'Handpicked. Permanent badge + Plus.' : 'Permanent badge · day-one squad'}
                     </p>
                 </div>
             </div>
@@ -57,11 +95,15 @@ export default function FounderBadge({ number, size = 'md', cap = 500, className
     // md (default)
     return (
         <span
-            title={`Founding member #${number} of ${cap}`}
-            className={`inline-flex items-center gap-1 rounded-full border border-neon-red/30 bg-neon-red/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-neon-red ${className}`}
+            title={tooltip}
+            className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                og
+                    ? 'border-yellow-400/40 bg-yellow-400/10 text-amber-600'
+                    : 'border-neon-red/30 bg-neon-red/10 text-neon-red'
+            } ${className}`}
         >
-            <span className="text-[8px]">★</span>
-            Founder #{number}
+            <span className="text-[8px]">{icon}</span>
+            {label}
         </span>
     );
 }
