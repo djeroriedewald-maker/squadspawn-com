@@ -1,4 +1,5 @@
 import FavoriteHostButton from '@/Components/FavoriteHostButton';
+import FounderBadge from '@/Components/FounderBadge';
 import { ProfileBanner } from '@/Components/ProfileBanner';
 import SocialLinks from '@/Components/SocialLinks';
 import SteamStatsCard, { SteamStats } from '@/Components/SteamStatsCard';
@@ -174,6 +175,7 @@ export default function PlayerShow({ player, clips = [], reputationData, friends
                                     {username}
                                 </h1>
                                 <div className="mt-1.5 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+                                    <FounderBadge number={player.founder_number} size="md" />
                                     {player.profile?.level && player.profile.level > 1 && (
                                         <span className={`rounded-full px-3 py-0.5 text-xs font-bold ${
                                             player.profile.level >= 6 ? 'bg-yellow-400/20 text-yellow-400' :

@@ -42,6 +42,15 @@ class User extends Authenticatable
      */
     public const PUSH_TYPES = ['new_message', 'new_match', 'lfg_request', 'lfg_accepted', 'favorite_host_lfg', 'squad_invite', 'role_change', 'announcement', 'admin_new_contact_message'];
 
+    /**
+     * First N users get a "Founding member #X" badge for life. Drives the
+     * cold-start framing on the platform — early adopters feel chosen,
+     * visitors see real numbers (not fake crowd) signalling exclusivity.
+     */
+    public const FOUNDER_CAP = 500;
+
+    protected $appends = ['founder_number'];
+
     protected function casts(): array
     {
         return [
@@ -60,6 +69,17 @@ class User extends Authenticatable
     public function canModerate(): bool
     {
         return (bool) ($this->is_admin || $this->is_moderator);
+    }
+
+    /**
+     * Founding-member sequence number. Returns null for users beyond the
+     * cap. Computed from the auto-increment id so no migration is needed
+     * — accepts that gap-rows (deleted users) leave gaps in the numbering,
+     * which is fine: the goal is "you were here early", not contiguous IDs.
+     */
+    public function getFounderNumberAttribute(): ?int
+    {
+        return $this->id !== null && $this->id <= self::FOUNDER_CAP ? (int) $this->id : null;
     }
 
     /**

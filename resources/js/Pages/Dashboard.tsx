@@ -1,4 +1,5 @@
 import CreatorSpotlight, { FeaturedCreator } from '@/Components/CreatorSpotlight';
+import FounderBadge from '@/Components/FounderBadge';
 import { ProfileBanner } from '@/Components/ProfileBanner';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Achievement, Game, PageProps, User } from '@/types';
@@ -213,6 +214,7 @@ export default function Dashboard({
                                     <div className="flex-1 pb-1">
                                         <div className="flex flex-wrap items-center gap-2">
                                             <h1 className="text-xl font-bold text-ink-900 sm:text-2xl">{user.profile?.username || user.name}</h1>
+                                            <FounderBadge number={user.founder_number} size="md" />
                                             {user.profile?.level && user.profile.level > 1 && (
                                                 <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
                                                     user.profile.level >= 6 ? 'bg-yellow-400/20 text-yellow-400' :
@@ -288,6 +290,13 @@ export default function Dashboard({
                 </div>
 
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+                    {/* ── FOUNDER STATUS — early adopters get pride of place ── */}
+                    {user.founder_number && (
+                        <div className="mb-6">
+                            <FounderBadge number={user.founder_number} size="lg" />
+                        </div>
+                    )}
 
                     {/* ── QUICK ACTIONS ── */}
                     <div className="-mt-1 mb-8 grid gap-3 sm:grid-cols-3">
