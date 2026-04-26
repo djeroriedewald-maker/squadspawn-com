@@ -6,6 +6,7 @@ interface SparkPoint { date: string; value: number; }
 interface Attention {
     newMessages: number;
     pendingReports: number;
+    pendingEvents: number;
     plusSignupsWeek: number;
     creatorsWithoutClips: number;
 }
@@ -287,7 +288,7 @@ export default function Dashboard({
             {/* ── Attention row ───────────────────────────────── */}
             <section className="mb-8">
                 <p className="mb-3 text-xs font-bold uppercase tracking-widest text-neon-red">Needs your attention</p>
-                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
                     <AttentionCard
                         href={route('admin.messages.index')}
                         label="Unread messages"
@@ -305,6 +306,15 @@ export default function Dashboard({
                         subtitle={attention.pendingReports > 0 ? 'Moderation queue' : 'All clear'}
                         color="bg-red-500/10 text-red-500"
                         icon={<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg>}
+                    />
+                    <AttentionCard
+                        href={route('admin.events.queue')}
+                        label="Events to review"
+                        value={attention.pendingEvents}
+                        urgent={attention.pendingEvents > 0}
+                        subtitle={attention.pendingEvents > 0 ? 'Awaiting your approval' : 'Queue empty'}
+                        color="bg-gaming-cyan/10 text-gaming-cyan"
+                        icon={<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" /></svg>}
                     />
                     <AttentionCard
                         href="/admin/waitlist"

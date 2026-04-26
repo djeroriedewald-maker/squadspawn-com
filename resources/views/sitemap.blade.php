@@ -22,6 +22,11 @@
         <priority>0.8</priority>
     </url>
     <url>
+        <loc>{{ url('/events') }}</loc>
+        <changefreq>daily</changefreq>
+        <priority>0.85</priority>
+    </url>
+    <url>
         <loc>{{ url('/clips') }}</loc>
         <changefreq>daily</changefreq>
         <priority>0.7</priority>
@@ -115,6 +120,17 @@
         <lastmod>{{ ($entry->updated_at ?? $entry->published_at)->toAtomString() }}</lastmod>
         <changefreq>yearly</changefreq>
         <priority>0.4</priority>
+    </url>
+    @endforeach
+
+    {{-- Upcoming + recent events — schema.org/Event JSON-LD on the show
+         page makes these eligible for rich-result event cards in Google. --}}
+    @foreach ($events as $event)
+    <url>
+        <loc>{{ url('/events/' . $event->slug) }}</loc>
+        <lastmod>{{ $event->updated_at->toAtomString() }}</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.7</priority>
     </url>
     @endforeach
 </urlset>

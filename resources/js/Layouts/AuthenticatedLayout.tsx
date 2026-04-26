@@ -55,6 +55,9 @@ export default function Authenticated({
                                         LFG
                                     </NavLink>
                                 )}
+                                <NavLink href={route('events.index')} active={route().current('events.*')}>
+                                    Events
+                                </NavLink>
                                 <NavLink href={route('games.index')} active={route().current('games.*')}>
                                     Games
                                 </NavLink>
@@ -257,6 +260,9 @@ export default function Authenticated({
                                 LFG
                             </ResponsiveNavLink>
                         )}
+                        <ResponsiveNavLink href={route('events.index')} active={route().current('events.*')}>
+                            Events
+                        </ResponsiveNavLink>
                         <ResponsiveNavLink href={route('games.index')} active={route().current('games.*')}>
                             Games
                         </ResponsiveNavLink>

@@ -431,6 +431,13 @@ Route::middleware('feature:community')->group(function () {
     Route::get('/community/{communityPost}', [CommunityController::class, 'show'])->name('community.show');
 });
 
+// Events — public listing + detail (no flag yet, this is a launch surface).
+// Auth-gated host actions sit in the auth group below.
+Route::get('/events', [\App\Http\Controllers\EventController::class, 'index'])->name('events.index');
+Route::get('/events/{event}', [\App\Http\Controllers\EventController::class, 'show'])
+    ->where('event', '[a-z0-9\-]+')
+    ->name('events.show');
+
 Route::middleware(['auth', 'age.verified'])->group(function () {
     // Impersonation stop — the impersonated user holds the original
     // admin id in their session and clicks the red return banner.
@@ -602,6 +609,23 @@ Route::middleware(['auth', 'age.verified'])->group(function () {
         Route::post('/favorites/{user}', [\App\Http\Controllers\FavoriteHostController::class, 'store'])->middleware('throttle:30,1')->name('favorites.store');
         Route::delete('/favorites/{user}', [\App\Http\Controllers\FavoriteHostController::class, 'destroy'])->name('favorites.destroy');
         }); // end feature:lfg
+
+        // Events — host actions (create/RSVP/like/cancel). Listing + show
+        // are public above. Throttled host store so a single account can't
+        // spam-submit dozens of events into the moderation queue.
+        Route::get('/events/host/new', [\App\Http\Controllers\EventController::class, 'create'])->name('events.create');
+        Route::post('/events', [\App\Http\Controllers\EventController::class, 'store'])
+            ->middleware('throttle:5,10')
+            ->name('events.store');
+        Route::post('/events/{event}/register', [\App\Http\Controllers\EventController::class, 'register'])->name('events.register');
+        Route::delete('/events/{event}/register', [\App\Http\Controllers\EventController::class, 'unregister'])->name('events.unregister');
+        Route::post('/events/{event}/like', [\App\Http\Controllers\EventController::class, 'like'])
+            ->middleware('throttle:60,1')
+            ->name('events.like');
+        Route::post('/events/{event}/cancel', [\App\Http\Controllers\EventController::class, 'cancel'])->name('events.cancel');
+        Route::post('/events/upload-cover', [\App\Http\Controllers\EventController::class, 'uploadCover'])
+            ->middleware('throttle:20,10')
+            ->name('events.uploadCover');
     });
 });
 
@@ -652,6 +676,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     // Plus-waitlist entries (submitted via public /plus)
     Route::get('/waitlist', [\App\Http\Controllers\Admin\WaitlistController::class, 'index'])->name('admin.waitlist.index');
     Route::delete('/waitlist/{entry}', [\App\Http\Controllers\Admin\WaitlistController::class, 'destroy'])->name('admin.waitlist.destroy');
+
+    // Events moderation queue — pending host submissions land here.
+    Route::get('/events', [\App\Http\Controllers\Admin\EventModerationController::class, 'index'])->name('admin.events.queue');
+    Route::post('/events/{event}/approve', [\App\Http\Controllers\Admin\EventModerationController::class, 'approve'])->name('admin.events.approve');
+    Route::post('/events/{event}/reject', [\App\Http\Controllers\Admin\EventModerationController::class, 'reject'])->name('admin.events.reject');
 
     Route::get('/games', [\App\Http\Controllers\Admin\AdminController::class, 'games'])->name('admin.games');
     Route::post('/games', [\App\Http\Controllers\Admin\AdminController::class, 'storeGame'])->name('admin.storeGame');

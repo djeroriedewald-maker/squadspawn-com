@@ -7,6 +7,7 @@ use App\Models\ChangelogEntry;
 use App\Models\Clip;
 use App\Models\CommunityPost;
 use App\Models\ContactMessage;
+use App\Models\Event;
 use App\Models\Game;
 use App\Models\LfgPost;
 use App\Models\LfgRating;
@@ -35,6 +36,7 @@ class AdminController extends Controller
         // ── Attention counts — things that need action today
         $newMessages = ContactMessage::where('status', 'new')->count();
         $pendingReports = Report::where('status', 'pending')->count();
+        $pendingEvents = Event::where('status', 'pending_review')->count();
         $plusSignupsWeek = PlusWaitlistEntry::where('created_at', '>=', $startOfWeek)->count();
         $creatorsWithoutClips = User::whereHas('profile', fn ($q) => $q->where('is_creator', true))
             ->doesntHave('clips')
@@ -133,6 +135,7 @@ class AdminController extends Controller
             'attention' => [
                 'newMessages' => $newMessages,
                 'pendingReports' => $pendingReports,
+                'pendingEvents' => $pendingEvents,
                 'plusSignupsWeek' => $plusSignupsWeek,
                 'creatorsWithoutClips' => $creatorsWithoutClips,
             ],

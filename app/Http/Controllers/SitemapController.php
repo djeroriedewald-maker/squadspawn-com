@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ChangelogEntry;
 use App\Models\CommunityPost;
+use App\Models\Event;
 use App\Models\Game;
 use App\Models\Profile;
 use Illuminate\Support\Facades\Cache;
@@ -18,7 +19,7 @@ class SitemapController extends Controller
         // near-realtime accuracy, and this prevents a full-table scan on
         // every bot visit. Shorter than before because new LFG-adjacent
         // content (community posts, changelog) is time-sensitive.
-        $xml = Cache::remember('sitemap:xml:v3', 21600, function () {
+        $xml = Cache::remember('sitemap:xml:v4', 21600, function () {
             $profiles = Profile::whereNotNull('username')
                 ->select('username', 'avatar', 'updated_at')
                 ->get();
@@ -29,8 +30,15 @@ class SitemapController extends Controller
             $changelog = ChangelogEntry::published()
                 ->select('slug', 'title', 'published_at', 'updated_at')
                 ->get();
+            // Only published, future-or-recent events. Keeps the sitemap from
+            // growing forever as old events age out, and prevents Google from
+            // indexing pending or rejected submissions.
+            $events = Event::where('status', 'published')
+                ->where('scheduled_for', '>=', now()->subDays(14))
+                ->select('slug', 'title', 'scheduled_for', 'updated_at')
+                ->get();
 
-            return view('sitemap', compact('profiles', 'games', 'communityPosts', 'changelog'))->render();
+            return view('sitemap', compact('profiles', 'games', 'communityPosts', 'changelog', 'events'))->render();
         });
 
         return response($xml)
