@@ -68,34 +68,37 @@ export default function PlusWaitlist({ prefillEmail, alreadyJoined, memberCount 
             <Head title="SquadSpawn Plus — Join the waitlist" />
 
             <div className="min-h-screen bg-bone-50 text-ink-900">
-                {/* Hero with full-bleed VIP-pod backdrop. Nav sits on top of
-                    the image so the hero feels immersive from the first
-                    pixel. Text leans on shadow + a fully-opaque eyebrow pill
-                    for legibility — same pattern as /events. */}
+                {/* Hero with full-bleed VIP-pod backdrop. The image sits
+                    underneath a vertical dark gradient that lets the photo
+                    breathe at the top but fades into the page bg at the
+                    bottom — no hard cut between hero and the form area
+                    below. Text uses a stroke-style shadow (hard outline +
+                    soft halo) so it stays crisp over busy red neon. */}
                 <section className="relative overflow-hidden bg-ink-900">
                     <img
                         src="/images/waitlist_banner.jpg"
                         alt=""
                         className="absolute inset-0 h-full w-full object-cover"
                     />
+                    <div className="absolute inset-0 bg-gradient-to-b from-ink-900/40 via-ink-900/65 to-bone-50" />
 
                     <nav className="relative flex items-center justify-between px-6 py-4 lg:px-12">
-                        <Link href="/" className="text-2xl font-bold text-white drop-shadow-md transition hover:text-neon-red">SquadSpawn</Link>
-                        <Link href="/" className="text-sm font-semibold text-white drop-shadow-md transition hover:text-neon-red">← Back</Link>
+                        <Link href="/" className="text-2xl font-bold text-white transition hover:text-neon-red [text-shadow:_0_0_4px_rgba(0,0,0,0.9)]">SquadSpawn</Link>
+                        <Link href="/" className="text-sm font-semibold text-white transition hover:text-neon-red [text-shadow:_0_0_4px_rgba(0,0,0,0.9)]">← Back</Link>
                     </nav>
 
-                    <div className="relative mx-auto max-w-3xl px-6 py-20 text-center lg:px-12">
-                        <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-neon-red px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-white shadow-lg">
+                    <div className="relative mx-auto max-w-3xl px-6 pb-32 pt-16 text-center lg:px-12">
+                        <span className="mb-5 inline-flex items-center gap-2 rounded-full bg-neon-red px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-white shadow-lg ring-1 ring-white/10">
                             ✨ Coming when you're ready
                         </span>
-                        <h1 className="text-4xl font-black tracking-tight text-white sm:text-6xl [text-shadow:_0_2px_20px_rgba(0,0,0,0.9)]">
-                            SquadSpawn <span className="text-neon-red [text-shadow:_0_2px_20px_rgba(0,0,0,0.95)]">Plus</span>
+                        <h1 className="text-4xl font-black tracking-tight text-white sm:text-6xl [text-shadow:_0_0_3px_rgba(0,0,0,1),_0_3px_18px_rgba(0,0,0,0.9)]">
+                            SquadSpawn <span className="text-neon-red [text-shadow:_0_0_3px_rgba(0,0,0,1),_0_3px_18px_rgba(0,0,0,0.95)]">Plus</span>
                         </h1>
-                        <p className="mx-auto mt-4 max-w-xl text-base font-medium text-white sm:text-lg [text-shadow:_0_1px_10px_rgba(0,0,0,0.9)]">
+                        <p className="mx-auto mt-5 max-w-xl text-base font-medium text-white sm:text-lg [text-shadow:_0_0_2px_rgba(0,0,0,1),_0_2px_12px_rgba(0,0,0,0.9)]">
                             A premium tier for players who want more out of their reputation, discovery, and profile. We're not building it yet — this waitlist tells us which features you'd actually pay for.
                         </p>
                         {memberCount > 0 && (
-                            <p className="mt-4 inline-flex rounded-full bg-ink-900/70 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">
+                            <p className="mt-5 inline-flex rounded-full bg-ink-900/80 px-3 py-1 text-xs font-semibold text-white shadow-md ring-1 ring-white/10 backdrop-blur-sm">
                                 <strong className="text-white">{memberCount.toLocaleString()}</strong>&nbsp;{memberCount === 1 ? 'gamer is' : 'gamers are'} already on the list
                             </p>
                         )}
