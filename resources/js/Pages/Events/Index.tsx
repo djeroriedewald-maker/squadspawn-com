@@ -57,9 +57,8 @@ export default function EventsIndex({ events, canHost, seo }: {
                 <img
                     src="/images/event_banner.jpg"
                     alt=""
-                    className="absolute inset-0 h-full w-full object-cover opacity-60"
+                    className="absolute inset-0 h-full w-full object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-r from-ink-900/90 via-ink-900/60 to-transparent" />
                 <div className="relative mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8">
                     <span className="inline-flex items-center gap-2 rounded-full border border-neon-red/40 bg-neon-red/10 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-neon-red">
                         <span className="h-1.5 w-1.5 rounded-full bg-neon-red" />
