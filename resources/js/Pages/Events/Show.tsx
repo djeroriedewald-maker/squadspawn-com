@@ -149,26 +149,25 @@ export default function EventShow({
                 <img
                     src={event.cover_image || '/images/event_banner.jpg'}
                     alt=""
-                    className="absolute inset-0 h-full w-full object-cover opacity-50"
+                    className="absolute inset-0 h-full w-full object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-r from-ink-900/90 via-ink-900/70 to-transparent" />
                 <div className="relative mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
                     <Link
                         href={route('events.index')}
-                        className="mb-4 inline-flex items-center gap-1.5 text-xs font-semibold text-white/70 transition hover:text-white"
+                        className="mb-4 inline-flex items-center gap-1.5 text-xs font-bold text-white transition hover:text-neon-red [text-shadow:_0_1px_4px_rgba(0,0,0,0.9)]"
                     >
                         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
                         </svg>
                         All events
                     </Link>
-                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-widest ring-1 ${typeBadge.pill}`}>
+                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-widest shadow-md ring-1 ${typeBadge.pill}`}>
                         {typeBadge.label}
                     </span>
-                    <h1 className="mt-3 max-w-3xl text-3xl font-extrabold tracking-tight text-white sm:text-5xl">
+                    <h1 className="mt-3 max-w-3xl text-3xl font-extrabold tracking-tight text-white sm:text-5xl [text-shadow:_0_2px_16px_rgba(0,0,0,0.9)]">
                         {event.title}
                     </h1>
-                    <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-white/80">
+                    <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm font-semibold text-white [text-shadow:_0_1px_8px_rgba(0,0,0,0.85)]">
                         <span className="inline-flex items-center gap-2">
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.7}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
@@ -179,7 +178,7 @@ export default function EventShow({
                         {event.game && (
                             <Link
                                 href={route('games.show', event.game.slug)}
-                                className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-2.5 py-0.5 text-xs font-semibold text-white transition hover:border-white/40"
+                                className="inline-flex items-center gap-2 rounded-full bg-ink-900/70 px-2.5 py-0.5 text-xs font-semibold text-white backdrop-blur-sm transition hover:bg-ink-900/90"
                             >
                                 {event.game.cover_image && <img src={event.game.cover_image} alt="" className="h-3 w-5 rounded-sm object-cover" />}
                                 {event.game.name}
