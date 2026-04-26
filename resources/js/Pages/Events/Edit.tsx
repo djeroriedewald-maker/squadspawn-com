@@ -2,9 +2,28 @@ import GamePicker from '@/Components/GamePicker';
 import RichEditor from '@/Components/RichEditor';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Game } from '@/types';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 import axios from 'axios';
 import { ChangeEvent, FormEventHandler, useRef, useState } from 'react';
+
+interface EventData {
+    id: number;
+    slug: string;
+    type: string;
+    title: string;
+    body_html: string | null;
+    cover_image: string | null;
+    video_url: string | null;
+    scheduled_for: string;
+    ends_at: string | null;
+    timezone: string;
+    region: string | null;
+    game_id: number | null;
+    max_capacity: number | null;
+    format: string;
+    external_link: string | null;
+    status: string;
+}
 
 const TYPE_OPTIONS = [
     { value: 'tournament', label: 'Tournament', hint: 'Bracket / single elimination / round robin' },
@@ -22,25 +41,35 @@ const REGIONS = [
     'Australia', 'Global',
 ];
 
-export default function EventCreate({ games, types, formats }: {
+// `datetime-local` wants `YYYY-MM-DDTHH:MM` with no timezone suffix —
+// trim the seconds + Z that Laravel's toJson() emits.
+function toLocalInput(iso: string | null): string {
+    if (!iso) return '';
+    const d = new Date(iso);
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+export default function EventEdit({ event, games, types, formats }: {
+    event: EventData;
     games: Game[];
     types: string[];
     formats: string[];
 }) {
-    const { data, setData, post, processing, errors } = useForm({
-        type: 'tournament',
-        title: '',
-        body_html: '',
-        cover_image: '',
-        video_url: '',
-        scheduled_for: '',
-        ends_at: '',
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
-        region: '',
-        game_id: '' as string | number,
-        max_capacity: '' as string | number,
-        format: 'solo',
-        external_link: '',
+    const { data, setData, put, processing, errors } = useForm({
+        type: event.type,
+        title: event.title,
+        body_html: event.body_html ?? '',
+        cover_image: event.cover_image ?? '',
+        video_url: event.video_url ?? '',
+        scheduled_for: toLocalInput(event.scheduled_for),
+        ends_at: toLocalInput(event.ends_at),
+        timezone: event.timezone || (Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'),
+        region: event.region ?? '',
+        game_id: event.game_id ?? ('' as string | number | null),
+        max_capacity: (event.max_capacity ?? '') as string | number,
+        format: event.format,
+        external_link: event.external_link ?? '',
     });
 
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -66,22 +95,32 @@ export default function EventCreate({ games, types, formats }: {
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        post(route('events.store'));
+        put(route('events.update', event.slug));
     };
 
     return (
         <AuthenticatedLayout>
-            <Head title="Host an event · SquadSpawn" />
+            <Head title={`Edit · ${event.title}`} />
 
             <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
-                <h1 className="text-3xl font-extrabold tracking-tight text-ink-900">Host an event</h1>
-                <p className="mt-2 text-sm text-ink-500">
-                    Tournaments, watch parties, giveaways or community meetups. We keep the bar high — every
-                    event is reviewed before it goes live (usually within 24 hours). Make it count.
-                </p>
+                <Link
+                    href={route('events.show', event.slug)}
+                    className="mb-4 inline-flex items-center gap-1.5 text-xs font-semibold text-ink-500 transition hover:text-neon-red"
+                >
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    Back to event
+                </Link>
+                <h1 className="text-3xl font-extrabold tracking-tight text-ink-900">Edit event</h1>
+                {event.status === 'published' && (
+                    <p className="mt-2 rounded-lg border border-gaming-orange/30 bg-gaming-orange/5 px-3 py-2 text-xs text-ink-700">
+                        Heads up — saving will send this event back into the moderation queue.
+                        It stays visible to you while it waits.
+                    </p>
+                )}
 
                 <form onSubmit={submit} className="mt-8 space-y-6">
-                    {/* Type */}
                     <fieldset>
                         <legend className="text-sm font-bold text-ink-900">What kind of event?</legend>
                         <div className="mt-3 grid gap-2 sm:grid-cols-2">
@@ -107,10 +146,8 @@ export default function EventCreate({ games, types, formats }: {
                                 </label>
                             ))}
                         </div>
-                        {errors.type && <p className="mt-1 text-xs text-red-500">{errors.type}</p>}
                     </fieldset>
 
-                    {/* Title */}
                     <div>
                         <label htmlFor="title" className="block text-sm font-bold text-ink-900">Event title</label>
                         <input
@@ -121,12 +158,10 @@ export default function EventCreate({ games, types, formats }: {
                             maxLength={100}
                             required
                             className="mt-1 block w-full rounded-lg border border-ink-900/10 bg-bone-50 px-3 py-2 text-sm text-ink-900 focus:border-neon-red/40 focus:outline-none focus:ring-2 focus:ring-neon-red/20"
-                            placeholder="Friday CS2 5v5 — €100 prize pool"
                         />
                         {errors.title && <p className="mt-1 text-xs text-red-500">{errors.title}</p>}
                     </div>
 
-                    {/* Cover image */}
                     <div>
                         <label className="block text-sm font-bold text-ink-900">Cover image</label>
                         <div className="mt-1 flex flex-wrap items-center gap-3">
@@ -135,13 +170,7 @@ export default function EventCreate({ games, types, formats }: {
                             ) : (
                                 <div className="flex h-20 w-36 items-center justify-center rounded-lg border border-dashed border-ink-900/15 bg-bone-100 text-xs text-ink-500">No cover</div>
                             )}
-                            <input
-                                ref={fileInputRef}
-                                type="file"
-                                accept="image/jpeg,image/png,image/webp"
-                                onChange={handleCoverUpload}
-                                className="hidden"
-                            />
+                            <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleCoverUpload} className="hidden" />
                             <button
                                 type="button"
                                 onClick={() => fileInputRef.current?.click()}
@@ -151,25 +180,16 @@ export default function EventCreate({ games, types, formats }: {
                                 {uploading ? 'Uploading…' : data.cover_image ? 'Change image' : 'Upload image'}
                             </button>
                             {data.cover_image && (
-                                <button
-                                    type="button"
-                                    onClick={() => setData('cover_image', '')}
-                                    className="text-xs font-semibold text-ink-500 transition hover:text-red-500"
-                                >
+                                <button type="button" onClick={() => setData('cover_image', '')} className="text-xs font-semibold text-ink-500 transition hover:text-red-500">
                                     Remove
                                 </button>
                             )}
                         </div>
                         {uploadError && <p className="mt-1 text-xs text-red-500">{uploadError}</p>}
-                        <p className="mt-1 text-xs text-ink-500">
-                            JPG / PNG / WebP, min 600×300, max 4MB. Falls back to a SquadSpawn cover if empty.
-                        </p>
                     </div>
 
-                    {/* Body */}
                     <div>
                         <label className="block text-sm font-bold text-ink-900">Description</label>
-                        <p className="text-xs text-ink-500">Markdown-ish toolbar. Embed YouTube videos straight into the body for watch parties.</p>
                         <div className="mt-2">
                             <RichEditor
                                 value={data.body_html}
@@ -180,7 +200,6 @@ export default function EventCreate({ games, types, formats }: {
                         </div>
                     </div>
 
-                    {/* Schedule + tz */}
                     <div className="grid gap-4 sm:grid-cols-2">
                         <div>
                             <label htmlFor="scheduled_for" className="block text-sm font-bold text-ink-900">Starts at</label>
@@ -207,7 +226,6 @@ export default function EventCreate({ games, types, formats }: {
                         </div>
                     </div>
 
-                    {/* Region + game */}
                     <div className="grid gap-4 sm:grid-cols-2">
                         <div>
                             <label htmlFor="region" className="block text-sm font-bold text-ink-900">Region</label>
@@ -236,7 +254,6 @@ export default function EventCreate({ games, types, formats }: {
                         </div>
                     </div>
 
-                    {/* Format + capacity */}
                     <div className="grid gap-4 sm:grid-cols-2">
                         <div>
                             <label htmlFor="format" className="block text-sm font-bold text-ink-900">Format</label>
@@ -259,13 +276,11 @@ export default function EventCreate({ games, types, formats }: {
                                 value={data.max_capacity}
                                 onChange={(e) => setData('max_capacity', e.target.value)}
                                 className="mt-1 block w-full rounded-lg border border-ink-900/10 bg-bone-50 px-3 py-2 text-sm text-ink-900 focus:border-neon-red/40 focus:outline-none focus:ring-2 focus:ring-neon-red/20"
-                                placeholder="32"
                             />
                             {errors.max_capacity && <p className="mt-1 text-xs text-red-500">{errors.max_capacity}</p>}
                         </div>
                     </div>
 
-                    {/* External link + video */}
                     <div className="grid gap-4 sm:grid-cols-2">
                         <div>
                             <label htmlFor="external_link" className="block text-sm font-bold text-ink-900">External link <span className="font-normal text-ink-500">(Discord / sign-up)</span></label>
@@ -275,19 +290,17 @@ export default function EventCreate({ games, types, formats }: {
                                 value={data.external_link}
                                 onChange={(e) => setData('external_link', e.target.value)}
                                 className="mt-1 block w-full rounded-lg border border-ink-900/10 bg-bone-50 px-3 py-2 text-sm text-ink-900 focus:border-neon-red/40 focus:outline-none focus:ring-2 focus:ring-neon-red/20"
-                                placeholder="https://discord.gg/…"
                             />
                             {errors.external_link && <p className="mt-1 text-xs text-red-500">{errors.external_link}</p>}
                         </div>
                         <div>
-                            <label htmlFor="video_url" className="block text-sm font-bold text-ink-900">Stream / trailer URL <span className="font-normal text-ink-500">(optional)</span></label>
+                            <label htmlFor="video_url" className="block text-sm font-bold text-ink-900">Stream / trailer URL</label>
                             <input
                                 id="video_url"
                                 type="url"
                                 value={data.video_url}
                                 onChange={(e) => setData('video_url', e.target.value)}
                                 className="mt-1 block w-full rounded-lg border border-ink-900/10 bg-bone-50 px-3 py-2 text-sm text-ink-900 focus:border-neon-red/40 focus:outline-none focus:ring-2 focus:ring-neon-red/20"
-                                placeholder="https://twitch.tv/… or https://youtube.com/…"
                             />
                             {errors.video_url && <p className="mt-1 text-xs text-red-500">{errors.video_url}</p>}
                         </div>
@@ -299,9 +312,14 @@ export default function EventCreate({ games, types, formats }: {
                             disabled={processing}
                             className="rounded-lg bg-neon-red px-6 py-2.5 text-sm font-bold text-white shadow-md shadow-neon-red/30 transition hover:bg-neon-red/90 disabled:opacity-50"
                         >
-                            {processing ? 'Submitting…' : 'Submit for review'}
+                            {processing ? 'Saving…' : 'Save changes'}
                         </button>
-                        <p className="text-xs text-ink-500">An admin will check this within 24 hours.</p>
+                        <Link
+                            href={route('events.show', event.slug)}
+                            className="text-xs font-semibold text-ink-500 hover:text-neon-red"
+                        >
+                            Cancel
+                        </Link>
                     </div>
                 </form>
             </div>

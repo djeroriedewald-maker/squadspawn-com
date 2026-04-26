@@ -128,6 +128,69 @@ class EventController extends Controller
         return redirect()->route('events.show', $event)->with('message', $message);
     }
 
+    public function edit(Event $event): Response
+    {
+        // Hosts edit their own; admins edit anything (useful for typo fixes
+        // before approval). Other users get 403 — never 404, because that
+        // would leak whether the slug exists.
+        $user = auth()->user();
+        $isAdmin = $user->is_admin || $user->is_owner || $user->is_moderator;
+        abort_unless($event->user_id === $user->id || $isAdmin, 403);
+
+        return Inertia::render('Events/Edit', [
+            'event' => $event,
+            'games' => Game::orderBy('name')->get(['id', 'name', 'slug', 'cover_image']),
+            'types' => Event::TYPES,
+            'formats' => Event::FORMATS,
+        ]);
+    }
+
+    public function update(Request $request, HtmlSanitizer $sanitizer, Event $event): RedirectResponse
+    {
+        $user = auth()->user();
+        $isAdmin = $user->is_admin || $user->is_owner || $user->is_moderator;
+        abort_unless($event->user_id === $user->id || $isAdmin, 403);
+
+        $validated = $request->validate([
+            'type' => ['required', 'in:' . implode(',', Event::TYPES)],
+            'title' => ['required', 'string', 'max:100'],
+            'body_html' => ['nullable', 'string', 'max:50000'],
+            'cover_image' => ['nullable', 'string', 'max:500'],
+            'video_url' => ['nullable', 'url', 'max:500', new \App\Rules\SafeUrl],
+            'scheduled_for' => ['required', 'date'],
+            'ends_at' => ['nullable', 'date', 'after:scheduled_for'],
+            'timezone' => ['nullable', 'string', 'max:50'],
+            'region' => ['nullable', 'string', 'max:50'],
+            'game_id' => ['nullable', 'exists:games,id'],
+            'max_capacity' => ['nullable', 'integer', 'min:2', 'max:10000'],
+            'format' => ['required', 'in:' . implode(',', Event::FORMATS)],
+            'external_link' => ['nullable', 'url', 'max:500', new \App\Rules\SafeUrl],
+        ]);
+
+        if (!empty($validated['body_html'])) {
+            $validated['body_html'] = $sanitizer->sanitize($validated['body_html']);
+        }
+
+        // Host edit on a published event sends it back to pending_review so
+        // an admin can re-check the changed copy / cover. Admin edits leave
+        // status untouched — they're trusted and may be fixing typos.
+        $wasPublished = $event->status === 'published';
+        $hostEditing = $event->user_id === $user->id && !$isAdmin;
+        if ($wasPublished && $hostEditing) {
+            $validated['status'] = 'pending_review';
+            $validated['approved_at'] = null;
+            $validated['approved_by'] = null;
+        }
+
+        $event->update($validated);
+
+        $message = ($wasPublished && $hostEditing)
+            ? 'Event updated and re-submitted for review.'
+            : 'Event updated.';
+
+        return redirect()->route('events.show', $event)->with('message', $message);
+    }
+
     public function register(Event $event): RedirectResponse
     {
         abort_unless($event->isPublished(), 404);

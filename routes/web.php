@@ -623,6 +623,8 @@ Route::middleware(['auth', 'age.verified'])->group(function () {
             ->middleware('throttle:60,1')
             ->name('events.like');
         Route::post('/events/{event}/cancel', [\App\Http\Controllers\EventController::class, 'cancel'])->name('events.cancel');
+        Route::get('/events/{event}/edit', [\App\Http\Controllers\EventController::class, 'edit'])->name('events.edit');
+        Route::put('/events/{event}', [\App\Http\Controllers\EventController::class, 'update'])->name('events.update');
         Route::post('/events/upload-cover', [\App\Http\Controllers\EventController::class, 'uploadCover'])
             ->middleware('throttle:20,10')
             ->name('events.uploadCover');

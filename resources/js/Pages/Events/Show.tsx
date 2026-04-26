@@ -311,14 +311,24 @@ export default function EventShow({
                         </Link>
                     </div>
 
-                    {isHost && event.status !== 'cancelled' && (
-                        <button
-                            type="button"
-                            onClick={handleCancel}
-                            className="block w-full rounded-lg border border-red-500/30 bg-white px-4 py-2 text-sm font-semibold text-red-500 transition hover:bg-red-500/5"
-                        >
-                            Cancel this event
-                        </button>
+                    {(isHost || isAdmin) && event.status !== 'cancelled' && (
+                        <div className="space-y-2">
+                            <Link
+                                href={route('events.edit', event.slug)}
+                                className="block w-full rounded-lg border border-ink-900/15 bg-white px-4 py-2 text-center text-sm font-semibold text-ink-700 transition hover:border-neon-red/30 hover:text-neon-red"
+                            >
+                                Edit event
+                            </Link>
+                            {isHost && (
+                                <button
+                                    type="button"
+                                    onClick={handleCancel}
+                                    className="block w-full rounded-lg border border-red-500/30 bg-white px-4 py-2 text-sm font-semibold text-red-500 transition hover:bg-red-500/5"
+                                >
+                                    Cancel this event
+                                </button>
+                            )}
+                        </div>
                     )}
                 </aside>
             </div>

@@ -60,14 +60,14 @@ export default function EventsIndex({ events, canHost, seo }: {
                     className="absolute inset-0 h-full w-full object-cover"
                 />
                 <div className="relative mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8">
-                    <span className="inline-flex items-center gap-2 rounded-full border border-neon-red/40 bg-neon-red/10 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-neon-red">
-                        <span className="h-1.5 w-1.5 rounded-full bg-neon-red" />
+                    <span className="inline-flex items-center gap-2 rounded-full bg-neon-red/90 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-white shadow-md backdrop-blur-sm">
+                        <span className="h-1.5 w-1.5 rounded-full bg-white" />
                         SquadSpawn Events
                     </span>
-                    <h1 className="mt-4 max-w-2xl text-4xl font-extrabold tracking-tight text-white sm:text-6xl">
+                    <h1 className="mt-4 max-w-2xl text-4xl font-extrabold tracking-tight text-white sm:text-6xl [text-shadow:_0_2px_16px_rgba(0,0,0,0.85)]">
                         Tournaments, watch parties, giveaways.
                     </h1>
-                    <p className="mt-4 max-w-xl text-lg text-white/80">
+                    <p className="mt-4 max-w-xl text-lg font-medium text-white [text-shadow:_0_2px_10px_rgba(0,0,0,0.85)]">
                         Real events run by real hosts. Join an upcoming one or pitch your own —
                         every event is reviewed before it goes live so the bar stays high.
                     </p>
