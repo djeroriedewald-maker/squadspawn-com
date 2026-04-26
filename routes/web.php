@@ -92,30 +92,39 @@ Route::get('/', function () {
     $totalGames = Cache::remember('home:games', 300, fn () => \App\Models\Game::count());
     $activeLfg = Cache::remember('home:lfg', 300, fn () => \App\Models\LfgPost::where('status', 'open')->count());
     $topGames = Cache::remember('home:topgames', 300, function () {
-        // Cold-start: rank by RAWG popularity (mirrored into popularity_score),
-        // not by in-app users_count which is noise while we're pre-launch.
-        // Skip rows without a cover so the strip never falls back to placeholders.
-        $top = \App\Models\Game::query()
+        // Curated rotation (config/featured_games.php) takes priority — RAWG's
+        // free tier capped before we could backfill popularity_score, and the
+        // PC-leaning RAWG signal undervalues mobile-MOBA games big in our
+        // launch regions (PH/ID/MY). Then top up to 25 with whatever else
+        // has a cover so the strip stays full as the catalogue grows.
+        $featuredSlugs = config('featured_games.homepage_rotation', []);
+
+        $featured = \App\Models\Game::query()
+            ->whereIn('slug', $featuredSlugs)
             ->whereNotNull('cover_image')
             ->where('cover_image', '!=', '')
-            ->orderByDesc('popularity_score')
-            ->orderByDesc('id')
-            ->take(25)
-            ->get();
+            ->get()
+            ->keyBy('slug');
 
-        // MLBB is huge in our launch regions (PH/ID/MY) but ranks low on
-        // RAWG's PC-leaning popularity score. Pin it into the rotation
-        // if it isn't already there.
-        if (!$top->contains('slug', 'mobile-legends-bang-bang')) {
-            $mlbb = \App\Models\Game::where('slug', 'mobile-legends-bang-bang')
+        // Preserve config order — `whereIn` doesn't guarantee it.
+        $ordered = collect($featuredSlugs)
+            ->map(fn ($slug) => $featured->get($slug))
+            ->filter()
+            ->values();
+
+        if ($ordered->count() < 25) {
+            $filler = \App\Models\Game::query()
                 ->whereNotNull('cover_image')
-                ->first();
-            if ($mlbb) {
-                $top = $top->take(24)->prepend($mlbb);
-            }
+                ->where('cover_image', '!=', '')
+                ->whereNotIn('slug', $ordered->pluck('slug'))
+                ->orderByDesc('popularity_score')
+                ->orderByDesc('id')
+                ->take(25 - $ordered->count())
+                ->get();
+            $ordered = $ordered->concat($filler);
         }
 
-        return $top->values()->toArray();
+        return $ordered->take(25)->values()->toArray();
     });
     $recentPlayers = Cache::remember('home:recent', 300, fn () => \App\Models\Profile::with('user')->latest()->take(8)->get()->toArray());
     $onlineNow = Cache::remember('home:online', 120, fn () => \App\Models\User::where('updated_at', '>=', now()->subMinutes(15))->count());
