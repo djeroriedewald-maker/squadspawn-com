@@ -68,31 +68,41 @@ export default function PlusWaitlist({ prefillEmail, alreadyJoined, memberCount 
             <Head title="SquadSpawn Plus — Join the waitlist" />
 
             <div className="min-h-screen bg-bone-50 text-ink-900">
-                {/* Nav */}
-                <nav className="flex items-center justify-between px-6 py-4 lg:px-12">
-                    <Link href="/" className="text-2xl font-bold text-neon-red">SquadSpawn</Link>
-                    <Link href="/" className="text-sm text-ink-500 hover:text-ink-900">← Back</Link>
-                </nav>
+                {/* Hero with full-bleed VIP-pod backdrop. Nav sits on top of
+                    the image so the hero feels immersive from the first
+                    pixel. Text leans on shadow + a fully-opaque eyebrow pill
+                    for legibility — same pattern as /events. */}
+                <section className="relative overflow-hidden bg-ink-900">
+                    <img
+                        src="/images/waitlist_banner.jpg"
+                        alt=""
+                        className="absolute inset-0 h-full w-full object-cover"
+                    />
 
-                <div className="mx-auto max-w-3xl px-6 py-12 lg:px-12">
-                    {/* Hero */}
-                    <div className="mb-10 text-center">
-                        <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-neon-red/30 bg-neon-red/10 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-neon-red">
+                    <nav className="relative flex items-center justify-between px-6 py-4 lg:px-12">
+                        <Link href="/" className="text-2xl font-bold text-white drop-shadow-md transition hover:text-neon-red">SquadSpawn</Link>
+                        <Link href="/" className="text-sm font-semibold text-white drop-shadow-md transition hover:text-neon-red">← Back</Link>
+                    </nav>
+
+                    <div className="relative mx-auto max-w-3xl px-6 py-20 text-center lg:px-12">
+                        <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-neon-red px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-white shadow-lg">
                             ✨ Coming when you're ready
                         </span>
-                        <h1 className="text-4xl font-black tracking-tight text-ink-900 sm:text-5xl">
-                            SquadSpawn <span className="text-neon-red">Plus</span>
+                        <h1 className="text-4xl font-black tracking-tight text-white sm:text-6xl [text-shadow:_0_2px_20px_rgba(0,0,0,0.9)]">
+                            SquadSpawn <span className="text-neon-red [text-shadow:_0_2px_20px_rgba(0,0,0,0.95)]">Plus</span>
                         </h1>
-                        <p className="mx-auto mt-4 max-w-xl text-base text-ink-500 sm:text-lg">
+                        <p className="mx-auto mt-4 max-w-xl text-base font-medium text-white sm:text-lg [text-shadow:_0_1px_10px_rgba(0,0,0,0.9)]">
                             A premium tier for players who want more out of their reputation, discovery, and profile. We're not building it yet — this waitlist tells us which features you'd actually pay for.
                         </p>
                         {memberCount > 0 && (
-                            <p className="mt-4 text-xs text-ink-500">
-                                <strong className="text-ink-900">{memberCount.toLocaleString()}</strong> {memberCount === 1 ? 'gamer is' : 'gamers are'} already on the list.
+                            <p className="mt-4 inline-flex rounded-full bg-ink-900/70 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">
+                                <strong className="text-white">{memberCount.toLocaleString()}</strong>&nbsp;{memberCount === 1 ? 'gamer is' : 'gamers are'} already on the list
                             </p>
                         )}
                     </div>
+                </section>
 
+                <div className="mx-auto max-w-3xl px-6 py-12 lg:px-12">
                     {/* Waitlist card */}
                     <div className="mb-10 rounded-2xl border border-neon-red/20 bg-white p-6 shadow-lg shadow-neon-red/5 sm:p-8">
                         {alreadyOnList ? (
