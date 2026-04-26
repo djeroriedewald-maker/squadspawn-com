@@ -14,8 +14,13 @@
 
 type Size = 'thumb' | 'card' | 'hero';
 
+// RAWG's CDN only honours a fixed allow-list of crop dimensions; any other
+// W/H combo 307-redirects to a 404 page. 600/400 and 1280/720 are the two
+// presets confirmed working in the wild — 200/130 (the previous thumb) was
+// silently broken on every image. Sticking to 600/400 for thumb means a
+// few extra KB per image but actually loads.
 const DIMS: Record<Size, [number, number]> = {
-    thumb: [200, 130],   // tiny avatars / drill-down lists
+    thumb: [600, 400],   // tiny avatars / drill-down lists
     card: [600, 400],    // grid cards (default)
     hero: [1280, 720],   // game detail page hero
 };
