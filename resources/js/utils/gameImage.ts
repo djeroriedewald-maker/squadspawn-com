@@ -27,10 +27,13 @@ export function gameCoverUrl(
     size: Size = 'card',
 ): string | null {
     if (!url) return null;
-    if (!url.includes('media.rawg.io')) return url;
-    // Already resized (path contains /crop/ or /resize/) — leave alone.
-    if (url.includes('/media/crop/') || url.includes('/media/resize/')) return url;
+    // RAWG returns `api.rawg.io/media/...` for some games and
+    // `media.rawg.io/media/...` for others, but only the media
+    // subdomain serves the /crop/ resize endpoint — api.rawg.io 404s.
+    let normalized = url.replace('://api.rawg.io/media/', '://media.rawg.io/media/');
+    if (!normalized.includes('media.rawg.io')) return normalized;
+    if (normalized.includes('/media/crop/') || normalized.includes('/media/resize/')) return normalized;
 
     const [w, h] = DIMS[size];
-    return url.replace(RAWG_PATH, `/media/crop/${w}/${h}/$1/`);
+    return normalized.replace(RAWG_PATH, `/media/crop/${w}/${h}/$1/`);
 }

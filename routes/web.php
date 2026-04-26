@@ -91,7 +91,32 @@ Route::get('/', function () {
     $totalPlayers = Cache::remember('home:players', 300, fn () => \App\Models\User::whereHas('profile')->count());
     $totalGames = Cache::remember('home:games', 300, fn () => \App\Models\Game::count());
     $activeLfg = Cache::remember('home:lfg', 300, fn () => \App\Models\LfgPost::where('status', 'open')->count());
-    $topGames = Cache::remember('home:topgames', 300, fn () => \App\Models\Game::withCount('users')->orderByDesc('users_count')->take(24)->get()->toArray());
+    $topGames = Cache::remember('home:topgames', 300, function () {
+        // Cold-start: rank by RAWG popularity (mirrored into popularity_score),
+        // not by in-app users_count which is noise while we're pre-launch.
+        // Skip rows without a cover so the strip never falls back to placeholders.
+        $top = \App\Models\Game::query()
+            ->whereNotNull('cover_image')
+            ->where('cover_image', '!=', '')
+            ->orderByDesc('popularity_score')
+            ->orderByDesc('id')
+            ->take(25)
+            ->get();
+
+        // MLBB is huge in our launch regions (PH/ID/MY) but ranks low on
+        // RAWG's PC-leaning popularity score. Pin it into the rotation
+        // if it isn't already there.
+        if (!$top->contains('slug', 'mobile-legends-bang-bang')) {
+            $mlbb = \App\Models\Game::where('slug', 'mobile-legends-bang-bang')
+                ->whereNotNull('cover_image')
+                ->first();
+            if ($mlbb) {
+                $top = $top->take(24)->prepend($mlbb);
+            }
+        }
+
+        return $top->values()->toArray();
+    });
     $recentPlayers = Cache::remember('home:recent', 300, fn () => \App\Models\Profile::with('user')->latest()->take(8)->get()->toArray());
     $onlineNow = Cache::remember('home:online', 120, fn () => \App\Models\User::where('updated_at', '>=', now()->subMinutes(15))->count());
     // Creator Spotlight — cached 5 min so the roster feels fresh without
