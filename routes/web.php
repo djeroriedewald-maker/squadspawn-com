@@ -296,22 +296,22 @@ Route::get('/dashboard', function () {
     $newPlayersToday = Cache::remember('dash:newtoday', 120, fn () => \App\Models\User::whereHas('profile')->whereDate('created_at', today())->count());
     $onlineRecent = Cache::remember('dash:online', 30, fn () => \App\Models\User::where('updated_at', '>=', now()->subMinutes(15))->count());
 
-    // Trending games (cached 5 min). Three-tier fallback so the panel
-    // is *always* populated as long as the games table itself isn't
-    // empty: real recent-add signal first, curated featured-config
-    // second, popularity_score order third. The homepage rotation
-    // uses the same featured config so the cold-start experience
-    // stays consistent across pages.
+    // Trending games (cached 5 min). Primary signal is all-time user-add
+    // count — what's actually in players' libraries, regardless of when
+    // it was added. The 7-day window we used before went empty in cold-
+    // start and dropped the panel. Falls through to curated featured-
+    // config and finally popularity_score so the panel never shows up
+    // empty as long as the games table has content.
     $trendingGames = Cache::remember('dash:trending', 300, function () {
-        $trendingGameIds = \App\Models\UserGame::where('created_at', '>=', now()->subDays(7))
-            ->select('game_id')
-            ->selectRaw('count(*) as cnt')
-            ->groupBy('game_id')
-            ->orderByDesc('cnt')
+        $games = \App\Models\Game::query()
+            ->whereNotNull('cover_image')
+            ->where('cover_image', '!=', '')
+            ->withCount('users')
+            ->having('users_count', '>', 0)
+            ->orderByDesc('users_count')
+            ->orderByDesc('id')
             ->take(5)
-            ->pluck('game_id');
-
-        $games = \App\Models\Game::whereIn('id', $trendingGameIds)->withCount('users')->get();
+            ->get();
 
         if ($games->count() < 5) {
             $featuredSlugs = config('featured_games.homepage_rotation', []);
@@ -332,9 +332,8 @@ Route::get('/dashboard', function () {
             }
         }
 
-        // Last-resort fallback: any game with a cover, ordered by
-        // popularity_score. Catches the case where config caching
-        // staleness or a missing config returns an empty featured list.
+        // Final safety net — any game with a cover. Should never trigger
+        // unless the catalogue itself is broken.
         if ($games->count() < 5) {
             $extra = \App\Models\Game::query()
                 ->whereNotNull('cover_image')
@@ -349,9 +348,7 @@ Route::get('/dashboard', function () {
         }
 
         // Cache as plain array — Eloquent Collections with eager-loaded
-        // counts have re-hydrated unpredictably across cache hits in the
-        // past (intermittent missing data), and the frontend only needs
-        // the JSON shape anyway.
+        // counts have re-hydrated unpredictably across cache hits.
         return $games->toArray();
     });
 
