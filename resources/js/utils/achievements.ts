@@ -103,52 +103,50 @@ export interface AchievementTierStyle {
     accent: string;        // accent text colour (e.g. for the +XP pill)
 }
 
-// Tier pill + accent classes intentionally carry NO bg — the consuming
-// component wraps everything in a fixed `bg-black/65` pill so the label
-// reads identically in dark and light themes. We only contribute the
-// text + ring colour. Text colours are deliberately light/bright (300/200
-// shades) because the pill background is always dark; using deeper shades
-// (e.g. amber-700) made the bronze label disappear in dark mode.
+// Tier pill carries its own solid bg + white text. Earlier attempts at
+// "dark pill with coloured text" looked subtle on busy photos in either
+// theme — the human eye barely picked up amber-300 at 10px. Solid tier
+// colour as the pill backdrop gives the label colour AND identity in one
+// glance, with white text guaranteeing legibility on every photo.
 export const achievementTierStyles: Record<string, AchievementTierStyle> = {
     bronze: {
         label: 'BRONZE',
-        pill: 'text-amber-300 ring-amber-400/45',
+        pill: 'bg-amber-700 text-white ring-amber-300/30',
         ring: 'ring-amber-700/40 border-amber-700/30',
         glow: 'shadow-[0_0_24px_-4px_rgba(180,83,9,0.55)]',
         bgImage: '',
         fallbackImage: '/images/achievements/_tier-bronze.jpg',
-        accent: 'text-amber-300',
+        accent: 'bg-amber-700 text-white',
     },
     silver: {
         label: 'SILVER',
-        pill: 'text-slate-100 ring-slate-200/50',
+        pill: 'bg-slate-500 text-white ring-slate-200/30',
         ring: 'ring-slate-300/50 border-slate-300/40',
         glow: 'shadow-[0_0_28px_-4px_rgba(203,213,225,0.55)]',
         bgImage: '',
         fallbackImage: '/images/achievements/_tier-silver.jpg',
-        accent: 'text-slate-100',
+        accent: 'bg-slate-500 text-white',
     },
     gold: {
         label: 'GOLD',
-        pill: 'text-yellow-300 ring-yellow-300/55',
+        pill: 'bg-yellow-500 text-black ring-yellow-200/30',
         ring: 'ring-yellow-400/50 border-yellow-400/40',
         glow: 'shadow-[0_0_32px_-4px_rgba(250,204,21,0.65)]',
         bgImage: '',
         fallbackImage: '/images/achievements/_tier-gold.jpg',
-        accent: 'text-yellow-300',
+        accent: 'bg-yellow-500 text-black',
     },
     platinum: {
-        // Dropped the gradient `bg-clip-text text-transparent` trick — it
-        // conflicts with the wrapper's bg-black/65 and renders blank.
-        // Solid bright yellow + fuchsia ring still reads as "premium / rare"
-        // without competing with the wrapper background.
+        // Gradient bg keeps the rare/premium vibe without the broken
+        // bg-clip-text-transparent trick — the bg renders solid, the
+        // text sits on top in white.
         label: 'PLATINUM',
-        pill: 'text-yellow-200 ring-fuchsia-400/55',
+        pill: 'bg-gradient-to-r from-fuchsia-500 via-purple-500 to-amber-400 text-white ring-fuchsia-200/30',
         ring: 'ring-fuchsia-400/50 border-yellow-300/40',
         glow: 'shadow-[0_0_40px_-4px_rgba(250,204,21,0.7)]',
         bgImage: '',
         fallbackImage: '/images/achievements/_tier-platinum.jpg',
-        accent: 'text-yellow-200',
+        accent: 'bg-gradient-to-r from-fuchsia-500 to-amber-400 text-white',
     },
 };
 
