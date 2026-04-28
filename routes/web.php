@@ -296,7 +296,12 @@ Route::get('/dashboard', function () {
     $newPlayersToday = Cache::remember('dash:newtoday', 120, fn () => \App\Models\User::whereHas('profile')->whereDate('created_at', today())->count());
     $onlineRecent = Cache::remember('dash:online', 30, fn () => \App\Models\User::where('updated_at', '>=', now()->subMinutes(15))->count());
 
-    // Trending games (cached 5 min)
+    // Trending games (cached 5 min). Primary signal is which games got
+    // added by users in the last 7 days. In cold-start that table is
+    // empty, which used to drop the whole "Trending Now" panel — now we
+    // fall back to the curated config/featured list (same source the
+    // homepage rotation uses) so the panel is always populated. As soon
+    // as real user-add activity picks up, the trending query takes over.
     $trendingGames = Cache::remember('dash:trending', 300, function () {
         $trendingGameIds = \App\Models\UserGame::where('created_at', '>=', now()->subDays(7))
             ->select('game_id')
@@ -305,7 +310,28 @@ Route::get('/dashboard', function () {
             ->orderByDesc('cnt')
             ->take(5)
             ->pluck('game_id');
-        return \App\Models\Game::whereIn('id', $trendingGameIds)->withCount('users')->get();
+
+        $games = \App\Models\Game::whereIn('id', $trendingGameIds)->withCount('users')->get();
+
+        if ($games->count() < 5) {
+            $featuredSlugs = config('featured_games.homepage_rotation', []);
+            $fallback = \App\Models\Game::query()
+                ->whereIn('slug', $featuredSlugs)
+                ->whereNotNull('cover_image')
+                ->where('cover_image', '!=', '')
+                ->whereNotIn('id', $games->pluck('id'))
+                ->withCount('users')
+                ->get()
+                ->keyBy('slug');
+            // Preserve config order, then top up to 5.
+            $ordered = collect($featuredSlugs)
+                ->map(fn ($slug) => $fallback->get($slug))
+                ->filter()
+                ->values();
+            $games = $games->concat($ordered)->take(5)->values();
+        }
+
+        return $games;
     });
 
     // Activity feed (cached 1 min) — anonymized by design. We expose the
