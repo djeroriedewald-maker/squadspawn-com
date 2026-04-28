@@ -208,7 +208,13 @@ export default function Index({
                             return (
                                 <div
                                     key={achievement.id}
-                                    className={`group relative isolate flex aspect-[4/3] flex-col justify-end overflow-hidden rounded-xl border transition-all duration-300 ${
+                                    // Hard-coded `bg-black` keeps the canvas
+                                    // dark even when the locked image's
+                                    // opacity lets the page bg show through
+                                    // — without it, light-mode tiles looked
+                                    // milky because cream bone-50 was
+                                    // bleeding past the translucent image.
+                                    className={`group relative isolate flex aspect-[4/3] flex-col justify-end overflow-hidden rounded-xl border bg-black transition-all duration-300 ${
                                         isEarned
                                             ? `${tier.ring} ${tier.glow}`
                                             : 'border-white/5'
@@ -232,7 +238,7 @@ export default function Index({
                                                 img.style.display = 'none';
                                             }
                                         }}
-                                        className={`absolute inset-0 -z-10 h-full w-full object-cover transition duration-500 ${isEarned ? 'group-hover:scale-105' : 'opacity-30 grayscale brightness-75'}`}
+                                        className={`absolute inset-0 -z-10 h-full w-full object-cover transition duration-500 ${isEarned ? 'group-hover:scale-105' : 'opacity-55 grayscale brightness-50'}`}
                                     />
                                     {/* Bottom-only dark gradient so the title/desc
                                         stays readable. Hardcoded to black/transparent
