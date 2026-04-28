@@ -348,7 +348,11 @@ Route::get('/dashboard', function () {
             $games = $games->concat($extra)->take(5)->values();
         }
 
-        return $games;
+        // Cache as plain array — Eloquent Collections with eager-loaded
+        // counts have re-hydrated unpredictably across cache hits in the
+        // past (intermittent missing data), and the frontend only needs
+        // the JSON shape anyway.
+        return $games->toArray();
     });
 
     // Activity feed (cached 1 min) — anonymized by design. We expose the

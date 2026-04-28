@@ -410,59 +410,63 @@ export default function Dashboard({
                         <CreatorSpotlight creators={featuredCreators} />
                     )}
 
-                    {/* Trending Games + Activity Feed row */}
-                    {(trendingGames.length > 0 || activityFeed.length > 0) && (
-                        <div className="mb-8 grid gap-4 lg:grid-cols-2">
-                            {trendingGames.length > 0 && (
-                                <div className="rounded-xl border border-ink-900/10 bg-white p-5">
-                                    <div className="mb-4 flex items-center gap-2">
-                                        <svg className="h-5 w-5 text-gaming-pink" fill="currentColor" viewBox="0 0 24 24"><path d="M12.75 3.03v.568c0 .334.148.65.405.864A6.75 6.75 0 0118 11.25a6.75 6.75 0 01-13.5 0 6.75 6.75 0 014.845-6.488.75.75 0 01.405-.864V3.03a.568.568 0 01.919-.442l1.563 1.284a.75.75 0 001.536-.442V3.03z" /></svg>
-                                        <h3 className="font-bold text-ink-900">Trending Now</h3>
-                                    </div>
-                                    <div className="space-y-2">
-                                        {trendingGames.map((game, i) => (
-                                            <Link key={game.id} href={route('discovery.index', { game_id: game.id })} className="flex items-center gap-3 rounded-lg p-2 transition hover:bg-bone-100">
-                                                <span className="w-5 text-center text-xs font-bold text-gray-500">#{i + 1}</span>
-                                                <img src={gameCoverUrl(game.cover_image, 'thumb') || `/images/games/${game.slug}.svg`} alt="" loading="lazy" decoding="async" className="h-8 w-12 rounded object-cover" />
-                                                <div className="min-w-0 flex-1">
-                                                    <p className="truncate text-sm font-medium text-ink-900">{game.name}</p>
-                                                    <p className="text-[10px] text-gray-500">{game.users_count} players</p>
-                                                </div>
-                                                <div className="flex items-center gap-1">
-                                                    <span className="h-1.5 w-1.5 animate-blink rounded-full bg-gaming-green" />
-                                                    <span className="text-[10px] text-gaming-green">Active</span>
-                                                </div>
-                                            </Link>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            {activityFeed.length > 0 && (
-                                <div className="rounded-xl border border-ink-900/10 bg-white p-5">
-                                    <div className="mb-4 flex items-center gap-2">
-                                        <svg className="h-5 w-5 text-neon-red" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" /></svg>
-                                        <h3 className="font-bold text-ink-900">Live Activity</h3>
-                                    </div>
-                                    <div className="space-y-1">
-                                        {activityFeed.map((item, i) => (
-                                            <div key={i} className="animate-slide-in flex items-center gap-3 rounded-lg px-2 py-2" style={{ animationDelay: `${i * 0.08}s`, opacity: 0 }}>
-                                                <div className={`h-2 w-2 rounded-full ${item.type === 'joined' ? 'bg-gaming-green' : 'bg-neon-red'}`} />
-                                                <p className="text-sm text-ink-500">
-                                                    {item.type === 'joined' ? (
-                                                        <><strong className="text-ink-900">A new gamer</strong> joined SquadSpawn</>
-                                                    ) : (
-                                                        <><strong className="text-ink-900">Two players</strong> became friends</>
-                                                    )}
-                                                </p>
-                                                <span className="ml-auto shrink-0 text-[10px] text-gray-600">{item.time}</span>
+                    {/* Trending Games + Activity Feed row — both panels
+                        always render even if their data list is empty so
+                        the layout stays consistent across cache states. */}
+                    <div className="mb-8 grid gap-4 lg:grid-cols-2">
+                        <div className="rounded-xl border border-ink-900/10 bg-white p-5">
+                            <div className="mb-4 flex items-center gap-2">
+                                <svg className="h-5 w-5 text-gaming-pink" fill="currentColor" viewBox="0 0 24 24"><path d="M12.75 3.03v.568c0 .334.148.65.405.864A6.75 6.75 0 0118 11.25a6.75 6.75 0 01-13.5 0 6.75 6.75 0 014.845-6.488.75.75 0 01.405-.864V3.03a.568.568 0 01.919-.442l1.563 1.284a.75.75 0 001.536-.442V3.03z" /></svg>
+                                <h3 className="font-bold text-ink-900">Trending Now</h3>
+                            </div>
+                            {trendingGames.length > 0 ? (
+                                <div className="space-y-2">
+                                    {trendingGames.map((game, i) => (
+                                        <Link key={game.id} href={route('discovery.index', { game_id: game.id })} className="flex items-center gap-3 rounded-lg p-2 transition hover:bg-bone-100">
+                                            <span className="w-5 text-center text-xs font-bold text-gray-500">#{i + 1}</span>
+                                            <img src={gameCoverUrl(game.cover_image, 'thumb') || `/images/games/${game.slug}.svg`} alt="" loading="lazy" decoding="async" className="h-8 w-12 rounded object-cover" />
+                                            <div className="min-w-0 flex-1">
+                                                <p className="truncate text-sm font-medium text-ink-900">{game.name}</p>
+                                                <p className="text-[10px] text-gray-500">{game.users_count ?? 0} players</p>
                                             </div>
-                                        ))}
-                                    </div>
+                                            <div className="flex items-center gap-1">
+                                                <span className="h-1.5 w-1.5 animate-blink rounded-full bg-gaming-green" />
+                                                <span className="text-[10px] text-gaming-green">Active</span>
+                                            </div>
+                                        </Link>
+                                    ))}
                                 </div>
+                            ) : (
+                                <p className="py-6 text-center text-xs text-ink-500">No trending data yet — check back soon.</p>
                             )}
                         </div>
-                    )}
+
+                        <div className="rounded-xl border border-ink-900/10 bg-white p-5">
+                            <div className="mb-4 flex items-center gap-2">
+                                <svg className="h-5 w-5 text-neon-red" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" /></svg>
+                                <h3 className="font-bold text-ink-900">Live Activity</h3>
+                            </div>
+                            {activityFeed.length > 0 ? (
+                                <div className="space-y-1">
+                                    {activityFeed.map((item, i) => (
+                                        <div key={i} className="animate-slide-in flex items-center gap-3 rounded-lg px-2 py-2" style={{ animationDelay: `${i * 0.08}s`, opacity: 0 }}>
+                                            <div className={`h-2 w-2 rounded-full ${item.type === 'joined' ? 'bg-gaming-green' : 'bg-neon-red'}`} />
+                                            <p className="text-sm text-ink-500">
+                                                {item.type === 'joined' ? (
+                                                    <><strong className="text-ink-900">A new gamer</strong> joined SquadSpawn</>
+                                                ) : (
+                                                    <><strong className="text-ink-900">Two players</strong> became friends</>
+                                                )}
+                                            </p>
+                                            <span className="ml-auto shrink-0 text-[10px] text-gray-600">{item.time}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="py-6 text-center text-xs text-ink-500">No activity yet — be the first.</p>
+                            )}
+                        </div>
+                    </div>
 
                     {/* Looking for Group */}
                     {relevantLfg && relevantLfg.length > 0 && (
