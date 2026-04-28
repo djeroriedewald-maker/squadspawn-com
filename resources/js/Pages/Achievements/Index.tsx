@@ -211,13 +211,12 @@ export default function Index({
                                     className={`group relative isolate flex aspect-[4/3] flex-col justify-end overflow-hidden rounded-xl border transition-all duration-300 ${
                                         isEarned
                                             ? `${tier.ring} ${tier.glow}`
-                                            : 'border-ink-900/10 grayscale'
+                                            : 'border-white/5'
                                     }`}
                                 >
-                                    {/* Background image — falls back to a per-tier
-                                        generic image if the per-slug one is missing
-                                        on disk. The browser's natural 404 → onError
-                                        swap handles this without a JS check. */}
+                                    {/* Background image. Earned = full strength.
+                                        Locked = grayscale + dimmed so it's clearly
+                                        not yet yours but still recognisable. */}
                                     <img
                                         src={bgImageFor(achievement.slug)}
                                         alt=""
@@ -225,11 +224,7 @@ export default function Index({
                                         decoding="async"
                                         onError={(e) => {
                                             const img = e.currentTarget;
-                                            // Two-step fallback: per-slug image →
-                                            // per-tier image → hide. Prevents an
-                                            // infinite onError loop if neither
-                                            // exists on disk yet.
-                                            if (img.dataset.fallback === '0' || !img.dataset.fallback) {
+                                            if (!img.dataset.fallback) {
                                                 img.dataset.fallback = '1';
                                                 img.src = tier.fallbackImage;
                                             } else if (img.dataset.fallback === '1') {
@@ -237,59 +232,68 @@ export default function Index({
                                                 img.style.display = 'none';
                                             }
                                         }}
-                                        className={`absolute inset-0 -z-10 h-full w-full object-cover transition duration-500 ${isEarned ? 'group-hover:scale-105' : 'opacity-50'}`}
+                                        className={`absolute inset-0 -z-10 h-full w-full object-cover transition duration-500 ${isEarned ? 'group-hover:scale-105' : 'opacity-40 grayscale'}`}
                                     />
-                                    {/* Dark gradient so text sits readable on any photo */}
-                                    <div className="absolute inset-0 -z-10 bg-gradient-to-t from-ink-900/95 via-ink-900/60 to-ink-900/20" />
+                                    {/* Bottom-only dark gradient so the title/desc
+                                        stays readable. Hardcoded to black/transparent
+                                        — `ink-900` flips to bone in dark mode and
+                                        would create a white wash over the photo. */}
+                                    <div className="absolute inset-x-0 bottom-0 -z-10 h-2/3 bg-gradient-to-t from-black/90 via-black/45 to-transparent" />
 
-                                    {/* Top row: tier pill + lock/check */}
+                                    {/* Locked: prominent center lock badge so it's
+                                        unmistakable at a glance. */}
+                                    {!isEarned && (
+                                        <div className="pointer-events-none absolute inset-0 -z-10 flex items-center justify-center">
+                                            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-black/65 ring-1 ring-white/15 backdrop-blur-sm">
+                                                <svg className="h-7 w-7 text-white/85" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25z" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Top row: tier pill + (earned-only) check */}
                                     <div className="absolute inset-x-3 top-3 flex items-center justify-between">
-                                        <span className={`rounded-full bg-ink-900/70 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest backdrop-blur-sm ring-1 ${tier.pill}`}>
+                                        <span className={`rounded-full bg-black/65 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest backdrop-blur-sm ring-1 ${tier.pill}`}>
                                             {tier.label}
                                         </span>
-                                        {isEarned ? (
-                                            <span className={`flex h-6 w-6 items-center justify-center rounded-full bg-ink-900/70 backdrop-blur-sm ${tier.accent}`}>
+                                        {isEarned && (
+                                            <span className={`flex h-6 w-6 items-center justify-center rounded-full bg-black/65 backdrop-blur-sm ${tier.accent}`}>
                                                 <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                            </span>
-                                        ) : (
-                                            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-ink-900/70 text-white/80 backdrop-blur-sm">
-                                                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-                                                </svg>
                                             </span>
                                         )}
                                     </div>
 
-                                    {/* Bottom info block, on top of the gradient */}
+                                    {/* Bottom info block — sits over the dark gradient */}
                                     <div className="relative p-4">
                                         <div className="flex items-baseline gap-2">
                                             <span className="text-2xl">{getAchievementIcon(achievement.icon)}</span>
-                                            <h3 className="truncate text-base font-bold text-white [text-shadow:_0_1px_4px_rgba(0,0,0,0.9)]">
+                                            <h3 className="truncate text-base font-bold text-white [text-shadow:_0_1px_4px_rgba(0,0,0,0.95)]">
                                                 {achievement.name}
                                             </h3>
                                         </div>
-                                        <p className="mt-1 line-clamp-2 text-xs text-white/80 [text-shadow:_0_1px_3px_rgba(0,0,0,0.9)]">
+                                        <p className="mt-1 line-clamp-2 text-xs text-white/85 [text-shadow:_0_1px_3px_rgba(0,0,0,0.95)]">
                                             {achievement.description}
                                         </p>
 
                                         {!isEarned && prog && (
                                             <div className="mt-2.5">
-                                                <div className="mb-1 flex items-center justify-between text-[10px] text-white/80">
+                                                <div className="mb-1 flex items-center justify-between text-[10px] text-white/85 [text-shadow:_0_1px_2px_rgba(0,0,0,0.9)]">
                                                     <span>{Math.min(prog.current, prog.target)}/{prog.target} {prog.label}</span>
                                                     <span>{Math.round(progPercent)}%</span>
                                                 </div>
-                                                <div className="h-1.5 overflow-hidden rounded-full bg-ink-900/60">
+                                                <div className="h-1.5 overflow-hidden rounded-full bg-black/60 ring-1 ring-white/10">
                                                     <div className={`h-full rounded-full ${colors.bar} transition-all`} style={{ width: `${progPercent}%` }} />
                                                 </div>
                                             </div>
                                         )}
 
                                         <div className="mt-2.5 flex items-center justify-between">
-                                            <span className={`rounded-full bg-ink-900/70 px-2 py-0.5 text-[10px] font-bold backdrop-blur-sm ${tier.accent}`}>
+                                            <span className={`rounded-full bg-black/65 px-2 py-0.5 text-[10px] font-bold backdrop-blur-sm ${tier.accent}`}>
                                                 +{achievement.points} XP
                                             </span>
                                             {isEarned && earnedDate && (
-                                                <span className="text-[10px] text-white/70">{new Date(earnedDate).toLocaleDateString()}</span>
+                                                <span className="text-[10px] text-white/80 [text-shadow:_0_1px_2px_rgba(0,0,0,0.9)]">{new Date(earnedDate).toLocaleDateString()}</span>
                                             )}
                                         </div>
                                     </div>
