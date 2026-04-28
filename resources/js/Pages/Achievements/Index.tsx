@@ -244,21 +244,27 @@ export default function Index({
                                         unmistakable at a glance. */}
                                     {!isEarned && (
                                         <div className="pointer-events-none absolute inset-0 -z-10 flex items-center justify-center">
-                                            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-black/65 ring-1 ring-white/15 backdrop-blur-sm">
-                                                <svg className="h-7 w-7 text-white/85" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-sm">
+                                                <svg className="h-7 w-7 text-white/95" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                                     <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25z" />
                                                 </svg>
                                             </div>
                                         </div>
                                     )}
 
-                                    {/* Top row: tier pill + (earned-only) check */}
+                                    {/* Top row: tier pill + (earned-only) check.
+                                        Pill backdrop is bumped to bg-black/85 so
+                                        it stays solid on lighter image patches —
+                                        translucent /65 was readable on dark image
+                                        areas but blended in on bright ones. The
+                                        label gets its own text-shadow so the
+                                        small 10px caps survive any backdrop. */}
                                     <div className="absolute inset-x-3 top-3 flex items-center justify-between">
-                                        <span className={`rounded-full bg-black/65 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest backdrop-blur-sm ring-1 ${tier.pill}`}>
+                                        <span className={`rounded-full bg-black/85 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest shadow-md backdrop-blur-sm ring-1 [text-shadow:_0_1px_3px_rgba(0,0,0,0.85)] ${tier.pill}`}>
                                             {tier.label}
                                         </span>
                                         {isEarned && (
-                                            <span className={`flex h-6 w-6 items-center justify-center rounded-full bg-black/65 backdrop-blur-sm ${tier.accent}`}>
+                                            <span className={`flex h-6 w-6 items-center justify-center rounded-full bg-black/85 shadow-md backdrop-blur-sm ${tier.accent}`}>
                                                 <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                             </span>
                                         )}
@@ -289,7 +295,7 @@ export default function Index({
                                         )}
 
                                         <div className="mt-2.5 flex items-center justify-between">
-                                            <span className={`rounded-full bg-black/65 px-2 py-0.5 text-[10px] font-bold backdrop-blur-sm ${tier.accent}`}>
+                                            <span className={`rounded-full bg-black/85 px-2 py-0.5 text-[10px] font-bold shadow-md backdrop-blur-sm [text-shadow:_0_1px_3px_rgba(0,0,0,0.85)] ${tier.accent}`}>
                                                 +{achievement.points} XP
                                             </span>
                                             {isEarned && earnedDate && (
