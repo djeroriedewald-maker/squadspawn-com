@@ -79,6 +79,9 @@ class AchievementController extends Controller
             'no-toxic' => ['current' => $ratingCount >= 25 ? ($toxicTags === 0 ? 25 : 25 - $toxicTags) : $ratingCount, 'target' => 25, 'label' => 'clean ratings'],
             'globe-trotter' => ['current' => $regionCount, 'target' => 5, 'label' => 'regions'],
             'profile-complete' => ['current' => ($hasBio ? 1 : 0) + ($hasAvatar ? 1 : 0) + ($hasSocial ? 1 : 0), 'target' => 3, 'label' => 'steps'],
+            'hall-of-famer' => ['current' => $ratingCount >= 100 ? $avgRating : 0, 'target' => 4.7, 'label' => "avg rating ({$ratingCount}/100 min)"],
+            'pillar-of-the-community' => ['current' => $lfgHosted, 'target' => 50, 'label' => 'LFGs hosted'],
+            'living-legend' => ['current' => ($user->profile?->level ?? 1), 'target' => 6, 'label' => 'reach Legend'],
         ];
 
         // XP Level
@@ -109,6 +112,13 @@ class AchievementController extends Controller
             'currentLevel' => array_merge($currentLevel, ['level' => $currentLevelNum]),
             'nextLevel' => $nextLevel ? array_merge($nextLevel, ['level' => $nextLevelNum]) : null,
             'levels' => collect($levels)->map(fn ($l, $k) => array_merge($l, ['level' => $k]))->values(),
+            // Legend gates surface only once the user is close (Champion+
+            // or has crossed the XP bar but not the gates). Below that the
+            // panel just adds noise. Computed eagerly because the queries
+            // are bounded — at most 50-100 ratings + a count.
+            'legendGates' => ($currentLevelNum >= 5 || $userXp >= AchievementService::LEVELS[6]['xp'])
+                ? AchievementService::legendGates($user)
+                : null,
         ]);
     }
 }

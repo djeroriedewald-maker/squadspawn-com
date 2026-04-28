@@ -106,6 +106,7 @@ export interface Achievement {
     description: string;
     icon: string;
     color: string;
+    tier?: 'bronze' | 'silver' | 'gold' | 'platinum';
     points: number;
     pivot?: {
         created_at: string;

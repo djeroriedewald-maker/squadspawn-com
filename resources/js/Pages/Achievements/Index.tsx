@@ -3,6 +3,7 @@ import { Achievement, PageProps } from '@/types';
 import {
     achievementColorClasses as colorClasses,
     getAchievementIcon,
+    getTierStyle,
 } from '@/utils/achievements';
 import { Head } from '@inertiajs/react';
 
@@ -20,17 +21,30 @@ interface XpLevel {
     xp: number;
 }
 
+interface LegendGate {
+    ok: boolean;
+    current: number;
+    target: number;
+    label: string;
+}
+
+// Per-tile image lives at /images/achievements/{slug}.jpg. When that's
+// missing the tile falls back to the per-tier generic image so a freshly
+// added achievement looks intentional even before its custom art exists.
+function bgImageFor(slug: string): string {
+    return `/images/achievements/${slug}.jpg`;
+}
+
 export default function Index({
     achievements,
     earnedIds,
     earnedDates,
-    totalPoints,
-    earnedPoints,
     progress,
     userXp,
     currentLevel,
     nextLevel,
     levels,
+    legendGates,
 }: PageProps<{
     achievements: Achievement[];
     earnedIds: number[];
@@ -42,6 +56,7 @@ export default function Index({
     currentLevel: XpLevel;
     nextLevel: XpLevel | null;
     levels: XpLevel[];
+    legendGates: Record<string, LegendGate> | null;
 }>) {
     const earnedCount = earnedIds.length;
     const totalCount = achievements.length;
@@ -49,6 +64,17 @@ export default function Index({
     const xpInLevel = nextLevel ? userXp - currentLevel.xp : 0;
     const xpNeeded = nextLevel ? nextLevel.xp - currentLevel.xp : 1;
     const levelProgress = nextLevel ? Math.min((xpInLevel / xpNeeded) * 100, 100) : 100;
+
+    // Sort tiles by tier asc (bronze → platinum) then by points asc within
+    // a tier so the page reads as a difficulty ladder. Earned-vs-locked
+    // doesn't influence order — keeps the layout stable session to session.
+    const tierOrder: Record<string, number> = { bronze: 0, silver: 1, gold: 2, platinum: 3 };
+    const sortedAchievements = [...achievements].sort((a, b) => {
+        const ta = tierOrder[a.tier || 'bronze'] ?? 0;
+        const tb = tierOrder[b.tier || 'bronze'] ?? 0;
+        if (ta !== tb) return ta - tb;
+        return a.points - b.points;
+    });
 
     return (
         <AuthenticatedLayout>
@@ -72,7 +98,6 @@ export default function Index({
                     {/* XP Level Card */}
                     <div className="mb-8 overflow-hidden rounded-2xl border border-ink-900/10 bg-white">
                         <div className="flex flex-col gap-6 p-6 sm:flex-row sm:items-center">
-                            {/* Level badge */}
                             <div className="flex items-center gap-4">
                                 <div className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-bone-100 text-3xl font-black ${levelColors[currentLevel.level - 1] || 'text-ink-900'}`}>
                                     {currentLevel.level}
@@ -83,31 +108,29 @@ export default function Index({
                                 </div>
                             </div>
 
-                            {/* XP Progress */}
                             <div className="flex-1">
                                 {nextLevel ? (
                                     <>
                                         <div className="mb-1.5 flex items-center justify-between text-xs">
                                             <span className="text-ink-500">Level {currentLevel.level}</span>
-                                            <span className="font-semibold text-ink-700">{xpInLevel}/{xpNeeded} XP to Level {nextLevel.level}</span>
+                                            <span className="font-semibold text-ink-700">{xpInLevel.toLocaleString()}/{xpNeeded.toLocaleString()} XP to Level {nextLevel.level}</span>
                                             <span className="text-ink-500">{nextLevel.name}</span>
                                         </div>
                                         <div className="h-3 overflow-hidden rounded-full bg-bone-100">
                                             <div
-                                                className="h-full rounded-full bg-gradient-to-r from-neon-red via-gaming-cyan to-gaming-green transition-all duration-700"
+                                                className="h-full rounded-full bg-gradient-to-r from-neon-red via-gaming-cyan to-yellow-400 transition-all duration-700"
                                                 style={{ width: `${levelProgress}%` }}
                                             />
                                         </div>
                                     </>
                                 ) : (
-                                    <div className="rounded-lg bg-yellow-400/10 px-4 py-2 text-center text-sm font-semibold text-yellow-400">
-                                        Max Level Reached!
+                                    <div className="rounded-lg bg-yellow-400/10 px-4 py-2 text-center text-sm font-bold text-yellow-400">
+                                        Living Legend — max tier reached
                                     </div>
                                 )}
                             </div>
                         </div>
 
-                        {/* Level roadmap */}
                         <div className="flex border-t border-ink-900/5">
                             {(levels || []).map((lvl: XpLevel) => (
                                 <div key={lvl.level} className={`flex-1 py-2.5 text-center text-[10px] ${userXp >= lvl.xp ? levelColors[lvl.level - 1] + ' font-bold' : 'text-gray-600'}`}>
@@ -118,19 +141,51 @@ export default function Index({
                         </div>
                     </div>
 
+                    {/* Legend gates — only shown to Champion+ users so we don't
+                        spoil the journey for newer accounts. */}
+                    {legendGates && (
+                        <div className="mb-8 overflow-hidden rounded-2xl border border-yellow-400/30 bg-gradient-to-br from-yellow-400/5 via-bone-100 to-fuchsia-400/5 p-6">
+                            <div className="mb-3 flex items-center gap-3">
+                                <span className="rounded-full bg-yellow-400/15 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-widest text-yellow-400 ring-1 ring-yellow-400/40">
+                                    Legend gates
+                                </span>
+                                <p className="text-xs text-ink-500">XP alone won't get you there — Legend takes a clean record and real community trust.</p>
+                            </div>
+                            <div className="grid gap-2 sm:grid-cols-2">
+                                {Object.entries(legendGates).map(([key, gate]) => (
+                                    <div key={key} className={`flex items-center justify-between rounded-lg border px-3 py-2 text-sm ${gate.ok ? 'border-gaming-green/30 bg-gaming-green/5' : 'border-ink-900/10 bg-white'}`}>
+                                        <span className="flex items-center gap-2 text-ink-700">
+                                            {gate.ok ? (
+                                                <svg className="h-4 w-4 text-gaming-green" fill="currentColor" viewBox="0 0 24 24"><path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                            ) : (
+                                                <svg className="h-4 w-4 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
+                                                    <circle cx="12" cy="12" r="9" />
+                                                </svg>
+                                            )}
+                                            {gate.label}
+                                        </span>
+                                        <span className={`text-xs font-bold ${gate.ok ? 'text-gaming-green' : 'text-ink-500'}`}>
+                                            {gate.current}{gate.target ? ` / ${gate.target}` : ''}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
                     {/* XP Sources info */}
                     <div className="mb-6 rounded-xl border border-ink-900/10 bg-white p-4">
                         <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500">How to earn XP</p>
                         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                             {[
                                 { action: 'Daily login', xp: '+5' },
-                                { action: 'Send message', xp: '+1 (max 10/day)' },
-                                { action: 'Host LFG', xp: '+20' },
+                                { action: 'Host LFG', xp: '+25' },
                                 { action: 'Join LFG', xp: '+10' },
                                 { action: 'Give rating', xp: '+5' },
-                                { action: '5-star received', xp: '+15' },
-                                { action: 'New friend', xp: '+10' },
-                                { action: 'Share clip', xp: '+5' },
+                                { action: '5-star received', xp: '+30' },
+                                { action: 'New friend', xp: '+15' },
+                                { action: 'Share clip', xp: '+10' },
+                                { action: 'Unlock achievement', xp: 'varies' },
                             ].map((item) => (
                                 <div key={item.action} className="rounded-lg bg-bone-50 px-3 py-2">
                                     <p className="text-[11px] font-medium text-ink-900">{item.action}</p>
@@ -140,11 +195,12 @@ export default function Index({
                         </div>
                     </div>
 
-                    {/* Achievement Grid */}
+                    {/* Achievement Grid — image-backed tiles, sorted by tier */}
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                        {achievements.map((achievement) => {
+                        {sortedAchievements.map((achievement) => {
                             const isEarned = earnedIds.includes(achievement.id);
                             const colors = colorClasses[achievement.color] || colorClasses.purple;
+                            const tier = getTierStyle(achievement.tier);
                             const earnedDate = earnedDates[achievement.id];
                             const prog = progress[achievement.slug];
                             const progPercent = prog ? Math.min((prog.current / prog.target) * 100, 100) : 0;
@@ -152,58 +208,89 @@ export default function Index({
                             return (
                                 <div
                                     key={achievement.id}
-                                    className={`relative overflow-hidden rounded-xl border p-5 transition-all duration-300 ${
+                                    className={`group relative isolate flex aspect-[4/3] flex-col justify-end overflow-hidden rounded-xl border transition-all duration-300 ${
                                         isEarned
-                                            ? `${colors.bg} ${colors.border} ${colors.glow}`
-                                            : 'border-ink-900/5 bg-bone-100/50'
+                                            ? `${tier.ring} ${tier.glow}`
+                                            : 'border-ink-900/10 grayscale'
                                     }`}
                                 >
-                                    {/* Earned badge */}
-                                    {isEarned && (
-                                        <div className="absolute right-3 top-3">
-                                            <svg className={`h-5 w-5 ${colors.text}`} fill="currentColor" viewBox="0 0 24 24"><path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                        </div>
-                                    )}
-                                    {/* Lock for unearned */}
-                                    {!isEarned && (
-                                        <div className="absolute right-3 top-3 text-gray-600">
-                                            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-                                            </svg>
-                                        </div>
-                                    )}
+                                    {/* Background image — falls back to a per-tier
+                                        generic image if the per-slug one is missing
+                                        on disk. The browser's natural 404 → onError
+                                        swap handles this without a JS check. */}
+                                    <img
+                                        src={bgImageFor(achievement.slug)}
+                                        alt=""
+                                        loading="lazy"
+                                        decoding="async"
+                                        onError={(e) => {
+                                            const img = e.currentTarget;
+                                            // Two-step fallback: per-slug image →
+                                            // per-tier image → hide. Prevents an
+                                            // infinite onError loop if neither
+                                            // exists on disk yet.
+                                            if (img.dataset.fallback === '0' || !img.dataset.fallback) {
+                                                img.dataset.fallback = '1';
+                                                img.src = tier.fallbackImage;
+                                            } else if (img.dataset.fallback === '1') {
+                                                img.dataset.fallback = '2';
+                                                img.style.display = 'none';
+                                            }
+                                        }}
+                                        className={`absolute inset-0 -z-10 h-full w-full object-cover transition duration-500 ${isEarned ? 'group-hover:scale-105' : 'opacity-50'}`}
+                                    />
+                                    {/* Dark gradient so text sits readable on any photo */}
+                                    <div className="absolute inset-0 -z-10 bg-gradient-to-t from-ink-900/95 via-ink-900/60 to-ink-900/20" />
 
-                                    <div className="flex items-start gap-4">
-                                        <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-2xl ${isEarned ? colors.bg : 'bg-bone-100'}`}>
-                                            {getAchievementIcon(achievement.icon)}
-                                        </div>
-                                        <div className="min-w-0 flex-1">
-                                            <h3 className={`font-bold ${isEarned ? colors.text : 'text-ink-500'}`}>
+                                    {/* Top row: tier pill + lock/check */}
+                                    <div className="absolute inset-x-3 top-3 flex items-center justify-between">
+                                        <span className={`rounded-full bg-ink-900/70 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest backdrop-blur-sm ring-1 ${tier.pill}`}>
+                                            {tier.label}
+                                        </span>
+                                        {isEarned ? (
+                                            <span className={`flex h-6 w-6 items-center justify-center rounded-full bg-ink-900/70 backdrop-blur-sm ${tier.accent}`}>
+                                                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                            </span>
+                                        ) : (
+                                            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-ink-900/70 text-white/80 backdrop-blur-sm">
+                                                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                                                </svg>
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    {/* Bottom info block, on top of the gradient */}
+                                    <div className="relative p-4">
+                                        <div className="flex items-baseline gap-2">
+                                            <span className="text-2xl">{getAchievementIcon(achievement.icon)}</span>
+                                            <h3 className="truncate text-base font-bold text-white [text-shadow:_0_1px_4px_rgba(0,0,0,0.9)]">
                                                 {achievement.name}
                                             </h3>
-                                            <p className="mt-0.5 text-xs text-gray-500">{achievement.description}</p>
+                                        </div>
+                                        <p className="mt-1 line-clamp-2 text-xs text-white/80 [text-shadow:_0_1px_3px_rgba(0,0,0,0.9)]">
+                                            {achievement.description}
+                                        </p>
 
-                                            {/* Progress bar for locked achievements */}
-                                            {!isEarned && prog && (
-                                                <div className="mt-2">
-                                                    <div className="mb-1 flex items-center justify-between text-[10px]">
-                                                        <span className="text-gray-500">{Math.min(prog.current, prog.target)}/{prog.target} {prog.label}</span>
-                                                        <span className="text-gray-600">{Math.round(progPercent)}%</span>
-                                                    </div>
-                                                    <div className="h-1.5 overflow-hidden rounded-full bg-bone-100">
-                                                        <div className={`h-full rounded-full ${colors.bar} transition-all`} style={{ width: `${progPercent}%` }} />
-                                                    </div>
+                                        {!isEarned && prog && (
+                                            <div className="mt-2.5">
+                                                <div className="mb-1 flex items-center justify-between text-[10px] text-white/80">
+                                                    <span>{Math.min(prog.current, prog.target)}/{prog.target} {prog.label}</span>
+                                                    <span>{Math.round(progPercent)}%</span>
                                                 </div>
-                                            )}
-
-                                            <div className="mt-2 flex items-center justify-between">
-                                                <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${isEarned ? `${colors.bg} ${colors.text}` : 'bg-bone-100 text-gray-600'}`}>
-                                                    +{achievement.points} XP
-                                                </span>
-                                                {isEarned && earnedDate && (
-                                                    <span className="text-[10px] text-gray-500">{new Date(earnedDate).toLocaleDateString()}</span>
-                                                )}
+                                                <div className="h-1.5 overflow-hidden rounded-full bg-ink-900/60">
+                                                    <div className={`h-full rounded-full ${colors.bar} transition-all`} style={{ width: `${progPercent}%` }} />
+                                                </div>
                                             </div>
+                                        )}
+
+                                        <div className="mt-2.5 flex items-center justify-between">
+                                            <span className={`rounded-full bg-ink-900/70 px-2 py-0.5 text-[10px] font-bold backdrop-blur-sm ${tier.accent}`}>
+                                                +{achievement.points} XP
+                                            </span>
+                                            {isEarned && earnedDate && (
+                                                <span className="text-[10px] text-white/70">{new Date(earnedDate).toLocaleDateString()}</span>
+                                            )}
                                         </div>
                                     </div>
                                 </div>

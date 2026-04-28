@@ -209,15 +209,10 @@ class ChatController extends Controller
         \Cache::forget("chat_hidden:{$user->id}:{$playerMatch->id}");
         \Cache::forget("chat_hidden:{$partner->id}:{$playerMatch->id}");
 
-        // XP for sending messages (max 10/day)
-        try {
-            $dailyMsgKey = "xp_msg:{$user->id}:" . today()->toDateString();
-            $dailyMsgCount = \Cache::get($dailyMsgKey, 0);
-            if ($dailyMsgCount < 10) {
-                \Cache::put($dailyMsgKey, $dailyMsgCount + 1, 86400);
-                \App\Services\AchievementService::awardXp($user, 'message_sent');
-            }
-        } catch (\Throwable) {}
+        // No XP per message — pure grind, didn't reward quality. Removed
+        // 2026-04-28 in the achievement-balance-v2 pass. Message-volume
+        // achievements (conversation-starter / chatterbox) still trigger
+        // their own one-time XP rewards on unlock, which is enough.
 
         // Notify after response is ready - wrapped to never break chat
         try {
