@@ -6,6 +6,7 @@ import {
     getTierStyle,
 } from '@/utils/achievements';
 import { Head } from '@inertiajs/react';
+import { useEffect, useState } from 'react';
 
 const levelColors = ['text-ink-500', 'text-gaming-green', 'text-gaming-cyan', 'text-neon-red', 'text-gaming-pink', 'text-yellow-400'];
 
@@ -75,6 +76,21 @@ export default function Index({
         if (ta !== tb) return ta - tb;
         return a.points - b.points;
     });
+
+    // Selected achievement powers the detail modal. ESC to close, plus
+    // body-scroll lock while open so a long page doesn't keep scrolling
+    // behind the dialog.
+    const [selected, setSelected] = useState<Achievement | null>(null);
+    useEffect(() => {
+        if (!selected) return;
+        const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setSelected(null); };
+        document.addEventListener('keydown', onKey);
+        document.body.style.overflow = 'hidden';
+        return () => {
+            document.removeEventListener('keydown', onKey);
+            document.body.style.overflow = '';
+        };
+    }, [selected]);
 
     return (
         <AuthenticatedLayout>
@@ -206,15 +222,18 @@ export default function Index({
                             const progPercent = prog ? Math.min((prog.current / prog.target) * 100, 100) : 0;
 
                             return (
-                                <div
+                                <button
                                     key={achievement.id}
+                                    type="button"
+                                    onClick={() => setSelected(achievement)}
+                                    aria-label={`View ${achievement.name} achievement details`}
                                     // Hard-coded `bg-black` keeps the canvas
                                     // dark even when the locked image's
                                     // opacity lets the page bg show through
                                     // — without it, light-mode tiles looked
                                     // milky because cream bone-50 was
                                     // bleeding past the translucent image.
-                                    className={`group relative isolate flex aspect-[4/3] flex-col justify-end overflow-hidden rounded-xl border bg-black transition-all duration-300 ${
+                                    className={`group relative isolate flex aspect-[4/3] cursor-pointer flex-col justify-end overflow-hidden rounded-xl border bg-black text-left transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-neon-red/40 focus:ring-offset-2 focus:ring-offset-bone-50 ${
                                         isEarned
                                             ? `${tier.ring} ${tier.glow}`
                                             : 'border-white/5'
@@ -314,12 +333,152 @@ export default function Index({
                                             )}
                                         </div>
                                     </div>
-                                </div>
+                                </button>
                             );
                         })}
                     </div>
                 </div>
             </div>
+
+            {/* Detail modal — opens on tile click. Click on the dark
+                backdrop closes it; the inner card stops propagation so
+                a click inside doesn't bubble back up. ESC + body-scroll
+                lock are wired in the useEffect above. */}
+            {selected && (() => {
+                const tier = getTierStyle(selected.tier);
+                const colors = colorClasses[selected.color] || colorClasses.purple;
+                const isEarned = earnedIds.includes(selected.id);
+                const earnedDate = earnedDates[selected.id];
+                const prog = progress[selected.slug];
+                const progPercent = prog ? Math.min((prog.current / prog.target) * 100, 100) : 0;
+
+                return (
+                    <div
+                        className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-black/80 px-4 py-8 backdrop-blur-sm"
+                        onClick={() => setSelected(null)}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="achievement-modal-title"
+                    >
+                        <div
+                            onClick={(e) => e.stopPropagation()}
+                            className={`relative w-full max-w-lg overflow-hidden rounded-2xl border bg-black shadow-2xl ${
+                                isEarned ? tier.ring : 'border-white/10'
+                            }`}
+                        >
+                            {/* Close button */}
+                            <button
+                                type="button"
+                                onClick={() => setSelected(null)}
+                                aria-label="Close"
+                                className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/70 text-white shadow-md ring-1 ring-white/15 backdrop-blur-sm transition hover:bg-black/90"
+                            >
+                                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+
+                            {/* Hero image */}
+                            <div className="relative aspect-[16/9] bg-black">
+                                <img
+                                    src={bgImageFor(selected.slug)}
+                                    alt=""
+                                    onError={(e) => {
+                                        const img = e.currentTarget;
+                                        if (!img.dataset.fallback) {
+                                            img.dataset.fallback = '1';
+                                            img.src = tier.fallbackImage;
+                                        } else if (img.dataset.fallback === '1') {
+                                            img.dataset.fallback = '2';
+                                            img.style.display = 'none';
+                                        }
+                                    }}
+                                    className={`h-full w-full object-cover ${isEarned ? '' : 'opacity-55 grayscale brightness-50'}`}
+                                />
+                                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black to-transparent" />
+
+                                {/* Tier pill bottom-left of hero */}
+                                <span className={`absolute bottom-4 left-4 inline-flex items-center rounded-full px-3 py-1 text-xs font-extrabold uppercase tracking-widest shadow-md ring-1 ${tier.pill}`}>
+                                    {tier.label}
+                                </span>
+                                {isEarned && (
+                                    <span className="absolute bottom-4 right-4 inline-flex items-center gap-1.5 rounded-full bg-gaming-green px-3 py-1 text-xs font-extrabold uppercase tracking-widest text-white shadow-md ring-1 ring-white/20">
+                                        <svg className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                        Unlocked
+                                    </span>
+                                )}
+                            </div>
+
+                            {/* Body */}
+                            <div className="space-y-4 p-6">
+                                <div>
+                                    <div className="flex items-baseline gap-3">
+                                        <span className="text-3xl">{getAchievementIcon(selected.icon)}</span>
+                                        <h3 id="achievement-modal-title" className="text-2xl font-extrabold text-white">
+                                            {selected.name}
+                                        </h3>
+                                    </div>
+                                    <p className="mt-2 text-sm leading-relaxed text-white/80">
+                                        {selected.description}
+                                    </p>
+                                </div>
+
+                                {/* Status row */}
+                                <div className="flex flex-wrap items-center gap-3 border-y border-white/5 py-3 text-xs">
+                                    <span className={`rounded-full px-2.5 py-0.5 font-extrabold ${tier.accent}`}>
+                                        +{selected.points} XP
+                                    </span>
+                                    {isEarned && earnedDate ? (
+                                        <span className="text-white/70">
+                                            Unlocked on <strong className="text-white">{new Date(earnedDate).toLocaleDateString()}</strong>
+                                        </span>
+                                    ) : prog ? (
+                                        <span className="text-white/70">
+                                            <strong className="text-white">{Math.min(prog.current, prog.target)}</strong>{' '}/{' '}
+                                            <strong className="text-white">{prog.target}</strong>{' '}{prog.label}
+                                        </span>
+                                    ) : (
+                                        <span className="text-white/70">Locked</span>
+                                    )}
+                                </div>
+
+                                {/* Progress bar (locked + has progress) */}
+                                {!isEarned && prog && (
+                                    <div>
+                                        <div className="mb-1.5 flex items-center justify-between text-xs text-white/70">
+                                            <span>Progress</span>
+                                            <span className="font-bold text-white">{Math.round(progPercent)}%</span>
+                                        </div>
+                                        <div className="h-2.5 overflow-hidden rounded-full bg-white/10 ring-1 ring-white/10">
+                                            <div className={`h-full rounded-full ${colors.bar} transition-all`} style={{ width: `${progPercent}%` }} />
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Locked teaser (no progress data — usually
+                                    achievements that are auto-checked once a
+                                    condition flips, like Living Legend). */}
+                                {!isEarned && !prog && (
+                                    <div className="rounded-xl bg-white/5 p-4 text-xs text-white/70 ring-1 ring-white/10">
+                                        Keep playing — this one unlocks automatically when you meet the conditions in the description.
+                                    </div>
+                                )}
+
+                                {isEarned && (
+                                    <div className={`rounded-xl bg-gradient-to-r p-4 text-sm font-bold text-white ring-1 ring-white/10 ${
+                                        tier.label === 'PLATINUM' ? 'from-fuchsia-500/20 to-amber-400/20'
+                                        : tier.label === 'GOLD' ? 'from-yellow-500/20 to-amber-400/10'
+                                        : tier.label === 'SILVER' ? 'from-slate-400/20 to-slate-300/10'
+                                        : 'from-amber-700/20 to-amber-500/10'
+                                    }`}>
+                                        Earned. Wear it.
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                );
+            })()}
         </AuthenticatedLayout>
     );
 }
