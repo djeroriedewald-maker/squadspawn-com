@@ -427,7 +427,6 @@ export default function Dashboard({
                                             <img src={gameCoverUrl(game.cover_image, 'thumb') || `/images/games/${game.slug}.svg`} alt="" loading="lazy" decoding="async" className="h-8 w-12 rounded object-cover" />
                                             <div className="min-w-0 flex-1">
                                                 <p className="truncate text-sm font-medium text-ink-900">{game.name}</p>
-                                                <p className="text-[10px] text-gray-500">{game.users_count ?? 0} players</p>
                                             </div>
                                             <div className="flex items-center gap-1">
                                                 <span className="h-1.5 w-1.5 animate-blink rounded-full bg-gaming-green" />
