@@ -71,9 +71,10 @@ export default function Authenticated({
                                         Creators
                                     </NavLink>
                                 )}
-                                <NavLink href={route('game-profile.show')} active={route().current('game-profile.*')}>
-                                    Profile
-                                </NavLink>
+                                {/* Profile lives in the user-avatar dropdown
+                                    on desktop now — frees the nav for play
+                                    surfaces only. Still in the mobile drawer
+                                    so thumb-reach to it stays one tap. */}
                             </div>
                         </div>
 
@@ -121,29 +122,45 @@ export default function Authenticated({
                             <div className="relative">
                                 <Dropdown>
                                     <Dropdown.Trigger>
-                                        <span className="inline-flex rounded-md">
-                                            <button
-                                                type="button"
-                                                className="inline-flex max-w-[10rem] items-center rounded-md border border-ink-900/10 bg-bone-100 px-3 py-2 text-sm font-medium leading-4 text-ink-700 transition duration-150 ease-in-out hover:text-ink-900 focus:outline-none"
-                                            >
-                                                <span className="truncate">{user.name}</span>
-                                                <svg
-                                                    className="-me-0.5 ms-2 h-4 w-4 shrink-0"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    viewBox="0 0 20 20"
-                                                    fill="currentColor"
-                                                >
-                                                    <path
-                                                        fillRule="evenodd"
-                                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                        clipRule="evenodd"
-                                                    />
-                                                </svg>
-                                            </button>
-                                        </span>
+                                        {/* Avatar-only trigger keeps the
+                                            navbar tight even when the user
+                                            has a long name. Falls back to the
+                                            first initial when no avatar is
+                                            set. Border + hover ring matches
+                                            the other navbar icon buttons. */}
+                                        <button
+                                            type="button"
+                                            aria-label="Open account menu"
+                                            className="group inline-flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-ink-900/10 bg-bone-100 text-sm font-bold text-neon-red transition hover:border-neon-red/30 focus:outline-none focus:ring-2 focus:ring-neon-red/30"
+                                        >
+                                            {user.profile?.avatar ? (
+                                                <img src={user.profile.avatar} alt="" className="h-full w-full object-cover" />
+                                            ) : (
+                                                user.name.charAt(0).toUpperCase()
+                                            )}
+                                        </button>
                                     </Dropdown.Trigger>
 
                                     <Dropdown.Content>
+                                        {/* Header — confirms whose menu this
+                                            is now that the trigger is just an
+                                            avatar circle. Two lines: name on
+                                            top, @username below if they have
+                                            a profile set. */}
+                                        <div className="border-b border-ink-900/5 px-4 py-3">
+                                            <p className="truncate text-sm font-bold text-ink-900">{user.name}</p>
+                                            {user.profile?.username && (
+                                                <p className="truncate text-xs text-ink-500">@{user.profile.username}</p>
+                                            )}
+                                        </div>
+                                        <Dropdown.Link href={route('game-profile.show')}>
+                                            <span className="flex items-center gap-2">
+                                                <svg className="h-4 w-4 text-ink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                                                </svg>
+                                                Your profile
+                                            </span>
+                                        </Dropdown.Link>
                                         {user.is_admin && (
                                             <Dropdown.Link href={route('admin.dashboard')}>
                                                 <span className="flex items-center gap-2">
