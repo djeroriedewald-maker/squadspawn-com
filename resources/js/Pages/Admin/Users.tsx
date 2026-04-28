@@ -3,6 +3,16 @@ import { Head, Link, router } from '@inertiajs/react';
 import axios from 'axios';
 import { FormEvent, useState } from 'react';
 
+// Inline tiny spinner — only used here, not worth a shared component.
+function Spinner() {
+    return (
+        <svg className="h-3 w-3 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+        </svg>
+    );
+}
+
 interface User {
     id: number;
     name: string;
@@ -40,10 +50,23 @@ interface Props {
 
 export default function Users({ users, filters }: Props) {
     const [search, setSearch] = useState(filters.search || '');
+    // While an action is in flight for a user, lock that whole row so a
+    // double-click can't fire two POSTs. Tracks userId + which button so
+    // we can render a spinner only on the clicked one without disabling
+    // the entire admin queue.
+    const [busy, setBusy] = useState<{ userId: number; action: string } | null>(null);
+    const isBusy = (userId: number, action?: string) =>
+        busy?.userId === userId && (action === undefined || busy.action === action);
 
     function handleSearch(e: FormEvent) {
         e.preventDefault();
         router.get(route('admin.users'), { search: search || undefined }, { preserveState: true });
+    }
+
+    function runAction(userId: number, action: string, fn: () => Promise<unknown>) {
+        if (busy) return;
+        setBusy({ userId, action });
+        fn().finally(() => setBusy(null));
     }
 
     function handleBan(user: User) {
@@ -51,17 +74,21 @@ export default function Users({ users, filters }: Props) {
         if (!confirm(`⚠️ Ban "${name}"?\n\nThis will:\n· Log them out of every device\n· Close all their active LFG groups\n· Prevent them from logging back in\n\nYou can unban them later from this same table — their closed LFGs stay closed though.`)) {
             return;
         }
-        axios.post(route('admin.ban', { user: user.id }))
-            .then(() => router.reload())
-            .catch((err) => alert(err.response?.data?.error || 'Failed to ban user.'));
+        runAction(user.id, 'ban', () =>
+            axios.post(route('admin.ban', { user: user.id }))
+                .then(() => router.reload())
+                .catch((err) => alert(err.response?.data?.error || 'Failed to ban user.')),
+        );
     }
 
     function handleUnban(user: User) {
         const name = user.profile?.username || user.name;
         if (!confirm(`Unban "${name}"? They'll be able to log in again.`)) return;
-        axios.post(route('admin.unban', { user: user.id }))
-            .then(() => router.reload())
-            .catch((err) => alert(err.response?.data?.error || 'Failed to unban user.'));
+        runAction(user.id, 'unban', () =>
+            axios.post(route('admin.unban', { user: user.id }))
+                .then(() => router.reload())
+                .catch((err) => alert(err.response?.data?.error || 'Failed to unban user.')),
+        );
     }
 
     function toggleMod(user: User) {
@@ -71,9 +98,11 @@ export default function Users({ users, filters }: Props) {
             ? `Make "${name}" a moderator? They'll be able to hide / lock / pin community posts and comments.`
             : `Revoke moderator from "${name}"?`;
         if (!confirm(msg)) return;
-        axios.post(route('admin.setModerator', { user: user.id }), { is_moderator: grant })
-            .then(() => router.reload())
-            .catch((err) => alert(err.response?.data?.error || 'Failed to update moderator status.'));
+        runAction(user.id, 'mod', () =>
+            axios.post(route('admin.setModerator', { user: user.id }), { is_moderator: grant })
+                .then(() => router.reload())
+                .catch((err) => alert(err.response?.data?.error || 'Failed to update moderator status.')),
+        );
     }
 
     function toggleAdmin(user: User) {
@@ -83,9 +112,11 @@ export default function Users({ users, filters }: Props) {
             ? `⚠️ Promote "${name}" to ADMIN?\n\nAdmins have full platform access — user bans, role management, games, reports, and moderator powers. Only give this to people you fully trust.`
             : `Revoke admin from "${name}"? They'll lose all admin + moderator powers.`;
         if (!confirm(msg)) return;
-        axios.post(route('admin.setAdmin', { user: user.id }), { is_admin: grant })
-            .then(() => router.reload())
-            .catch((err) => alert(err.response?.data?.error || 'Failed to update admin status.'));
+        runAction(user.id, 'admin', () =>
+            axios.post(route('admin.setAdmin', { user: user.id }), { is_admin: grant })
+                .then(() => router.reload())
+                .catch((err) => alert(err.response?.data?.error || 'Failed to update admin status.')),
+        );
     }
 
     return (
@@ -176,58 +207,77 @@ export default function Users({ users, filters }: Props) {
                                         {user.is_owner ? (
                                             <span className="rounded-lg bg-gaming-orange/10 px-3 py-1.5 text-xs font-medium text-gaming-orange">Protected</span>
                                         ) : (
-                                            <div className="flex flex-wrap gap-2">
+                                            <div className={`flex flex-wrap gap-2 transition ${isBusy(user.id) ? 'opacity-60' : ''}`}>
                                                 {!user.is_admin && (
                                                     <button
                                                         onClick={() => toggleMod(user)}
-                                                        className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${user.is_moderator ? 'bg-gaming-cyan/10 text-gaming-cyan hover:bg-gaming-cyan/20' : 'bg-ink-900/5 text-ink-700 hover:bg-ink-900/10'}`}
+                                                        disabled={isBusy(user.id)}
+                                                        className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition disabled:cursor-not-allowed ${user.is_moderator ? 'bg-gaming-cyan/10 text-gaming-cyan hover:bg-gaming-cyan/20' : 'bg-ink-900/5 text-ink-700 hover:bg-ink-900/10'}`}
                                                     >
+                                                        {isBusy(user.id, 'mod') && <Spinner />}
                                                         {user.is_moderator ? 'Revoke mod' : 'Make mod'}
                                                     </button>
                                                 )}
                                                 <button
                                                     onClick={() => toggleAdmin(user)}
-                                                    className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${user.is_admin ? 'bg-neon-red/10 text-neon-red hover:bg-neon-red/20' : 'bg-ink-900/5 text-ink-700 hover:bg-ink-900/10'}`}
+                                                    disabled={isBusy(user.id)}
+                                                    className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition disabled:cursor-not-allowed ${user.is_admin ? 'bg-neon-red/10 text-neon-red hover:bg-neon-red/20' : 'bg-ink-900/5 text-ink-700 hover:bg-ink-900/10'}`}
                                                 >
+                                                    {isBusy(user.id, 'admin') && <Spinner />}
                                                     {user.is_admin ? 'Revoke admin' : 'Make admin'}
                                                 </button>
                                                 <button
                                                     onClick={() => {
+                                                        if (isBusy(user.id)) return;
                                                         if (!confirm(`Log in as "${user.profile?.username || user.name}"?\nUse the red banner at the top to return.`)) return;
-                                                        router.post(route('admin.impersonate', { user: user.id }));
+                                                        setBusy({ userId: user.id, action: 'impersonate' });
+                                                        router.post(route('admin.impersonate', { user: user.id }), {}, {
+                                                            onFinish: () => setBusy(null),
+                                                        });
                                                     }}
-                                                    disabled={user.is_admin || user.is_banned}
+                                                    disabled={user.is_admin || user.is_banned || isBusy(user.id)}
                                                     title={user.is_admin ? 'Admins can\'t be impersonated' : user.is_banned ? 'Unban first' : 'Debug as this user'}
-                                                    className="rounded-lg bg-gaming-cyan/10 px-3 py-1.5 text-xs font-medium text-gaming-cyan transition hover:bg-gaming-cyan/20 disabled:cursor-not-allowed disabled:opacity-40"
+                                                    className="inline-flex items-center gap-1.5 rounded-lg bg-gaming-cyan/10 px-3 py-1.5 text-xs font-medium text-gaming-cyan transition hover:bg-gaming-cyan/20 disabled:cursor-not-allowed disabled:opacity-40"
                                                 >
+                                                    {isBusy(user.id, 'impersonate') && <Spinner />}
                                                     Log in as
                                                 </button>
                                                 {user.is_banned ? (
                                                     <button
                                                         onClick={() => handleUnban(user)}
-                                                        className="rounded-lg bg-gaming-green/10 px-3 py-1.5 text-xs font-medium text-gaming-green transition hover:bg-gaming-green/20"
+                                                        disabled={isBusy(user.id)}
+                                                        className="inline-flex items-center gap-1.5 rounded-lg bg-gaming-green/10 px-3 py-1.5 text-xs font-medium text-gaming-green transition hover:bg-gaming-green/20 disabled:cursor-not-allowed"
                                                     >
+                                                        {isBusy(user.id, 'unban') && <Spinner />}
                                                         Unban
                                                     </button>
                                                 ) : (
                                                     <button
                                                         onClick={() => handleBan(user)}
-                                                        className="rounded-lg bg-red-500/10 px-3 py-1.5 text-xs font-medium text-red-400 transition hover:bg-red-500/20"
+                                                        disabled={isBusy(user.id)}
+                                                        className="inline-flex items-center gap-1.5 rounded-lg bg-red-500/10 px-3 py-1.5 text-xs font-medium text-red-400 transition hover:bg-red-500/20 disabled:cursor-not-allowed"
                                                     >
+                                                        {isBusy(user.id, 'ban') && <Spinner />}
                                                         Ban
                                                     </button>
                                                 )}
                                                 <button
                                                     onClick={() => {
+                                                        if (isBusy(user.id)) return;
                                                         const name = user.profile?.username || user.name;
                                                         if (!confirm(`⚠️ KILL-SWITCH: "${name}"?\n\nThis is the emergency hammer:\n· Ban immediately\n· Invalidate remember-me across every device\n· Close all their active LFG groups\n· Log the event\n\nUse only for spam/abuse accounts that need to be gone right now.`)) return;
                                                         const reason = prompt('Reason (optional, shown to the user):') ?? '';
-                                                        router.post(route('admin.system.kill', { user: user.id }), { reason }, { preserveScroll: true });
+                                                        setBusy({ userId: user.id, action: 'kill' });
+                                                        router.post(route('admin.system.kill', { user: user.id }), { reason }, {
+                                                            preserveScroll: true,
+                                                            onFinish: () => setBusy(null),
+                                                        });
                                                     }}
-                                                    disabled={user.is_admin || user.is_owner}
+                                                    disabled={user.is_admin || user.is_owner || isBusy(user.id)}
                                                     title={user.is_admin || user.is_owner ? 'Strip role first' : 'Emergency kill — ban + logout + close LFGs'}
-                                                    className="rounded-lg bg-neon-red/10 px-3 py-1.5 text-xs font-medium text-neon-red transition hover:bg-neon-red/20 disabled:cursor-not-allowed disabled:opacity-40"
+                                                    className="inline-flex items-center gap-1.5 rounded-lg bg-neon-red/10 px-3 py-1.5 text-xs font-medium text-neon-red transition hover:bg-neon-red/20 disabled:cursor-not-allowed disabled:opacity-40"
                                                 >
+                                                    {isBusy(user.id, 'kill') && <Spinner />}
                                                     Kill
                                                 </button>
                                             </div>

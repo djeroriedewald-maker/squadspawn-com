@@ -41,7 +41,7 @@ export default function Authenticated({
                                 </Link>
                             </div>
 
-                            <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                            <div className="hidden space-x-5 sm:-my-px sm:ms-8 sm:flex lg:space-x-8 lg:ms-10">
                                 <NavLink href={route('dashboard')} active={route().current('dashboard')}>
                                     Dashboard
                                 </NavLink>
@@ -124,11 +124,11 @@ export default function Authenticated({
                                         <span className="inline-flex rounded-md">
                                             <button
                                                 type="button"
-                                                className="inline-flex items-center rounded-md border border-ink-900/10 bg-bone-100 px-3 py-2 text-sm font-medium leading-4 text-ink-700 transition duration-150 ease-in-out hover:text-ink-900 focus:outline-none"
+                                                className="inline-flex max-w-[10rem] items-center rounded-md border border-ink-900/10 bg-bone-100 px-3 py-2 text-sm font-medium leading-4 text-ink-700 transition duration-150 ease-in-out hover:text-ink-900 focus:outline-none"
                                             >
-                                                {user.name}
+                                                <span className="truncate">{user.name}</span>
                                                 <svg
-                                                    className="-me-0.5 ms-2 h-4 w-4"
+                                                    className="-me-0.5 ms-2 h-4 w-4 shrink-0"
                                                     xmlns="http://www.w3.org/2000/svg"
                                                     viewBox="0 0 20 20"
                                                     fill="currentColor"
