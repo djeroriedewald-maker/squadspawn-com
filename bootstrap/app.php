@@ -22,6 +22,11 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
             \App\Http\Middleware\TrackLastActivity::class,
             \App\Http\Middleware\TrackPageView::class,
+            // Security headers run last in the web stack so they sit on
+            // top of whatever the rest produced. Doesn't change behaviour
+            // for our app, just gives securityheaders.com an A+ readout
+            // and protects users from clickjacking + downgrade attacks.
+            \App\Http\Middleware\SecurityHeaders::class,
         ]);
 
         $middleware->alias([
