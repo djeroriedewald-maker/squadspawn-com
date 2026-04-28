@@ -630,7 +630,6 @@ export default function Dashboard({
                                         <div className="absolute inset-0 bg-black/40 transition group-hover:bg-black/20" />
                                         <div className="absolute inset-0 flex flex-col items-center justify-center px-1 text-center">
                                             <span className="text-xs font-bold text-ink-900 drop-shadow">{game.name.split(':')[0]}</span>
-                                            <span className="text-[10px] text-ink-700">{game.users_count} players</span>
                                         </div>
                                     </Link>
                                 ))}
