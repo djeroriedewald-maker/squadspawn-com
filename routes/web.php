@@ -296,12 +296,12 @@ Route::get('/dashboard', function () {
     $newPlayersToday = Cache::remember('dash:newtoday', 120, fn () => \App\Models\User::whereHas('profile')->whereDate('created_at', today())->count());
     $onlineRecent = Cache::remember('dash:online', 30, fn () => \App\Models\User::where('updated_at', '>=', now()->subMinutes(15))->count());
 
-    // Trending games (cached 5 min). Primary signal is which games got
-    // added by users in the last 7 days. In cold-start that table is
-    // empty, which used to drop the whole "Trending Now" panel — now we
-    // fall back to the curated config/featured list (same source the
-    // homepage rotation uses) so the panel is always populated. As soon
-    // as real user-add activity picks up, the trending query takes over.
+    // Trending games (cached 5 min). Three-tier fallback so the panel
+    // is *always* populated as long as the games table itself isn't
+    // empty: real recent-add signal first, curated featured-config
+    // second, popularity_score order third. The homepage rotation
+    // uses the same featured config so the cold-start experience
+    // stays consistent across pages.
     $trendingGames = Cache::remember('dash:trending', 300, function () {
         $trendingGameIds = \App\Models\UserGame::where('created_at', '>=', now()->subDays(7))
             ->select('game_id')
@@ -315,20 +315,37 @@ Route::get('/dashboard', function () {
 
         if ($games->count() < 5) {
             $featuredSlugs = config('featured_games.homepage_rotation', []);
-            $fallback = \App\Models\Game::query()
-                ->whereIn('slug', $featuredSlugs)
+            if (!empty($featuredSlugs)) {
+                $fallback = \App\Models\Game::query()
+                    ->whereIn('slug', $featuredSlugs)
+                    ->whereNotNull('cover_image')
+                    ->where('cover_image', '!=', '')
+                    ->whereNotIn('id', $games->pluck('id'))
+                    ->withCount('users')
+                    ->get()
+                    ->keyBy('slug');
+                $ordered = collect($featuredSlugs)
+                    ->map(fn ($slug) => $fallback->get($slug))
+                    ->filter()
+                    ->values();
+                $games = $games->concat($ordered)->take(5)->values();
+            }
+        }
+
+        // Last-resort fallback: any game with a cover, ordered by
+        // popularity_score. Catches the case where config caching
+        // staleness or a missing config returns an empty featured list.
+        if ($games->count() < 5) {
+            $extra = \App\Models\Game::query()
                 ->whereNotNull('cover_image')
                 ->where('cover_image', '!=', '')
                 ->whereNotIn('id', $games->pluck('id'))
+                ->orderByDesc('popularity_score')
+                ->orderByDesc('id')
                 ->withCount('users')
-                ->get()
-                ->keyBy('slug');
-            // Preserve config order, then top up to 5.
-            $ordered = collect($featuredSlugs)
-                ->map(fn ($slug) => $fallback->get($slug))
-                ->filter()
-                ->values();
-            $games = $games->concat($ordered)->take(5)->values();
+                ->take(5 - $games->count())
+                ->get();
+            $games = $games->concat($extra)->take(5)->values();
         }
 
         return $games;
