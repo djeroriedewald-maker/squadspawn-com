@@ -10,7 +10,7 @@
  * Bump CACHE_VERSION to invalidate caches on deploy.
  */
 
-const CACHE_VERSION = 'v10';
+const CACHE_VERSION = 'v11';
 const STATIC_CACHE = `squadspawn-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `squadspawn-runtime-${CACHE_VERSION}`;
 
@@ -71,8 +71,14 @@ self.addEventListener('fetch', (event) => {
         event.respondWith(
             fetch(request)
                 .then((response) => {
-                    const copy = response.clone();
-                    caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, copy)).catch(() => {});
+                    // Only cache successful, non-redirect HTML responses.
+                    // Caching a 5xx or a redirect would poison the offline
+                    // fallback (and historically caused a transient 5xx to
+                    // "stick" until the SW was unregistered).
+                    if (response.ok && response.status === 200 && response.type === 'basic') {
+                        const copy = response.clone();
+                        caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, copy)).catch(() => {});
+                    }
                     return response;
                 })
                 .catch(() =>
@@ -89,8 +95,10 @@ self.addEventListener('fetch', (event) => {
             caches.match(request).then((cached) => {
                 if (cached) return cached;
                 return fetch(request).then((response) => {
-                    const copy = response.clone();
-                    caches.open(STATIC_CACHE).then((cache) => cache.put(request, copy)).catch(() => {});
+                    if (response.ok && response.status === 200) {
+                        const copy = response.clone();
+                        caches.open(STATIC_CACHE).then((cache) => cache.put(request, copy)).catch(() => {});
+                    }
                     return response;
                 });
             })
