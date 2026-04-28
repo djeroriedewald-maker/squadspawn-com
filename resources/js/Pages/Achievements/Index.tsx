@@ -232,13 +232,16 @@ export default function Index({
                                                 img.style.display = 'none';
                                             }
                                         }}
-                                        className={`absolute inset-0 -z-10 h-full w-full object-cover transition duration-500 ${isEarned ? 'group-hover:scale-105' : 'opacity-40 grayscale'}`}
+                                        className={`absolute inset-0 -z-10 h-full w-full object-cover transition duration-500 ${isEarned ? 'group-hover:scale-105' : 'opacity-30 grayscale brightness-75'}`}
                                     />
                                     {/* Bottom-only dark gradient so the title/desc
                                         stays readable. Hardcoded to black/transparent
                                         — `ink-900` flips to bone in dark mode and
-                                        would create a white wash over the photo. */}
-                                    <div className="absolute inset-x-0 bottom-0 -z-10 h-2/3 bg-gradient-to-t from-black/90 via-black/45 to-transparent" />
+                                        would create a white wash over the photo.
+                                        Locked tiles get a stronger gradient because
+                                        their grayscale image lightens up in light
+                                        mode and washes out the white text. */}
+                                    <div className={`absolute inset-x-0 bottom-0 -z-10 h-2/3 bg-gradient-to-t to-transparent ${isEarned ? 'from-black/90 via-black/45' : 'from-black/95 via-black/70'}`} />
 
                                     {/* Locked: prominent center lock badge so it's
                                         unmistakable at a glance. */}
@@ -270,25 +273,29 @@ export default function Index({
                                         )}
                                     </div>
 
-                                    {/* Bottom info block — sits over the dark gradient */}
+                                    {/* Bottom info block — sits over the dark gradient.
+                                        Text uses a stroke-style stack (hard 2px outline
+                                        + soft halo) so white type stays crisp even on
+                                        locked tiles where the grayscale image can light
+                                        up to mid-grey in light mode. */}
                                     <div className="relative p-4">
                                         <div className="flex items-baseline gap-2">
-                                            <span className="text-2xl">{getAchievementIcon(achievement.icon)}</span>
-                                            <h3 className="truncate text-base font-bold text-white [text-shadow:_0_1px_4px_rgba(0,0,0,0.95)]">
+                                            <span className="text-2xl drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]">{getAchievementIcon(achievement.icon)}</span>
+                                            <h3 className="truncate text-base font-bold text-white [text-shadow:_0_0_2px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,0.85)]">
                                                 {achievement.name}
                                             </h3>
                                         </div>
-                                        <p className="mt-1 line-clamp-2 text-xs text-white/85 [text-shadow:_0_1px_3px_rgba(0,0,0,0.95)]">
+                                        <p className="mt-1 line-clamp-2 text-xs font-medium text-white [text-shadow:_0_0_2px_rgba(0,0,0,1),_0_1px_4px_rgba(0,0,0,0.85)]">
                                             {achievement.description}
                                         </p>
 
                                         {!isEarned && prog && (
                                             <div className="mt-2.5">
-                                                <div className="mb-1 flex items-center justify-between text-[10px] text-white/85 [text-shadow:_0_1px_2px_rgba(0,0,0,0.9)]">
+                                                <div className="mb-1 flex items-center justify-between text-[10px] font-semibold text-white [text-shadow:_0_0_2px_rgba(0,0,0,1),_0_1px_2px_rgba(0,0,0,0.85)]">
                                                     <span>{Math.min(prog.current, prog.target)}/{prog.target} {prog.label}</span>
                                                     <span>{Math.round(progPercent)}%</span>
                                                 </div>
-                                                <div className="h-1.5 overflow-hidden rounded-full bg-black/60 ring-1 ring-white/10">
+                                                <div className="h-1.5 overflow-hidden rounded-full bg-black/70 ring-1 ring-white/15">
                                                     <div className={`h-full rounded-full ${colors.bar} transition-all`} style={{ width: `${progPercent}%` }} />
                                                 </div>
                                             </div>
@@ -299,7 +306,7 @@ export default function Index({
                                                 +{achievement.points} XP
                                             </span>
                                             {isEarned && earnedDate && (
-                                                <span className="text-[10px] text-white/80 [text-shadow:_0_1px_2px_rgba(0,0,0,0.9)]">{new Date(earnedDate).toLocaleDateString()}</span>
+                                                <span className="text-[10px] font-semibold text-white [text-shadow:_0_0_2px_rgba(0,0,0,1),_0_1px_2px_rgba(0,0,0,0.85)]">{new Date(earnedDate).toLocaleDateString()}</span>
                                             )}
                                         </div>
                                     </div>
