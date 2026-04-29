@@ -275,6 +275,7 @@ class AdminController extends Controller
                 'is_moderator' => (bool) $user->is_moderator,
                 'is_owner' => (bool) $user->is_owner,
                 'is_banned' => (bool) $user->is_banned,
+                'is_og_founder' => (bool) $user->is_og_founder,
                 'banned_at' => $user->banned_at?->toDateTimeString(),
                 'ban_reason' => $user->ban_reason,
                 'referral_code' => $user->referral_code,
