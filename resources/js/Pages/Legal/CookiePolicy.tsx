@@ -226,6 +226,19 @@ export default function CookiePolicy() {
                             <Link href="/privacy-policy" className="text-neon-red hover:underline">Privacy Policy</Link>.
                         </p>
                     </div>
+
+                    <div className="mt-12 rounded-2xl border border-neon-red/30 bg-gradient-to-br from-neon-red/10 via-neon-red/5 to-transparent p-6 text-center">
+                        <p className="text-base font-semibold text-ink-900">Ready to find your squad?</p>
+                        <p className="mt-1 text-sm text-ink-500">SquadSpawn — verified gamers, real reputation, AVG-compliant. Free forever.</p>
+                        <div className="mt-4 flex flex-wrap justify-center gap-2">
+                            <Link href={route('register')} className="rounded-xl bg-neon-red px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-neon-red/30 transition hover:bg-neon-red/90">
+                                Create your free profile
+                            </Link>
+                            <Link href="/" className="rounded-xl border border-ink-900/10 bg-white px-5 py-2.5 text-sm font-bold text-ink-700 transition hover:border-neon-red/30 hover:text-neon-red">
+                                Back to SquadSpawn
+                            </Link>
+                        </div>
+                    </div>
                 </div>
             </div>
         </>

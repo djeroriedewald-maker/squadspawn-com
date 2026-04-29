@@ -6,17 +6,25 @@ import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
 
-export default function Register() {
+interface RegisterProps {
+    founderSpotsLeft?: number;
+    isFounderPhase?: boolean;
+}
+
+export default function Register({ founderSpotsLeft, isFounderPhase }: RegisterProps) {
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
         email: '',
         password: '',
         password_confirmation: '',
         date_of_birth: '',
+        terms_accepted: false,
     });
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
+
+        if (!data.terms_accepted) return;
 
         post(route('register'), {
             onFinish: () => reset('password', 'password_confirmation'),
@@ -28,6 +36,15 @@ export default function Register() {
             <Head title="Register">
                 <meta name="robots" content="noindex,nofollow" />
             </Head>
+
+            {/* Founder-phase context — the homepage promises a founder
+                slot; this banner closes the loop on the registration form. */}
+            {isFounderPhase && founderSpotsLeft !== undefined && founderSpotsLeft > 0 && (
+                <div className="mb-5 rounded-lg border border-neon-red/30 bg-neon-red/5 p-3 text-center text-xs text-ink-700">
+                    <strong className="text-neon-red">★ Founder phase</strong> — {founderSpotsLeft} permanent founder spots left.
+                    Sign up now and your profile carries the badge for life.
+                </div>
+            )}
 
             <div className="space-y-2">
                 <a
@@ -109,8 +126,10 @@ export default function Register() {
                         autoComplete="new-password"
                         onChange={(e) => setData('password', e.target.value)}
                         required
+                        minLength={8}
                     />
 
+                    <p className="mt-1 text-[11px] text-ink-500">8+ characters. Mix in numbers and symbols for extra strength.</p>
                     <InputError message={errors.password} className="mt-2" />
                 </div>
 
@@ -154,15 +173,33 @@ export default function Register() {
                     <p className="mt-1 text-[10px] text-gray-500">You must be at least 16 years old to sign up.</p>
                 </div>
 
-                <div className="mt-4 flex items-center justify-end">
+                <div className="mt-5">
+                    <label className="flex cursor-pointer items-start gap-2 text-xs text-ink-700">
+                        <input
+                            type="checkbox"
+                            checked={data.terms_accepted}
+                            onChange={(e) => setData('terms_accepted', e.target.checked)}
+                            required
+                            className="mt-0.5 h-4 w-4 shrink-0 rounded border-ink-900/20 text-neon-red focus:ring-neon-red/30"
+                        />
+                        <span>
+                            I'm 16+ and I accept SquadSpawn's{' '}
+                            <Link href="/terms-of-service" target="_blank" className="text-neon-red underline hover:text-neon-red/80">Terms of Service</Link>
+                            {' '}and{' '}
+                            <Link href="/privacy-policy" target="_blank" className="text-neon-red underline hover:text-neon-red/80">Privacy Policy</Link>.
+                        </span>
+                    </label>
+                </div>
+
+                <div className="mt-5 flex items-center justify-end">
                     <Link
                         href={route('login')}
-                        className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                        className="rounded-md text-sm text-ink-500 underline hover:text-ink-900 focus:outline-none focus:ring-2 focus:ring-neon-red/40 focus:ring-offset-2"
                     >
                         Already registered?
                     </Link>
 
-                    <PrimaryButton className="ms-4" disabled={processing}>
+                    <PrimaryButton className="ms-4" disabled={processing || !data.terms_accepted}>
                         Register
                     </PrimaryButton>
                 </div>

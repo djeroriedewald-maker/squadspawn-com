@@ -20,7 +20,13 @@ class RegisteredUserController extends Controller
 {
     public function create(): Response
     {
-        return Inertia::render('Auth/Register');
+        $totalPlayers = User::whereHas('profile')->count();
+        $founderSpotsLeft = max(User::FOUNDER_CAP - $totalPlayers, 0);
+
+        return Inertia::render('Auth/Register', [
+            'founderSpotsLeft' => $founderSpotsLeft,
+            'isFounderPhase' => $founderSpotsLeft > 0,
+        ]);
     }
 
     public function store(Request $request): RedirectResponse
