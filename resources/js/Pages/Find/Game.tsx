@@ -106,29 +106,57 @@ export default function FindGame({ game, topPlayers, recentLfg, jsonLd }: Props)
             </div>
 
             <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
-                {/* Stats strip */}
-                <div className="mb-10 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                    <div className="rounded-xl border border-ink-900/10 bg-white p-4">
-                        <div className="text-[10px] font-bold uppercase tracking-widest text-ink-500">Players</div>
-                        <div className="mt-1 text-2xl font-black text-ink-900">{game.players_count.toLocaleString()}</div>
+                {/* Stats strip — only render the player/LFG cells when we
+                    actually have something to brag about. "0 players · 0
+                    LFGs" undermines the "be the first" cold-start framing. */}
+                {(game.players_count > 0 || recentLfg.length > 0 || game.genre || (game.platforms && game.platforms.length > 0)) && (
+                    <div className="mb-10 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                        {game.players_count > 0 && (
+                            <div className="rounded-xl border border-ink-900/10 bg-white p-4">
+                                <div className="text-[10px] font-bold uppercase tracking-widest text-ink-500">Players</div>
+                                <div className="mt-1 text-2xl font-black text-ink-900">{game.players_count.toLocaleString()}</div>
+                            </div>
+                        )}
+                        {recentLfg.length > 0 && (
+                            <div className="rounded-xl border border-ink-900/10 bg-white p-4">
+                                <div className="text-[10px] font-bold uppercase tracking-widest text-ink-500">Open LFGs</div>
+                                <div className="mt-1 text-2xl font-black text-neon-red">{recentLfg.length}</div>
+                            </div>
+                        )}
+                        {game.genre && (
+                            <div className="rounded-xl border border-ink-900/10 bg-white p-4">
+                                <div className="text-[10px] font-bold uppercase tracking-widest text-ink-500">Genre</div>
+                                <div className="mt-1 truncate text-base font-bold text-ink-900">{game.genre}</div>
+                            </div>
+                        )}
+                        {game.platforms && game.platforms.length > 0 && (
+                            <div className="rounded-xl border border-ink-900/10 bg-white p-4">
+                                <div className="text-[10px] font-bold uppercase tracking-widest text-ink-500">Platforms</div>
+                                <div className="mt-1 truncate text-base font-bold text-ink-900">{game.platforms.length}</div>
+                            </div>
+                        )}
                     </div>
-                    <div className="rounded-xl border border-ink-900/10 bg-white p-4">
-                        <div className="text-[10px] font-bold uppercase tracking-widest text-ink-500">Open LFGs</div>
-                        <div className="mt-1 text-2xl font-black text-neon-red">{recentLfg.length}</div>
+                )}
+
+                {/* Be-the-first card when both lists are empty. Avoids the
+                    page jumping straight from hero to the generic "Why
+                    SquadSpawn" block — gives Google more on-topic words
+                    to chew on AND gives the visitor a clear next step. */}
+                {topPlayers.length === 0 && recentLfg.length === 0 && (
+                    <div className="mb-10 rounded-2xl border border-neon-red/30 bg-gradient-to-br from-neon-red/10 via-neon-red/5 to-transparent p-6 text-center sm:p-8">
+                        <h2 className="text-xl font-bold text-ink-900">Be the first {game.name} squad on SquadSpawn</h2>
+                        <p className="mt-2 text-sm text-ink-500">No-one's posted a {game.name} LFG here yet — that's a free founder slot for whoever moves first. Permanent badge, real reputation, no toxicity tax.</p>
+                        {!isAuthed ? (
+                            <Link href={route('register')} className="mt-5 inline-flex items-center gap-1.5 rounded-xl bg-neon-red px-6 py-3 text-sm font-bold text-white shadow-lg shadow-neon-red/30 transition hover:bg-neon-red/85">
+                                Claim the founder slot →
+                            </Link>
+                        ) : (
+                            <Link href={route('lfg.create')} className="mt-5 inline-flex items-center gap-1.5 rounded-xl bg-neon-red px-6 py-3 text-sm font-bold text-white shadow-lg shadow-neon-red/30 transition hover:bg-neon-red/85">
+                                Post the first {game.name} LFG →
+                            </Link>
+                        )}
                     </div>
-                    {game.genre && (
-                        <div className="rounded-xl border border-ink-900/10 bg-white p-4">
-                            <div className="text-[10px] font-bold uppercase tracking-widest text-ink-500">Genre</div>
-                            <div className="mt-1 truncate text-base font-bold text-ink-900">{game.genre}</div>
-                        </div>
-                    )}
-                    {game.platforms && game.platforms.length > 0 && (
-                        <div className="rounded-xl border border-ink-900/10 bg-white p-4">
-                            <div className="text-[10px] font-bold uppercase tracking-widest text-ink-500">Platforms</div>
-                            <div className="mt-1 truncate text-base font-bold text-ink-900">{game.platforms.length}</div>
-                        </div>
-                    )}
-                </div>
+                )}
 
                 {/* Top players — gives the page real, indexable content */}
                 {topPlayers.length > 0 && (

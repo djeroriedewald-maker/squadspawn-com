@@ -211,6 +211,18 @@ export default function Index({
                         </div>
                     </div>
 
+                    {/* Cold-start cushion — when nothing's earned yet, a wall
+                        of grayscale locks reads negatively. Surface a friendly
+                        "your next badge is in reach" prompt above the grid so
+                        the page doesn't open with a sad screen. */}
+                    {earnedCount === 0 && (
+                        <div className="mb-4 rounded-xl border border-gaming-green/30 bg-gradient-to-br from-gaming-green/10 via-gaming-green/5 to-transparent p-4 text-sm text-ink-700">
+                            <strong className="text-ink-900">No badges yet — that's normal.</strong> Every gamer starts here.
+                            The bronze tiles below are the easiest wins (post your first LFG, rate a teammate, link Steam).
+                            One squad-up session and your wall stops looking gray.
+                        </div>
+                    )}
+
                     {/* Achievement Grid — image-backed tiles, sorted by tier */}
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {sortedAchievements.map((achievement) => {

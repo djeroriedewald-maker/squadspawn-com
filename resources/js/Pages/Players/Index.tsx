@@ -59,14 +59,17 @@ export default function PlayersIndex({
                         </select>
                     </div>
 
-                    {/* Players grid */}
+                    {/* Players grid — at cold-start (≤3 players, no filter
+                        active) collapse the grid to 1-2 columns so a single
+                        founder card doesn't sit in a 4-col layout looking
+                        abandoned. */}
                     {players.data.length === 0 ? (
                         <div className="rounded-xl border border-ink-900/10 bg-white p-12 text-center">
                             <p className="text-lg font-medium text-ink-500">No players found</p>
-                            <p className="mt-2 text-sm text-gray-500">Try adjusting your filters</p>
+                            <p className="mt-2 text-sm text-ink-500">Try adjusting your filters</p>
                         </div>
                     ) : (
-                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                        <div className={`grid gap-4 ${players.data.length <= 3 ? 'sm:grid-cols-2' : 'sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'}`}>
                             {players.data.map((player) => (
                                 <Link
                                     key={player.id}
