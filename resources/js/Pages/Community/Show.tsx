@@ -196,7 +196,7 @@ export default function CommunityShow({
                                     className={`rounded p-1.5 transition ${
                                         userVote === 1
                                             ? 'text-gaming-green'
-                                            : 'text-gray-500 hover:text-gaming-green'
+                                            : 'text-ink-500 hover:text-gaming-green'
                                     } ${!isLoggedIn ? 'cursor-default' : ''}`}
                                 >
                                     <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 20 20">
@@ -214,7 +214,7 @@ export default function CommunityShow({
                                     className={`rounded p-1.5 transition ${
                                         userVote === -1
                                             ? 'text-red-400'
-                                            : 'text-gray-500 hover:text-red-400'
+                                            : 'text-ink-500 hover:text-red-400'
                                     } ${!isLoggedIn ? 'cursor-default' : ''}`}
                                 >
                                     <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 20 20">
@@ -294,7 +294,7 @@ export default function CommunityShow({
                                     </div>
                                 )}
 
-                                <div className="mb-4 flex items-center gap-3 text-xs text-gray-500">
+                                <div className="mb-4 flex items-center gap-3 text-xs text-ink-500">
                                     <Link
                                         href={route('player.show', { username: post.user?.profile?.username || post.user?.id })}
                                         className="flex items-center gap-2 transition hover:text-ink-900"
@@ -359,7 +359,7 @@ export default function CommunityShow({
                                                         {comment.user?.profile?.username || comment.user?.name}
                                                     </span>
                                                 </Link>
-                                                <span className="text-[10px] text-gray-500">{timeAgo(comment.created_at)}</span>
+                                                <span className="text-[10px] text-ink-500">{timeAgo(comment.created_at)}</span>
                                                 {commentHidden && (
                                                     <span className="rounded-full bg-red-500/20 px-1.5 py-0.5 text-[9px] font-bold uppercase text-red-500">Hidden</span>
                                                 )}
@@ -391,7 +391,7 @@ export default function CommunityShow({
                             </div>
                         ) : (
                             <div className="rounded-xl border border-ink-900/5 bg-bone-100/50 p-8 text-center">
-                                <p className="text-sm text-gray-500">No comments yet. Be the first to share your thoughts!</p>
+                                <p className="text-sm text-ink-500">No comments yet. Be the first to share your thoughts!</p>
                             </div>
                         )}
 

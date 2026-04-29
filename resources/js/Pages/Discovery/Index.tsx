@@ -386,6 +386,7 @@ export default function DiscoveryIndex({
                                         <button
                                             onClick={handleUndo}
                                             disabled={!canUndo || !!animating}
+                                            aria-label="Undo last pass"
                                             className="flex h-12 w-12 items-center justify-center rounded-full border border-ink-900/10 bg-ink-900/5 text-ink-500 transition hover:scale-110 hover:bg-ink-900/10 hover:text-yellow-400 disabled:opacity-30"
                                             title="Undo last pass (Z)"
                                         >
@@ -398,6 +399,7 @@ export default function DiscoveryIndex({
                                         <button
                                             onClick={handlePass}
                                             disabled={!!animating}
+                                            aria-label="Pass on this player"
                                             className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-red-500/30 bg-red-500/10 text-red-400 transition hover:border-red-500 hover:bg-red-500/20 hover:scale-110 disabled:opacity-50"
                                             title="Pass (A)"
                                         >
@@ -410,6 +412,7 @@ export default function DiscoveryIndex({
                                         <button
                                             onClick={handleLike}
                                             disabled={!!animating}
+                                            aria-label="Like this player"
                                             className="flex h-20 w-20 items-center justify-center rounded-full border-2 border-gaming-green/40 bg-gaming-green/10 text-gaming-green shadow-lg shadow-gaming-green/10 transition hover:border-gaming-green hover:bg-gaming-green/20 hover:scale-110 hover:shadow-gaming-green/25 disabled:opacity-50"
                                             title="Like (D)"
                                         >

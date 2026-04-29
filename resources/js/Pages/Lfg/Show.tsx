@@ -342,7 +342,7 @@ export default function LfgShow({
 
     const formatScheduled = (dateStr: string) => {
         const d = new Date(dateStr);
-        return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+        return d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' });
     };
 
     const statusBadge = () => {

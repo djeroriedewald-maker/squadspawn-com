@@ -268,10 +268,12 @@ export default function CommunityIndex({
                                             <button
                                                 onClick={(e) => { e.stopPropagation(); handleVote(post.id, 1); }}
                                                 disabled={!isLoggedIn}
-                                                className={`rounded p-1 transition ${
+                                                aria-label={isLoggedIn ? 'Upvote post' : 'Log in to vote'}
+                                                aria-pressed={userVote === 1}
+                                                className={`rounded p-2 transition ${
                                                     userVote === 1
                                                         ? 'text-gaming-green'
-                                                        : 'text-gray-500 hover:text-gaming-green'
+                                                        : 'text-ink-500 hover:text-gaming-green'
                                                 } ${!isLoggedIn ? 'cursor-default' : ''}`}
                                                 title={isLoggedIn ? 'Upvote' : 'Log in to vote'}
                                             >
@@ -287,10 +289,12 @@ export default function CommunityIndex({
                                             <button
                                                 onClick={(e) => { e.stopPropagation(); handleVote(post.id, -1); }}
                                                 disabled={!isLoggedIn}
-                                                className={`rounded p-1 transition ${
+                                                aria-label={isLoggedIn ? 'Downvote post' : 'Log in to vote'}
+                                                aria-pressed={userVote === -1}
+                                                className={`rounded p-2 transition ${
                                                     userVote === -1
                                                         ? 'text-red-400'
-                                                        : 'text-gray-500 hover:text-red-400'
+                                                        : 'text-ink-500 hover:text-red-400'
                                                 } ${!isLoggedIn ? 'cursor-default' : ''}`}
                                                 title={isLoggedIn ? 'Downvote' : 'Log in to vote'}
                                             >
@@ -349,7 +353,7 @@ export default function CommunityIndex({
                                                 {post.body.length > 150 ? post.body.substring(0, 150) + '...' : post.body}
                                             </p>
 
-                                            <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-gray-500">
+                                            <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-ink-500">
                                                 {/* Author */}
                                                 <Link
                                                     href={route('player.show', { username: post.user?.profile?.username || post.user?.id })}
@@ -427,7 +431,7 @@ export default function CommunityIndex({
                                             ? 'bg-neon-red font-semibold text-white'
                                             : link.url
                                               ? 'text-ink-500 hover:bg-white hover:text-ink-900'
-                                              : 'cursor-not-allowed text-gray-600'
+                                              : 'cursor-not-allowed text-ink-600'
                                     }`}
                                     dangerouslySetInnerHTML={{ __html: link.label }}
                                 />

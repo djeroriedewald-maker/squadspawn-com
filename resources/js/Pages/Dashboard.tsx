@@ -266,26 +266,26 @@ export default function Dashboard({
                                 <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-5">
                                     <div className="rounded-lg bg-bone-50/60 px-3 py-2 text-center">
                                         <p className="text-lg font-bold text-neon-red"><AnimatedNumber value={userGames.length} /></p>
-                                        <p className="text-[10px] text-gray-500">Games</p>
+                                        <p className="text-[10px] text-ink-500">Games</p>
                                     </div>
                                     <div className="rounded-lg bg-bone-50/60 px-3 py-2 text-center">
                                         <p className="text-lg font-bold text-gaming-green"><AnimatedNumber value={matchCount} /></p>
-                                        <p className="text-[10px] text-gray-500">Friends</p>
+                                        <p className="text-[10px] text-ink-500">Friends</p>
                                     </div>
                                     <Link href={route('discovery.likedYou')} className="rounded-lg bg-bone-50/60 px-3 py-2 text-center transition hover:bg-gaming-pink/10">
                                         <p className="text-lg font-bold text-gaming-pink"><AnimatedNumber value={likedByCount} /></p>
-                                        <p className="text-[10px] text-gray-500">Liked You</p>
+                                        <p className="text-[10px] text-ink-500">Liked You</p>
                                     </Link>
                                     <div className="rounded-lg bg-bone-50/60 px-3 py-2 text-center">
                                         <p className="text-lg font-bold text-gaming-cyan"><AnimatedNumber value={lfgHosted || 0} /></p>
-                                        <p className="text-[10px] text-gray-500">LFGs Hosted</p>
+                                        <p className="text-[10px] text-ink-500">LFGs Hosted</p>
                                     </div>
                                     <div className="rounded-lg bg-bone-50/60 px-3 py-2 text-center">
                                         <p className="text-lg font-bold text-ink-900">
                                             {reputation ? `${reputation}` : '--'}
                                             {reputation ? <span className="ml-0.5 text-xs text-yellow-400">&#9733;</span> : null}
                                         </p>
-                                        <p className="text-[10px] text-gray-500">Reputation</p>
+                                        <p className="text-[10px] text-ink-500">Reputation</p>
                                     </div>
                                 </div>
 
@@ -300,7 +300,7 @@ export default function Dashboard({
                                             </div>
                                         ))}
                                         {userGames.length > 5 && (
-                                            <span className="flex items-center rounded-full bg-bone-50/60 px-2.5 py-1 text-[11px] text-gray-500">+{userGames.length - 5} more</span>
+                                            <span className="flex items-center rounded-full bg-bone-50/60 px-2.5 py-1 text-[11px] text-ink-500">+{userGames.length - 5} more</span>
                                         )}
                                     </div>
                                 )}
@@ -373,7 +373,7 @@ export default function Dashboard({
                                     <h3 className="font-bold text-ink-900">Find Your Squad</h3>
                                     <p className="mt-0.5 text-xs text-ink-500">Discover players who match your vibe</p>
                                 </div>
-                                <svg className="ml-auto h-5 w-5 shrink-0 text-gray-600 transition group-hover:translate-x-1 group-hover:text-neon-red" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+                                <svg className="ml-auto h-5 w-5 shrink-0 text-ink-600 transition group-hover:translate-x-1 group-hover:text-neon-red" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
                             </div>
                         </Link>
 
@@ -390,7 +390,7 @@ export default function Dashboard({
                                     <h3 className="font-bold text-ink-900">Create LFG</h3>
                                     <p className="mt-0.5 text-xs text-ink-500">Start a group and find teammates</p>
                                 </div>
-                                <svg className="ml-auto h-5 w-5 shrink-0 text-gray-600 transition group-hover:translate-x-1 group-hover:text-gaming-green" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+                                <svg className="ml-auto h-5 w-5 shrink-0 text-ink-600 transition group-hover:translate-x-1 group-hover:text-gaming-green" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
                             </div>
                         </Link>
 
@@ -407,7 +407,7 @@ export default function Dashboard({
                                     <h3 className="font-bold text-ink-900">Community</h3>
                                     <p className="mt-0.5 text-xs text-ink-500">Share posts, tips, and memes</p>
                                 </div>
-                                <svg className="ml-auto h-5 w-5 shrink-0 text-gray-600 transition group-hover:translate-x-1 group-hover:text-gaming-pink" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+                                <svg className="ml-auto h-5 w-5 shrink-0 text-ink-600 transition group-hover:translate-x-1 group-hover:text-gaming-pink" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
                             </div>
                         </Link>
                     </div>
@@ -623,7 +623,7 @@ export default function Dashboard({
                                 <div className="space-y-2">
                                     {trendingGames.map((game, i) => (
                                         <Link key={game.id} href={route('discovery.index', { game_id: game.id })} className="flex items-center gap-3 rounded-lg p-2 transition hover:bg-bone-100">
-                                            <span className="w-5 text-center text-xs font-bold text-gray-500">#{i + 1}</span>
+                                            <span className="w-5 text-center text-xs font-bold text-ink-500">#{i + 1}</span>
                                             <img src={gameCoverUrl(game.cover_image, 'thumb') || `/images/games/${game.slug}.svg`} alt="" loading="lazy" decoding="async" className="h-8 w-12 rounded object-cover" />
                                             <div className="min-w-0 flex-1">
                                                 <p className="truncate text-sm font-medium text-ink-900">{game.name}</p>
@@ -657,7 +657,7 @@ export default function Dashboard({
                                                     <><strong className="text-ink-900">Two players</strong> became friends</>
                                                 )}
                                             </p>
-                                            <span className="ml-auto shrink-0 text-[10px] text-gray-600">{item.time}</span>
+                                            <span className="ml-auto shrink-0 text-[10px] text-ink-600">{item.time}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -774,7 +774,7 @@ export default function Dashboard({
                                                     ))}
                                                 </div>
                                             </div>
-                                            {player.profile?.region && <span className="shrink-0 text-xs text-gray-500">{player.profile.region}</span>}
+                                            {player.profile?.region && <span className="shrink-0 text-xs text-ink-500">{player.profile.region}</span>}
                                         </Link>
                                     ))}
                                 </div>
@@ -800,7 +800,7 @@ export default function Dashboard({
                                                 </div>
                                                 <div className="min-w-0">
                                                     <p className="font-semibold text-ink-900">{match.partner.profile?.username || match.partner.name}</p>
-                                                    <p className="text-xs text-gray-500">{match.partner.profile?.region || 'No region'}</p>
+                                                    <p className="text-xs text-ink-500">{match.partner.profile?.region || 'No region'}</p>
                                                 </div>
                                             </Link>
                                             <Link href={route('chat.show', { playerMatch: match.chat_id })} className="shrink-0 rounded-lg bg-gaming-green/10 px-3 py-1.5 text-xs font-semibold text-gaming-green transition hover:bg-gaming-green/20">Chat</Link>

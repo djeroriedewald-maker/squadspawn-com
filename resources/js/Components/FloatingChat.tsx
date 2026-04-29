@@ -388,6 +388,7 @@ export default function FloatingChat() {
         return (
             <button
                 onClick={() => setView('list')}
+                aria-label={totalUnread > 0 ? `Open chat — ${totalUnread} unread` : 'Open chat'}
                 className="fixed bottom-5 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-neon-red shadow-lg shadow-neon-red/30 transition-transform hover:scale-110 active:scale-95"
             >
                 <svg className="h-6 w-6 text-ink-900" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>

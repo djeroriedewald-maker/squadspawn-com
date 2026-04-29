@@ -75,7 +75,7 @@ export default function Register({ founderSpotsLeft, isFounderPhase }: RegisterP
                     <div className="w-full border-t border-ink-900/10"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                    <span className="bg-white px-4 text-gray-500">or</span>
+                    <span className="bg-white px-4 text-ink-500">or</span>
                 </div>
             </div>
 
@@ -170,7 +170,7 @@ export default function Register({ founderSpotsLeft, isFounderPhase }: RegisterP
                         required
                     />
                     <InputError message={errors.date_of_birth} className="mt-2" />
-                    <p className="mt-1 text-[10px] text-gray-500">You must be at least 16 years old to sign up.</p>
+                    <p className="mt-1 text-[10px] text-ink-500">You must be at least 16 years old to sign up.</p>
                 </div>
 
                 <div className="mt-5">
