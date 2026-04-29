@@ -234,6 +234,7 @@ export default function UserShow({ user, stats, invitees, recentLfg, reportsAgai
                             {user.is_banned && <span className="rounded-full bg-red-500/20 px-2 py-0.5 text-[10px] font-bold text-red-400">BANNED</span>}
                             {user.profile?.is_creator && <span className="rounded-full bg-gaming-pink/20 px-2 py-0.5 text-[10px] font-bold text-gaming-pink">CREATOR</span>}
                             {user.profile?.is_featured_now && <span className="rounded-full bg-gaming-orange/20 px-2 py-0.5 text-[10px] font-bold text-gaming-orange">✨ FEATURED</span>}
+                            {user.is_og_founder && <span className="rounded-full bg-yellow-400/20 px-2 py-0.5 text-[10px] font-bold text-amber-600" title="OG Founder — lifetime Plus">♛ OG FOUNDER</span>}
                         </div>
                         <p className="mt-1 text-sm text-ink-500">
                             {user.name} · {user.email} · joined {new Date(user.created_at).toLocaleDateString()} · last active {user.last_active}

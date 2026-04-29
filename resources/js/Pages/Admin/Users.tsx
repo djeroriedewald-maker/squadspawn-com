@@ -21,6 +21,7 @@ interface User {
     is_moderator?: boolean;
     is_owner?: boolean;
     is_banned?: boolean;
+    is_og_founder?: boolean;
     games_count: number;
     clips_count: number;
     created_at: string;
@@ -195,6 +196,9 @@ export default function Users({ users, filters }: Props) {
                                             )}
                                             {user.is_banned && (
                                                 <span className="rounded-full bg-red-500/20 px-2 py-0.5 text-[10px] font-bold text-red-400">BANNED</span>
+                                            )}
+                                            {user.is_og_founder && (
+                                                <span className="rounded-full bg-yellow-400/20 px-2 py-0.5 text-[10px] font-bold text-amber-600" title="OG Founder — lifetime Plus">♛ OG</span>
                                             )}
                                         </Link>
                                     </td>
