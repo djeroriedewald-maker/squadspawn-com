@@ -15,6 +15,11 @@ Schedule::command('digest:send-weekly')->weeklyOn(1, '09:00');
 // no-ops when the queue is empty, so running it constantly is cheap.
 Schedule::command('broadcasts:dispatch-scheduled')->everyMinute()->withoutOverlapping();
 
+// LFG "starting soon" pings — ~15 min before a scheduled session, ping
+// the host + accepted teammates. Idempotency is handled inside the
+// command via a per-post cache lock.
+Schedule::command('lfg:send-reminders')->everyMinute()->withoutOverlapping();
+
 // AVG Art. 5(1)(e) "storage limitation" — nightly sweep that enforces
 // the retention windows the privacy policy promises. Runs at 03:30
 // local time when traffic is lowest.

@@ -41,7 +41,7 @@ class User extends Authenticatable
     /**
      * Push notification types users can opt out of individually.
      */
-    public const PUSH_TYPES = ['new_message', 'new_match', 'lfg_request', 'lfg_accepted', 'favorite_host_lfg', 'squad_invite', 'role_change', 'announcement', 'admin_new_contact_message'];
+    public const PUSH_TYPES = ['new_message', 'new_match', 'lfg_request', 'lfg_accepted', 'lfg_starting_soon', 'favorite_host_lfg', 'squad_invite', 'role_change', 'announcement', 'admin_new_contact_message'];
 
     /**
      * First N users get a "Founding member #X" badge for life. Drives the

@@ -414,6 +414,33 @@ Route::get('/dashboard', function () {
         ? app(\App\Services\SteamStatsClient::class)->cachedStats($user->profile->steam_id)
         : null;
 
+    // Upcoming scheduled LFGs — host's own + ones they're accepted into.
+    // Capped at 5 + ordered by scheduled_at ASC so the closest session
+    // sits at the top of the rail.
+    $upcomingLfg = \App\Models\LfgPost::query()
+        ->where('status', 'open')
+        ->whereNotNull('scheduled_at')
+        ->where('scheduled_at', '>', now())
+        ->where(function ($q) use ($user) {
+            $q->where('user_id', $user->id)
+                ->orWhereHas('responses', fn ($r) => $r->where('user_id', $user->id)->where('status', 'accepted'));
+        })
+        ->with(['game:id,name,slug,cover_image'])
+        ->orderBy('scheduled_at')
+        ->take(5)
+        ->get()
+        ->map(fn ($p) => [
+            'id' => $p->id,
+            'slug' => $p->slug,
+            'title' => $p->title,
+            'spots_needed' => $p->spots_needed,
+            'spots_filled' => $p->spots_filled,
+            'platform' => $p->platform,
+            'scheduled_at' => $p->scheduled_at?->toIso8601String(),
+            'is_host' => $p->user_id === $user->id,
+            'game' => $p->game ? ['name' => $p->game->name, 'slug' => $p->game->slug, 'cover_image' => $p->game->cover_image] : null,
+        ]);
+
     // Rating funnel — closed LFG sessions the user was in that still have
     // un-rated teammates. Drives the reputation system's data quality.
     //
@@ -470,6 +497,7 @@ Route::get('/dashboard', function () {
         'invitedCount' => $invitedCount,
         'referralRewarded' => $referralRewarded,
         'steamStats' => $steamStats,
+        'upcomingLfg' => $upcomingLfg,
     ]);
 })->middleware(['auth', 'verified', 'age.verified', 'profile.complete'])->name('dashboard');
 

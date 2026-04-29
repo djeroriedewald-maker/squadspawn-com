@@ -64,7 +64,7 @@ export default function Dashboard({
     matchCount, recentMatches, allGames, likedByCount, suggestedPlayers,
     totalPlayers, newPlayersToday, onlineRecent, trendingGames, activityFeed,
     relevantLfg, recentAchievements, totalAchievementPoints, lfgHosted, messagesCount, pendingRatings,
-    featuredCreators, invitedCount, referralRewarded, steamStats,
+    featuredCreators, invitedCount, referralRewarded, steamStats, upcomingLfg,
 }: PageProps<{
     matchCount: number; recentMatches: FriendItem[]; allGames: GameWithCount[];
     likedByCount: number; suggestedPlayers: User[]; totalPlayers: number;
@@ -80,6 +80,7 @@ export default function Dashboard({
     invitedCount?: number;
     referralRewarded?: boolean;
     steamStats?: SteamStats | null;
+    upcomingLfg?: { id: number; slug: string; title: string; spots_needed: number; spots_filled: number; platform: string; scheduled_at: string | null; is_host: boolean; game: { name: string; slug: string; cover_image?: string | null } | null }[];
 }>) {
     const { auth } = usePage<PageProps>().props;
     const user = auth.user;
@@ -410,6 +411,63 @@ export default function Dashboard({
                             </div>
                         </Link>
                     </div>
+
+                    {/* ── COMING UP — scheduled LFGs the user is in ── */}
+                    {upcomingLfg && upcomingLfg.length > 0 && (
+                        <div className="mb-8 rounded-xl border border-gaming-cyan/30 bg-gradient-to-br from-gaming-cyan/10 via-gaming-cyan/5 to-transparent p-5">
+                            <div className="mb-3 flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <svg className="h-5 w-5 text-gaming-cyan" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                    <h3 className="font-bold text-ink-900">Coming up</h3>
+                                    <span className="rounded-full bg-gaming-cyan/15 px-2 py-0.5 text-[10px] font-bold text-gaming-cyan">{upcomingLfg.length}</span>
+                                </div>
+                                <Link href={route('lfg.index') + '?when=scheduled'} className="text-xs font-semibold text-gaming-cyan hover:underline">
+                                    All scheduled →
+                                </Link>
+                            </div>
+                            <div className="space-y-2">
+                                {upcomingLfg.map((lfg) => {
+                                    const when = lfg.scheduled_at ? new Date(lfg.scheduled_at) : null;
+                                    return (
+                                        <Link
+                                            key={lfg.id}
+                                            href={route('lfg.show', { lfgPost: lfg.slug })}
+                                            className="group flex items-center gap-3 rounded-xl border border-ink-900/10 bg-white p-3 transition hover:border-gaming-cyan/40 hover:shadow-md"
+                                        >
+                                            <div className="h-10 w-14 shrink-0 overflow-hidden rounded-lg bg-ink-900/10">
+                                                {lfg.game?.cover_image ? (
+                                                    <img src={lfg.game.cover_image} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
+                                                ) : null}
+                                            </div>
+                                            <div className="min-w-0 flex-1">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="truncate text-sm font-bold text-ink-900 group-hover:text-gaming-cyan">{lfg.title}</span>
+                                                    {lfg.is_host && (
+                                                        <span className="shrink-0 rounded-full bg-neon-red/10 px-1.5 py-0.5 text-[9px] font-bold text-neon-red">HOST</span>
+                                                    )}
+                                                </div>
+                                                <div className="mt-0.5 truncate text-[11px] text-ink-500">
+                                                    {lfg.game?.name ?? '—'} · {lfg.platform.toUpperCase()} · {lfg.spots_filled}/{lfg.spots_needed}
+                                                </div>
+                                            </div>
+                                            <div className="shrink-0 text-right">
+                                                {when && (
+                                                    <>
+                                                        <div className="text-xs font-bold text-gaming-cyan">
+                                                            {when.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' })}
+                                                        </div>
+                                                        <div className="text-[11px] text-ink-500">
+                                                            {when.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </Link>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
 
                     {/* ── REFERRALS + STEAM ── */}
                     <div className="mb-8 grid gap-4 lg:grid-cols-2">
