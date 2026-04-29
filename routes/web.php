@@ -486,6 +486,13 @@ Route::get('/games/{slug}', [GamesController::class, 'show'])
     ->where('slug', '[a-z0-9\-]+')
     ->name('games.show');
 Route::get('/player/{username}', [PlayerController::class, 'show'])->name('player.show');
+
+// Shareable gamer card — public, anonymous-friendly preview that expands
+// into an OG card on Twitter/Discord. Sister of /founder/{number} but
+// works for any user with a username.
+Route::get('/card/{username}', [\App\Http\Controllers\PlayerCardController::class, 'show'])
+    ->where('username', '[A-Za-z0-9._-]+')
+    ->name('player.card');
 Route::get('/clips', [ClipController::class, 'index'])->middleware('feature:clips')->name('clips.index');
 Route::get('/redirect', [\App\Http\Controllers\RedirectController::class, 'redirect'])->name('external.redirect');
 Route::get('/search', [SearchController::class, 'search'])->middleware(['auth', 'throttle:30,1'])->name('search');

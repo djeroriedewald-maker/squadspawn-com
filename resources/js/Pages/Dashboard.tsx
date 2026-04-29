@@ -327,18 +327,33 @@ export default function Dashboard({
                                 </div>
                             )}
                             <FounderBadge number={user.founder_number} isOgFounder={user.is_og_founder} size="lg" />
-                            <div className="flex flex-wrap gap-2 text-xs">
+                        </div>
+                    )}
+
+                    {/* Share-card pills — separated from the founder block so
+                        non-founders also see the gamer-card share affordance.
+                        Founder card pill only renders when applicable. */}
+                    {user.profile?.username && (
+                        <div className="mb-6 flex flex-wrap gap-2 text-xs">
+                            <Link
+                                href={route('player.card', { username: user.profile.username })}
+                                className="inline-flex items-center gap-1.5 rounded-full border border-neon-red/30 bg-neon-red/5 px-3 py-1.5 font-bold text-neon-red transition hover:bg-neon-red hover:text-white"
+                            >
+                                <span>🎮</span>
+                                Share my gamer card
+                            </Link>
+                            {(user.founder_number || user.is_og_founder) && (
                                 <Link
                                     href={route('founder.show', { number: user.id })}
-                                    className="inline-flex items-center gap-1.5 rounded-full border border-neon-red/30 bg-neon-red/5 px-3 py-1.5 font-bold text-neon-red transition hover:bg-neon-red hover:text-white"
+                                    className="inline-flex items-center gap-1.5 rounded-full border border-yellow-400/40 bg-yellow-400/5 px-3 py-1.5 font-bold text-amber-600 transition hover:bg-yellow-400 hover:text-ink-900"
                                 >
                                     <span>★</span>
-                                    View your founder card
+                                    Share my founder card
                                 </Link>
-                                <span className="rounded-full bg-ink-900/5 px-3 py-1.5 text-ink-500">
-                                    Sharable on Twitter, Discord, Reddit — they'll preview a personalised card.
-                                </span>
-                            </div>
+                            )}
+                            <span className="rounded-full bg-ink-900/5 px-3 py-1.5 text-ink-500">
+                                Sharable on Twitter, Discord, Reddit — they'll preview a personalised card.
+                            </span>
                         </div>
                     )}
 
