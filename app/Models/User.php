@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'google_id', 'password', 'date_of_birth', 'parental_consent', 'parental_consent_at', 'is_admin', 'is_moderator', 'is_owner', 'is_banned', 'banned_at', 'ban_reason', 'notification_preferences', 'referral_code', 'referred_by_user_id', 'referral_rewarded_at', 'is_og_founder', 'og_founder_granted_at', 'plus_lifetime'])]
+#[Fillable(['name', 'email', 'google_id', 'discord_id', 'password', 'date_of_birth', 'parental_consent', 'parental_consent_at', 'is_admin', 'is_moderator', 'is_owner', 'is_banned', 'banned_at', 'ban_reason', 'notification_preferences', 'referral_code', 'referred_by_user_id', 'referral_rewarded_at', 'is_og_founder', 'og_founder_granted_at', 'plus_lifetime'])]
 // Anything that could be scraped to harvest or profile users is hidden
 // by default. `HandleInertiaRequests` selectively makeVisible()s the
 // fields the user themselves needs (email/DOB in settings) for
@@ -21,6 +21,7 @@ use Illuminate\Notifications\Notifiable;
     'remember_token',
     'email',
     'google_id',
+    'discord_id',
     'date_of_birth',
     'parental_consent',
     'parental_consent_at',

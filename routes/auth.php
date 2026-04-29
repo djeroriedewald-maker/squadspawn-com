@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\DiscordController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
@@ -18,6 +19,15 @@ Route::get('auth/google', [GoogleController::class, 'redirect'])
     ->middleware('throttle:10,1')
     ->name('auth.google');
 Route::get('auth/google/callback', [GoogleController::class, 'callback'])
+    ->middleware('throttle:20,1');
+
+// Discord OAuth — same throttle profile as Google. Manual flow against
+// Discord's REST API (see DiscordController) so we don't need an extra
+// composer dependency.
+Route::get('auth/discord', [DiscordController::class, 'redirect'])
+    ->middleware('throttle:10,1')
+    ->name('auth.discord');
+Route::get('auth/discord/callback', [DiscordController::class, 'callback'])
     ->middleware('throttle:20,1');
 
 Route::middleware('guest')->group(function () {
