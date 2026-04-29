@@ -19,7 +19,7 @@ class SitemapController extends Controller
         // near-realtime accuracy, and this prevents a full-table scan on
         // every bot visit. Shorter than before because new LFG-adjacent
         // content (community posts, changelog) is time-sensitive.
-        $xml = Cache::remember('sitemap:xml:v4', 21600, function () {
+        $xml = Cache::remember('sitemap:xml:v5', 21600, function () {
             $profiles = Profile::whereNotNull('username')
                 ->select('username', 'avatar', 'updated_at')
                 ->get();

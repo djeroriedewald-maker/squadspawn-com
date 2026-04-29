@@ -475,6 +475,13 @@ Route::get('/dashboard', function () {
 
 // Public
 Route::get('/games', [GamesController::class, 'index'])->name('games.index');
+
+// Per-game SEO landing pages — long-tail "find {game} teammates" queries
+// each get their own indexable URL with real content (top roster, recent
+// LFGs) so they're not thin SEO shells.
+Route::get('/find/{slug}', [\App\Http\Controllers\FindController::class, 'show'])
+    ->where('slug', '[a-z0-9-]+')
+    ->name('find.game');
 Route::get('/games/{slug}', [GamesController::class, 'show'])
     ->where('slug', '[a-z0-9\-]+')
     ->name('games.show');

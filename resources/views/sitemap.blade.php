@@ -101,6 +101,26 @@
     </url>
     @endforeach
 
+    {{-- Per-game "Find {game} teammates" landing pages — siblings of
+         /games/{slug} but framed for long-tail intent ("find valorant
+         teammates", "{game} squad finder"). Slightly lower priority than
+         the game page so Google still treats the latter as canonical for
+         the game itself. --}}
+    @foreach ($games as $game)
+    <url>
+        <loc>{{ url('/find/' . $game->slug) }}</loc>
+        <lastmod>{{ $game->updated_at->toAtomString() }}</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.75</priority>
+        @if ($game->cover_image)
+        <image:image>
+            <image:loc>{{ $game->cover_image }}</image:loc>
+            <image:title>Find {{ $game->name }} teammates on SquadSpawn</image:title>
+        </image:image>
+        @endif
+    </url>
+    @endforeach
+
     {{-- Community posts — user-generated discussion threads; a key
          freshness signal for Google. --}}
     @foreach ($communityPosts as $post)
