@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Game } from '@/types';
-import { Head, Link, router, useForm } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 import { FormEventHandler, useState } from 'react';
 
 interface LfgPost {
@@ -23,7 +23,7 @@ interface LfgPost {
 }
 
 export default function LfgEdit({ post, games }: { post: LfgPost; games: Game[] }) {
-    const { data, setData, processing, errors } = useForm({
+    const { data, setData, put, processing, errors } = useForm({
         title: post.title,
         description: post.description || '',
         spots_needed: post.spots_needed,
@@ -42,11 +42,16 @@ export default function LfgEdit({ post, games }: { post: LfgPost; games: Game[] 
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        router.put(route('lfg.update', { lfgPost: post.slug }), data);
+        // Use useForm.put (not router.put) so validation errors flow
+        // back into the `errors` object that the field-level helpers
+        // below render. Previously the form submitted with router.put
+        // and a failed validation looked like a silent no-op.
+        put(route('lfg.update', { lfgPost: post.slug }));
     };
 
     const inputClass = 'w-full rounded-lg border border-ink-900/10 bg-bone-50 px-4 py-2.5 text-sm text-ink-900 placeholder-gray-500 focus:border-neon-red focus:outline-none focus:ring-1 focus:ring-neon-red';
     const labelClass = 'mb-1.5 block text-sm font-medium text-ink-700';
+    const errorClass = 'mt-1 text-xs text-red-500';
     const allPlatforms = ['PC', 'PlayStation', 'Xbox', 'Nintendo Switch', 'Mobile'];
 
     return (
@@ -73,10 +78,12 @@ export default function LfgEdit({ post, games }: { post: LfgPost; games: Game[] 
                         <div>
                             <label className={labelClass}>Title</label>
                             <input type="text" value={data.title} onChange={(e) => setData('title', e.target.value)} className={inputClass} maxLength={255} />
+                            {errors.title && <p className={errorClass}>{errors.title}</p>}
                         </div>
                         <div>
                             <label className={labelClass}>Description</label>
                             <textarea value={data.description} onChange={(e) => setData('description', e.target.value)} className={inputClass + ' min-h-[80px] resize-y'} maxLength={1000} />
+                            {errors.description && <p className={errorClass}>{errors.description}</p>}
                         </div>
                         <div>
                             <label className={labelClass}>
@@ -89,6 +96,7 @@ export default function LfgEdit({ post, games }: { post: LfgPost; games: Game[] 
                             <p className="mt-1 text-xs text-ink-500">
                                 You + {data.spots_needed - 1} teammate{data.spots_needed - 1 === 1 ? '' : 's'} total.
                             </p>
+                            {errors.spots_needed && <p className={errorClass}>{errors.spots_needed}</p>}
                         </div>
                         <div>
                             <label className={labelClass}>Platform</label>
@@ -98,6 +106,7 @@ export default function LfgEdit({ post, games }: { post: LfgPost; games: Game[] 
                                     <option key={p} value={p}>{p}</option>
                                 ))}
                             </select>
+                            {errors.platform && <p className={errorClass}>{errors.platform}</p>}
                         </div>
                         {selectedGame?.rank_system && selectedGame.rank_system.length > 0 && (
                             <div>
@@ -106,6 +115,7 @@ export default function LfgEdit({ post, games }: { post: LfgPost; games: Game[] 
                                     <option value="">No minimum</option>
                                     {selectedGame.rank_system.map((rank) => <option key={rank} value={rank}>{rank}</option>)}
                                 </select>
+                                {errors.rank_min && <p className={errorClass}>{errors.rank_min}</p>}
                             </div>
                         )}
                         <div className="flex items-center gap-3">
@@ -126,6 +136,7 @@ export default function LfgEdit({ post, games }: { post: LfgPost; games: Game[] 
                         <div>
                             <label className={labelClass}>Language</label>
                             <input type="text" value={data.language} onChange={(e) => setData('language', e.target.value)} placeholder="e.g., English" className={inputClass} maxLength={50} />
+                            {errors.language && <p className={errorClass}>{errors.language}</p>}
                         </div>
                         <div>
                             <label className={labelClass}>Age Requirement</label>
@@ -135,18 +146,22 @@ export default function LfgEdit({ post, games }: { post: LfgPost; games: Game[] 
                                 <option value="18+">18+</option>
                                 <option value="21+">21+</option>
                             </select>
+                            {errors.age_requirement && <p className={errorClass}>{errors.age_requirement}</p>}
                         </div>
                         <div>
                             <label className={labelClass}>Requirements Note</label>
                             <textarea value={data.requirements_note} onChange={(e) => setData('requirements_note', e.target.value)} className={inputClass + ' min-h-[60px] resize-y'} maxLength={500} />
+                            {errors.requirements_note && <p className={errorClass}>{errors.requirements_note}</p>}
                         </div>
                         <div>
                             <label className={labelClass}>Discord Server</label>
                             <input type="text" value={data.discord_url} onChange={(e) => setData('discord_url', e.target.value)} placeholder="https://discord.gg/your-server" className={inputClass} maxLength={255} />
+                            {errors.discord_url && <p className={errorClass}>{errors.discord_url}</p>}
                         </div>
                         <div>
                             <label className={labelClass}>Scheduled Time</label>
                             <input type="datetime-local" value={data.scheduled_at} onChange={(e) => setData('scheduled_at', e.target.value)} className={inputClass} />
+                            {errors.scheduled_at && <p className={errorClass}>{errors.scheduled_at}</p>}
                         </div>
                         <button type="submit" disabled={processing} className="w-full rounded-xl bg-neon-red px-6 py-3 text-sm font-semibold text-white transition hover:bg-neon-red/80 disabled:opacity-50">
                             {processing ? 'Saving...' : 'Update LFG Post'}

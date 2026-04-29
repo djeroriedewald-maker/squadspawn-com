@@ -1,6 +1,7 @@
 import GamePicker from '@/Components/GamePicker';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Game } from '@/types';
+import { clearFormDraft, loadFormDraft, useFormDraft } from '@/utils/useFormDraft';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { FormEventHandler, useEffect, useState } from 'react';
 
@@ -25,8 +26,27 @@ export default function LfgCreate({ games, activeLfgCount = 0, activeLfgLimit = 
 
     const [selectedGame, setSelectedGame] = useState<Game | null>(null);
 
+    // Autosave the in-progress draft to localStorage so a tab close /
+    // dropped connection / accidental nav doesn't lose 8-field of fill.
+    useFormDraft('lfg-create', data);
+
     // Pre-select game from URL params (e.g., /lfg/create?game_id=5)
+    // and hydrate any stashed draft on first mount.
     useEffect(() => {
+        const draft = loadFormDraft<typeof data>('lfg-create');
+        if (draft && Object.keys(draft).length) {
+            // Merge so we don't blow away a prefill (URL param) with an
+            // older empty draft. Defensive iteration — just re-set every
+            // top-level key the draft carried.
+            (Object.keys(draft) as (keyof typeof data)[]).forEach((k) => {
+                setData(k, draft[k] as never);
+            });
+            if (draft.game_id) {
+                const g = games.find((x) => String(x.id) === String(draft.game_id)) || null;
+                setSelectedGame(g);
+            }
+            return;
+        }
         const params = new URLSearchParams(window.location.search);
         const gameId = params.get('game_id');
         if (gameId && !data.game_id) {
@@ -47,7 +67,9 @@ export default function LfgCreate({ games, activeLfgCount = 0, activeLfgLimit = 
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        post(route('lfg.store'));
+        post(route('lfg.store'), {
+            onSuccess: () => clearFormDraft('lfg-create'),
+        });
     };
 
     const inputClass =

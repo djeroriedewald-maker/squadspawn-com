@@ -3,7 +3,7 @@ import { Game, PageProps, User } from '@/types';
 import { gameCoverUrl } from '@/utils/gameImage';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import axios from 'axios';
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 
 const LOOKING_FOR = [
     { value: '', label: 'Any' },
@@ -37,6 +37,16 @@ export default function DiscoveryIndex({
     const [matchedUser, setMatchedUser] = useState<User | null>(null);
     const [canUndo, setCanUndo] = useState(!!lastPassId);
     const [showFilters, setShowFilters] = useState(false);
+
+    // Pointer-driven swipe gesture for mobile. Tracks horizontal drag
+    // distance from the initial pointerdown; when the gesture ends past
+    // the threshold (>=100px) it commits to like/pass; otherwise the
+    // card snaps back. Vertical drag is forwarded so the page can still
+    // scroll inside the card content (avatars, bio, games grid).
+    const SWIPE_THRESHOLD = 100;
+    const [dragX, setDragX] = useState(0);
+    const pointerStartRef = useRef<{ x: number; y: number; id: number } | null>(null);
+    const pointerLockedHorizontal = useRef(false);
 
     const currentPlayer = players.data[currentIndex] ?? null;
     const remaining = Math.max(0, players.data.length - currentIndex - 1);
@@ -94,6 +104,54 @@ export default function DiscoveryIndex({
         window.addEventListener('keydown', handler);
         return () => window.removeEventListener('keydown', handler);
     }, [currentPlayer, animating, showMatch, canUndo]);
+
+    function onCardPointerDown(e: React.PointerEvent<HTMLDivElement>) {
+        if (animating || !currentPlayer || showMatch) return;
+        // Ignore drags that start on a real interactive element — buttons,
+        // links, and form fields still get their normal click behaviour.
+        const target = e.target as HTMLElement;
+        if (target.closest('button, a, input, select, textarea')) return;
+        pointerStartRef.current = { x: e.clientX, y: e.clientY, id: e.pointerId };
+        pointerLockedHorizontal.current = false;
+    }
+
+    function onCardPointerMove(e: React.PointerEvent<HTMLDivElement>) {
+        const start = pointerStartRef.current;
+        if (!start || start.id !== e.pointerId) return;
+        const dx = e.clientX - start.x;
+        const dy = e.clientY - start.y;
+
+        // Direction-lock: only intercept horizontal gestures. If the user
+        // is scrolling vertically, leave the page alone. We commit to one
+        // direction once movement passes 8px in either axis.
+        if (!pointerLockedHorizontal.current) {
+            if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+            if (Math.abs(dy) > Math.abs(dx)) {
+                pointerStartRef.current = null;
+                return;
+            }
+            pointerLockedHorizontal.current = true;
+            (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+        }
+        setDragX(dx);
+    }
+
+    function onCardPointerUp(e: React.PointerEvent<HTMLDivElement>) {
+        const start = pointerStartRef.current;
+        if (!start || start.id !== e.pointerId) return;
+        const dx = e.clientX - start.x;
+        pointerStartRef.current = null;
+        pointerLockedHorizontal.current = false;
+        if (dx >= SWIPE_THRESHOLD) {
+            setDragX(0);
+            handleLike();
+        } else if (dx <= -SWIPE_THRESHOLD) {
+            setDragX(0);
+            handlePass();
+        } else {
+            setDragX(0);
+        }
+    }
 
     const lookingForLabel = (val?: string) => {
         switch (val) { case 'casual': return 'Casual'; case 'ranked': return 'Ranked'; case 'friends': return 'Friends'; case 'any': return 'Open'; default: return val ?? ''; }
@@ -205,11 +263,36 @@ export default function DiscoveryIndex({
                     {/* Player Card */}
                     {currentPlayer ? (
                         <div className="relative">
-                            <div className={`overflow-hidden rounded-2xl border border-ink-900/10 bg-white transition-all duration-300 ${
-                                animating === 'left' ? '-translate-x-full rotate-[-12deg] opacity-0'
-                                : animating === 'right' ? 'translate-x-full rotate-[12deg] opacity-0'
-                                : 'translate-x-0 rotate-0 opacity-100'
-                            }`}>
+                            <div
+                                onPointerDown={onCardPointerDown}
+                                onPointerMove={onCardPointerMove}
+                                onPointerUp={onCardPointerUp}
+                                onPointerCancel={onCardPointerUp}
+                                style={dragX !== 0 ? {
+                                    transform: `translateX(${dragX}px) rotate(${dragX / 20}deg)`,
+                                    opacity: Math.max(0.5, 1 - Math.abs(dragX) / 400),
+                                    transition: 'none',
+                                    touchAction: 'pan-y',
+                                } : undefined}
+                                className={`overflow-hidden rounded-2xl border border-ink-900/10 bg-white transition-all duration-300 touch-pan-y ${
+                                    animating === 'left' ? '-translate-x-full rotate-[-12deg] opacity-0'
+                                    : animating === 'right' ? 'translate-x-full rotate-[12deg] opacity-0'
+                                    : 'translate-x-0 rotate-0 opacity-100'
+                                }`}
+                            >
+                                {/* Swipe hint badges — appear during a drag so the
+                                    user gets immediate confirmation that swiping
+                                    means like/pass before the gesture commits. */}
+                                {dragX > 30 && (
+                                    <div className="pointer-events-none absolute left-4 top-4 z-20 rotate-[-15deg] rounded-lg border-2 border-gaming-green bg-gaming-green/15 px-3 py-1 text-sm font-extrabold uppercase tracking-widest text-gaming-green">
+                                        Like
+                                    </div>
+                                )}
+                                {dragX < -30 && (
+                                    <div className="pointer-events-none absolute right-4 top-4 z-20 rotate-[15deg] rounded-lg border-2 border-red-500 bg-red-500/15 px-3 py-1 text-sm font-extrabold uppercase tracking-widest text-red-500">
+                                        Pass
+                                    </div>
+                                )}
                                 {/* Game banner */}
                                 {currentPlayer.games && currentPlayer.games.length > 0 && (
                                     <div className="relative h-36 overflow-hidden">

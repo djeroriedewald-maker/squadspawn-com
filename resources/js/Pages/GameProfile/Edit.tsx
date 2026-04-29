@@ -3,6 +3,7 @@ import { BannerPresetThumb, ProfileBanner } from '@/Components/ProfileBanner';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Game, Profile } from '@/types';
 import { BANNER_PRESETS, DEFAULT_PRESET_ID } from '@/utils/bannerPresets';
+import { clearFormDraft, useFormDraft } from '@/utils/useFormDraft';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import axios from 'axios';
 import { ChangeEvent, FormEventHandler, useMemo, useRef, useState } from 'react';
@@ -217,6 +218,16 @@ export default function GameProfileEdit({
         ),
     });
 
+    // Belt-and-suspenders: persist the in-progress form to localStorage
+    // so a tab close, dropped connection, or accidental nav doesn't blow
+    // away a half-filled onboarding form. We don't auto-hydrate from the
+    // draft on mount because the server payload is canonical for an
+    // already-saved profile — restoring is only useful if a returning
+    // user comes back to /profile/setup with unsaved local changes,
+    // which is a niche flow worth a separate UX. The clear-on-success
+    // half is the high-value win: drafts get cleaned up after a save.
+    useFormDraft('game-profile-edit', data);
+
     // Lookup map so we can render selected games without depending on the
     // full catalogue being present.
     const gameById = useMemo(() => {
@@ -245,6 +256,7 @@ export default function GameProfileEdit({
         transform((current) => ({ ...current, games: gamesArray }));
         put(route('game-profile.update'), {
             preserveScroll: true,
+            onSuccess: () => clearFormDraft('game-profile-edit'),
         });
     };
 
