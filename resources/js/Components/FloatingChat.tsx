@@ -608,7 +608,7 @@ export default function FloatingChat() {
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     if (!confirm(`Hide "${friend.partner.username || friend.partner.name}" from your chat list?\n\nYour friendship stays. A new message from them will automatically un-hide the chat.`)) return;
-                                                    axios.delete(route('chat.hide', { playerMatch: friend.id }))
+                                                    axios.delete(route('chat.hide', { playerMatch: friend.chat_id }))
                                                         .then(() => setFriends((prev) => prev.filter((f) => f.id !== friend.id)))
                                                         .catch(() => alert('Could not hide chat.'));
                                                 }}
