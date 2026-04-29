@@ -1,3 +1,4 @@
+import SeoHead from '@/Components/SeoHead';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Achievement, PageProps } from '@/types';
 import {
@@ -5,7 +6,6 @@ import {
     getAchievementIcon,
     getTierStyle,
 } from '@/utils/achievements';
-import { Head } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 
 const levelColors = ['text-ink-500', 'text-gaming-green', 'text-gaming-cyan', 'text-neon-red', 'text-gaming-pink', 'text-yellow-400'];
@@ -94,7 +94,7 @@ export default function Index({
 
     return (
         <AuthenticatedLayout>
-            <Head title="Achievements" />
+            <SeoHead fallbackTitle="Achievements" />
 
             {/* Hero */}
             <div className="relative h-32 overflow-hidden sm:h-40">

@@ -186,7 +186,7 @@ export default function Welcome({
                         <div className="animate-scroll flex gap-4">
                             {[...topGames, ...topGames, ...topGames].map((game, i) => (
                                 <img
-                                    key={i}
+                                    key={`${game.slug}-${i}`}
                                     src={gameCoverUrl(game.cover_image, 'thumb') || `/images/games/${game.slug}.svg`}
                                     alt={game.name}
                                     loading="lazy"

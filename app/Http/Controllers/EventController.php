@@ -45,6 +45,7 @@ class EventController extends Controller
             'seo' => [
                 'title' => 'Gaming events · tournaments, watch parties, giveaways · SquadSpawn',
                 'description' => 'Join the SquadSpawn community for tournaments, livestream watch parties, in-game giveaways and meetups. Browse upcoming gaming events or host your own.',
+                'image' => url('/images/event_banner.jpg'),
             ],
         ]);
     }

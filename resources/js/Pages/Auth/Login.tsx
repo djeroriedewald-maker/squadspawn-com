@@ -30,7 +30,9 @@ export default function Login({
 
     return (
         <GuestLayout>
-            <Head title="Log in" />
+            <Head title="Log in">
+                <meta name="robots" content="noindex,nofollow" />
+            </Head>
 
             {status && (
                 <div className="mb-4 text-sm font-medium text-green-600">

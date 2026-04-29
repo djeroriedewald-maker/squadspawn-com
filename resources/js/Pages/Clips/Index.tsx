@@ -1,9 +1,10 @@
 import CreatorSpotlight, { FeaturedCreator } from '@/Components/CreatorSpotlight';
 import PageHero from '@/Components/PageHero';
 import SearchableSelect from '@/Components/SearchableSelect';
+import SeoHead from '@/Components/SeoHead';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Clip, Game, PageProps } from '@/types';
-import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import axios from 'axios';
 import { FormEvent, useState } from 'react';
 
@@ -172,7 +173,7 @@ export default function ClipsIndex({
 
     const pageContent = (
         <>
-            <Head title="Creators · SquadSpawn" />
+            <SeoHead fallbackTitle="Creators · SquadSpawn" />
 
             <PageHero
                 image="/images/gamer7.jpg"

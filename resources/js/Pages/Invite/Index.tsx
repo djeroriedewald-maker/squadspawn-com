@@ -22,7 +22,19 @@ export default function InviteIndex({ referralCode, inviteUrl, invitedCount }: P
     const encodedUrl = encodeURIComponent(inviteUrl);
     const encodedText = encodeURIComponent(shareText);
 
-    const shares: { name: string; href: string; icon: JSX.Element; color: string }[] = [
+    const [discordCopied, setDiscordCopied] = useState(false);
+    function handleDiscordShare() {
+        // Discord has no prefill API for DM/channel windows. Copy the
+        // message + URL to the clipboard so the user can paste once
+        // Discord opens. The href below opens the web client; if the
+        // desktop app is installed it'll prompt to open there instead.
+        navigator.clipboard.writeText(`${shareText} ${inviteUrl}`).then(() => {
+            setDiscordCopied(true);
+            setTimeout(() => setDiscordCopied(false), 2500);
+        });
+    }
+
+    const shares: { name: string; href: string; icon: JSX.Element; color: string; onClick?: () => void }[] = [
         {
             name: 'WhatsApp',
             href: `https://wa.me/?text=${encodedText}%20${encodedUrl}`,
@@ -40,8 +52,9 @@ export default function InviteIndex({ referralCode, inviteUrl, invitedCount }: P
             ),
         },
         {
-            name: 'Discord',
-            href: `https://discord.com/channels/@me?prefill=${encodedText}%20${encodedUrl}`,
+            name: discordCopied ? 'Copied — paste in Discord' : 'Discord',
+            href: 'https://discord.com/app',
+            onClick: handleDiscordShare,
             color: 'bg-[#5865F2] hover:bg-[#4752c4]',
             icon: (
                 <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.3 4.4A18.75 18.75 0 0 0 15.8 3l-.24.27c1.65.41 2.42 1 3.22 1.7-1.32-.67-2.62-1.3-4.87-1.3s-3.56.63-4.87 1.3c.8-.7 1.72-1.3 3.22-1.7L12 3a18.7 18.7 0 0 0-4.3 1.4C5.45 7.75 4.83 11 5.06 14.24c0 0 1.4 1.94 5 2.06 0 0 .61-.73 1.1-1.37-2.08-.63-2.88-1.93-2.88-1.93s.17.12.47.29c.02.01.03.03.06.05.05.02.09.05.15.07.4.22.8.4 1.17.55.66.25 1.44.5 2.38.68 1.22.23 2.66.31 4.22.02.76-.13 1.55-.35 2.36-.68.58-.22 1.22-.54 1.9-.99 0 0-.84 1.33-2.98 1.94.48.63 1.09 1.35 1.09 1.35 3.6-.12 5-2.06 5-2.06.16-3.22-.46-6.48-2.64-9.83ZM9.44 13.34c-.87 0-1.57-.82-1.57-1.82s.7-1.82 1.57-1.82c.88 0 1.58.82 1.57 1.82.01 1-.7 1.82-1.57 1.82Zm5.14 0c-.87 0-1.57-.82-1.57-1.82s.7-1.82 1.57-1.82c.88 0 1.58.82 1.57 1.82 0 1-.7 1.82-1.57 1.82Z" /></svg>
@@ -136,6 +149,7 @@ export default function InviteIndex({ referralCode, inviteUrl, invitedCount }: P
                                     href={s.href}
                                     target="_blank"
                                     rel="noopener noreferrer"
+                                    onClick={s.onClick}
                                     className={`flex items-center justify-center gap-2 rounded-lg px-3 py-3 text-sm font-semibold text-white transition ${s.color}`}
                                 >
                                     {s.icon}

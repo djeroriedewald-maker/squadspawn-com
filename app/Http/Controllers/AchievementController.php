@@ -119,6 +119,12 @@ class AchievementController extends Controller
             'legendGates' => ($currentLevelNum >= 5 || $userXp >= AchievementService::LEVELS[6]['xp'])
                 ? AchievementService::legendGates($user)
                 : null,
+            'seo' => [
+                'title' => 'Achievements & Levels · SquadSpawn',
+                'description' => 'Earn achievements for hosting LFGs, building reputation, and squadding up. Unlock levels from Recruit to Legend — every action counts toward your XP and permanent badges.',
+                'image' => url('/images/achievements/_tier-platinum.jpg'),
+                'keywords' => 'gaming achievements, gamer levels, gaming XP, LFG achievements, gamer reputation system, SquadSpawn levels',
+            ],
         ]);
     }
 }

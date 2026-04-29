@@ -255,6 +255,12 @@ class DiscoveryController extends Controller
             'players' => $players,
             'games' => Cache::remember('games:all', 300, fn () => Game::all()->toArray()),
             'filters' => $request->only(['game_id', 'region']),
+            'seo' => [
+                'title' => 'Browse Players · Find Verified Gamers · SquadSpawn',
+                'description' => 'Browse verified gamers building real reputations on SquadSpawn. Filter by game and region — find squadmates with mics, ranked partners, and chill duos who actually show up.',
+                'keywords' => 'find gamers, browse gamer profiles, verified gamers, gaming squadmates, LFG players, gaming reputation',
+                'image' => url('/images/og-card.jpg'),
+            ],
         ]);
     }
 }

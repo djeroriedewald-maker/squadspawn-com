@@ -1,6 +1,7 @@
+import SeoHead from '@/Components/SeoHead';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Game, PageProps, User } from '@/types';
-import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 
 export default function PlayersIndex({
     players,
@@ -25,7 +26,7 @@ export default function PlayersIndex({
 
     const content = (
         <>
-            <Head title="Browse Players" />
+            <SeoHead fallbackTitle="Browse Players" />
 
             <div className="py-8">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

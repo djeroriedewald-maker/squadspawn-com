@@ -25,7 +25,9 @@ export default function Register() {
 
     return (
         <GuestLayout>
-            <Head title="Register" />
+            <Head title="Register">
+                <meta name="robots" content="noindex,nofollow" />
+            </Head>
 
             <div className="space-y-2">
                 <a

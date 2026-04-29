@@ -1,7 +1,8 @@
 import FounderBadge from '@/Components/FounderBadge';
+import SeoHead from '@/Components/SeoHead';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { gameCoverUrl } from '@/utils/gameImage';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
 interface PlayerGame {
@@ -58,7 +59,7 @@ export default function PlayerCard({ player }: Props) {
 
     return (
         <GuestLayout>
-            <Head title={`${displayName} · Gamer card`} />
+            <SeoHead fallbackTitle={`${displayName} · Gamer card`} />
 
             <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-2xl items-center px-4 py-12">
                 <div className="w-full">

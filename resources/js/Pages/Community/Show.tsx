@@ -1,3 +1,4 @@
+import SeoHead from '@/Components/SeoHead';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Game, PageProps, User } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
@@ -160,9 +161,16 @@ export default function CommunityShow({
         }
     };
 
+    const jsonLd = (usePage().props as { jsonLd?: Record<string, unknown> }).jsonLd;
+
     const pageContent = (
         <>
-            <Head title={post.title} />
+            <SeoHead fallbackTitle={post.title} />
+            {jsonLd && (
+                <Head>
+                    <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
+                </Head>
+            )}
 
             <div className="py-8">
                 <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">

@@ -1,6 +1,7 @@
 import FavoriteHostButton from '@/Components/FavoriteHostButton';
 import FounderBadge from '@/Components/FounderBadge';
 import { ProfileBanner } from '@/Components/ProfileBanner';
+import SeoHead from '@/Components/SeoHead';
 import SocialLinks from '@/Components/SocialLinks';
 import SteamStatsCard, { SteamStats } from '@/Components/SteamStatsCard';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
@@ -138,9 +139,16 @@ export default function PlayerShow({ player, clips = [], reputationData, friends
     const mainGame = player.games && player.games.length > 0 ? player.games[0] : null;
     const username = player.profile?.username || player.name;
 
+    const jsonLd = (usePage().props as { jsonLd?: Record<string, unknown> }).jsonLd;
+
     const pageContent = (
         <>
-            <Head title={`${username} - Player Profile`} />
+            <SeoHead fallbackTitle={`${username} · Player Profile`} />
+            {jsonLd && (
+                <Head>
+                    <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
+                </Head>
+            )}
 
             <div className="pb-12">
                 {/* Cover Banner — preset or main-game cover, picked via

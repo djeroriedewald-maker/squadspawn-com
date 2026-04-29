@@ -1,4 +1,5 @@
-import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import SeoHead from '@/Components/SeoHead';
+import { Link, useForm, usePage } from '@inertiajs/react';
 import { FormEventHandler, useState } from 'react';
 
 interface Props {
@@ -65,7 +66,7 @@ export default function PlusWaitlist({ prefillEmail, alreadyJoined, memberCount 
 
     return (
         <>
-            <Head title="SquadSpawn Plus — Join the waitlist" />
+            <SeoHead fallbackTitle="SquadSpawn Plus — Join the waitlist" />
 
             <div className="min-h-screen bg-bone-50 text-ink-900">
                 {/* Hero with full-bleed VIP-pod backdrop. The image sits

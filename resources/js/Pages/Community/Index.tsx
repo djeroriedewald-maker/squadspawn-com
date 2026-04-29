@@ -1,6 +1,7 @@
+import SeoHead from '@/Components/SeoHead';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Game, PageProps, User } from '@/types';
-import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 
@@ -130,7 +131,7 @@ export default function CommunityIndex({
 
     const pageContent = (
         <>
-            <Head title="Community" />
+            <SeoHead fallbackTitle="Community" />
 
             <div className="relative h-32 overflow-hidden sm:h-40">
                 <img src="/images/gamer4.jpg" alt="" className="h-full w-full object-cover opacity-60" />

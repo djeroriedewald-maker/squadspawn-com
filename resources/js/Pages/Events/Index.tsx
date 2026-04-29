@@ -48,7 +48,7 @@ export default function EventsIndex({ events, canHost, seo }: {
                 <meta name="description" content={seo.description} />
                 <meta property="og:title" content={seo.title} />
                 <meta property="og:description" content={seo.description} />
-                <meta property="og:image" content="/images/event_banner.jpg" />
+                <meta property="og:image" content={`${typeof window !== 'undefined' ? window.location.origin : ''}/images/event_banner.jpg`} />
                 <meta name="twitter:card" content="summary_large_image" />
             </Head>
 
