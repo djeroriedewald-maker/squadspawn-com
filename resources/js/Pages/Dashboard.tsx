@@ -1,9 +1,10 @@
 import CreatorSpotlight, { FeaturedCreator } from '@/Components/CreatorSpotlight';
 import FounderBadge from '@/Components/FounderBadge';
 import { ProfileBanner } from '@/Components/ProfileBanner';
+import SteamStatsCard, { SteamStats } from '@/Components/SteamStatsCard';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Achievement, Game, PageProps, User } from '@/types';
-import { getAchievementColors, getAchievementIcon } from '@/utils/achievements';
+import { getAchievementIcon, getTierStyle } from '@/utils/achievements';
 import { gameCoverUrl } from '@/utils/gameImage';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
@@ -63,7 +64,7 @@ export default function Dashboard({
     matchCount, recentMatches, allGames, likedByCount, suggestedPlayers,
     totalPlayers, newPlayersToday, onlineRecent, trendingGames, activityFeed,
     relevantLfg, recentAchievements, totalAchievementPoints, lfgHosted, messagesCount, pendingRatings,
-    featuredCreators,
+    featuredCreators, invitedCount, referralRewarded, steamStats,
 }: PageProps<{
     matchCount: number; recentMatches: FriendItem[]; allGames: GameWithCount[];
     likedByCount: number; suggestedPlayers: User[]; totalPlayers: number;
@@ -76,6 +77,9 @@ export default function Dashboard({
     lfgHosted?: number;
     messagesCount?: number;
     pendingRatings?: { slug: string; title: string; game?: { name: string; cover_image?: string } | null; closed_at: string }[];
+    invitedCount?: number;
+    referralRewarded?: boolean;
+    steamStats?: SteamStats | null;
 }>) {
     const { auth } = usePage<PageProps>().props;
     const user = auth.user;
@@ -84,6 +88,21 @@ export default function Dashboard({
     const hasGames = userGames.length > 0;
     const mainGame = userGames[0];
     const reputation = user.profile?.reputation_score;
+    const referralCode = user.referral_code;
+    const referralUrl = referralCode ? `${window.location.origin}/?ref=${referralCode}` : '';
+    const [refCopied, setRefCopied] = useState(false);
+    async function copyReferral() {
+        if (!referralUrl) return;
+        try {
+            await navigator.clipboard.writeText(referralUrl);
+            setRefCopied(true);
+            setTimeout(() => setRefCopied(false), 2000);
+        } catch {
+            // Clipboard API blocked (insecure context, permissions) — fall
+            // back to letting the user copy manually from the input field.
+        }
+    }
+    const steamLinked = !!user.profile?.steam_id;
 
     return (
         <AuthenticatedLayout>
@@ -294,6 +313,19 @@ export default function Dashboard({
                     {/* ── FOUNDER STATUS — early adopters get pride of place ── */}
                     {(user.founder_number || user.is_og_founder) && (
                         <div className="mb-6 space-y-3">
+                            {user.is_og_founder && (
+                                <div className="overflow-hidden rounded-2xl border border-yellow-400/40 bg-gradient-to-br from-yellow-400/15 via-amber-300/5 to-transparent p-5">
+                                    <div className="flex flex-wrap items-center gap-3">
+                                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-yellow-400/20 text-2xl">♛</div>
+                                        <div className="min-w-0 flex-1">
+                                            <h2 className="text-lg font-bold text-ink-900">OG Founder — hand-picked</h2>
+                                            <p className="text-xs text-ink-500">
+                                                Reserved for the first squad. You carry the gold badge across the platform and lifetime Plus access auto-applies the moment Plus ships.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                             <FounderBadge number={user.founder_number} isOgFounder={user.is_og_founder} size="lg" />
                             <div className="flex flex-wrap gap-2 text-xs">
                                 <Link
@@ -364,6 +396,69 @@ export default function Dashboard({
                         </Link>
                     </div>
 
+                    {/* ── REFERRALS + STEAM ── */}
+                    <div className="mb-8 grid gap-4 lg:grid-cols-2">
+                        {referralCode && (
+                            <div className="rounded-xl border border-ink-900/10 bg-white p-5">
+                                <div className="mb-3 flex items-center gap-2">
+                                    <svg className="h-5 w-5 text-gaming-pink" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" /></svg>
+                                    <h3 className="font-bold text-ink-900">Invite your squad</h3>
+                                    {referralRewarded && (
+                                        <span className="ml-auto rounded-full bg-gaming-green/10 px-2 py-0.5 text-[10px] font-bold text-gaming-green">REWARDED</span>
+                                    )}
+                                </div>
+                                <p className="mb-3 text-xs text-ink-500">
+                                    Bring the friends you actually game with. Real squads beat random matchmaking every time.
+                                </p>
+                                <div className="mb-3 flex items-center gap-2">
+                                    <input
+                                        type="text"
+                                        readOnly
+                                        value={referralUrl}
+                                        onClick={(e) => e.currentTarget.select()}
+                                        className="flex-1 truncate rounded-lg border border-ink-900/10 bg-bone-50 px-3 py-2 text-xs text-ink-700"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={copyReferral}
+                                        className="shrink-0 rounded-lg bg-neon-red px-3 py-2 text-xs font-bold text-white transition hover:bg-neon-red/80"
+                                    >
+                                        {refCopied ? 'Copied!' : 'Copy'}
+                                    </button>
+                                </div>
+                                <div className="flex items-center justify-between text-xs">
+                                    <span className="text-ink-500">
+                                        <strong className="text-ink-900"><AnimatedNumber value={invitedCount || 0} /></strong>{' '}
+                                        {invitedCount === 1 ? 'friend joined' : 'friends joined'}
+                                    </span>
+                                    <Link href={route('invite.index')} className="font-semibold text-neon-red hover:underline">
+                                        Share more →
+                                    </Link>
+                                </div>
+                            </div>
+                        )}
+
+                        {steamLinked && steamStats ? (
+                            <SteamStatsCard stats={steamStats} isOwnProfile />
+                        ) : (
+                            <Link
+                                href={route('profile.edit')}
+                                className="group flex flex-col justify-center rounded-xl border border-ink-900/10 bg-white p-5 transition hover:border-ink-700/40"
+                            >
+                                <div className="mb-2 flex items-center gap-2">
+                                    <svg className="h-5 w-5 text-ink-700" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm2.9 13.5a2.1 2.1 0 01-2.08-1.56l-2.04-.85a1.8 1.8 0 10.1-1.4l1.9.78a2.1 2.1 0 11.02 3zm-3.6-2.37l-.83-.34a2.6 2.6 0 113.37-2.9l-2.07.87zm5.05 1.2a1.42 1.42 0 11-.01-2.84 1.42 1.42 0 010 2.84z" /></svg>
+                                    <h3 className="font-bold text-ink-900">Link your Steam account</h3>
+                                </div>
+                                <p className="text-xs text-ink-500">
+                                    Show owned games, total hours, and recent activity on your profile — teammates judge by playtime, not promises.
+                                </p>
+                                <span className="mt-3 inline-flex w-fit items-center gap-1.5 rounded-lg bg-ink-900/5 px-3 py-1.5 text-xs font-semibold text-ink-700 transition group-hover:bg-neon-red group-hover:text-white">
+                                    Connect Steam →
+                                </span>
+                            </Link>
+                        )}
+                    </div>
+
                     {/* ── ACHIEVEMENT SHOWCASE ── */}
                     {recentAchievements && recentAchievements.length > 0 && (
                         <div className="mb-8">
@@ -379,26 +474,58 @@ export default function Dashboard({
                             </div>
                             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                                 {recentAchievements.map((ach) => {
-                                    const colors = getAchievementColors(ach.color);
+                                    const tier = getTierStyle(ach.tier);
                                     return (
-                                        <div
+                                        <Link
                                             key={ach.id}
-                                            className={`group relative overflow-hidden rounded-xl border border-ink-900/10 bg-white transition duration-200 hover:-translate-y-0.5 ${colors.hoverBorder} ${colors.hoverGlow}`}
+                                            href={route('achievements.index')}
+                                            className={`group relative isolate flex aspect-[4/3] flex-col justify-end overflow-hidden rounded-xl border bg-black text-left transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl ${tier.ring} ${tier.glow}`}
                                         >
-                                            <div className={`absolute inset-y-0 left-0 w-1 ${colors.accent}`} />
-                                            <div className="flex items-start gap-3 p-4 pl-5">
-                                                <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-xl ${colors.bg}`}>
-                                                    {getAchievementIcon(ach.icon)}
-                                                </div>
-                                                <div className="min-w-0 flex-1">
-                                                    <h3 className="truncate text-sm font-bold text-ink-900">{ach.name}</h3>
-                                                    <p className="mt-0.5 line-clamp-2 text-[11px] leading-tight text-ink-500">{ach.description}</p>
-                                                    <div className="mt-2 flex items-center gap-1.5">
-                                                        <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold ${colors.bg} ${colors.text}`}>+{ach.points} pts</span>
-                                                    </div>
-                                                </div>
+                                            {/* Slug-specific image with per-tier fallback. Mirrors the
+                                                Achievements/Index pattern so the look is identical. */}
+                                            <img
+                                                src={`/images/achievements/${ach.slug}.jpg`}
+                                                alt=""
+                                                loading="lazy"
+                                                decoding="async"
+                                                onError={(e) => {
+                                                    const img = e.currentTarget;
+                                                    if (!img.dataset.fallback) {
+                                                        img.dataset.fallback = '1';
+                                                        img.src = tier.fallbackImage;
+                                                    } else if (img.dataset.fallback === '1') {
+                                                        img.dataset.fallback = '2';
+                                                        img.style.display = 'none';
+                                                    }
+                                                }}
+                                                className="absolute inset-0 -z-10 h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                                            />
+                                            <div className="absolute inset-x-0 bottom-0 -z-10 h-2/3 bg-gradient-to-t from-black/90 via-black/45 to-transparent" />
+
+                                            <div className="absolute inset-x-3 top-3 flex items-center justify-between">
+                                                <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-widest shadow-md ring-1 ${tier.pill}`}>
+                                                    {tier.label}
+                                                </span>
+                                                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gaming-green text-white shadow-md ring-1 ring-white/20">
+                                                    <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                                </span>
                                             </div>
-                                        </div>
+
+                                            <div className="relative p-4">
+                                                <div className="flex items-baseline gap-2">
+                                                    <span className="text-xl drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]">{getAchievementIcon(ach.icon)}</span>
+                                                    <h3 className="truncate text-sm font-bold text-white [text-shadow:_0_0_2px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,0.85)]">
+                                                        {ach.name}
+                                                    </h3>
+                                                </div>
+                                                <p className="mt-1 line-clamp-2 text-[11px] font-medium text-white [text-shadow:_0_0_2px_rgba(0,0,0,1),_0_1px_4px_rgba(0,0,0,0.85)]">
+                                                    {ach.description}
+                                                </p>
+                                                <span className={`mt-2 inline-block rounded-full px-2.5 py-0.5 text-[10px] font-extrabold shadow-md ${tier.accent}`}>
+                                                    +{ach.points} XP
+                                                </span>
+                                            </div>
+                                        </Link>
                                     );
                                 })}
                             </div>

@@ -399,6 +399,21 @@ Route::get('/dashboard', function () {
     $lfgHosted = \App\Models\LfgPost::where('user_id', $user->id)->count();
     $messagesCount = \App\Models\Message::where('sender_id', $user->id)->count();
 
+    // Referral stats — only count invitees who completed a profile so the
+    // counter can't be juiced with throwaway accounts. Mirrors the rule in
+    // InviteController.
+    $invitedCount = \App\Models\User::where('referred_by_user_id', $user->id)
+        ->whereHas('profile')
+        ->count();
+    $referralRewarded = (bool) $user->referral_rewarded_at;
+
+    // Steam stats — only when the user actually linked an account. The
+    // service caches the API response for an hour so this is a cheap lookup
+    // on warm cache and a single Steam API call on cold cache.
+    $steamStats = $user->profile?->steam_id
+        ? app(\App\Services\SteamStatsClient::class)->cachedStats($user->profile->steam_id)
+        : null;
+
     // Rating funnel — closed LFG sessions the user was in that still have
     // un-rated teammates. Drives the reputation system's data quality.
     //
@@ -452,6 +467,9 @@ Route::get('/dashboard', function () {
         'messagesCount' => $messagesCount,
         'pendingRatings' => $pendingRatings,
         'featuredCreators' => $featuredCreators,
+        'invitedCount' => $invitedCount,
+        'referralRewarded' => $referralRewarded,
+        'steamStats' => $steamStats,
     ]);
 })->middleware(['auth', 'verified', 'age.verified', 'profile.complete'])->name('dashboard');
 

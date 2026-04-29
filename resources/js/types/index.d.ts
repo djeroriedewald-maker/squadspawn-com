@@ -10,6 +10,7 @@ export interface User {
     is_og_founder?: boolean;
     plus_lifetime?: boolean;
     founder_number?: number | null;
+    referral_code?: string;
     profile?: Profile;
     games?: Game[];
 }
@@ -37,6 +38,8 @@ export interface Profile {
     achievement_points?: number;
     xp?: number;
     level?: number;
+    steam_id?: string | null;
+    steam_synced_at?: string | null;
     socials?: {
         discord?: string;
         instagram?: string;
