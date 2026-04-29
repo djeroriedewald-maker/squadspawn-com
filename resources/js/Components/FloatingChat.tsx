@@ -148,10 +148,16 @@ export default function FloatingChat() {
         } catch {}
     }, []);
 
+    // Visibility helper — every poll skips a tick when the tab is hidden
+    // so a backgrounded session doesn't fan out 3 polls × N tabs of load.
+    const isVisible = () => typeof document === 'undefined' || document.visibilityState === 'visible';
+
     useEffect(() => {
         if (!userId) return;
         fetchAll();
-        const interval = setInterval(fetchAll, 5000);
+        const interval = setInterval(() => {
+            if (isVisible()) fetchAll();
+        }, 5000);
         return () => clearInterval(interval);
     }, [userId, fetchAll]);
 
@@ -159,6 +165,7 @@ export default function FloatingChat() {
     useEffect(() => {
         if (view === 'chat' && activeChat) {
             const interval = setInterval(async () => {
+                if (!isVisible()) return;
                 try {
                     const params: Record<string, string> = {};
                     if (lastTimestampRef.current) params.since = lastTimestampRef.current;
@@ -178,6 +185,7 @@ export default function FloatingChat() {
         }
         if (view === 'group-chat' && activeLfgChat) {
             const interval = setInterval(async () => {
+                if (!isVisible()) return;
                 try {
                     const params: Record<string, string> = {};
                     if (lastTimestampRef.current) params.since = lastTimestampRef.current;
@@ -1016,7 +1024,7 @@ function MessageList({ messages, loading, userId, isGroup, endRef, formatTime, g
                                 {isGroup && !isMe && !isFirstInGroup && <div className="mr-1.5 w-6 shrink-0" />}
                                 <div className={`max-w-[80%] rounded-2xl px-3 py-1.5 ${isMe ? 'bg-neon-red text-white' : 'bg-bone-100 text-ink-800'}`}>
                                     <p className="text-[13px] leading-relaxed">{msg.body}</p>
-                                    <p className={`mt-0.5 text-right text-[9px] ${isMe ? 'text-ink-900/40' : 'text-gray-600'}`}>{formatTime(msg.created_at)}</p>
+                                    <p className={`mt-0.5 text-right text-[9px] ${isMe ? 'text-white/60' : 'text-ink-500'}`}>{formatTime(msg.created_at)}</p>
                                 </div>
                             </div>
                         </div>

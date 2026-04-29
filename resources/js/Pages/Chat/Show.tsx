@@ -55,9 +55,12 @@ export default function Show({
         axios.post(route('chat.markRead', { playerMatch: match.chat_id })).catch(() => {});
     }, [match.id]);
 
-    // Efficient polling: only fetch new messages since last timestamp
+    // Efficient polling: only fetch new messages since last timestamp.
+    // Skips ticks when the tab is hidden — backgrounded chats don't need
+    // a 2-second pulse and were burning server load + battery before.
     useEffect(() => {
         const interval = setInterval(async () => {
+            if (typeof document !== 'undefined' && document.visibilityState !== 'visible') return;
             try {
                 const params: Record<string, string> = {};
                 if (lastTimestampRef.current) {
@@ -226,7 +229,7 @@ export default function Show({
                                                 }`}
                                             >
                                                 <p className="text-sm leading-relaxed">{msg.body}</p>
-                                                <p className={`mt-0.5 text-right text-[10px] ${isMe ? 'text-ink-900/50' : 'text-gray-500'}`}>
+                                                <p className={`mt-0.5 text-right text-[10px] ${isMe ? 'text-white/60' : 'text-ink-500'}`}>
                                                     {formatTime(msg.created_at)}
                                                 </p>
                                             </div>

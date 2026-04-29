@@ -204,10 +204,13 @@ export default function LfgShow({
             : null,
     );
 
-    // Efficient polling: only fetch new messages since last timestamp
+    // Efficient polling: only fetch new messages since last timestamp.
+    // Skips ticks while the tab is hidden — backgrounded LFG pages don't
+    // need a 2-second pulse, and the cumulative server load was real.
     useEffect(() => {
         if (!isMember) return;
         const interval = setInterval(async () => {
+            if (typeof document !== 'undefined' && document.visibilityState !== 'visible') return;
             try {
                 const params: Record<string, string> = {};
                 if (lastLfgTimestampRef.current) {
