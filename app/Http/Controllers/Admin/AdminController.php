@@ -492,6 +492,7 @@ class AdminController extends Controller
                 'spotlight_tier' => \App\Models\Profile::SPOTLIGHT_TIER_FREE,
             ]);
             AdminAudit::log('creator.spotlight_removed', $user);
+            $this->forgetSpotlightCaches();
             return response()->json(['featured_until' => null, 'spotlight_tier' => 'free']);
         }
 
@@ -508,10 +509,19 @@ class AdminController extends Controller
             'was_already_featured' => $previous !== null && $previous->isFuture(),
         ]);
 
+        $this->forgetSpotlightCaches();
+
         return response()->json([
             'featured_until' => $until->toDateTimeString(),
             'spotlight_tier' => $tier,
         ]);
+    }
+
+    private function forgetSpotlightCaches(): void
+    {
+        \Illuminate\Support\Facades\Cache::forget('home:featuredcreators');
+        \Illuminate\Support\Facades\Cache::forget('dash:featuredcreators');
+        \Illuminate\Support\Facades\Cache::forget('clips:featuredcreators');
     }
 
     public function unbanUser(Request $request, User $user)

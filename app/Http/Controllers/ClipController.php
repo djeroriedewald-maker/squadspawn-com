@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Clip;
 use App\Models\Game;
 use App\Services\AchievementService;
+use App\Services\FeaturedCreators;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -30,10 +32,17 @@ class ClipController extends Controller
 
         $clips = $query->paginate(12)->withQueryString();
 
+        $featuredCreators = Cache::remember(
+            'clips:featuredcreators',
+            300,
+            fn () => FeaturedCreators::list(5)->toArray(),
+        );
+
         return Inertia::render('Clips/Index', [
             'clips' => $clips,
             'games' => Game::all(),
             'filters' => $request->only('game_id'),
+            'featuredCreators' => $featuredCreators,
             'seo' => [
                 'title' => 'Creators · Streamers, YouTubers & Gaming Content · SquadSpawn',
                 'description' => 'Discover streamers, YouTubers and TikTok creators in the SquadSpawn community — watch their best plays, follow them, and squad up with the players already building an audience.',
