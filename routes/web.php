@@ -267,7 +267,18 @@ Route::get('/dashboard', function () {
             ];
         });
 
-    $allGames = Cache::remember('dash:allgames', 300, fn () => \App\Models\Game::withCount('users')->get()->toArray());
+    // Used only by the "Explore More Games" rail (6 thumbnails). Loading
+    // the full catalogue (~15k rows) blew past PHP-FPM's 128MB limit on
+    // prod, so we cap to a popularity-ranked top 12. Filtered client-side
+    // against the user's own games.
+    $allGames = Cache::remember('dash:allgames', 300, fn () => \App\Models\Game::query()
+        ->whereNotNull('cover_image')
+        ->where('cover_image', '!=', '')
+        ->orderByDesc('popularity_score')
+        ->orderByDesc('id')
+        ->take(12)
+        ->get(['id', 'name', 'slug', 'cover_image'])
+        ->toArray());
     $featuredCreators = \App\Services\Settings::isFeatureEnabled('clips')
         ? Cache::remember('dash:featuredcreators', 300, fn () => \App\Services\FeaturedCreators::list(5)->toArray())
         : [];
